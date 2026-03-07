@@ -1,0 +1,37 @@
+name: neuronet
+packages:
+  - apps/*
+  - packages/*
+
+command:
+  bootstrap:
+    runPubGetInParallel: true
+
+scripts:
+  analyze:
+    exec: flutter analyze --no-pub
+    description: Run flutter analyze in all packages
+  
+  test:
+    exec: flutter test
+    description: Run tests in all packages
+  
+  build_runner:
+    exec: dart run build_runner build --delete-conflicting-outputs
+    description: Run build_runner in all packages
+    packageFilters:
+      dependsOn: build_runner
+  
+  build_runner_watch:
+    exec: dart run build_runner watch --delete-conflicting-outputs
+    description: Watch mode for build_runner
+    packageFilters:
+      dependsOn: build_runner
+  
+  clean:
+    exec: flutter clean
+    description: Clean all packages
+  
+  format:
+    exec: dart format .
+    description: Format all packages

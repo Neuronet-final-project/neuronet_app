@@ -1,0 +1,9 @@
+name: neuronet_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dev_dependencies:
+  melos: ^7.4.0
+  very_good_analysis: ^6.0.0

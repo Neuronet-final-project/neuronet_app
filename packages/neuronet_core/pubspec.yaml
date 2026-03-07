@@ -1,0 +1,57 @@
+name: neuronet_core
+description: Shared models, services, theme, and widgets for NEURONET apps.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+  flutter: ">=3.35.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Models & Serialization
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # Networking
+  dio: ^5.7.0
+
+  # Routing (shared route definitions)
+  go_router: ^14.8.1
+
+  # Local Storage
+  shared_preferences: ^2.3.4
+  flutter_secure_storage: ^9.2.4
+
+  # Notifications
+  firebase_messaging: ^15.1.7
+  flutter_local_notifications: ^18.0.1
+
+  # UI
+  cached_network_image: ^3.4.1
+  intl: ^0.19.0
+
+  # Utilities
+  equatable: ^2.0.7
+  logger: ^2.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.14
+  freezed: ^2.5.7
+  json_serializable: ^6.9.2
+  riverpod_generator: ^2.6.3
+  mocktail: ^1.0.4
+
+dependency_overrides:
+  analyzer: ^6.11.0
+
+flutter:
