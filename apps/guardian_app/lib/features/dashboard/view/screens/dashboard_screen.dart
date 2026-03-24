@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/dashboard_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -69,9 +70,7 @@ class DashboardScreen extends ConsumerWidget {
                     final alert = alerts[index];
                     return NeuroAlertCard(
                       alert: alert,
-                      onTap: () {
-                        // Navigate to alert details
-                      },
+                      onTap: () => context.go('/alerts/${alert.alertId}'),
                     );
                   },
                   childCount: alerts.length,

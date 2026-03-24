@@ -28,8 +28,6 @@ class GuardianAlertsController extends _$GuardianAlertsController {
   }
 
   Future<void> markAsViewed(String alertId) async {
-    // Logic to update viewed status in mock service if needed
-    // For now, just refresh local state
     state = await AsyncValue.guard(() async {
       final currentAlerts = state.value ?? [];
       return currentAlerts.map((a) {
@@ -38,6 +36,34 @@ class GuardianAlertsController extends _$GuardianAlertsController {
         }
         return a;
       }).toList();
+    });
+  }
+
+  Future<void> updateAlertStatus(
+    String alertId, 
+    AlertActionStatus status, {
+    String? notes,
+  }) async {
+    state = await AsyncValue.guard(() async {
+      final currentAlerts = state.value ?? [];
+      return currentAlerts.map((a) {
+        if (a.alertId == alertId) {
+          return a.copyWith(
+            actionStatus: status,
+            actionNotes: notes ?? a.actionNotes,
+            actionDate: status == AlertActionStatus.resolved ? DateTime.now() : a.actionDate,
+            viewedStatus: true,
+          );
+        }
+        return a;
+      }).toList();
+    });
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      return MockDataService.getMockAlerts();
     });
   }
 }

@@ -7,6 +7,7 @@ import '../../features/dashboard/view/screens/dashboard_screen.dart';
 import '../../features/registration/view/screens/registration_screen.dart';
 import '../../features/consent/view/screens/consent_screen.dart';
 import '../../features/alerts/view/screens/alerts_screen.dart';
+import '../../features/alerts/view/screens/alert_details_screen.dart';
 import '../../features/counselor_msg/view/screens/counselor_msg_screen.dart';
 
 /// Route names for the Guardian app.
@@ -21,6 +22,7 @@ class GuardianRoutes {
   static const String alerts = '/alerts';
   static const String counselorMsg = '/counselor-messages';
   static const String profile = '/profile';
+  static const String alertDetails = '/alerts/:alertId';
 }
 
 final guardianRouterProvider = Provider<GoRouter>((ref) {
@@ -54,6 +56,14 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: GuardianRoutes.alerts,
                 builder: (context, state) => const AlertsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':alertId',
+                    builder: (context, state) => AlertDetailsScreen(
+                      alertId: state.pathParameters['alertId']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
