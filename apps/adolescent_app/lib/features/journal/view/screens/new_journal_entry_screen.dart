@@ -76,8 +76,11 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: NeuroColors.adolescentPrimary,
                 foregroundColor: Colors.white,
-                minimumSize: const Size(80, 0),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                minimumSize: const Size(100, 40),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
               ),
               child: _isSaving
                   ? const SizedBox(
@@ -100,8 +103,10 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                 children: [
                   TextField(
                     controller: _titleController,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                          color: NeuroColors.onSurface.withValues(alpha: 0.7),
                         ),
                     decoration: const InputDecoration(
                       hintText: 'Entry Title (Optional)',
@@ -162,11 +167,11 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
           ),
           const SizedBox(height: 12),
           SizedBox(
-            height: 44,
+            height: 52,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: MoodType.values.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 12),
+              separatorBuilder: (context, index) => const SizedBox(width: 14),
               itemBuilder: (context, index) {
                 final mood = MoodType.values[index];
                 final isSelected = _selectedMood == mood;
@@ -174,10 +179,10 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                 return GestureDetector(
                   onTap: () => setState(() => _selectedMood = isSelected ? null : mood),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                       color: isSelected ? NeuroColors.adolescentPrimary : Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSelected ? NeuroColors.adolescentPrimary : Colors.grey.shade300,
                       ),
@@ -185,12 +190,12 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(mood.emoji, style: const TextStyle(fontSize: 16)),
-                        const SizedBox(width: 8),
+                        Text(mood.emoji, style: const TextStyle(fontSize: 18)),
+                        const SizedBox(width: 10),
                         Text(
                           mood.label,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 14,
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                             color: isSelected ? Colors.white : NeuroColors.onSurface,
                           ),
