@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'journal_entry.dart';
 
 part 'dashboard.freezed.dart';
 part 'dashboard.g.dart';
@@ -23,6 +24,7 @@ abstract class EmotionalTrend with _$EmotionalTrend {
 abstract class DashboardData with _$DashboardData {
   const factory DashboardData({
     required List<EmotionalTrend> trends,
+    required List<JournalEntry> recentJournals,
     @Default(0) int totalJournals,
     @Default(0) int totalMoodEntries,
     @Default(0) int activeAlerts,

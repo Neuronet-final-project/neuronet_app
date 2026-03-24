@@ -63,6 +63,7 @@ class MockDataService {
   }
 
   static DashboardData getMockAdolescentDashboard() {
+    final allJournals = getMockJournals();
     return DashboardData(
       trends: List.generate(
         7,
@@ -74,6 +75,7 @@ class MockDataService {
           moodEntryCount: index % 3,
         ),
       ),
+      recentJournals: allJournals.take(3).toList(),
       totalJournals: 45,
       totalMoodEntries: 120,
       activeAlerts: 0,
@@ -125,16 +127,18 @@ class MockDataService {
   }
 
   static List<Consent> getMockConsents() {
-    return [
-      Consent(
-        consentId: 'consent-1',
+    return ConsentType.values.map((type) {
+      return Consent(
+        consentId: 'consent-${type.name}',
         adolescentId: 'user-123',
         guardianId: 'user-456',
-        consentType: ConsentType.journalAnalysis,
-        grantedToRole: GrantedToRole.guardian,
-        consentStatus: ConsentStatus.granted,
+        consentType: type,
+        grantedToRole: GrantedToRole.both,
+        consentStatus: type == ConsentType.dataSharing 
+            ? ConsentStatus.revoked 
+            : ConsentStatus.granted,
         grantedAt: DateTime.now().subtract(const Duration(days: 15)),
-      ),
-    ];
+      );
+    }).toList();
   }
 }
