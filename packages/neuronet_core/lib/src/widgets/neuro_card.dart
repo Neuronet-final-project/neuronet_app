@@ -1,6 +1,37 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
+/// A standard card with NeuroNet styling.
+class NeuroCard extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final EdgeInsetsGeometry? padding;
+  final Color? color;
+
+  const NeuroCard({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.padding,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: color,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: padding ?? const EdgeInsets.all(20),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
 /// A standard card used for dashboard widgets.
 class NeuroDashboardCard extends StatelessWidget {
   const NeuroDashboardCard({
@@ -20,10 +51,9 @@ class NeuroDashboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Container(
-        height: height,
-        padding: const EdgeInsets.all(20),
+    return NeuroCard(
+      child: SizedBox(
+        height: height != null ? height! - 40 : null, // Adjust for NeuroCard padding
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
