@@ -9,6 +9,7 @@ import '../../features/dashboard/view/screens/dashboard_screen.dart';
 import '../../features/ai_chat/view/screens/ai_chat_screen.dart';
 import '../../features/channels/view/screens/channels_screen.dart';
 import '../../features/counselor_chat/view/screens/counselor_chat_screen.dart';
+import '../../features/journal/view/screens/new_journal_entry_screen.dart';
 
 /// Route names for the Adolescent app.
 class AdolescentRoutes {
@@ -79,6 +80,10 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AdolescentRoutes.counselorChat,
         builder: (context, state) => const CounselorChatScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.newJournal,
+        builder: (context, state) => const NewJournalEntryScreen(),
       ),
     ],
   );
