@@ -10,5 +10,8 @@ export 'src/network/network.dart';
 // Errors
 export 'src/errors/failures.dart';
 
+// Services
+export 'src/services/mock_data_service.dart';
+
 // Theme
 export 'src/theme/app_theme.dart';
