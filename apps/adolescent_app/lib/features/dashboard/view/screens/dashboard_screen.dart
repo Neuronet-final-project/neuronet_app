@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/dashboard_provider.dart';
+import 'package:adolescent_app/config/router/app_router.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -30,8 +32,10 @@ class DashboardScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildWelcomeHeader(context),
+                _buildMoodCheckIn(context, ref),
                 _buildTrendSection(context, data),
                 _buildStatsGrid(context, data),
+                _buildRecentJournals(context, data),
                 _buildActionCards(context),
               ],
             ),
@@ -116,6 +120,117 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildMoodCheckIn(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: Text(
+            'How are you feeling right now?',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+        ),
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: MoodType.values.length,
+            itemBuilder: (context, index) {
+              final mood = MoodType.values[index];
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: InkWell(
+                  onTap: () {
+                    // Navigate to mood details or log mood
+                    context.push(AdolescentRoutes.mood);
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    width: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          mood.emoji,
+                          style: const TextStyle(fontSize: 32),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          mood.label,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: NeuroColors.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildRecentJournals(BuildContext context, DashboardData data) {
+    if (data.recentJournals.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Recent Journals',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              TextButton(
+                onPressed: () => context.push(AdolescentRoutes.journal),
+                child: const Text('View All'),
+              ),
+            ],
+          ),
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: data.recentJournals.length,
+          itemBuilder: (context, index) {
+            final entry = data.recentJournals[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: NeuroJournalCard(
+                entry: entry,
+                onTap: () {
+                  // Navigate to journal detail (if implemented)
+                },
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildActionCards(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -139,7 +254,7 @@ class DashboardScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             tileColor: Colors.white,
-            onTap: () {},
+            onTap: () => context.push(AdolescentRoutes.newJournal),
           ),
           const SizedBox(height: 8),
           ListTile(
@@ -152,7 +267,7 @@ class DashboardScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             tileColor: Colors.white,
-            onTap: () {},
+            onTap: () => context.push(AdolescentRoutes.aiChat),
           ),
         ],
       ),

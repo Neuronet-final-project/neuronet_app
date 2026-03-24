@@ -76,10 +76,10 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: NeuroColors.adolescentPrimary,
                 foregroundColor: Colors.white,
-                minimumSize: const Size(100, 40),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                minimumSize: const Size(110, 44),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(22),
                 ),
               ),
               child: _isSaving
@@ -104,9 +104,9 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                   TextField(
                     controller: _titleController,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                          color: NeuroColors.onSurface.withValues(alpha: 0.7),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: NeuroColors.onSurface.withValues(alpha: 0.5),
                         ),
                     decoration: const InputDecoration(
                       hintText: 'Entry Title (Optional)',
@@ -167,7 +167,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
           ),
           const SizedBox(height: 12),
           SizedBox(
-            height: 52,
+            height: 64,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: MoodType.values.length,
@@ -190,13 +190,13 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(mood.emoji, style: const TextStyle(fontSize: 18)),
-                        const SizedBox(width: 10),
+                        Text(mood.emoji, style: const TextStyle(fontSize: 22)),
+                        const SizedBox(width: 12),
                         Text(
                           mood.label,
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontSize: 15,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                             color: isSelected ? Colors.white : NeuroColors.onSurface,
                           ),
                         ),

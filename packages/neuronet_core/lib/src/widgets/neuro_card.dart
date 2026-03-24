@@ -51,48 +51,59 @@ class NeuroDashboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NeuroCard(
-      child: SizedBox(
-        height: height != null ? height! - 40 : null, // Adjust for NeuroCard padding
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: NeuroColors.onSurface,
-                          ),
+    final header = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: NeuroColors.onSurface,
                     ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: NeuroColors.onSurfaceVariant,
-                            ),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  subtitle!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: NeuroColors.onSurfaceVariant,
                       ),
-                    ],
-                  ],
                 ),
-                if (trailing != null) trailing!,
               ],
-            ),
-            const SizedBox(height: 20),
-            if (height != null)
-              Expanded(child: child)
-            else
-              child,
-          ],
+            ],
+          ),
         ),
-      ),
+        if (trailing != null) ...[
+          const SizedBox(width: 8),
+          trailing!,
+        ],
+      ],
+    );
+
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: height != null ? MainAxisSize.max : MainAxisSize.min,
+      children: [
+        header,
+        const SizedBox(height: 16),
+        if (height != null)
+          Expanded(child: child)
+        else
+          child,
+      ],
+    );
+
+    return NeuroCard(
+      child: height != null ? SizedBox(height: height! - 40, child: content) : content,
     );
   }
 }
