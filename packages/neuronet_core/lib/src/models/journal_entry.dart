@@ -9,8 +9,10 @@ abstract class JournalEntry with _$JournalEntry {
   const factory JournalEntry({
     required String journalId,
     required String adolescentId,
+    String? title,
     required String content,
     required DateTime createdAt,
+    MoodType? moodType,
     double? sentimentScore,
     DateTime? lastAnalyzedAt,
   }) = _JournalEntry;
@@ -22,8 +24,9 @@ abstract class JournalEntry with _$JournalEntry {
 @freezed
 abstract class CreateJournalRequest with _$CreateJournalRequest {
   const factory CreateJournalRequest({
+    String? title,
     required String content,
-    String? moodId,
+    MoodType? moodType,
   }) = _CreateJournalRequest;
 
   factory CreateJournalRequest.fromJson(Map<String, dynamic> json) =>

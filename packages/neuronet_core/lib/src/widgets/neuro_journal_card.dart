@@ -19,9 +19,14 @@ class NeuroJournalCard extends StatelessWidget {
     final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
     final sentimentScore = entry.sentimentScore;
     final isAnalyzed = sentimentScore != null;
+    final hasMood = entry.moodType != null;
     
     return NeuroDashboardCard(
-      title: dateFormat.format(entry.createdAt),
+      title: entry.title ?? dateFormat.format(entry.createdAt),
+      subtitle: entry.title != null ? dateFormat.format(entry.createdAt) : null,
+      trailing: hasMood 
+          ? Text(entry.moodType!.emoji, style: const TextStyle(fontSize: 20))
+          : null,
       child: InkWell(
         onTap: onTap,
         child: Column(
@@ -36,36 +41,54 @@ class NeuroJournalCard extends StatelessWidget {
                     height: 1.5,
                   ),
             ),
-            if (isAnalyzed) ...[
+            if (isAnalyzed || hasMood) ...[
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _getSentimentColor(sentimentScore).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _getSentimentIcon(sentimentScore),
-                          size: 14,
-                          color: _getSentimentColor(sentimentScore),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _getSentimentLabel(sentimentScore),
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                  if (isAnalyzed)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _getSentimentColor(sentimentScore).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _getSentimentIcon(sentimentScore),
+                            size: 14,
                             color: _getSentimentColor(sentimentScore),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          Text(
+                            _getSentimentLabel(sentimentScore),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: _getSentimentColor(sentimentScore),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  if (isAnalyzed && hasMood) const SizedBox(width: 8),
+                  if (hasMood)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: NeuroColors.adolescentSurface,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        entry.moodType!.label,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: NeuroColors.adolescentPrimary,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ],
@@ -82,9 +105,9 @@ class NeuroJournalCard extends StatelessWidget {
   }
 
   String _getSentimentLabel(double score) {
-    if (score >= 0.7) return 'Positive Mood';
-    if (score >= 0.4) return 'Neutral Mood';
-    return 'Negative Mood';
+    if (score >= 0.7) return 'Positive Vibes';
+    if (score >= 0.4) return 'Neutral Vibes';
+    return 'Negative Vibes';
   }
 
   IconData _getSentimentIcon(double score) {
