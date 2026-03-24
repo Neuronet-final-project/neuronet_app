@@ -17,7 +17,8 @@ class NeuroJournalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
-    final isAnalyzed = entry.sentimentScore != null;
+    final sentimentScore = entry.sentimentScore;
+    final isAnalyzed = sentimentScore != null;
     
     return NeuroDashboardCard(
       title: dateFormat.format(entry.createdAt),
@@ -42,24 +43,24 @@ class NeuroJournalCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _getSentimentColor(entry.sentimentScore!).withValues(alpha: 0.1),
+                      color: _getSentimentColor(sentimentScore).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          _getSentimentIcon(entry.sentimentScore!),
+                          _getSentimentIcon(sentimentScore),
                           size: 14,
-                          color: _getSentimentColor(entry.sentimentScore!),
+                          color: _getSentimentColor(sentimentScore),
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          _getSentimentLabel(entry.sentimentScore!),
+                          _getSentimentLabel(sentimentScore),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: _getSentimentColor(entry.sentimentScore!),
+                            color: _getSentimentColor(sentimentScore),
                           ),
                         ),
                       ],

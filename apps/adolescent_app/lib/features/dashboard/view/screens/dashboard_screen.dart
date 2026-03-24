@@ -68,13 +68,11 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildTrendSection(BuildContext context, DashboardData data) {
-    return SizedBox(
+    return NeuroDashboardCard(
+      title: 'Emotional Trend',
+      subtitle: 'Last 7 days',
       height: 300,
-      child: NeuroDashboardCard(
-        title: 'Emotional Trend',
-        subtitle: 'Last 7 days',
-        child: NeuroTrendChart(trends: data.trends),
-      ),
+      child: NeuroTrendChart(trends: data.trends),
     );
   }
 

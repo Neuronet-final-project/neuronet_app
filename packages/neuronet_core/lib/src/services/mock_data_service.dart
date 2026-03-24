@@ -1,11 +1,8 @@
-import 'package:faker/faker.dart';
 import '../models/models.dart';
 
 /// A service that provides mock data for UI development and testing.
 /// This allows building screens without a functional backend.
 class MockDataService {
-  static final Faker _faker = Faker();
-
   // ─── User Mocks ───
 
   static User getMockAdolescent() {
@@ -31,14 +28,22 @@ class MockDataService {
   }
 
   static List<JournalEntry> getMockJournals() {
+    final contents = [
+      'Today I felt quite productive. I managed to finish my homework early and even had time to play some video games.',
+      'I had a bit of an argument with my mom today about cleaning my room. It made me feel a bit frustrated.',
+      'Sometimes I feel like I am just going through the motions. I wonder if things will ever feel exciting again.',
+      'I saw a beautiful sunset today. It reminded me that there is still beauty in the world, even when things are tough.',
+      'I am looking forward to the weekend. I plan to hang out with my friends and just relax.',
+    ];
+    
     return List.generate(
-      5,
+      contents.length,
       (index) => JournalEntry(
         journalId: 'journal-$index',
         adolescentId: 'user-123',
-        content: _faker.lorem.sentences(3).join(' '),
+        content: contents[index],
         createdAt: DateTime.now().subtract(Duration(days: index)),
-        sentimentScore: _faker.randomGenerator.decimal(),
+        sentimentScore: 0.5 + (index * 0.1), // Varies from 0.5 to 0.9
       ),
     );
   }
@@ -49,10 +54,10 @@ class MockDataService {
       (index) => MoodRecord(
         moodId: 'mood-$index',
         adolescentId: 'user-123',
-        moodType: MoodType.values[_faker.randomGenerator.integer(MoodType.values.length)],
-        intensity: _faker.randomGenerator.integer(5, min: 1),
+        moodType: MoodType.values[index % MoodType.values.length],
+        intensity: (index % 5) + 1,
         recordedAt: DateTime.now().subtract(Duration(hours: index * 4)),
-        contextNotes: _faker.lorem.sentence(),
+        contextNotes: 'Mock mood entry $index',
       ),
     );
   }
@@ -63,10 +68,10 @@ class MockDataService {
         7,
         (index) => EmotionalTrend(
           date: DateTime.now().subtract(Duration(days: 6 - index)),
-          sentimentScore: _faker.randomGenerator.decimal(),
-          dominantMood: 'Happy',
-          journalCount: _faker.randomGenerator.integer(2),
-          moodEntryCount: _faker.randomGenerator.integer(3),
+          sentimentScore: 0.3 + (index * 0.1),
+          dominantMood: 'Stable',
+          journalCount: index % 2,
+          moodEntryCount: index % 3,
         ),
       ),
       totalJournals: 45,
@@ -84,7 +89,7 @@ class MockDataService {
         7,
         (index) => EmotionalTrend(
           date: DateTime.now().subtract(Duration(days: 6 - index)),
-          sentimentScore: _faker.randomGenerator.decimal(),
+          sentimentScore: 0.6,
           dominantMood: 'Stable',
         ),
       ),

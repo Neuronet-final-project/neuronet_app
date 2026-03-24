@@ -56,7 +56,10 @@ class NeuroDashboardCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            Expanded(child: child),
+            if (height != null)
+              Expanded(child: child)
+            else
+              child,
           ],
         ),
       ),
