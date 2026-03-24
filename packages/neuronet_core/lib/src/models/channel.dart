@@ -5,7 +5,7 @@ part 'channel.freezed.dart';
 part 'channel.g.dart';
 
 @freezed
-class Channel with _$Channel {
+abstract class Channel with _$Channel {
   const factory Channel({
     required String channelId,
     required String counselorId,
@@ -24,7 +24,7 @@ class Channel with _$Channel {
 }
 
 @freezed
-class ChannelPost with _$ChannelPost {
+abstract class ChannelPost with _$ChannelPost {
   const factory ChannelPost({
     required String postId,
     required String channelId,
@@ -43,7 +43,7 @@ class ChannelPost with _$ChannelPost {
 }
 
 @freezed
-class ChannelInteraction with _$ChannelInteraction {
+abstract class ChannelInteraction with _$ChannelInteraction {
   const factory ChannelInteraction({
     required String interactionId,
     required String postId,

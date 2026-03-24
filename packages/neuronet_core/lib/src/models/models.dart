@@ -1,4 +1,5 @@
 /// Models barrel export.
+library;
 export 'enums.dart';
 export 'user.dart';
 export 'journal_entry.dart';

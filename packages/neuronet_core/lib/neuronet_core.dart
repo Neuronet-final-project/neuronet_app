@@ -1,5 +1,5 @@
 /// NEURONET Core — Shared models, services, theme, and widgets.
-library neuronet_core;
+library;
 
 // Models
 export 'src/models/models.dart';

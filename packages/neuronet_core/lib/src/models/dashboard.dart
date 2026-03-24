@@ -5,7 +5,7 @@ part 'dashboard.g.dart';
 
 /// Aggregated emotional trend data for dashboards.
 @freezed
-class EmotionalTrend with _$EmotionalTrend {
+abstract class EmotionalTrend with _$EmotionalTrend {
   const factory EmotionalTrend({
     required DateTime date,
     required double sentimentScore,
@@ -20,7 +20,7 @@ class EmotionalTrend with _$EmotionalTrend {
 
 /// Dashboard overview data (used by both apps with role-appropriate filtering).
 @freezed
-class DashboardData with _$DashboardData {
+abstract class DashboardData with _$DashboardData {
   const factory DashboardData({
     required List<EmotionalTrend> trends,
     @Default(0) int totalJournals,
@@ -35,7 +35,7 @@ class DashboardData with _$DashboardData {
 
 /// Guardian-specific dashboard with aggregated adolescent data.
 @freezed
-class GuardianDashboardData with _$GuardianDashboardData {
+abstract class GuardianDashboardData with _$GuardianDashboardData {
   const factory GuardianDashboardData({
     required String adolescentId,
     required String adolescentName,

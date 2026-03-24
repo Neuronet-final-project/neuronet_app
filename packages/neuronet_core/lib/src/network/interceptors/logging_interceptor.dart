@@ -4,7 +4,10 @@ import 'package:logger/logger.dart';
 /// Logging interceptor for API requests/responses.
 class AppLoggingInterceptor extends Interceptor {
   final _logger = Logger(
-    printer: PrettyPrinter(methodCount: 0, printTime: true),
+    printer: PrettyPrinter(
+      methodCount: 0,
+      dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
+    ),
   );
 
   @override

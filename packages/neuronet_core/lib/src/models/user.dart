@@ -5,7 +5,7 @@ part 'user.freezed.dart';
 part 'user.g.dart';
 
 @freezed
-class User with _$User {
+abstract class User with _$User {
   const factory User({
     required String userId,
     required String fullName,
@@ -19,7 +19,7 @@ class User with _$User {
 }
 
 @freezed
-class AuthResponse with _$AuthResponse {
+abstract class AuthResponse with _$AuthResponse {
   const factory AuthResponse({
     required String token,
     required String refreshToken,
@@ -33,7 +33,7 @@ class AuthResponse with _$AuthResponse {
 }
 
 @freezed
-class LoginRequest with _$LoginRequest {
+abstract class LoginRequest with _$LoginRequest {
   const factory LoginRequest({
     required String email,
     required String password,
@@ -44,7 +44,7 @@ class LoginRequest with _$LoginRequest {
 }
 
 @freezed
-class ActivateAccountRequest with _$ActivateAccountRequest {
+abstract class ActivateAccountRequest with _$ActivateAccountRequest {
   const factory ActivateAccountRequest({
     required String activationCode,
     required String password,

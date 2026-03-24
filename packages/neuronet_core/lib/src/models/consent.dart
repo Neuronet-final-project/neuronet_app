@@ -5,7 +5,7 @@ part 'consent.freezed.dart';
 part 'consent.g.dart';
 
 @freezed
-class Consent with _$Consent {
+abstract class Consent with _$Consent {
   const factory Consent({
     required String consentId,
     required String adolescentId,
@@ -24,7 +24,7 @@ class Consent with _$Consent {
 }
 
 @freezed
-class UpdateConsentRequest with _$UpdateConsentRequest {
+abstract class UpdateConsentRequest with _$UpdateConsentRequest {
   const factory UpdateConsentRequest({
     required ConsentStatus status,
     String? notes,

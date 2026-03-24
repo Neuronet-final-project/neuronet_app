@@ -27,7 +27,10 @@ class NetworkFailure extends Failure {
 
 /// Authentication failure (401/403).
 class AuthFailure extends Failure {
-  const AuthFailure({super.message = 'Authentication required', super.statusCode});
+  const AuthFailure({
+    super.message = 'Authentication required',
+    super.statusCode,
+  });
 }
 
 /// Validation failure (client-side input errors).
@@ -67,7 +70,7 @@ class Result<T> {
     if (_failure == null) {
       throw StateError('Cannot get failure from a successful Result');
     }
-    return _failure!;
+    return _failure;
   }
 
   /// Pattern match on the result.

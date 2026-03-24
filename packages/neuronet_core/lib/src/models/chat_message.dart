@@ -5,7 +5,7 @@ part 'chat_message.freezed.dart';
 part 'chat_message.g.dart';
 
 @freezed
-class ChatMessage with _$ChatMessage {
+abstract class ChatMessage with _$ChatMessage {
   const factory ChatMessage({
     required String messageId,
     required String senderId,
@@ -22,7 +22,7 @@ class ChatMessage with _$ChatMessage {
 }
 
 @freezed
-class SendMessageRequest with _$SendMessageRequest {
+abstract class SendMessageRequest with _$SendMessageRequest {
   const factory SendMessageRequest({
     required String receiverId,
     required String content,

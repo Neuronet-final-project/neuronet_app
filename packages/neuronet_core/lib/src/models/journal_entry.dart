@@ -5,7 +5,7 @@ part 'journal_entry.freezed.dart';
 part 'journal_entry.g.dart';
 
 @freezed
-class JournalEntry with _$JournalEntry {
+abstract class JournalEntry with _$JournalEntry {
   const factory JournalEntry({
     required String journalId,
     required String adolescentId,
@@ -20,7 +20,7 @@ class JournalEntry with _$JournalEntry {
 }
 
 @freezed
-class CreateJournalRequest with _$CreateJournalRequest {
+abstract class CreateJournalRequest with _$CreateJournalRequest {
   const factory CreateJournalRequest({
     required String content,
     String? moodId,
@@ -31,7 +31,7 @@ class CreateJournalRequest with _$CreateJournalRequest {
 }
 
 @freezed
-class MoodRecord with _$MoodRecord {
+abstract class MoodRecord with _$MoodRecord {
   const factory MoodRecord({
     required String moodId,
     required String adolescentId,
@@ -46,7 +46,7 @@ class MoodRecord with _$MoodRecord {
 }
 
 @freezed
-class CreateMoodRequest with _$CreateMoodRequest {
+abstract class CreateMoodRequest with _$CreateMoodRequest {
   const factory CreateMoodRequest({
     required MoodType moodType,
     int? intensity,

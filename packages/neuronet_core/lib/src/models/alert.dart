@@ -5,7 +5,7 @@ part 'alert.freezed.dart';
 part 'alert.g.dart';
 
 @freezed
-class Alert with _$Alert {
+abstract class Alert with _$Alert {
   const factory Alert({
     required String alertId,
     required String adolescentId,
