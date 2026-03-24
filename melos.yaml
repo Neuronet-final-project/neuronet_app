@@ -1,4 +1,4 @@
-name: neuronet
+name: neuronet_workspace
 packages:
   - apps/*
   - packages/*
