@@ -9,6 +9,7 @@ import '../../features/consent/view/screens/consent_screen.dart';
 import '../../features/alerts/view/screens/alerts_screen.dart';
 import '../../features/alerts/view/screens/alert_details_screen.dart';
 import '../../features/counselor_msg/view/screens/counselor_msg_screen.dart';
+import '../../features/profile/view/screens/profile_screen.dart';
 
 /// Route names for the Guardian app.
 class GuardianRoutes {
@@ -75,6 +76,14 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: GuardianRoutes.profile,
+                builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
+          ),
         ],
       ),
       // Full-screen routes
@@ -119,6 +128,11 @@ class GuardianShell extends StatelessWidget {
             icon: Icon(Icons.message_outlined),
             selectedIcon: Icon(Icons.message),
             label: 'Messages',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

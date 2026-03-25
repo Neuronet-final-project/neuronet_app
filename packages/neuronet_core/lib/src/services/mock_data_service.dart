@@ -275,4 +275,53 @@ class MockDataService {
       ),
     ];
   }
+
+  // ─── Guardian Specific Mocks ───
+
+  /// Simulates registering an adolescent and returns an activation code.
+  static String registerAdolescent({
+    required String name,
+    required DateTime dateOfBirth,
+    required String email,
+    required RelationshipType relationship,
+    required List<ConsentType> initialConsents,
+  }) {
+    // In a real app, this would call an API and return a code from the backend.
+    // Here we just return a random-looking 6-digit code.
+    return '528-914';
+  }
+
+  /// Returns mock conversation history between guardian and counselor.
+  static List<ChatMessage> getGuardianCounselorMessages() {
+    final now = DateTime.now();
+    return [
+      ChatMessage(
+        messageId: 'gmsg-1',
+        senderId: 'counselor-1',
+        receiverId: 'user-456',
+        messageContent: "Hello Mrs. Johnson, I'm Dr. Smith, Alex's assigned counselor. How are things going at home?",
+        timestamp: now.subtract(const Duration(days: 2)),
+        messageType: MessageType.guardianChat,
+        isRead: true,
+      ),
+      ChatMessage(
+        messageId: 'gmsg-2',
+        senderId: 'user-456',
+        receiverId: 'counselor-1',
+        messageContent: "Hello Dr. Smith. Alex seems a bit more withdrawn lately. I noticed the alert about his mood drop.",
+        timestamp: now.subtract(const Duration(days: 1, hours: 22)),
+        messageType: MessageType.guardianChat,
+        isRead: true,
+      ),
+      ChatMessage(
+        messageId: 'gmsg-3',
+        senderId: 'counselor-1',
+        receiverId: 'user-456',
+        messageContent: "I've noticed that too in our sessions. I'm working with him on some coping strategies. Please keep me updated if you notice any specific triggers.",
+        timestamp: now.subtract(const Duration(days: 1, hours: 20)),
+        messageType: MessageType.guardianChat,
+        isRead: true,
+      ),
+    ];
+  }
 }
