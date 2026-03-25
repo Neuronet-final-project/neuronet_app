@@ -187,4 +187,71 @@ class MockDataService {
     }
     return "I hear you. Tell me more about that. I'm here to listen and help you reflect.";
   }
+
+  // ─── Channel Mocks ───
+
+  static List<Channel> getMockChannels() {
+    return [
+      Channel(
+        channelId: 'ch-1',
+        counselorId: 'c-1',
+        channelName: 'Mindfulness & Growth',
+        description: 'Daily tips for emotional balance and personal development.',
+        channelType: ChannelType.educational,
+        createdAt: DateTime.now().subtract(const Duration(days: 60)),
+        isFeatured: true,
+        subscriberCount: 120,
+      ),
+      Channel(
+        channelId: 'ch-2',
+        counselorId: 'c-2',
+        channelName: 'Teen Support Network',
+        description: 'A safe space to discuss common challenges and share experiences.',
+        channelType: ChannelType.supportive,
+        createdAt: DateTime.now().subtract(const Duration(days: 45)),
+        isFeatured: false,
+        isFollowed: true,
+        subscriberCount: 450,
+      ),
+      Channel(
+        channelId: 'ch-3',
+        counselorId: 'c-1',
+        channelName: 'Wellness Library',
+        description: 'Curated resources for mental health and stress management.',
+        channelType: ChannelType.resourceLibrary,
+        createdAt: DateTime.now().subtract(const Duration(days: 30)),
+        isFeatured: false,
+        subscriberCount: 85,
+      ),
+    ];
+  }
+
+  static List<ChannelPost> getMockPosts(String channelId) {
+    return [
+      ChannelPost(
+        postId: 'p-1',
+        channelId: channelId,
+        counselorId: 'c-1',
+        title: '5 Minutes to Calm',
+        content:
+            'Try this simple breathing exercise: Inhale for 4, Hold for 4, Exhale for 4. Repeat 4 times. This helps regulate your nervous system and bring your focus back to the present moment.',
+        createdAt: DateTime.now().subtract(const Duration(hours: 5)),
+        viewCount: 156,
+        reactionCount: 24,
+        isReacted: true,
+      ),
+      ChannelPost(
+        postId: 'p-2',
+        channelId: channelId,
+        counselorId: 'c-1',
+        title: 'Developing a Growth Mindset',
+        content:
+            'Challenges are opportunities to learn. Instead of saying "I can\'t do this," try "I can\'t do this yet." Your brain is a muscle that grows stronger with every challenge you tackle.',
+        createdAt: DateTime.now().subtract(const Duration(days: 1)),
+        viewCount: 432,
+        reactionCount: 85,
+        isPinned: true,
+      ),
+    ];
+  }
 }

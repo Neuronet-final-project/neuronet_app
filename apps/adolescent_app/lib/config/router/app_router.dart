@@ -8,6 +8,7 @@ import '../../features/mood/view/screens/mood_screen.dart';
 import '../../features/dashboard/view/screens/dashboard_screen.dart';
 import '../../features/ai_chat/view/screens/ai_chat_screen.dart';
 import '../../features/channels/view/screens/channels_screen.dart';
+import '../../features/channels/view/screens/channel_detail_screen.dart';
 import '../../features/counselor_chat/view/screens/counselor_chat_screen.dart';
 import '../../features/journal/view/screens/new_journal_entry_screen.dart';
 
@@ -67,6 +68,15 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AdolescentRoutes.channels,
                 builder: (context, state) => const ChannelsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return ChannelDetailScreen(channelId: id);
+                    },
+                  ),
+                ],
               ),
             ],
           ),

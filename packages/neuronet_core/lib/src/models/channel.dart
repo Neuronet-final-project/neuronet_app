@@ -17,6 +17,8 @@ abstract class Channel with _$Channel {
     @Default(true) bool allowComments,
     @Default(true) bool allowReactions,
     @Default(false) bool isFeatured,
+    @Default(false) bool isFollowed,
+    @Default(0) int subscriberCount,
   }) = _Channel;
 
   factory Channel.fromJson(Map<String, dynamic> json) =>
@@ -36,6 +38,8 @@ abstract class ChannelPost with _$ChannelPost {
     @Default(false) bool isPinned,
     @Default(true) bool allowComments,
     @Default(0) int viewCount,
+    @Default(0) int reactionCount,
+    @Default(false) bool isReacted,
   }) = _ChannelPost;
 
   factory ChannelPost.fromJson(Map<String, dynamic> json) =>
