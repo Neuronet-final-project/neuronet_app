@@ -11,6 +11,9 @@ import '../../features/channels/view/screens/channels_screen.dart';
 import '../../features/channels/view/screens/channel_detail_screen.dart';
 import '../../features/counselor_chat/view/screens/counselor_chat_screen.dart';
 import '../../features/journal/view/screens/new_journal_entry_screen.dart';
+import '../../features/auth/view/screens/login_screen.dart';
+import '../../features/auth/view/screens/activation_screen.dart';
+import '../../features/auth/providers/auth_provider.dart';
 
 /// Route names for the Adolescent app.
 class AdolescentRoutes {
@@ -32,7 +35,32 @@ class AdolescentRoutes {
 final adolescentRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AdolescentRoutes.home,
+    redirect: (context, state) {
+      final authState = ref.watch(authControllerProvider);
+      final isLoggingIn = state.matchedLocation == AdolescentRoutes.login;
+      final isActivating = state.matchedLocation == AdolescentRoutes.activate;
+
+      return authState.maybeWhen(
+        authenticated: () {
+          if (isLoggingIn || isActivating) return AdolescentRoutes.home;
+          return null;
+        },
+        orElse: () {
+          if (isLoggingIn || isActivating) return null;
+          return AdolescentRoutes.login;
+        },
+      );
+    },
     routes: [
+      // Auth routes
+      GoRoute(
+        path: AdolescentRoutes.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.activate,
+        builder: (context, state) => const ActivationScreen(),
+      ),
       // Bottom navigation shell
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -100,14 +128,23 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
 });
 
 /// Shell widget with bottom navigation for the Adolescent app.
-class AdolescentShell extends StatelessWidget {
+class AdolescentShell extends ConsumerWidget {
   const AdolescentShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('NeuroNet'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => ref.read(authControllerProvider.notifier).logout(),
+          ),
+        ],
+      ),
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
