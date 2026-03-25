@@ -44,6 +44,12 @@ class DashboardScreen extends ConsumerWidget {
           error: (err, stack) => Center(child: Text('Error: $err')),
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push(AdolescentRoutes.aiChat),
+        backgroundColor: NeuroColors.adolescentPrimary,
+        icon: const Icon(Icons.assistant, color: Colors.white),
+        label: const Text('AI Assistant', style: TextStyle(color: Colors.white)),
+      ),
     );
   }
 

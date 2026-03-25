@@ -141,4 +141,50 @@ class MockDataService {
       );
     }).toList();
   }
+
+  // ─── Chat Mocks ───
+
+  static List<ChatMessage> getMockChatMessages() {
+    final now = DateTime.now();
+    return [
+      ChatMessage(
+        messageId: 'msg-1',
+        senderId: 'ai-counselor',
+        receiverId: 'user-123',
+        messageContent: "Hi Alex! I'm your AI counselor. How are you feeling today?",
+        timestamp: now.subtract(const Duration(minutes: 30)),
+        messageType: MessageType.aiChat,
+        isRead: true,
+      ),
+      ChatMessage(
+        messageId: 'msg-2',
+        senderId: 'user-123',
+        receiverId: 'ai-counselor',
+        messageContent: "I'm feeling a bit overwhelmed with school work.",
+        timestamp: now.subtract(const Duration(minutes: 25)),
+        messageType: MessageType.aiChat,
+        isRead: true,
+      ),
+      ChatMessage(
+        messageId: 'msg-3',
+        senderId: 'ai-counselor',
+        receiverId: 'user-123',
+        messageContent: "I understand. That sounds tough. Would you like to talk about what specifically is making you feel overwhelmed?",
+        timestamp: now.subtract(const Duration(minutes: 20)),
+        messageType: MessageType.aiChat,
+        isRead: true,
+      ),
+    ];
+  }
+
+  static String getMockAiResponse(String userMessage) {
+    if (userMessage.toLowerCase().contains('overwhelmed')) {
+      return "It's completely normal to feel that way when things pile up. Let's try to break down your tasks together. What's the biggest thing on your plate right now?";
+    } else if (userMessage.toLowerCase().contains('happy') || userMessage.toLowerCase().contains('good')) {
+      return "That's wonderful to hear! I'm glad you're having a good day. What's been the highlight so far?";
+    } else if (userMessage.toLowerCase().contains('sad') || userMessage.toLowerCase().contains('lonely')) {
+      return "I'm here for you. It's okay to feel this way. Want to tell me more about what's on your mind?";
+    }
+    return "I hear you. Tell me more about that. I'm here to listen and help you reflect.";
+  }
 }
