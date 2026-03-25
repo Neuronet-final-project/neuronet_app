@@ -254,4 +254,25 @@ class MockDataService {
       ),
     ];
   }
+
+  static List<ChannelInteraction> getMockComments(String postId) {
+    return [
+      ChannelInteraction(
+        interactionId: 'i-1',
+        postId: postId,
+        adolescentId: 'user-123',
+        interactionType: InteractionType.comment,
+        content: 'This was really helpful! I tried it and feel much better.',
+        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+      ),
+      ChannelInteraction(
+        interactionId: 'i-2',
+        postId: postId,
+        adolescentId: 'user-456',
+        interactionType: InteractionType.comment,
+        content: 'Thanks for sharing this, counselor!',
+        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+      ),
+    ];
+  }
 }

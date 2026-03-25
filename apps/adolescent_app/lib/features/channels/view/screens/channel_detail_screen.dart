@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/channels_provider.dart';
 import '../widgets/post_card.dart';
+import '../widgets/comments_bottom_sheet.dart';
 
 class ChannelDetailScreen extends ConsumerWidget {
   final String channelId;
@@ -97,6 +98,8 @@ class ChannelDetailScreen extends ConsumerWidget {
                     onReact: () => ref
                         .read(channelPostsControllerProvider(channelId).notifier)
                         .toggleReaction(post.postId),
+                    onComment: () =>
+                        _showCommentsBottomSheet(context, post.postId),
                   );
                 },
                 childCount: posts.length,
@@ -113,4 +116,13 @@ class ChannelDetailScreen extends ConsumerWidget {
       ),
     );
   }
-}
+    
+      void _showCommentsBottomSheet(BuildContext context, String postId) {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => CommentsBottomSheet(postId: postId),
+        );
+      }
+    }

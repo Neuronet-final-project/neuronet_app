@@ -74,3 +74,34 @@ class ChannelPostsController extends _$ChannelPostsController {
     }
   }
 }
+
+@riverpod
+class ChannelCommentsController extends _$ChannelCommentsController {
+  @override
+  FutureOr<List<ChannelInteraction>> build(String postId) async {
+    return MockDataService.getMockComments(postId);
+  }
+
+  Future<void> addComment(String content) async {
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    final newComment = ChannelInteraction(
+      interactionId: 'new-${DateTime.now().millisecondsSinceEpoch}',
+      postId: postId,
+      adolescentId: 'user-123',
+      interactionType: InteractionType.comment,
+      content: content,
+      createdAt: DateTime.now(),
+    );
+
+    // Optimistic update
+    state = AsyncValue.data([...currentState, newComment]);
+
+    try {
+      await Future.delayed(const Duration(milliseconds: 400));
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+}

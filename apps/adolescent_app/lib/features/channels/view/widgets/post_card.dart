@@ -5,15 +5,18 @@ import 'package:neuronet_core/neuronet_core.dart';
 class PostCard extends StatelessWidget {
   final ChannelPost post;
   final VoidCallback onReact;
+  final VoidCallback? onComment;
 
   const PostCard({
     super.key,
     required this.post,
     required this.onReact,
+    this.onComment,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -29,7 +32,7 @@ class PostCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     'Pinned',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    style: theme.textTheme.bodySmall?.copyWith(
                           color: Colors.orange,
                           fontWeight: FontWeight.bold,
                         ),
@@ -38,21 +41,21 @@ class PostCard extends StatelessWidget {
                 ],
                 Text(
                   DateFormat.yMMMd().format(post.createdAt),
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: theme.textTheme.bodySmall,
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
               post.title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 8),
             Text(
               post.content,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
             Row(
@@ -64,7 +67,7 @@ class PostCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: post.isReacted
-                          ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
+                          ? theme.primaryColor.withValues(alpha: 0.1)
                           : Colors.grey.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -89,11 +92,41 @@ class PostCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
+                InkWell(
+                  onTap: onComment,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.chat_bubble_outline,
+                          size: 18,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '2', // Mock comment count
+                          style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Spacer(),
                 Icon(Icons.remove_red_eye_outlined, size: 18, color: Colors.grey[600]),
                 const SizedBox(width: 4),
                 Text(
                   '${post.viewCount}',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: theme.textTheme.bodySmall,
                 ),
               ],
             ),
