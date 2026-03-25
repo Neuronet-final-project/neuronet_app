@@ -58,7 +58,7 @@ class JournalScreen extends ConsumerWidget {
                 child: NeuroJournalCard(
                   entry: entry,
                   onTap: () {
-                    // TODO: Navigate to details
+                    context.push('${AdolescentRoutes.journal}/${entry.journalId}');
                   },
                 ),
               );

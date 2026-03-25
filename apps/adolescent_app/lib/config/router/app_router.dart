@@ -14,6 +14,8 @@ import '../../features/journal/view/screens/new_journal_entry_screen.dart';
 import '../../features/auth/view/screens/login_screen.dart';
 import '../../features/auth/view/screens/activation_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import '../../features/journal/view/screens/journal_detail_screen.dart';
+import '../../features/profile/view/screens/profile_screen.dart';
 
 /// Route names for the Adolescent app.
 class AdolescentRoutes {
@@ -80,6 +82,15 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AdolescentRoutes.journal,
                 builder: (context, state) => const JournalScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return JournalDetailScreen(entryId: id);
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -105,6 +116,14 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
                     },
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AdolescentRoutes.profile,
+                builder: (context, state) => const ProfileScreen(),
               ),
             ],
           ),
@@ -136,15 +155,6 @@ class AdolescentShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('NeuroNet'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authControllerProvider.notifier).logout(),
-          ),
-        ],
-      ),
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
@@ -169,6 +179,11 @@ class AdolescentShell extends ConsumerWidget {
             icon: Icon(Icons.forum_outlined),
             selectedIcon: Icon(Icons.forum),
             label: 'Channels',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),
