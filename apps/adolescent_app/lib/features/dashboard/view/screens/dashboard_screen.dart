@@ -153,7 +153,7 @@ class DashboardScreen extends ConsumerWidget {
                 child: InkWell(
                   onTap: () {
                     ref.read(moodControllerProvider.notifier).selectMood(mood);
-                    context.push(AdolescentRoutes.mood);
+                    context.go(AdolescentRoutes.mood);
                   },
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
@@ -210,7 +210,7 @@ class DashboardScreen extends ConsumerWidget {
                     ),
               ),
               TextButton(
-                onPressed: () => context.push(AdolescentRoutes.journal),
+                onPressed: () => context.go(AdolescentRoutes.journal),
                 child: const Text('View All'),
               ),
             ],
