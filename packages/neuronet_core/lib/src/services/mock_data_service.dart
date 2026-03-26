@@ -64,13 +64,14 @@ class MockDataService {
 
   static DashboardData getMockAdolescentDashboard() {
     final allJournals = getMockJournals();
+    final sentimentScores = [0.45, 0.7, 0.55, 0.85, 0.6, 0.75, 0.65];
     return DashboardData(
       trends: List.generate(
         7,
         (index) => EmotionalTrend(
           date: DateTime.now().subtract(Duration(days: 6 - index)),
-          sentimentScore: 0.3 + (index * 0.1),
-          dominantMood: 'Stable',
+          sentimentScore: sentimentScores[index % sentimentScores.length],
+          dominantMood: index % 2 == 0 ? 'Stable' : 'Fluctuating',
           journalCount: index % 2,
           moodEntryCount: index % 3,
         ),
@@ -84,6 +85,7 @@ class MockDataService {
   }
 
   static GuardianDashboardData getMockGuardianDashboard() {
+    final sentimentScores = [0.65, 0.45, 0.75, 0.5, 0.6, 0.55, 0.7];
     return GuardianDashboardData(
       adolescentId: 'user-123',
       adolescentName: 'Alex Johnson',
@@ -91,8 +93,8 @@ class MockDataService {
         7,
         (index) => EmotionalTrend(
           date: DateTime.now().subtract(Duration(days: 6 - index)),
-          sentimentScore: 0.6,
-          dominantMood: 'Stable',
+          sentimentScore: sentimentScores[index % sentimentScores.length],
+          dominantMood: index % 3 == 0 ? 'Stable' : 'Variable',
         ),
       ),
       activeAlerts: 1,
