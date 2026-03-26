@@ -1,31 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:guardian_app/config/router/app_router.dart';
-import 'package:guardian_app/features/auth/providers/auth_provider.dart';
+import '../../providers/auth_provider.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+class SignUpScreen extends ConsumerStatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleSignUp() {
     if (_formKey.currentState!.validate()) {
-      ref.read(authControllerProvider.notifier).login(
+      ref.read(authControllerProvider.notifier).signUp(
+            _nameController.text,
             _emailController.text,
             _passwordController.text,
           );
@@ -50,13 +54,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create Guardian Account'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: theme.colorScheme.primary,
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              theme.colorScheme.primary.withValues(alpha: 0.1),
+              theme.colorScheme.primary.withValues(alpha: 0.05),
               Colors.white,
             ],
           ),
@@ -71,39 +81,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Logo and Branding
-                    Icon(
-                      Icons.family_restroom,
-                      size: 80,
-                      color: theme.colorScheme.primary,
-                    ),
-                    const SizedBox(height: 16),
                     Text(
-                      'NEURONET',
+                      'Join NEURONET',
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineLarge?.copyWith(
+                      style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,
-                        letterSpacing: 4,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Guardian Support Portal',
+                      'Provide your details to start monitoring and supporting your adolescent.',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.grey[600],
                       ),
                     ),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 32),
+                    
+                    // Name Field
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Full Name',
+                        prefixIcon: Icon(Icons.person_outline),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Please enter your name';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     
                     // Email Field
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        labelText: 'Guardian Email',
-                        prefixIcon: const Icon(Icons.email_outlined),
+                      decoration: const InputDecoration(
+                        labelText: 'Email Address',
+                        prefixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Please enter your email';
@@ -117,36 +133,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_outline),
+                        prefixIcon: Icon(Icons.lock_outline),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter your password';
+                        if (value == null || value.isEmpty) return 'Please enter a password';
                         if (value.length < 6) return 'Password must be at least 6 characters';
                         return null;
                       },
                     ),
-                    const SizedBox(height: 12),
-                    
-                    // Forgot Password
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(color: theme.colorScheme.primary),
-                        ),
+                    const SizedBox(height: 16),
+
+                    // Confirm Password Field
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Confirm Password',
+                        prefixIcon: Icon(Icons.lock_reset),
                       ),
+                      validator: (value) {
+                        if (value != _passwordController.text) return 'Passwords do not match';
+                        return null;
+                      },
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 32),
                     
-                    // Login Button
+                    // Sign Up Button
                     ElevatedButton(
                       onPressed: authState.status == AuthStatus.initial 
                         ? null 
-                        : _handleLogin,
+                        : _handleSignUp,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                       child: authState.status == AuthStatus.initial
                         ? const SizedBox(
                             height: 20,
@@ -157,52 +181,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           )
                         : const Text(
-                            'Login',
+                            'Create Account',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                     ),
                     const SizedBox(height: 24),
                     
-                    // Activation & Sign Up Links
-                    Column(
+                    // Already have an account?
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Don\'t have an account?',
-                              style: TextStyle(color: Colors.grey[600]),
-                            ),
-                            TextButton(
-                              onPressed: () => context.push(GuardianRoutes.signup),
-                              child: Text(
-                                'Create Account',
-                                style: TextStyle(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          'Already have an account?',
+                          style: TextStyle(color: Colors.grey[600]),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Need to activate?',
-                              style: TextStyle(color: Colors.grey[600]),
+                        TextButton(
+                          onPressed: () => context.pop(),
+                          child: Text(
+                            'Login',
+                            style: TextStyle(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.bold,
                             ),
-                            TextButton(
-                              onPressed: () => context.push(GuardianRoutes.activate),
-                              child: Text(
-                                'Enter Activation Code',
-                                style: TextStyle(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),

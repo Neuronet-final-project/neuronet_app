@@ -53,6 +53,18 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
+  Future<void> signUp(String name, String email, String password) async {
+    state = AuthState.initial();
+    await Future.delayed(const Duration(seconds: 1));
+    
+    // Mock logic: allow any non-empty input for demo
+    if (name.isNotEmpty && email.isNotEmpty && password.length >= 6) {
+      state = AuthState.authenticated();
+    } else {
+      state = AuthState.error('Please fill all fields correctly');
+    }
+  }
+
   Future<void> logout() async {
     state = AuthState.initial();
     await Future.delayed(const Duration(milliseconds: 500));
