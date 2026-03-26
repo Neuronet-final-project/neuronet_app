@@ -84,6 +84,10 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => const JournalHistoryScreen(),
                 routes: [
                   GoRoute(
+                    path: 'new',
+                    builder: (context, state) => const NewJournalEntryScreen(),
+                  ),
+                  GoRoute(
                     path: ':id',
                     builder: (context, state) {
                       final id = state.pathParameters['id']!;
@@ -137,10 +141,6 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AdolescentRoutes.counselorChat,
         builder: (context, state) => const CounselorChatScreen(),
-      ),
-      GoRoute(
-        path: AdolescentRoutes.newJournal,
-        builder: (context, state) => const NewJournalEntryScreen(),
       ),
     ],
   );

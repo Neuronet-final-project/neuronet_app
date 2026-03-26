@@ -120,6 +120,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                   TextField(
                     controller: _contentController,
                     maxLines: null,
+                    minLines: 10,
                     maxLength: 5000,
                     autofocus: true,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
