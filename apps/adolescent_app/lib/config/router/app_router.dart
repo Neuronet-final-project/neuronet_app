@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 // Feature screens (placeholder imports)
-import '../../features/journal/view/screens/journal_screen.dart';
+import '../../features/journal/view/screens/journal_history_screen.dart';
 import '../../features/mood/view/screens/mood_screen.dart';
 import '../../features/dashboard/view/screens/dashboard_screen.dart';
 import '../../features/ai_chat/view/screens/ai_chat_screen.dart';
@@ -81,7 +81,7 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AdolescentRoutes.journal,
-                builder: (context, state) => const JournalScreen(),
+                builder: (context, state) => const JournalHistoryScreen(),
                 routes: [
                   GoRoute(
                     path: ':id',

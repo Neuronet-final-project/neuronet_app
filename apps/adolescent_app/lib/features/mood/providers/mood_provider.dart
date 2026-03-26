@@ -1,18 +1,20 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 
 part 'mood_provider.freezed.dart';
 part 'mood_provider.g.dart';
 
 @freezed
 abstract class MoodState with _$MoodState {
+  const MoodState._();
   const factory MoodState({
+    @Default(false) bool isSubmitting,
+    @Default(false) bool showSuccess,
     MoodType? selectedMood,
     @Default(3) int intensity,
     @Default('') String notes,
-    @Default(false) bool isSubmitting,
-    @Default(false) bool showSuccess,
+    String? error,
   }) = _MoodState;
 }
 
@@ -25,40 +27,48 @@ class MoodController extends _$MoodController {
     state = state.copyWith(selectedMood: mood);
   }
 
-  void updateIntensity(double value) {
-    state = state.copyWith(intensity: value.toInt());
+  void updateIntensity(double intensity) {
+    state = state.copyWith(intensity: intensity.toInt());
   }
 
   void updateNotes(String notes) {
     state = state.copyWith(notes: notes);
   }
 
+  void reset() {
+    state = const MoodState();
+  }
+
   Future<void> submitMood() async {
     if (state.selectedMood == null) return;
 
-    state = state.copyWith(isSubmitting: true);
-    
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
-    
-    // In a real app, we would call a repository here
-    // For now, we just reset and show success
-    state = state.copyWith(
-      isSubmitting: false,
-      showSuccess: true,
-      selectedMood: null,
-      intensity: 3,
-      notes: '',
-    );
+    state = state.copyWith(isSubmitting: true, error: null);
 
-    // Hide success after delay
-    await Future.delayed(const Duration(seconds: 2));
-    if (state.showSuccess) {
-      state = state.copyWith(showSuccess: false);
+    try {
+
+
+      // In a real app, this would call a repository
+      // final record = MoodRecord(
+      //   moodId: DateTime.now().millisecondsSinceEpoch.toString(),
+      //   adolescentId: user.userId,
+      //   moodType: state.selectedMood!,
+      //   intensity: state.intensity,
+      //   recordedAt: DateTime.now(),
+      //   contextNotes: state.notes,
+      // );
+      
+      // Simulate API call
+      await Future.delayed(const Duration(seconds: 1));
+
+      state = state.copyWith(
+        isSubmitting: false,
+        showSuccess: true,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isSubmitting: false,
+        error: e.toString(),
+      );
     }
-  }
-
-  void reset() {
-    state = const MoodState();
   }
 }

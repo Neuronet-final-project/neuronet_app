@@ -5,8 +5,8 @@ import 'package:neuronet_core/neuronet_core.dart';
 import '../../../../config/router/app_router.dart';
 import '../../providers/journal_provider.dart';
 
-class JournalScreen extends ConsumerWidget {
-  const JournalScreen({super.key});
+class JournalHistoryScreen extends ConsumerWidget {
+  const JournalHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -1,6 +1,7 @@
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+
 part 'journal_provider.g.dart';
 
 @riverpod
@@ -12,21 +13,24 @@ class JournalController extends _$JournalController {
   }
 
   Future<void> addEntry(String content, {String? title, MoodType? moodType}) async {
-    final currentState = state.value ?? [];
     state = const AsyncLoading();
     
-    // In a real app, this would be an API call
-    final newEntry = JournalEntry(
-      journalId: DateTime.now().millisecondsSinceEpoch.toString(),
-      adolescentId: 'user-123',
-      title: title,
-      content: content,
-      moodType: moodType,
-      createdAt: DateTime.now(),
-      sentimentScore: moodType != null ? _getSentimentFromMood(moodType) : null,
-    );
+    state = await AsyncValue.guard(() async {
+      const userId = 'adolescent-1'; // Constant ID for pilot/demo
 
-    state = AsyncData([newEntry, ...currentState]);
+      final newEntry = JournalEntry(
+        journalId: DateTime.now().millisecondsSinceEpoch.toString(),
+        adolescentId: userId,
+        title: title,
+        content: content,
+        moodType: moodType,
+        createdAt: DateTime.now(),
+        sentimentScore: moodType != null ? _getSentimentFromMood(moodType) : null,
+      );
+
+      final currentList = state.value ?? [];
+      return [newEntry, ...currentList];
+    });
   }
 
   double _getSentimentFromMood(MoodType mood) {

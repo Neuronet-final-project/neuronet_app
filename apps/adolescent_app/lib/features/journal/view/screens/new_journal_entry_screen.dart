@@ -61,6 +61,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -119,6 +120,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                   TextField(
                     controller: _contentController,
                     maxLines: null,
+                    maxLength: 5000,
                     autofocus: true,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           height: 1.6,
@@ -129,6 +131,30 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                       border: InputBorder.none,
                       filled: false,
                       contentPadding: EdgeInsets.zero,
+                      counterText: '', // Hide default counter
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.privacy_tip_outlined, size: 20, color: Colors.blue),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Your entries are private. Analyzed trends are shared with your counselor to help them support you.',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: NeuroColors.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -157,13 +183,27 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'How are you feeling?',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: NeuroColors.onSurfaceVariant,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'How are you feeling?',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: NeuroColors.onSurfaceVariant,
+                ),
+              ),
+              Text(
+                '${_contentController.text.length} / 5000',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: _contentController.text.length > 4500
+                      ? Colors.red
+                      : NeuroColors.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           SizedBox(

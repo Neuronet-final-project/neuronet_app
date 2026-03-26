@@ -4,6 +4,7 @@ import 'package:neuronet_core/neuronet_core.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/dashboard_provider.dart';
 import 'package:adolescent_app/config/router/app_router.dart';
+import 'package:adolescent_app/features/mood/providers/mood_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -151,7 +152,7 @@ class DashboardScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: InkWell(
                   onTap: () {
-                    // Navigate to mood details or log mood
+                    ref.read(moodControllerProvider.notifier).selectMood(mood);
                     context.push(AdolescentRoutes.mood);
                   },
                   borderRadius: BorderRadius.circular(16),
