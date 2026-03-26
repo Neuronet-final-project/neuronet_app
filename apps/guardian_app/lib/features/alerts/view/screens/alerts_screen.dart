@@ -64,7 +64,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
               final alert = filteredAlerts[index];
               return NeuroAlertCard(
                 alert: alert,
-                onTap: () => context.go('/alerts/${alert.alertId}'),
+                onTap: () => context.push('/alert-details/${alert.alertId}'),
               );
             },
           );
@@ -80,25 +80,28 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Filter by Status'),
-        content: RadioGroup<AlertActionStatus?>(
-          groupValue: _filterStatus,
-          onChanged: (value) {
-            setState(() => _filterStatus = value);
-            Navigator.pop(context);
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const RadioListTile<AlertActionStatus?>(
-                title: Text('All'),
-                value: null,
-              ),
-              ...AlertActionStatus.values.map((status) => RadioListTile<AlertActionStatus?>(
-                    title: Text(status.name.toUpperCase()),
-                    value: status,
-                  )),
-            ],
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<AlertActionStatus?>(
+              title: const Text('All'),
+              value: null,
+              groupValue: _filterStatus,
+              onChanged: (value) {
+                setState(() => _filterStatus = value);
+                Navigator.pop(context);
+              },
+            ),
+            ...AlertActionStatus.values.map((status) => RadioListTile<AlertActionStatus?>(
+                  title: Text(status.name.toUpperCase()),
+                  value: status,
+                  groupValue: _filterStatus,
+                  onChanged: (value) {
+                    setState(() => _filterStatus = value);
+                    Navigator.pop(context);
+                  },
+                )),
+          ],
         ),
       ),
     );

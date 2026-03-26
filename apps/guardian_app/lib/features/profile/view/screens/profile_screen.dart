@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:guardian_app/features/auth/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -11,10 +12,7 @@ class ProfileScreen extends ConsumerWidget {
     final user = MockDataService.getMockGuardian();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Profile'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('My Profile'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -47,7 +45,9 @@ class ProfileScreen extends ConsumerWidget {
               children: [
                 SwitchListTile(
                   title: const Text('Alert Notifications'),
-                  subtitle: const Text('Get notified when patterns are detected'),
+                  subtitle: const Text(
+                    'Get notified when patterns are detected',
+                  ),
                   value: true,
                   onChanged: (val) {},
                   contentPadding: EdgeInsets.zero,
@@ -64,12 +64,15 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 48),
             TextButton.icon(
               onPressed: () {
-                // Logout logic
+                ref.read(authControllerProvider.notifier).logout();
               },
               icon: const Icon(Icons.logout, color: Colors.red),
               label: const Text(
                 'Sign Out',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -93,7 +96,9 @@ class _ProfileHeader extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 50,
-          backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+          backgroundColor: Theme.of(
+            context,
+          ).primaryColor.withValues(alpha: 0.1),
           child: Icon(
             Icons.person,
             size: 60,
@@ -179,7 +184,10 @@ class _SettingTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),

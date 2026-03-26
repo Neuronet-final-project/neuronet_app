@@ -27,7 +27,7 @@ class DashboardScreen extends ConsumerWidget {
           // Summary Stats
           SliverToBoxAdapter(
             child: dashboardAsync.when(
-              data: (data) => _buildSummarySection(data),
+              data: (data) => _buildSummarySection(context, data),
               loading: () => const Center(child: Padding(
                 padding: EdgeInsets.all(32.0),
                 child: CircularProgressIndicator(),
@@ -118,7 +118,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummarySection(GuardianDashboardData data) {
+  Widget _buildSummarySection(BuildContext context, GuardianDashboardData data) {
     // Calculate stats from weekly trends
     final avgEmotionalScore = data.weeklyTrends.isEmpty 
         ? 0.0 
@@ -128,53 +128,184 @@ class DashboardScreen extends ConsumerWidget {
         ? 0 
         : data.weeklyTrends.map((t) => t.journalCount ?? 0).reduce((a, b) => a + b);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'Insights for ${data.adolescentName}',
-              style: const TextStyle(
-                fontSize: 14,
-                color: NeuroColors.onSurfaceVariant,
+    return Column(
+      children: [
+        // Premium Hero Section
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(20, 40, 20, 32),
+          decoration: const BoxDecoration(
+            color: NeuroColors.guardianSurface,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(32),
+              bottomRight: Radius.circular(32),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Good Morning,',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: NeuroColors.onSurfaceVariant,
+                        ),
+                      ),
+                      Text(
+                        'Guardian', // In real app, get from auth
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: NeuroColors.guardianPrimaryDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  CircleAvatar(
+                    backgroundColor: NeuroColors.guardianPrimary.withOpacity(0.2),
+                    child: const Icon(Icons.person, color: NeuroColors.guardianPrimary),
+                  ),
+                ],
               ),
-            ),
+              const SizedBox(height: 24),
+              // Adolescent Status Overview
+              InkWell(
+                onTap: () => context.push('/adolescent/mock_id'),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            data.adolescentName,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Text(
+                            'Last check-in: 2h ago',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: NeuroColors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      _buildQuickStat(
+                        label: 'Score',
+                        value: avgEmotionalScore.toStringAsFixed(1),
+                        color: NeuroColors.alertLow,
+                      ),
+                      const SizedBox(width: 16),
+                      _buildQuickStat(
+                        label: 'Journals',
+                        value: totalJournals.toString(),
+                        color: NeuroColors.adolescentPrimary,
+                      ),
+                      const SizedBox(width: 16),
+                      _buildQuickStat(
+                        label: 'Alerts',
+                        value: data.activeAlerts.toString(),
+                        color: data.activeAlerts > 0 ? NeuroColors.alertHigh : NeuroColors.alertLow,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                NeuroSummaryCard(
-                  label: 'Emotional Score',
-                  value: avgEmotionalScore.toStringAsFixed(1),
-                  icon: Icons.sentiment_satisfied_alt,
-                  color: NeuroColors.alertLow,
-                  subtitle: 'Weekly Average',
+        ),
+
+        // Weekly Trend Chart
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Weekly Sentiment Trend',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: NeuroColors.onSurface,
                 ),
-                NeuroSummaryCard(
-                  label: 'Journal Count',
-                  value: totalJournals.toString(),
-                  icon: Icons.history_edu,
-                  color: NeuroColors.adolescentPrimary,
-                  subtitle: 'Past 7 Days',
-                ),
-                NeuroSummaryCard(
-                  label: 'Active Alerts',
-                  value: data.activeAlerts.toString(),
-                  icon: Icons.notification_important,
-                  color: data.activeAlerts > 0 ? NeuroColors.alertHigh : NeuroColors.alertLow,
-                  subtitle: 'Requires Review',
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 200,
+                child: NeuroTrendChart(trends: data.weeklyTrends),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _chartLegend('Sentiment', NeuroColors.guardianPrimary),
+                  const SizedBox(width: 16),
+                  _chartLegend('Journals', NeuroColors.adolescentPrimary),
+                ],
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickStat({required String label, required String value, required Color color}) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 10,
+            color: NeuroColors.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _chartLegend(String label, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 12, color: NeuroColors.onSurfaceVariant)),
+      ],
     );
   }
 }
@@ -206,7 +337,7 @@ class _QuickActionCard extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: Theme.of(context).primaryColor),
