@@ -2,51 +2,57 @@
 class ApiEndpoints {
   const ApiEndpoints._();
 
-  static const String baseUrl = 'https://api.neuronet.com';
+  static const String baseUrl = 'https://final-year-project-backend-production-da67.up.railway.app';
 
   // Auth
-  static const String login = '/api/v1/auth/login';
-  static const String activate = '/api/v1/auth/activate';
-  static const String refreshToken = '/api/v1/auth/refresh';
-  static const String logout = '/api/v1/auth/logout';
-
-  // Profile
-  static const String profile = '/api/v1/users/me';
-
-  // Journals
-  static const String journals = '/api/v1/journals';
-  static String journalById(String id) => '/api/v1/journals/$id';
-
-  // Moods
-  static const String moods = '/api/v1/moods';
-
-  // AI Chat
-  static const String aiChat = '/api/v1/chat/ai';
+  static const String login = '/auth/login';
+  static const String register = '/auth/register';
+  static const String activateAccount = '/auth/activate-account';
+  static const String me = '/auth/me';
+  static const String createAdolescent = '/auth/guardian/create-adolescent';
+  static const String pendingAdolescents = '/auth/guardian/pending-adolescents';
 
   // Dashboard
-  static const String dashboardTrends = '/api/v1/dashboard/trends';
+  static const String guardianDashboard = '/dashboard/guardian';
+  static const String adolescentDashboard = '/dashboard/adolescent/me';
 
-  // Consent
-  static const String consents = '/api/v1/consents';
-  static String consentById(String id) => '/api/v1/consent/$id';
+  // Journals
+  static const String journals = '/journals/';
+  static String journalsByAdolescent(String id) => '/journals/adolescent/$id';
+  static String journalById(String id) => '/journals/$id';
 
-  // Adolescent Registration (Guardian)
-  static const String registerAdolescent =
-      '/api/v1/guardians/register-adolescent';
+  // Moods
+  static const String moods = '/moods/';
+  static const String myMoods = '/moods/me';
 
   // Alerts
-  static const String alerts = '/api/v1/alerts';
+  static const String guardianAlerts = '/alerts/guardian/me';
+  static const String counselorAlerts = '/alerts/counselor/me';
+  static String alertsByAdolescent(String id) => '/alerts/adolescent/$id';
+  static String resolveAlert(String id) => '/alerts/resolve/$id';
+  static String markViewed(String id) => '/alerts/mark-viewed/$id';
 
-  // Chat (Counselor/Guardian)
-  static const String chatRequest = '/api/v1/chat/request';
-  static const String chatMessages = '/api/v1/chat/messages';
+  // Consents
+  static String consentByEmail(String email) => '/consents/$email';
+  static const String myConsent = '/consents/me';
+
+  // AI Chat
+  static const String aiChatSessions = '/ai-chat/sessions';
+  static const String myAiSessions = '/ai-chat/sessions/me';
+  static String aiChatMessages(String id) => '/ai-chat/sessions/$id/messages';
+
+  // Messaging
+  static const String conversations = '/messaging/conversations';
+  static String conversationMessages(String id) => '/messaging/conversations/$id/messages';
 
   // Channels
-  static const String channels = '/api/v1/channels';
-  static String channelJoin(String id) => '/api/v1/channels/$id/join';
-  static String channelInteract(String channelId, String postId) =>
-      '/api/v1/channels/$channelId/posts/$postId/interact';
+  static const String myChannels = '/channels/me';
+  static String channelSubscribe(String id) => '/channels/$id/subscribe';
 
-  // Guardian specific
-  static const String followedPages = '/api/v1/guardians/followed-pages';
+  // Educational Pages
+  static const String educationalPages = '/educational-pages/';
+  static String educationalPageBySlug(String slug) => '/educational-pages/$slug';
+
+  // Guardian overview
+  static const String guardianAdolescents = '/guardians/me/adolescents';
 }

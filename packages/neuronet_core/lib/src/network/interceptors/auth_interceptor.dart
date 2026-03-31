@@ -63,11 +63,13 @@ class AuthInterceptor extends Interceptor {
       final refreshToken = await tokenStorage.getRefreshToken();
       if (refreshToken != null) {
         try {
+          // Use the actual refresh endpoint if it exists. 
+          // For now, assuming standard refresh path logic without /api/v1
           final response = await Dio().post<Map<String, dynamic>>(
-            '${err.requestOptions.baseUrl}/api/v1/auth/refresh',
+            '${err.requestOptions.baseUrl}/auth/refresh',
             data: {'refresh_token': refreshToken},
           );
-          final newToken = response.data?['token'] as String?;
+          final newToken = response.data?['access_token'] as String?;
           if (newToken != null) {
             await tokenStorage.saveTokens(
               accessToken: newToken,

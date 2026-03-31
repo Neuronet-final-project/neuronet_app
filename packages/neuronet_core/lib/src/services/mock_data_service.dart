@@ -7,7 +7,7 @@ class MockDataService {
 
   static User getMockAdolescent() {
     return User(
-      userId: 'user-123',
+      id: 'user-123',
       fullName: 'Alex Johnson',
       email: 'alex@example.com',
       role: UserRole.adolescent,
@@ -18,7 +18,7 @@ class MockDataService {
 
   static User getMockGuardian() {
     return User(
-      userId: 'user-456',
+      id: 'user-456',
       fullName: 'Sarah Johnson',
       email: 'sarah@example.com',
       role: UserRole.guardian,
