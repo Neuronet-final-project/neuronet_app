@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/models.dart';
 import '../network/api_client.dart';
@@ -20,9 +21,12 @@ class AuthService {
     final response = await _apiClient.post(
       ApiEndpoints.login,
       data: {
-        'username': email, // FastAPI OAuth2 defaults to username
+        'username': email,
         'password': password,
       },
+      options: Options(
+        contentType: 'application/x-www-form-urlencoded',
+      ),
     );
     return AuthResponse.fromJson(response.data as Map<String, dynamic>);
   }

@@ -12,6 +12,9 @@ export 'src/errors/failures.dart';
 
 // Services
 export 'src/services/auth_service.dart';
+export 'src/services/dashboard_service.dart';
+export 'src/services/journal_service.dart';
+export 'src/services/alert_service.dart';
 export 'src/services/mock_data_service.dart';
 
 // Theme
