@@ -55,20 +55,21 @@ class RegistrationController extends _$RegistrationController {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 1));
+      final authService = ref.read(authServiceProvider);
       
-      final code = MockDataService.registerAdolescent(
-        name: state.name,
-        dateOfBirth: state.dateOfBirth!,
-        email: state.email,
-        relationship: state.relationship,
-        initialConsents: state.consents.toList(),
+      final token = await authService.createAdolescent(
+        AdolescentCreateRequest(
+          fullName: state.name,
+          email: state.email,
+          dateOfBirth: state.dateOfBirth!,
+          relationship: state.relationship,
+          consents: state.consents.toList(),
+        ),
       );
 
-      state = state.copyWith(isLoading: false, activationCode: code);
+      state = state.copyWith(isLoading: false, activationCode: token);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Failed to register. Please try again.');
+      state = state.copyWith(isLoading: false, error: 'Failed to register adolescent. ${e.toString()}');
     }
   }
 

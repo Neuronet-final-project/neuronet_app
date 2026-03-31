@@ -71,7 +71,9 @@ abstract class AdolescentCreateRequest with _$AdolescentCreateRequest {
   const factory AdolescentCreateRequest({
     required String email,
     @JsonKey(name: 'full_name') required String fullName,
-    @JsonKey(name: 'date_of_birth') String? dateOfBirth,
+    @JsonKey(name: 'date_of_birth') required DateTime dateOfBirth,
+    required RelationshipType relationship,
+    required List<ConsentType> consents,
   }) = _AdolescentCreateRequest;
 
   factory AdolescentCreateRequest.fromJson(Map<String, dynamic> json) =>

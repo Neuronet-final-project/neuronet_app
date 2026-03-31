@@ -65,6 +65,26 @@ class AuthController extends _$AuthController {
     }
   }
 
+  Future<void> signUp({
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
+    state = AuthState.loading();
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.register(GuardianRegisterRequest(
+        fullName: fullName,
+        email: email,
+        password: password,
+      ));
+      // After registration, we usually want them to login
+      state = AuthState.unauthenticated();
+    } catch (e) {
+      state = AuthState.error(e.toString());
+    }
+  }
+
   Future<void> activate(String email, String token, String password) async {
     state = AuthState.loading();
     try {

@@ -11,6 +11,7 @@ import '../../features/alerts/view/screens/alert_details_screen.dart';
 import '../../features/counselor_msg/view/screens/counselor_msg_screen.dart';
 import '../../features/profile/view/screens/profile_screen.dart';
 import '../../features/auth/view/screens/login_screen.dart';
+import '../../features/auth/view/screens/sign_up_screen.dart';
 import '../../features/auth/view/screens/activation_screen.dart';
 import '../../features/adolescents/view/screens/adolescent_detail_screen.dart';
 
@@ -22,6 +23,7 @@ class GuardianRoutes {
   const GuardianRoutes._();
 
   static const String login = '/login';
+  static const String signup = '/signup';
   static const String activate = '/activate';
   static const String home = '/';
   static const String registerAdolescent = '/register-adolescent';
@@ -41,9 +43,10 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final isLoggingIn = state.matchedLocation == GuardianRoutes.login;
       final isActivating = state.matchedLocation == GuardianRoutes.activate;
+      final isSigningUp = state.matchedLocation == GuardianRoutes.signup;
       final isAuthenticated = authState.status == AuthStatus.authenticated;
 
-      if (!isAuthenticated && !isLoggingIn && !isActivating) {
+      if (!isAuthenticated && !isLoggingIn && !isActivating && !isSigningUp) {
         return GuardianRoutes.login;
       }
 
@@ -58,6 +61,10 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: GuardianRoutes.login,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: GuardianRoutes.signup,
+        builder: (context, state) => const SignUpScreen(),
       ),
       GoRoute(
         path: GuardianRoutes.activate,
