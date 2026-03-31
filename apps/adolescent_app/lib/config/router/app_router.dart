@@ -43,7 +43,7 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       final isActivating = state.matchedLocation == AdolescentRoutes.activate;
 
       return authState.maybeWhen(
-        authenticated: () {
+        authenticated: (user) {
           if (isLoggingIn || isActivating) return AdolescentRoutes.home;
           return null;
         },

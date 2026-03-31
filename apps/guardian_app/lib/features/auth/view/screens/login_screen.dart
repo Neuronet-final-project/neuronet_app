@@ -144,10 +144,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     
                     // Login Button
                     ElevatedButton(
-                      onPressed: authState.status == AuthStatus.initial 
+                      onPressed: authState.status == AuthStatus.loading 
                         ? null 
                         : _handleLogin,
-                      child: authState.status == AuthStatus.initial
+                      child: authState.status == AuthStatus.loading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
