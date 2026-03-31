@@ -168,7 +168,7 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                   const Spacer(),
                   CircleAvatar(
-                    backgroundColor: NeuroColors.guardianPrimary.withOpacity(0.2),
+                    backgroundColor: NeuroColors.guardianPrimary.withValues(alpha: 0.2),
                     child: const Icon(Icons.person, color: NeuroColors.guardianPrimary),
                   ),
                 ],
@@ -185,7 +185,7 @@ class DashboardScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -337,7 +337,7 @@ class _QuickActionCard extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: Theme.of(context).primaryColor),

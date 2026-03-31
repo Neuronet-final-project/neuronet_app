@@ -59,7 +59,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
         children: [
           CircleAvatar(
             radius: 50,
-            backgroundColor: NeuroColors.adolescentPrimary.withOpacity(0.1),
+            backgroundColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
             child: const Icon(Icons.person, size: 50, color: NeuroColors.adolescentPrimary),
           ),
           const SizedBox(height: 16),
