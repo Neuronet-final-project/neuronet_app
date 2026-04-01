@@ -17,7 +17,6 @@ class AlertDetailsScreen extends ConsumerStatefulWidget {
 
 class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
   final _notesController = TextEditingController();
-  AlertActionStatus? _selectedStatus;
 
   @override
   void dispose() {
@@ -40,12 +39,6 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
             orElse: () => throw Exception('Alert not found'),
           );
 
-          // Initialize local state if needed
-          _selectedStatus ??= alert.actionStatus;
-          if (_notesController.text.isEmpty && alert.actionNotes != null) {
-            _notesController.text = alert.actionNotes!;
-          }
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -55,13 +48,11 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                 const SizedBox(height: 24),
                 _buildDescription(alert),
                 const SizedBox(height: 24),
-                _buildStatusSelection(),
-                const SizedBox(height: 24),
                 _buildNotesField(),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () => _updateStatus(alert),
-                  child: const Text('Update Alert Status'),
+                  onPressed: () => _resolveAlert(alert),
+                  child: const Text('Resolve Alert'),
                 ),
               ],
             ),
@@ -74,10 +65,10 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
   }
 
   Widget _buildHeader(Alert alert) {
-    final color = switch (alert.severityLevel) {
-      AlertSeverity.low => NeuroColors.alertLow,
-      AlertSeverity.medium => NeuroColors.alertMedium,
-      AlertSeverity.high => NeuroColors.alertHigh,
+    final color = switch (alert.severityLevel.toLowerCase()) {
+      'high' => NeuroColors.alertHigh,
+      'medium' => NeuroColors.alertMedium,
+      _ => NeuroColors.alertLow,
     };
 
     return Row(
@@ -90,7 +81,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
             border: Border.all(color: color),
           ),
           child: Text(
-            alert.severityLevel.name.toUpperCase(),
+            alert.severityLevel.toUpperCase(),
             style: TextStyle(
               color: color,
               fontWeight: FontWeight.bold,
@@ -115,11 +106,20 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          alert.alertType.name.replaceAll('Pattern', ' Pattern').toUpperCase(),
+          alert.alertType.replaceAll('_', ' ').toUpperCase(),
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: NeuroColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Adolescent: ${alert.adolescentName}',
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: NeuroColors.onSurface,
           ),
         ),
         const SizedBox(height: 8),
@@ -135,44 +135,12 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
     );
   }
 
-  Widget _buildStatusSelection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Action Status',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: AlertActionStatus.values.map((status) {
-            final isSelected = _selectedStatus == status;
-            return ChoiceChip(
-              label: Text(status.name),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) {
-                  setState(() => _selectedStatus = status);
-                }
-              },
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
   Widget _buildNotesField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Decision Notes',
+          'Resolution Notes (Optional)',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -191,17 +159,14 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
     );
   }
 
-  void _updateStatus(Alert alert) {
-    if (_selectedStatus != null) {
-      ref.read(guardianAlertsControllerProvider.notifier).updateAlertStatus(
-            alert.alertId,
-            _selectedStatus!,
-            notes: _notesController.text,
-          );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Alert updated successfully')),
-      );
-      Navigator.of(context).pop();
-    }
+  void _resolveAlert(Alert alert) {
+    ref.read(guardianAlertsControllerProvider.notifier).resolveAlert(
+          alert.alertId,
+          notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+        );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Alert resolved successfully')),
+    );
+    Navigator.of(context).pop();
   }
 }

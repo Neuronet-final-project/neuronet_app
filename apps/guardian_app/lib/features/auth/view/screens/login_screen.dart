@@ -144,10 +144,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     
                     // Login Button
                     ElevatedButton(
-                      onPressed: authState.status == AuthStatus.initial 
+                      onPressed: authState.status == AuthStatus.loading 
                         ? null 
                         : _handleLogin,
-                      child: authState.status == AuthStatus.initial
+                      child: authState.status == AuthStatus.loading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
@@ -203,6 +203,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             ),
                           ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Navigation to Signup
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Don't have an account?",
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        TextButton(
+                          onPressed: () => context.go(GuardianRoutes.signup),
+                          child: Text(
+                            'Sign Up',
+                            style: TextStyle(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ),

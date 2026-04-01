@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:guardian_app/config/router/app_router.dart';
 import '../../providers/auth_provider.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -11,7 +12,7 @@ class SignUpScreen extends ConsumerStatefulWidget {
 }
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
-  final _nameController = TextEditingController();
+  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -19,7 +20,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -29,9 +30,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   void _handleSignUp() {
     if (_formKey.currentState!.validate()) {
       ref.read(authControllerProvider.notifier).signUp(
-            _nameController.text,
-            _emailController.text,
-            _passwordController.text,
+            fullName: _fullNameController.text,
+            email: _emailController.text,
+            password: _passwordController.text,
           );
     }
   }
@@ -41,32 +42,44 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     final authState = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
 
-    // Listen for error messages
+    // Listen for error or success state
     ref.listen(authControllerProvider, (previous, next) {
       if (next.status == AuthStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.errorMessage ?? 'An error occurred'),
+            content: Text(next.errorMessage ?? 'An error occurred during signup'),
             backgroundColor: theme.colorScheme.error,
           ),
         );
+      } else if (previous?.status == AuthStatus.loading && next.status == AuthStatus.unauthenticated) {
+        // Success! Redirect to login
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration successful! Please login.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        context.go(GuardianRoutes.login);
       }
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Guardian Account'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: theme.colorScheme.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
       ),
+      extendBodyBehindAppBar: true,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              theme.colorScheme.primary.withValues(alpha: 0.05),
+              theme.colorScheme.primary.withValues(alpha: 0.1),
               Colors.white,
             ],
           ),
@@ -81,8 +94,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Heading
                     Text(
-                      'Join NEURONET',
+                      'Create Guardian Account',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
@@ -91,34 +105,34 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Provide your details to start monitoring and supporting your adolescent.',
+                      'Start monitoring and supporting your child\'s well-being.',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.grey[600],
                       ),
                     ),
-                    const SizedBox(height: 32),
-                    
-                    // Name Field
+                    const SizedBox(height: 40),
+
+                    // Full Name
                     TextFormField(
-                      controller: _nameController,
+                      controller: _fullNameController,
                       decoration: const InputDecoration(
                         labelText: 'Full Name',
                         prefixIcon: Icon(Icons.person_outline),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter your name';
+                        if (value == null || value.isEmpty) return 'Please enter your full name';
                         return null;
                       },
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Email Field
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
-                        labelText: 'Email Address',
+                        labelText: 'Guardian Email',
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (value) {
@@ -128,7 +142,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Password Field
                     TextFormField(
                       controller: _passwordController,
@@ -138,7 +152,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         prefixIcon: Icon(Icons.lock_outline),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter a password';
+                        if (value == null || value.isEmpty) return 'Please enter your password';
                         if (value.length < 6) return 'Password must be at least 6 characters';
                         return null;
                       },
@@ -154,40 +168,35 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         prefixIcon: Icon(Icons.lock_reset),
                       ),
                       validator: (value) {
+                        if (value == null || value.isEmpty) return 'Please confirm your password';
                         if (value != _passwordController.text) return 'Passwords do not match';
                         return null;
                       },
                     ),
                     const SizedBox(height: 32),
-                    
-                    // Sign Up Button
+
+                    // SignUp Button
                     ElevatedButton(
-                      onPressed: authState.status == AuthStatus.initial 
-                        ? null 
-                        : _handleSignUp,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: authState.status == AuthStatus.initial
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                      onPressed: authState.status == AuthStatus.loading
+                          ? null
+                          : _handleSignUp,
+                      child: authState.status == AuthStatus.loading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Sign Up',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
-                          )
-                        : const Text(
-                            'Create Account',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
                     ),
                     const SizedBox(height: 24),
-                    
-                    // Already have an account?
+
+                    // To Login
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -196,7 +205,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                         TextButton(
-                          onPressed: () => context.pop(),
+                          onPressed: () => context.go(GuardianRoutes.login),
                           child: Text(
                             'Login',
                             style: TextStyle(

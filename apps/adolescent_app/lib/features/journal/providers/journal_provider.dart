@@ -8,46 +8,23 @@ part 'journal_provider.g.dart';
 class JournalController extends _$JournalController {
   @override
   FutureOr<List<JournalEntry>> build() async {
-    // Simulate initial fetch
-    return MockDataService.getMockJournals();
+    final service = ref.watch(journalServiceProvider);
+    return service.getMyJournals();
   }
 
   Future<void> addEntry(String content, {String? title, MoodType? moodType}) async {
-    state = const AsyncLoading();
+    final service = ref.read(journalServiceProvider);
     
+    state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      const userId = 'adolescent-1'; // Constant ID for pilot/demo
-
-      final newEntry = JournalEntry(
-        journalId: DateTime.now().millisecondsSinceEpoch.toString(),
-        adolescentId: userId,
+      final request = CreateJournalRequest(
         title: title,
         content: content,
         moodType: moodType,
-        createdAt: DateTime.now(),
-        sentimentScore: moodType != null ? _getSentimentFromMood(moodType) : null,
       );
-
-      final currentList = state.value ?? [];
-      return [newEntry, ...currentList];
+      
+      await service.createJournal(request);
+      return service.getMyJournals();
     });
-  }
-
-  double _getSentimentFromMood(MoodType mood) {
-    switch (mood) {
-      case MoodType.happy:
-      case MoodType.excited:
-      case MoodType.hopeful:
-        return 0.9;
-      case MoodType.calm:
-      case MoodType.neutral:
-        return 0.5;
-      case MoodType.sad:
-      case MoodType.anxious:
-      case MoodType.stressed:
-      case MoodType.angry:
-      case MoodType.tired:
-        return 0.2;
-    }
   }
 }

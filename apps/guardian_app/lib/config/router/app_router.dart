@@ -44,6 +44,7 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       final isLoggingIn = state.matchedLocation == GuardianRoutes.login;
       final isSigningUp = state.matchedLocation == GuardianRoutes.signup;
       final isActivating = state.matchedLocation == GuardianRoutes.activate;
+      final isSigningUp = state.matchedLocation == GuardianRoutes.signup;
       final isAuthenticated = authState.status == AuthStatus.authenticated;
 
       if (!isAuthenticated && !isLoggingIn && !isActivating && !isSigningUp) {

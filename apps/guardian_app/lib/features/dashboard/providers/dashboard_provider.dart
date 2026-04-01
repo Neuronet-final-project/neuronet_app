@@ -7,15 +7,15 @@ part 'dashboard_provider.g.dart';
 class GuardianDashboardController extends _$GuardianDashboardController {
   @override
   FutureOr<GuardianDashboardData> build() async {
-    // In a real app, we would fetch the adolescent targeted for this guardian
-    // For now, we use Alex Johnson from MockDataService
-    return MockDataService.getMockGuardianDashboard();
+    final service = ref.watch(dashboardServiceProvider);
+    return service.getGuardianDashboard();
   }
 
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      return MockDataService.getMockGuardianDashboard();
+      final service = ref.read(dashboardServiceProvider);
+      return service.getGuardianDashboard();
     });
   }
 }
@@ -24,46 +24,45 @@ class GuardianDashboardController extends _$GuardianDashboardController {
 class GuardianAlertsController extends _$GuardianAlertsController {
   @override
   FutureOr<List<Alert>> build() async {
-    return MockDataService.getMockAlerts();
+    final service = ref.watch(alertServiceProvider);
+    return service.getGuardianAlerts();
   }
 
   Future<void> markAsViewed(String alertId) async {
-    state = await AsyncValue.guard(() async {
-      final currentAlerts = state.value ?? [];
-      return currentAlerts.map((a) {
-        if (a.alertId == alertId) {
-          return a.copyWith(viewedStatus: true);
-        }
-        return a;
-      }).toList();
-    });
+    final service = ref.read(alertServiceProvider);
+    
+    // Optistic update for better UX
+    final previousState = state;
+    state = AsyncValue.data(
+      (state.value ?? []).map((a) => a.alertId == alertId ? a.copyWith(viewedStatus: true) : a).toList(),
+    );
+
+    try {
+      await service.markViewed(alertId);
+    } catch (e) {
+      state = previousState;
+      rethrow;
+    }
   }
 
-  Future<void> updateAlertStatus(
-    String alertId, 
-    AlertActionStatus status, {
+  Future<void> resolveAlert(
+    String alertId, {
     String? notes,
   }) async {
+    final service = ref.read(alertServiceProvider);
+    
+    state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final currentAlerts = state.value ?? [];
-      return currentAlerts.map((a) {
-        if (a.alertId == alertId) {
-          return a.copyWith(
-            actionStatus: status,
-            actionNotes: notes ?? a.actionNotes,
-            actionDate: status == AlertActionStatus.resolved ? DateTime.now() : a.actionDate,
-            viewedStatus: true,
-          );
-        }
-        return a;
-      }).toList();
+      await service.resolveAlert(alertId, notes: notes);
+      return service.getGuardianAlerts();
     });
   }
 
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      return MockDataService.getMockAlerts();
+      final service = ref.read(alertServiceProvider);
+      return service.getGuardianAlerts();
     });
   }
 }

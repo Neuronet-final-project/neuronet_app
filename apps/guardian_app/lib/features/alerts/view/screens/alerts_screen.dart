@@ -12,7 +12,7 @@ class AlertsScreen extends ConsumerStatefulWidget {
 }
 
 class _AlertsScreenState extends ConsumerState<AlertsScreen> {
-  AlertActionStatus? _filterStatus;
+  bool? _filterViewed;
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +30,9 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
       ),
       body: alertsAsync.when(
         data: (alerts) {
-          final filteredAlerts = _filterStatus == null
+          final filteredAlerts = _filterViewed == null
               ? alerts
-              : alerts.where((a) => a.actionStatus == _filterStatus).toList();
+              : alerts.where((a) => a.viewedStatus == _filterViewed).toList();
 
           if (filteredAlerts.isEmpty) {
             return Center(
@@ -42,14 +42,14 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                   const Icon(Icons.notifications_off_outlined, size: 64, color: NeuroColors.onSurfaceVariant),
                   const SizedBox(height: 16),
                   Text(
-                    _filterStatus == null 
+                    _filterViewed == null 
                         ? 'No alerts yet' 
-                        : 'No alerts with status: ${_filterStatus!.name}',
+                        : 'No ${_filterViewed! ? "read" : "unread"} alerts',
                     style: const TextStyle(color: NeuroColors.onSurfaceVariant),
                   ),
-                  if (_filterStatus != null)
+                  if (_filterViewed != null)
                     TextButton(
-                      onPressed: () => setState(() => _filterStatus = null),
+                      onPressed: () => setState(() => _filterViewed = null),
                       child: const Text('Clear Filter'),
                     ),
                 ],
@@ -83,24 +83,33 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            RadioListTile<AlertActionStatus?>(
+            RadioListTile<bool?>(
               title: const Text('All'),
               value: null,
-              groupValue: _filterStatus,
+              groupValue: _filterViewed,
               onChanged: (value) {
-                setState(() => _filterStatus = value);
+                setState(() => _filterViewed = value);
                 Navigator.pop(context);
               },
             ),
-            ...AlertActionStatus.values.map((status) => RadioListTile<AlertActionStatus?>(
-                  title: Text(status.name.toUpperCase()),
-                  value: status,
-                  groupValue: _filterStatus,
-                  onChanged: (value) {
-                    setState(() => _filterStatus = value);
-                    Navigator.pop(context);
-                  },
-                )),
+            RadioListTile<bool?>(
+              title: const Text('Unread'),
+              value: false,
+              groupValue: _filterViewed,
+              onChanged: (value) {
+                setState(() => _filterViewed = value);
+                Navigator.pop(context);
+              },
+            ),
+            RadioListTile<bool?>(
+              title: const Text('Read'),
+              value: true,
+              groupValue: _filterViewed,
+              onChanged: (value) {
+                setState(() => _filterViewed = value);
+                Navigator.pop(context);
+              },
+            ),
           ],
         ),
       ),

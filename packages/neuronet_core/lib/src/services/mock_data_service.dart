@@ -7,7 +7,7 @@ class MockDataService {
 
   static User getMockAdolescent() {
     return User(
-      userId: 'user-123',
+      id: 'user-123',
       fullName: 'Alex Johnson',
       email: 'alex@example.com',
       role: UserRole.adolescent,
@@ -18,7 +18,7 @@ class MockDataService {
 
   static User getMockGuardian() {
     return User(
-      userId: 'user-456',
+      id: 'user-456',
       fullName: 'Sarah Johnson',
       email: 'sarah@example.com',
       role: UserRole.guardian,
@@ -81,6 +81,11 @@ class MockDataService {
       totalMoodEntries: 120,
       activeAlerts: 0,
       unreadMessages: 2,
+      moodDistribution: [
+        MoodCount(mood: 'Happy', count: 12),
+        MoodCount(mood: 'Calm', count: 8),
+      ],
+      generatedAt: DateTime.now(),
     );
   }
 
@@ -95,11 +100,24 @@ class MockDataService {
           date: DateTime.now().subtract(Duration(days: 6 - index)),
           sentimentScore: sentimentScores[index % sentimentScores.length],
           dominantMood: index % 3 == 0 ? 'Stable' : 'Variable',
+          journalCount: 1,
+          moodEntryCount: 2,
         ),
       ),
-      activeAlerts: 1,
-      recentActivities: 5,
-      currentMood: 'Calm',
+      totalAdolescentsLinked: 2,
+      totalJournalCount: 15,
+      recentActivityCount: 5,
+      adolescentRisks: [
+        AdolescentRisk(
+          adolescentId: 'user-123',
+          adolescentName: 'Alex Johnson',
+          currentRiskLevel: 'medium',
+        ),
+      ],
+      alertList: [],
+      unviewedAlertsCount: 1,
+      moodDistribution: [],
+      generatedAt: DateTime.now(),
     );
   }
 
@@ -108,22 +126,22 @@ class MockDataService {
       Alert(
         alertId: 'alert-1',
         adolescentId: 'user-123',
-        alertType: AlertType.moodDrop,
-        severityLevel: AlertSeverity.medium,
+        adolescentName: 'Alex Johnson',
+        alertType: 'mood_drop',
+        severityLevel: 'medium',
         triggerDescription: 'Significant drop in mood detected over the last 48 hours.',
         createdAt: DateTime.now().subtract(const Duration(hours: 2)),
         viewedStatus: false,
-        actionStatus: AlertActionStatus.pending,
       ),
       Alert(
         alertId: 'alert-2',
         adolescentId: 'user-123',
-        alertType: AlertType.emotionalPattern,
-        severityLevel: AlertSeverity.high,
+        adolescentName: 'Alex Johnson',
+        alertType: 'emotional_pattern',
+        severityLevel: 'high',
         triggerDescription: 'High frequency of negative sentiment in recent journals.',
         createdAt: DateTime.now().subtract(const Duration(days: 1)),
         viewedStatus: true,
-        actionStatus: AlertActionStatus.resolved,
       ),
     ];
   }

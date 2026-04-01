@@ -10,6 +10,7 @@ class ActivationScreen extends ConsumerStatefulWidget {
 }
 
 class _ActivationScreenState extends ConsumerState<ActivationScreen> {
+  final _emailController = TextEditingController();
   final _codeController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -17,6 +18,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
 
   @override
   void dispose() {
+    _emailController.dispose();
     _codeController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -26,6 +28,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
   void _handleActivate() {
     if (_formKey.currentState!.validate()) {
       ref.read(authControllerProvider.notifier).activate(
+            _emailController.text,
             _codeController.text,
             _passwordController.text,
           );
@@ -98,6 +101,25 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   ),
                   const SizedBox(height: 40),
                   
+                  // Email Field
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Account Email',
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Please enter your account email';
+                      if (!value.contains('@')) return 'Please enter a valid email';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
                   // Activation Code Field
                   TextFormField(
                     controller: _codeController,
@@ -156,7 +178,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   // Activate Button
                   ElevatedButton(
                     onPressed: authState.maybeWhen(
-                      initial: () => null,
+                      loading: () => null,
                       orElse: () => _handleActivate,
                     ),
                     style: ElevatedButton.styleFrom(
@@ -169,7 +191,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                       elevation: 0,
                     ),
                     child: authState.maybeWhen(
-                      initial: () => const SizedBox(
+                      loading: () => const SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(

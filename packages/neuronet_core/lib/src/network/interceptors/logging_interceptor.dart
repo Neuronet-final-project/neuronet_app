@@ -29,9 +29,57 @@ class AppLoggingInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    final statusCode = err.response?.statusCode ?? 'UNKNOWN';
+    final url = err.requestOptions.uri;
+    final method = err.requestOptions.method;
+    
+    String reason = 'Unexpected error';
+    String suggestion = 'Check network and server status.';
+    
+    switch (err.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        reason = 'Timeout error';
+        suggestion = 'Server might be overloaded or network is slow.';
+        break;
+      case DioExceptionType.badResponse:
+        reason = 'Server returned $statusCode';
+        suggestion = 'Verify API endpoint and request payload. Response: ${err.response?.data}';
+        break;
+      case DioExceptionType.cancel:
+        reason = 'Request cancelled';
+        suggestion = 'Request was explicitly aborted.';
+        break;
+      case DioExceptionType.connectionError:
+        if (err.message?.contains('XMLHttpRequest') == true) {
+          reason = 'Web/CORS connection error';
+          suggestion = '1. Ensure backend has CORS enabled.\n'
+                       '2. Verify backend is running and reachable at $url.\n'
+                       '3. Check browser console for security/network errors.';
+        } else {
+          reason = 'Connection failed';
+          suggestion = 'Ensure server is up and reachable from this device.';
+        }
+        break;
+      case DioExceptionType.badCertificate:
+        reason = 'SSL Certificate error';
+        suggestion = 'Trust the server certificate or use a valid one.';
+        break;
+      default:
+        reason = err.type.toString();
+        suggestion = err.message ?? 'No additional details available.';
+    }
+
     _logger.e(
-      '✗ ${err.response?.statusCode ?? 'UNKNOWN'} ${err.requestOptions.uri}',
-      error: err.message,
+        'FAILED REQUEST: $method $url\n'
+        '──────────────────────────────────────────────────\n'
+        'HTTP STATUS: $statusCode\n'
+        'DIAGNOSIS:   $reason\n'
+        'DETAILS:     ${err.message}\n'
+        'SUGGESTION:  $suggestion\n'
+        '──────────────────────────────────────────────────',
+        error: err.error,
     );
     handler.next(err);
   }

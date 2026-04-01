@@ -5,9 +5,6 @@ part 'dashboard_provider.g.dart';
 
 @riverpod
 Future<DashboardData> adolescentDashboard(Ref ref) async {
-  // Simulate network delay
-  await Future.delayed(const Duration(milliseconds: 500));
-  
-  // Return mock data for now
-  return MockDataService.getMockAdolescentDashboard();
+  final service = ref.watch(dashboardServiceProvider);
+  return service.getAdolescentDashboard();
 }

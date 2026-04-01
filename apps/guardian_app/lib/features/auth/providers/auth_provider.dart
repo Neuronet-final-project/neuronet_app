@@ -1,7 +1,11 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:neuronet_core/neuronet_core.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'auth_provider.g.dart';
 
 enum AuthStatus {
   initial,
+  loading,
   authenticated,
   unauthenticated,
   activating,
@@ -11,45 +15,89 @@ enum AuthStatus {
 class AuthState {
   final AuthStatus status;
   final String? errorMessage;
+  final User? user;
 
   const AuthState({
     required this.status,
     this.errorMessage,
+    this.user,
   });
 
   factory AuthState.initial() => const AuthState(status: AuthStatus.initial);
-  factory AuthState.authenticated() => const AuthState(status: AuthStatus.authenticated);
+  factory AuthState.loading() => const AuthState(status: AuthStatus.loading);
+  factory AuthState.authenticated(User user) => AuthState(status: AuthStatus.authenticated, user: user);
   factory AuthState.unauthenticated() => const AuthState(status: AuthStatus.unauthenticated);
   factory AuthState.activating() => const AuthState(status: AuthStatus.activating);
   factory AuthState.error(String message) => AuthState(status: AuthStatus.error, errorMessage: message);
 }
 
-class AuthController extends Notifier<AuthState> {
+@riverpod
+class AuthController extends _$AuthController {
   @override
   AuthState build() {
+    // We can also check if we are already logged in here by calling storage.hasToken
     return AuthState.unauthenticated();
   }
 
   Future<void> login(String email, String password) async {
-    state = AuthState.initial();
-    await Future.delayed(const Duration(seconds: 1));
-    
-    // Mock logic: allow any non-empty input for demo
-    if (email.isNotEmpty && password.length >= 6) {
-      state = AuthState.authenticated();
-    } else {
-      state = AuthState.error('Invalid email or password');
+    state = AuthState.loading();
+    try {
+      final authService = ref.read(authServiceProvider);
+      final response = await authService.login(email, password);
+      
+      // Save the token to storage!
+      final storage = ref.read(tokenStorageProvider);
+      await storage.saveTokens(
+        accessToken: response.accessToken,
+      );
+
+      // For this pilot, we'll use a dummy user with the role from response
+      final user = User(
+        id: 'current',
+        fullName: 'Guardian User',
+        email: email,
+        role: response.role,
+        accountStatus: AccountStatus.active,
+      );
+      
+      state = AuthState.authenticated(user);
+    } catch (e) {
+      state = AuthState.error(e.toString());
     }
   }
 
-  Future<void> activate(String code, String password) async {
-    state = AuthState.initial();
-    await Future.delayed(const Duration(seconds: 1));
+  Future<void> signUp({
+    required String fullName,
+    required String email,
+    required String password,
+  }) async {
+    state = AuthState.loading();
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.register(GuardianRegisterRequest(
+        fullName: fullName,
+        email: email,
+        password: password,
+      ));
+      // After registration, we usually want them to login
+      state = AuthState.unauthenticated();
+    } catch (e) {
+      state = AuthState.error(e.toString());
+    }
+  }
 
-    if (code == 'NEURO-2026' && password.length >= 6) {
-      state = AuthState.authenticated();
-    } else {
-      state = AuthState.error('Invalid activation code or password');
+  Future<void> activate(String email, String token, String password) async {
+    state = AuthState.loading();
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.activateAccount(ActivateAccountRequest(
+        email: email,
+        activationToken: token,
+        password: password,
+      ));
+      state = AuthState.unauthenticated(); // Require login after activation
+    } catch (e) {
+      state = AuthState.error(e.toString());
     }
   }
 
@@ -66,12 +114,9 @@ class AuthController extends Notifier<AuthState> {
   }
 
   Future<void> logout() async {
-    state = AuthState.initial();
-    await Future.delayed(const Duration(milliseconds: 500));
+    state = AuthState.loading();
+    final storage = ref.read(tokenStorageProvider);
+    await storage.clearTokens();
     state = AuthState.unauthenticated();
   }
 }
-
-final authControllerProvider = NotifierProvider<AuthController, AuthState>(() {
-  return AuthController();
-});
