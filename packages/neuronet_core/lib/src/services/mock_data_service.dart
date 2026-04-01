@@ -76,7 +76,15 @@ class MockDataService {
           moodEntryCount: index % 3,
         ),
       ),
-      recentJournals: allJournals.take(3).toList(),
+      recentJournals: allJournals
+          .take(3)
+          .map((j) => RecentJournal(
+                id: j.journalId,
+                createdAt: j.createdAt,
+                mood: j.moodType?.name,
+                title: j.title,
+              ))
+          .toList(),
       totalJournals: 45,
       totalMoodEntries: 120,
       activeAlerts: 0,

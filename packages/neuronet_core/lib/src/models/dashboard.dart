@@ -7,7 +7,7 @@ part 'dashboard.g.dart';
 
 /// A single mood + count, returned by mood_distribution.
 @freezed
-class MoodCount with _$MoodCount {
+abstract class MoodCount with _$MoodCount {
   const factory MoodCount({
     String? mood,
     required int count,
@@ -19,7 +19,7 @@ class MoodCount with _$MoodCount {
 
 /// A trend data point for emotional charts.
 @freezed
-class EmotionalTrend with _$EmotionalTrend {
+abstract class EmotionalTrend with _$EmotionalTrend {
   const factory EmotionalTrend({
     required DateTime date,
     required double sentimentScore,
@@ -34,7 +34,7 @@ class EmotionalTrend with _$EmotionalTrend {
 
 /// Brief alert info as returned inside GuardianDashboardResponse.alert_list.
 @freezed
-class AlertBrief with _$AlertBrief {
+abstract class AlertBrief with _$AlertBrief {
   const factory AlertBrief({
     required String alertId,
     required String adolescentId,
@@ -52,7 +52,7 @@ class AlertBrief with _$AlertBrief {
 
 /// Risk summary for one adolescent, inside the guardian dashboard.
 @freezed
-class AdolescentRisk with _$AdolescentRisk {
+abstract class AdolescentRisk with _$AdolescentRisk {
   const factory AdolescentRisk({
     required String adolescentId,
     required String adolescentName,
@@ -69,7 +69,7 @@ class AdolescentRisk with _$AdolescentRisk {
 
 /// Matches GuardianDashboardResponse from the backend + Redesign UX fields.
 @freezed
-class GuardianDashboardData with _$GuardianDashboardData {
+abstract class GuardianDashboardData with _$GuardianDashboardData {
   const factory GuardianDashboardData({
     required int totalAdolescentsLinked,
     required int totalJournalCount,
@@ -91,7 +91,7 @@ class GuardianDashboardData with _$GuardianDashboardData {
 // ─── Adolescent Dashboard ─────────────────────────────────────────────────────
 
 @freezed
-class RecentJournal with _$RecentJournal {
+abstract class RecentJournal with _$RecentJournal {
   const factory RecentJournal({
     required String id,
     required DateTime createdAt,
@@ -105,7 +105,7 @@ class RecentJournal with _$RecentJournal {
 
 /// Matches AdolescentDashboardResponse from the backend + Redesign UX fields.
 @freezed
-class DashboardData with _$DashboardData {
+abstract class DashboardData with _$DashboardData {
   const factory DashboardData({
     required List<RecentJournal> recentJournals,
     required List<MoodCount> moodDistribution,

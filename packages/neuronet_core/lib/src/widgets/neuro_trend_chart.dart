@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../theme/app_theme.dart';
 
 class NeuroTrendChart extends StatelessWidget {
   final List<dynamic> trends;
   final bool showDots;
+  final Color? lineColor;
 
   const NeuroTrendChart({
     super.key,
     required this.trends,
     this.showDots = false,
+    this.lineColor,
   });
 
   @override
@@ -17,6 +18,8 @@ class NeuroTrendChart extends StatelessWidget {
     if (trends.isEmpty) {
       return const Center(child: Text('Insufficient data for analysis.'));
     }
+
+    final effectiveColor = lineColor ?? Theme.of(context).primaryColor;
 
     return LineChart(
       LineChartData(
@@ -29,7 +32,7 @@ class NeuroTrendChart extends StatelessWidget {
               return FlSpot(e.key.toDouble(), e.value.sentimentScore as double);
             }).toList(),
             isCurved: true,
-            color: NeuroColors.commandPrimary,
+            color: effectiveColor,
             barWidth: 3,
             isStrokeCapRound: true,
             dotData: FlDotData(show: showDots),
@@ -39,8 +42,8 @@ class NeuroTrendChart extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  NeuroColors.commandPrimary.withValues(alpha: 0.2),
-                  NeuroColors.commandPrimary.withValues(alpha: 0.0),
+                  effectiveColor.withValues(alpha: 0.2),
+                  effectiveColor.withValues(alpha: 0.0),
                 ],
               ),
             ),

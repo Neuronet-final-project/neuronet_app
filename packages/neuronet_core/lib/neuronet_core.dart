@@ -28,4 +28,3 @@ export 'src/widgets/neuro_journal_card.dart';
 export 'src/widgets/neuro_alert_card.dart';
 export 'src/widgets/neuro_summary_card.dart';
 export 'src/widgets/neuro_trend_chart.dart';
-export 'src/widgets/neuro_dashboard_card.dart';
