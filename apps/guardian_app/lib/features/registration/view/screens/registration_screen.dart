@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:intl/intl.dart';
@@ -149,10 +150,13 @@ class _RegistrationForm extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         TextFormField(
-          decoration: const InputDecoration(
-            labelText: 'Email Address (Optional)',
-            prefixIcon: Icon(Icons.email),
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: 'Email Address (Required)',
+            prefixIcon: const Icon(Icons.email),
+            border: const OutlineInputBorder(),
+            errorText: state.email.isNotEmpty && !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(state.email) 
+                ? 'Invalid email format' 
+                : null,
           ),
           keyboardType: TextInputType.emailAddress,
           onChanged: controller.updateEmail,
@@ -246,19 +250,38 @@ class _SuccessView extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Text(
-                  activationCode,
-                  style: const TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 4,
+              InkWell(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: activationCode));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Activation code copied to clipboard')),
+                  );
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          activationCode,
+                          style: const TextStyle(
+                            fontSize: 32, // Reduced from 40
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2, // Reduced from 4
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        const Icon(Icons.copy, color: Colors.grey),
+                      ],
+                    ),
                   ),
                 ),
               ),

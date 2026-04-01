@@ -47,8 +47,13 @@ class RegistrationController extends _$RegistrationController {
   }
 
   Future<void> submit() async {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (state.name.isEmpty || state.email.isEmpty || state.dateOfBirth == null) {
       state = state.copyWith(error: 'Please fill in all required fields');
+      return;
+    }
+    if (!emailRegex.hasMatch(state.email)) {
+      state = state.copyWith(error: 'Please enter a valid email address');
       return;
     }
 
