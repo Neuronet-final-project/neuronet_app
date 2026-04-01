@@ -12,7 +12,7 @@ class AlertsScreen extends ConsumerStatefulWidget {
 }
 
 class _AlertsScreenState extends ConsumerState<AlertsScreen> {
-  bool? _filterViewed;
+  String? _filterSeverity;
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +30,9 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
       ),
       body: alertsAsync.when(
         data: (alerts) {
-          final filteredAlerts = _filterViewed == null
+          final filteredAlerts = _filterSeverity == null
               ? alerts
-              : alerts.where((a) => a.viewedStatus == _filterViewed).toList();
+              : alerts.where((a) => a.severityLevel.toLowerCase() == _filterSeverity!.toLowerCase()).toList();
 
           if (filteredAlerts.isEmpty) {
             return Center(
@@ -42,14 +42,14 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                   const Icon(Icons.notifications_off_outlined, size: 64, color: NeuroColors.onSurfaceVariant),
                   const SizedBox(height: 16),
                   Text(
-                    _filterViewed == null 
+                    _filterSeverity == null 
                         ? 'No alerts yet' 
-                        : 'No ${_filterViewed! ? "read" : "unread"} alerts',
+                        : 'No alerts with severity: $_filterSeverity',
                     style: const TextStyle(color: NeuroColors.onSurfaceVariant),
                   ),
-                  if (_filterViewed != null)
+                  if (_filterSeverity != null)
                     TextButton(
-                      onPressed: () => setState(() => _filterViewed = null),
+                      onPressed: () => setState(() => _filterSeverity = null),
                       child: const Text('Clear Filter'),
                     ),
                 ],
@@ -62,9 +62,18 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
             itemCount: filteredAlerts.length,
             itemBuilder: (context, index) {
               final alert = filteredAlerts[index];
-              return NeuroAlertCard(
-                alert: alert,
-                onTap: () => context.push('/alert-details/${alert.alertId}'),
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  title: Text(alert.alertType, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(alert.triggerDescription),
+                  leading: CircleAvatar(
+                    backgroundColor: _getSeverityColor(alert.severityLevel).withValues(alpha: 0.1),
+                    child: Icon(Icons.warning, color: _getSeverityColor(alert.severityLevel)),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => context.push('/alert-details/${alert.alertId}'),
+                ),
               );
             },
           );
@@ -75,41 +84,51 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
     );
   }
 
+  Color _getSeverityColor(String severity) {
+    final s = severity.toLowerCase();
+    if (s.contains('high')) return NeuroColors.alertHigh;
+    if (s.contains('medium')) return NeuroColors.alertMedium;
+    return NeuroColors.alertLow;
+  }
+
   void _showFilterDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter by Status'),
+        title: const Text('Filter by Severity'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            RadioListTile<bool?>(
+            ListTile(
               title: const Text('All'),
-              value: null,
-              groupValue: _filterViewed,
-              onChanged: (value) {
-                setState(() => _filterViewed = value);
+              leading: Radio<String?>(
+                value: null,
+                groupValue: _filterSeverity,
+                onChanged: (value) {
+                  setState(() => _filterSeverity = value);
+                  Navigator.pop(context);
+                },
+              ),
+              onTap: () {
+                setState(() => _filterSeverity = null);
                 Navigator.pop(context);
               },
             ),
-            RadioListTile<bool?>(
-              title: const Text('Unread'),
-              value: false,
-              groupValue: _filterViewed,
-              onChanged: (value) {
-                setState(() => _filterViewed = value);
-                Navigator.pop(context);
-              },
-            ),
-            RadioListTile<bool?>(
-              title: const Text('Read'),
-              value: true,
-              groupValue: _filterViewed,
-              onChanged: (value) {
-                setState(() => _filterViewed = value);
-                Navigator.pop(context);
-              },
-            ),
+            ...['Low', 'Medium', 'High'].map((s) => ListTile(
+                  title: Text(s),
+                  leading: Radio<String?>(
+                    value: s,
+                    groupValue: _filterSeverity,
+                    onChanged: (value) {
+                      setState(() => _filterSeverity = value);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  onTap: () {
+                    setState(() => _filterSeverity = s);
+                    Navigator.pop(context);
+                  },
+                )),
           ],
         ),
       ),

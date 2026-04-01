@@ -37,21 +37,20 @@ class AdolescentRoutes {
 final adolescentRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AdolescentRoutes.home,
-    redirect: (context, state) {
+    redirect: (BuildContext context, GoRouterState state) {
       final authState = ref.watch(authControllerProvider);
       final isLoggingIn = state.matchedLocation == AdolescentRoutes.login;
       final isActivating = state.matchedLocation == AdolescentRoutes.activate;
 
-      return authState.maybeWhen(
-        authenticated: (user) {
-          if (isLoggingIn || isActivating) return AdolescentRoutes.home;
-          return null;
-        },
-        orElse: () {
-          if (isLoggingIn || isActivating) return null;
-          return AdolescentRoutes.login;
-        },
-      );
+      final isAuthenticated = authState.status == AuthStatus.authenticated;
+
+      if (isAuthenticated) {
+        if (isLoggingIn || isActivating) return AdolescentRoutes.home;
+        return null;
+      } else {
+        if (isLoggingIn || isActivating) return null;
+        return AdolescentRoutes.login;
+      }
     },
     routes: [
       // Auth routes

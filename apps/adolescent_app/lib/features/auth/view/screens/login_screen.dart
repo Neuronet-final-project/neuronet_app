@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:adolescent_app/config/router/app_router.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -39,14 +39,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     // Listen for error messages
     ref.listen(authControllerProvider, (previous, next) {
-      next.maybeWhen(
-        error: (message) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message), backgroundColor: Colors.red),
-          );
-        },
-        orElse: () {},
-      );
+      if (next.status == AuthStatus.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.errorMessage ?? 'An error occurred'), backgroundColor: Colors.red),
+        );
+      }
     });
 
     return Scaffold(
@@ -75,7 +72,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const Icon(
                       Icons.bubble_chart,
                       size: 80,
-                      color: Colors.green,
+                      color: NeuroColors.adolescentPrimary,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -83,7 +80,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.green[800],
+                        color: NeuroColors.adolescentPrimaryDark,
                         letterSpacing: 4,
                       ),
                     ),
@@ -109,7 +106,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: Colors.green.withValues(alpha: 0.3)),
+                          borderSide: BorderSide(color: NeuroColors.adolescentPrimary.withValues(alpha: 0.3)),
                         ),
                       ),
                       validator: (value) {
@@ -132,7 +129,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: Colors.green.withValues(alpha: 0.3)),
+                          borderSide: BorderSide(color: NeuroColors.adolescentPrimary.withValues(alpha: 0.3)),
                         ),
                       ),
                       validator: (value) {
@@ -145,12 +142,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     
                     // Login Button
                     ElevatedButton(
-                      onPressed: authState.maybeWhen(
-                        initial: () => null,
-                        orElse: () => _handleLogin,
-                      ),
+                      onPressed: authState.status == AuthStatus.loading ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: NeuroColors.adolescentPrimary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -158,20 +152,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         elevation: 0,
                       ),
-                      child: authState.maybeWhen(
-                        initial: () => const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                      child: authState.status == AuthStatus.loading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Login',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        orElse: () => const Text(
-                          'Login',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 24),
                     
@@ -184,11 +177,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                         TextButton(
-                          onPressed: () => context.push(AdolescentRoutes.activate),
+                          onPressed: () => context.push('/activate'),
                           child: const Text(
                             'Activate Account',
                             style: TextStyle(
-                              color: Colors.green,
+                              color: NeuroColors.adolescentPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

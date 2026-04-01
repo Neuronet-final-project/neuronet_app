@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
 
 class ActivationScreen extends ConsumerStatefulWidget {
@@ -41,14 +42,11 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
     final theme = Theme.of(context);
 
     ref.listen(authControllerProvider, (previous, next) {
-      next.maybeWhen(
-        error: (message) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message), backgroundColor: Colors.red),
-          );
-        },
-        orElse: () {},
-      );
+      if (next.status == AuthStatus.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.errorMessage ?? 'An error occurred'), backgroundColor: Colors.red),
+        );
+      }
     });
 
     return Scaffold(
@@ -80,7 +78,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                    const Icon(
                     Icons.security_outlined,
                     size: 80,
-                    color: Colors.green,
+                    color: NeuroColors.adolescentPrimary,
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -100,21 +98,20 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  
+
                   // Email Field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      labelText: 'Account Email',
+                      labelText: 'Registered Email',
                       prefixIcon: const Icon(Icons.email_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter your account email';
-                      if (!value.contains('@')) return 'Please enter a valid email';
+                      if (value == null || value.isEmpty) return 'Please enter your email';
                       return null;
                     },
                   ),
@@ -177,12 +174,9 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   
                   // Activate Button
                   ElevatedButton(
-                    onPressed: authState.maybeWhen(
-                      loading: () => null,
-                      orElse: () => _handleActivate,
-                    ),
+                    onPressed: authState.status == AuthStatus.loading ? null : _handleActivate,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: NeuroColors.adolescentPrimary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -190,20 +184,19 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child: authState.maybeWhen(
-                      loading: () => const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
+                    child: authState.status == AuthStatus.loading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Activate Account',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      orElse: () => const Text(
-                        'Activate Account',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 24),
                   
