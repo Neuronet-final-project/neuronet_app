@@ -7,11 +7,11 @@ part 'user.g.dart';
 @freezed
 abstract class User with _$User {
   const factory User({
-    @JsonKey(name: '_id') required String id,
-    @JsonKey(name: 'full_name') required String fullName,
+    @JsonKey(name: '_id') @Default('') String id,
+    @JsonKey(name: 'full_name') @Default('User') String fullName,
     required String email,
     required UserRole role,
-    @JsonKey(name: 'account_status') required AccountStatus accountStatus,
+    @JsonKey(name: 'account_status') @Default(AccountStatus.active) AccountStatus accountStatus,
     @JsonKey(name: 'created_at') DateTime? createdAt,
   }) = _User;
 

@@ -2,93 +2,114 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:guardian_app/features/auth/providers/auth_provider.dart';
+import 'package:guardian_app/features/profile/providers/profile_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Mock user for Sarah Johnson
-    final user = MockDataService.getMockGuardian();
+    final profileState = ref.watch(guardianProfileControllerProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('My Profile'), centerTitle: true),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            const _ProfileHeader(),
-            const SizedBox(height: 32),
-            _SettingSection(
-              title: 'Account Information',
-              children: [
-                _SettingTile(
-                  label: 'Full Name',
-                  value: user.fullName,
-                  icon: Icons.person_outline,
+      body: profileState.when(
+        data: (user) => _buildContent(context, ref, user),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Error: $err'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.read(guardianProfileControllerProvider.notifier).refresh(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, WidgetRef ref, User user) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        children: [
+          _ProfileHeader(user: user),
+          const SizedBox(height: 32),
+          _SettingSection(
+            title: 'Account Information',
+            children: [
+              _SettingTile(
+                label: 'Full Name',
+                value: user.fullName,
+                icon: Icons.person_outline,
+              ),
+              _SettingTile(
+                label: 'Email',
+                value: user.email,
+                icon: Icons.email_outlined,
+              ),
+              _SettingTile(
+                label: 'Role',
+                value: user.role == UserRole.guardian ? 'Guardian' : user.role.name.toUpperCase(),
+                icon: Icons.verified_user_outlined,
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          _SettingSection(
+            title: 'Notification Settings',
+            children: [
+              SwitchListTile(
+                title: const Text('Alert Notifications'),
+                subtitle: const Text(
+                  'Get notified when patterns are detected',
                 ),
-                _SettingTile(
-                  label: 'Email',
-                  value: user.email,
-                  icon: Icons.email_outlined,
-                ),
-                _SettingTile(
-                  label: 'Role',
-                  value: 'Primary Guardian',
-                  icon: Icons.verified_user_outlined,
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            _SettingSection(
-              title: 'Notification Settings',
-              children: [
-                SwitchListTile(
-                  title: const Text('Alert Notifications'),
-                  subtitle: const Text(
-                    'Get notified when patterns are detected',
-                  ),
-                  value: true,
-                  onChanged: (val) {},
-                  contentPadding: EdgeInsets.zero,
-                ),
-                SwitchListTile(
-                  title: const Text('Counselor Messages'),
-                  subtitle: const Text('Push notifications for new messages'),
-                  value: true,
-                  onChanged: (val) {},
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ],
-            ),
-            const SizedBox(height: 48),
-            TextButton.icon(
-              onPressed: () {
-                ref.read(authControllerProvider.notifier).logout();
-              },
-              icon: const Icon(Icons.logout, color: Colors.red),
-              label: const Text(
-                'Sign Out',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
+                value: true,
+                onChanged: (val) {},
+                contentPadding: EdgeInsets.zero,
+              ),
+              SwitchListTile(
+                title: const Text('Counselor Messages'),
+                subtitle: const Text('Push notifications for new messages'),
+                value: true,
+                onChanged: (val) {},
+                contentPadding: EdgeInsets.zero,
+              ),
+            ],
+          ),
+          const SizedBox(height: 48),
+          TextButton.icon(
+            onPressed: () {
+              ref.read(authControllerProvider.notifier).logout();
+            },
+            icon: const Icon(Icons.logout, color: Colors.red),
+            label: const Text(
+              'Sign Out',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              'NeuroNet Guardian v0.1.0',
-              style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'NeuroNet Guardian v0.1.0',
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+        ],
       ),
     );
   }
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader();
+  final User user;
+  const _ProfileHeader({required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -106,13 +127,13 @@ class _ProfileHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Sarah Johnson',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        Text(
+          user.fullName,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
-          'Guardian since Feb 2026',
+          'Account Status: ${user.accountStatus.name.toUpperCase()}',
           style: TextStyle(fontSize: 14, color: Colors.grey[600]),
         ),
       ],

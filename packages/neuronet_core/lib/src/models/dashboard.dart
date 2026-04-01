@@ -22,10 +22,10 @@ abstract class MoodCount with _$MoodCount {
 abstract class EmotionalTrend with _$EmotionalTrend {
   const factory EmotionalTrend({
     required DateTime date,
-    required double sentimentScore,
-    required String dominantMood,
-    required int journalCount,
-    required int moodEntryCount,
+    @JsonKey(name: 'sentiment_score') required double sentimentScore,
+    @JsonKey(name: 'dominant_mood') required String dominantMood,
+    @JsonKey(name: 'journal_count') required int journalCount,
+    @JsonKey(name: 'mood_entry_count') required int moodEntryCount,
   }) = _EmotionalTrend;
 
   factory EmotionalTrend.fromJson(Map<String, dynamic> json) =>
@@ -36,14 +36,14 @@ abstract class EmotionalTrend with _$EmotionalTrend {
 @freezed
 abstract class AlertBrief with _$AlertBrief {
   const factory AlertBrief({
-    required String alertId,
-    required String adolescentId,
-    required String adolescentName,
-    required String severityLevel,
-    required String alertType,
-    required String triggerDescription,
-    required DateTime createdAt,
-    required bool viewedStatus,
+    @JsonKey(name: 'alert_id') required String alertId,
+    @JsonKey(name: 'adolescent_id') required String adolescentId,
+    @JsonKey(name: 'adolescent_name') required String adolescentName,
+    @JsonKey(name: 'severity_level') required String severityLevel,
+    @JsonKey(name: 'alert_type') required String alertType,
+    @JsonKey(name: 'trigger_description') required String triggerDescription,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'viewed_status') required bool viewedStatus,
   }) = _AlertBrief;
 
   factory AlertBrief.fromJson(Map<String, dynamic> json) =>
@@ -54,10 +54,10 @@ abstract class AlertBrief with _$AlertBrief {
 @freezed
 abstract class AdolescentRisk with _$AdolescentRisk {
   const factory AdolescentRisk({
-    required String adolescentId,
-    required String adolescentName,
-    required String currentRiskLevel,
-    DateTime? lastJournalDate,
+    @JsonKey(name: 'adolescent_id') required String adolescentId,
+    @JsonKey(name: 'adolescent_name') required String adolescentName,
+    @JsonKey(name: 'current_risk_level') required String currentRiskLevel,
+    @JsonKey(name: 'last_journal_date') DateTime? lastJournalDate,
     @Default([]) List<Map<String, dynamic>> educationalRecommendations,
   }) = _AdolescentRisk;
 
@@ -71,17 +71,17 @@ abstract class AdolescentRisk with _$AdolescentRisk {
 @freezed
 abstract class GuardianDashboardData with _$GuardianDashboardData {
   const factory GuardianDashboardData({
-    required int totalAdolescentsLinked,
-    required int totalJournalCount,
-    required int recentActivityCount,
-    required List<AdolescentRisk> adolescentRisks,
-    required List<AlertBrief> alertList,
-    required int unviewedAlertsCount,
-    required List<MoodCount> moodDistribution,
-    required String adolescentId,
-    required String adolescentName,
-    required List<EmotionalTrend> weeklyTrends,
-    DateTime? generatedAt,
+    @JsonKey(name: 'total_adolescents_linked') @Default(0) int totalAdolescentsLinked,
+    @JsonKey(name: 'total_journal_count') @Default(0) int totalJournalCount,
+    @JsonKey(name: 'recent_activity_count') @Default(0) int recentActivityCount,
+    @JsonKey(name: 'adolescent_risks') @Default([]) List<AdolescentRisk> adolescentRisks,
+    @JsonKey(name: 'alert_list') @Default([]) List<AlertBrief> alertList,
+    @JsonKey(name: 'unviewed_alerts_count') @Default(0) int unviewedAlertsCount,
+    @JsonKey(name: 'mood_distribution') @Default([]) List<MoodCount> moodDistribution,
+    @JsonKey(name: 'adolescentId') @Default('') String adolescentId,
+    @JsonKey(name: 'adolescentName') @Default('Adolescent') String adolescentName,
+    @JsonKey(name: 'weekly_trends') @Default([]) List<EmotionalTrend> weeklyTrends,
+    @JsonKey(name: 'generated_at') DateTime? generatedAt,
   }) = _GuardianDashboardData;
 
   factory GuardianDashboardData.fromJson(Map<String, dynamic> json) =>

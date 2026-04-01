@@ -13,7 +13,15 @@ class DashboardService {
   /// Fetches the dashboard data for the currently authenticated guardian.
   Future<GuardianDashboardData> getGuardianDashboard() async {
     final response = await _client.get(ApiEndpoints.guardianDashboard);
-    return GuardianDashboardData.fromJson(response.data as Map<String, dynamic>);
+    // ignore: avoid_print
+    print('DEBUG: /dashboard/guardian raw data: ${response.data}');
+    try {
+      return GuardianDashboardData.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      // ignore: avoid_print
+      print('DEBUG: GuardianDashboardData.fromJson error: $e');
+      rethrow;
+    }
   }
 
   /// Fetches the dashboard data for the currently authenticated adolescent.

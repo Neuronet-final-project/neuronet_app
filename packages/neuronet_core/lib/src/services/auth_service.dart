@@ -41,7 +41,15 @@ class AuthService {
 
   Future<User> getMe() async {
     final response = await _apiClient.get(ApiEndpoints.me);
-    return User.fromJson(response.data as Map<String, dynamic>);
+    // ignore: avoid_print
+    print('DEBUG: /auth/me raw data: ${response.data}');
+    try {
+      return User.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      // ignore: avoid_print
+      print('DEBUG: User.fromJson error: $e');
+      rethrow;
+    }
   }
 
   Future<String> createAdolescent(AdolescentCreateRequest request) async {
