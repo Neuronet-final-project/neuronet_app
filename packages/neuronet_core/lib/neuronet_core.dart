@@ -22,7 +22,7 @@ export 'src/theme/app_theme.dart';
 
 // Widgets
 export 'src/widgets/neuro_card.dart';
-export 'src/widgets/neur_trend_chart.dart';
+
 export 'src/widgets/neuro_mood_icon.dart';
 export 'src/widgets/neuro_journal_card.dart';
 export 'src/widgets/neuro_alert_card.dart';

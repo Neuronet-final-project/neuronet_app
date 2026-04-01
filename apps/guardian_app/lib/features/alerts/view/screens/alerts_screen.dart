@@ -12,7 +12,7 @@ class AlertsScreen extends ConsumerStatefulWidget {
 }
 
 class _AlertsScreenState extends ConsumerState<AlertsScreen> {
-  AlertActionStatus? _filterStatus;
+  bool? _filterViewed;
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +30,9 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
       ),
       body: alertsAsync.when(
         data: (alerts) {
-          final filteredAlerts = _filterStatus == null
+          final filteredAlerts = _filterViewed == null
               ? alerts
-              : alerts.where((a) => a.actionStatus == _filterStatus).toList();
+              : alerts.where((a) => a.viewedStatus == _filterViewed).toList();
 
           if (filteredAlerts.isEmpty) {
             return Center(
@@ -42,14 +42,14 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                   const Icon(Icons.notifications_off_outlined, size: 64, color: NeuroColors.onSurfaceVariant),
                   const SizedBox(height: 16),
                   Text(
-                    _filterStatus == null 
+                    _filterViewed == null 
                         ? 'No alerts yet' 
-                        : 'No alerts with status: ${_filterStatus!.name}',
+                        : 'No ${_filterViewed! ? "read" : "unread"} alerts',
                     style: const TextStyle(color: NeuroColors.onSurfaceVariant),
                   ),
-                  if (_filterStatus != null)
+                  if (_filterViewed != null)
                     TextButton(
-                      onPressed: () => setState(() => _filterStatus = null),
+                      onPressed: () => setState(() => _filterViewed = null),
                       child: const Text('Clear Filter'),
                     ),
                 ],
@@ -80,23 +80,27 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Filter by Status'),
-        content: RadioGroup<AlertActionStatus?>(
-          groupValue: _filterStatus,
+        content: RadioGroup<bool?>(
+          groupValue: _filterViewed,
           onChanged: (value) {
-            setState(() => _filterStatus = value);
+            setState(() => _filterViewed = value);
             Navigator.pop(context);
           },
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const RadioListTile<AlertActionStatus?>(
+              const RadioListTile<bool?>(
                 title: Text('All'),
                 value: null,
               ),
-              ...AlertActionStatus.values.map((status) => RadioListTile<AlertActionStatus?>(
-                    title: Text(status.name.toUpperCase()),
-                    value: status,
-                  )),
+              const RadioListTile<bool?>(
+                title: Text('Unread'),
+                value: false,
+              ),
+              const RadioListTile<bool?>(
+                title: Text('Read'),
+                value: true,
+              ),
             ],
           ),
         ),

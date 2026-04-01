@@ -79,11 +79,29 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildTrendSection(BuildContext context, DashboardData data) {
+    if (data.moodDistribution.isEmpty) return const SizedBox.shrink();
+
     return NeuroDashboardCard(
-      title: 'Emotional Trend',
-      subtitle: 'Last 7 days',
-      height: 300,
-      child: NeuroTrendChart(trends: data.trends),
+      title: 'Mood Distribution',
+      subtitle: 'Recent check-ins',
+      height: null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          children: data.moodDistribution.map((mc) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(mc.mood ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.w500)),
+                  Text('${mc.count} entries'),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
@@ -99,28 +117,28 @@ class DashboardScreen extends ConsumerWidget {
         childAspectRatio: 1.5,
         children: [
           _StatCard(
-            label: 'Journal Entries',
-            value: data.totalJournals.toString(),
+            label: 'Recent Journals',
+            value: data.recentJournals.length.toString(),
             icon: Icons.book,
             color: Colors.blue,
           ),
           _StatCard(
-            label: 'Mood Records',
-            value: data.totalMoodEntries.toString(),
+            label: 'Mood Variants',
+            value: data.moodDistribution.length.toString(),
             icon: Icons.mood,
             color: Colors.orange,
           ),
           _StatCard(
-            label: 'Active Alerts',
-            value: data.activeAlerts.toString(),
-            icon: Icons.warning_amber_rounded,
-            color: Colors.red,
+            label: 'Recommendations',
+            value: data.educationalRecommendations.length.toString(),
+            icon: Icons.school,
+            color: Colors.green,
           ),
           _StatCard(
-            label: 'Unread Messages',
-            value: data.unreadMessages.toString(),
-            icon: Icons.message_outlined,
-            color: Colors.green,
+            label: 'Active Streak',
+            value: '3', // Mock for now until backend adds it
+            icon: Icons.local_fire_department,
+            color: Colors.red,
           ),
         ],
       ),
@@ -223,13 +241,21 @@ class DashboardScreen extends ConsumerWidget {
           itemCount: data.recentJournals.length,
           itemBuilder: (context, index) {
             final entry = data.recentJournals[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: NeuroJournalCard(
-                entry: entry,
-                onTap: () {
-                  // Navigate to journal detail (if implemented)
-                },
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: NeuroColors.adolescentSurface,
+                  child: Text(
+                    entry.mood?.characters.firstOrNull ?? '📔',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+                title: Text(entry.title ?? 'Journal Entry', style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text('Mood: ${entry.mood ?? 'Unspecified'}'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {},
               ),
             );
           },

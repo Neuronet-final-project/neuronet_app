@@ -45,18 +45,15 @@ class GuardianAlertsController extends _$GuardianAlertsController {
     }
   }
 
-  Future<void> updateAlertStatus(
-    String alertId, 
-    AlertActionStatus status, {
+  Future<void> resolveAlert(
+    String alertId, {
     String? notes,
   }) async {
     final service = ref.read(alertServiceProvider);
     
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      if (status == AlertActionStatus.resolved) {
-        await service.resolveAlert(alertId, notes: notes);
-      }
+      await service.resolveAlert(alertId, notes: notes);
       return service.getGuardianAlerts();
     });
   }

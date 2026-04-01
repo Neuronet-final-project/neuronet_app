@@ -44,12 +44,13 @@ class AuthController extends _$AuthController {
     try {
       final authService = ref.read(authServiceProvider);
       final response = await authService.login(email, password);
-      // After login, we usually fetch the user profile
-      // For now, we assume the backend might provide it or we can create a mock User from the token role
-      // But the best is to call a 'getMe' if available. Let's assume we fetch it later or use response info.
-      // Since LoginResponse currently only has tokens and role, we'll mark as authenticated.
-      // Ideally AuthService should have a getMe()
       
+      // Save the token to storage!
+      final storage = ref.read(tokenStorageProvider);
+      await storage.saveTokens(
+        accessToken: response.accessToken,
+      );
+
       // For this pilot, we'll use a dummy user with the role from response
       final user = User(
         id: 'current',

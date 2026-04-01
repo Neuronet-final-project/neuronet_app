@@ -18,7 +18,8 @@ class DashboardScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(guardianDashboardControllerProvider.notifier).refresh(),
+            onPressed: () =>
+                ref.read(guardianDashboardControllerProvider.notifier).refresh(),
           ),
         ],
       ),
@@ -28,11 +29,32 @@ class DashboardScreen extends ConsumerWidget {
           SliverToBoxAdapter(
             child: dashboardAsync.when(
               data: (data) => _buildSummarySection(context, data),
-              loading: () => const Center(child: Padding(
-                padding: EdgeInsets.all(32.0),
-                child: CircularProgressIndicator(),
-              )),
-              error: (err, stack) => Center(child: Text('Error loading dashboard: $err')),
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              error: (err, stack) => Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    const Icon(Icons.error_outline,
+                        color: Colors.red, size: 48),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Error loading dashboard',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      err.toString(),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
 
@@ -81,7 +103,14 @@ class DashboardScreen extends ConsumerWidget {
               child: Center(child: CircularProgressIndicator()),
             ),
             error: (err, stack) => SliverToBoxAdapter(
-              child: Center(child: Text('Error loading alerts: $err')),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'Error loading alerts: $err',
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
           ),
 
@@ -103,7 +132,8 @@ class DashboardScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   _QuickActionCard(
                     title: 'Register New Adolescent',
-                    subtitle: 'Add another child to your monitoring dashboard',
+                    subtitle:
+                        'Add another child to your monitoring dashboard',
                     icon: Icons.person_add_outlined,
                     onTap: () => context.push('/register-adolescent'),
                   ),
@@ -118,16 +148,8 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummarySection(BuildContext context, GuardianDashboardData data) {
-    // Calculate stats from weekly trends
-    final avgEmotionalScore = data.weeklyTrends.isEmpty 
-        ? 0.0 
-        : data.weeklyTrends.map((t) => t.sentimentScore).reduce((a, b) => a + b) / data.weeklyTrends.length;
-    
-    final totalJournals = data.weeklyTrends.isEmpty 
-        ? 0 
-        : data.weeklyTrends.map((t) => t.journalCount ?? 0).reduce((a, b) => a + b);
-
+  Widget _buildSummarySection(
+      BuildContext context, GuardianDashboardData data) {
     return Column(
       children: [
         // Premium Hero Section
@@ -146,18 +168,18 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Column(
+                  const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Good Morning,',
+                      Text(
+                        'Good day,',
                         style: TextStyle(
                           fontSize: 16,
                           color: NeuroColors.onSurfaceVariant,
                         ),
                       ),
                       Text(
-                        'Guardian', // In real app, get from auth
+                        'Guardian',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -168,104 +190,66 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                   const Spacer(),
                   CircleAvatar(
-                    backgroundColor: NeuroColors.guardianPrimary.withValues(alpha: 0.2),
-                    child: const Icon(Icons.person, color: NeuroColors.guardianPrimary),
+                    backgroundColor:
+                        NeuroColors.guardianPrimary.withValues(alpha: 0.2),
+                    child: const Icon(Icons.person,
+                        color: NeuroColors.guardianPrimary),
                   ),
                 ],
               ),
+
               const SizedBox(height: 24),
-              // Adolescent Status Overview
-              InkWell(
-                onTap: () => context.push('/adolescent/mock_id'),
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            data.adolescentName,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text(
-                            'Last check-in: 2h ago',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: NeuroColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      _buildQuickStat(
-                        label: 'Score',
-                        value: avgEmotionalScore.toStringAsFixed(1),
-                        color: NeuroColors.alertLow,
-                      ),
-                      const SizedBox(width: 16),
-                      _buildQuickStat(
-                        label: 'Journals',
-                        value: totalJournals.toString(),
-                        color: NeuroColors.adolescentPrimary,
-                      ),
-                      const SizedBox(width: 16),
-                      _buildQuickStat(
-                        label: 'Alerts',
-                        value: data.activeAlerts.toString(),
-                        color: data.activeAlerts > 0 ? NeuroColors.alertHigh : NeuroColors.alertLow,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
 
-        // Weekly Trend Chart
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Weekly Sentiment Trend',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: NeuroColors.onSurface,
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 200,
-                child: NeuroTrendChart(trends: data.weeklyTrends),
-              ),
-              const SizedBox(height: 8),
+              // Summary Stats Row
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _chartLegend('Sentiment', NeuroColors.guardianPrimary),
-                  const SizedBox(width: 16),
-                  _chartLegend('Journals', NeuroColors.adolescentPrimary),
+                  Expanded(
+                    child: _buildStatCard(
+                      label: 'Linked',
+                      value: data.totalAdolescentsLinked.toString(),
+                      icon: Icons.people_outline,
+                      color: NeuroColors.guardianPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      label: 'Journals',
+                      value: data.totalJournalCount.toString(),
+                      icon: Icons.book_outlined,
+                      color: NeuroColors.adolescentPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      label: 'Alerts',
+                      value: data.unviewedAlertsCount.toString(),
+                      icon: Icons.notifications_outlined,
+                      color: data.unviewedAlertsCount > 0
+                          ? NeuroColors.alertHigh
+                          : NeuroColors.alertLow,
+                    ),
+                  ),
                 ],
               ),
+
+              // Adolescent Risk Cards
+              if (data.adolescentRisks.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                const Text(
+                  'Your Adolescents',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: NeuroColors.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ...data.adolescentRisks.map(
+                  (risk) => _AdolescentRiskCard(risk: risk),
+                ),
+              ],
             ],
           ),
         ),
@@ -273,39 +257,116 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickStat({required String label, required String value, required Color color}) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: color,
+  Widget _buildStatCard({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-        ),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 10,
-            color: NeuroColors.onSurfaceVariant,
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
           ),
-        ),
-      ],
+          Text(
+            label,
+            style: const TextStyle(
+                fontSize: 11, color: NeuroColors.onSurfaceVariant),
+          ),
+        ],
+      ),
     );
   }
+}
 
-  Widget _chartLegend(String label, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 12, color: NeuroColors.onSurfaceVariant)),
-      ],
+class _AdolescentRiskCard extends StatelessWidget {
+  final AdolescentRisk risk;
+
+  const _AdolescentRiskCard({required this.risk});
+
+  Color _riskColor(String level) => switch (level.toLowerCase()) {
+        'high' => NeuroColors.alertHigh,
+        'medium' => NeuroColors.alertMedium,
+        _ => NeuroColors.alertLow,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final riskColor = _riskColor(risk.currentRiskLevel);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: riskColor.withValues(alpha: 0.4)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 6,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: riskColor.withValues(alpha: 0.15),
+            child: Icon(Icons.person, color: riskColor),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  risk.adolescentName,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                Text(
+                  'Risk: ${risk.currentRiskLevel.toUpperCase()}',
+                  style: TextStyle(color: riskColor, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: riskColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              risk.currentRiskLevel.toUpperCase(),
+              style: TextStyle(
+                  color: riskColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -340,7 +401,8 @@ class _QuickActionCard extends StatelessWidget {
             color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: Theme.of(context).primaryColor),
+          child:
+              Icon(icon, color: Theme.of(context).primaryColor),
         ),
         title: Text(
           title,

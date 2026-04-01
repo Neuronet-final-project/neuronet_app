@@ -24,6 +24,7 @@ abstract class AuthResponse with _$AuthResponse {
     @JsonKey(name: 'access_token') required String accessToken,
     @JsonKey(name: 'token_type') required String tokenType,
     required UserRole role,
+    String? email,
   }) = _AuthResponse;
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) =>

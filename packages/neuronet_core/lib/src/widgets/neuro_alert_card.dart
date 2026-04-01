@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/alert.dart';
-import '../models/enums.dart';
 import '../theme/app_theme.dart';
 import 'neuro_card.dart';
 
@@ -16,8 +15,8 @@ class NeuroAlertCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final severityColor = _getSeverityColor();
-    final icon = _getAlertIcon();
+    final severityColor = _getSeverityColor(alert.severityLevel);
+    final icon = _getAlertIcon(alert.alertType);
 
     return NeuroCard(
       onTap: onTap,
@@ -44,16 +43,30 @@ class NeuroAlertCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      _getAlertTitle(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: NeuroColors.onSurface,
+                    Expanded(
+                      child: Text(
+                        _getAlertTitle(alert.alertType),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: NeuroColors.onSurface,
+                        ),
                       ),
                     ),
-                    _SeverityBadge(severity: alert.severityLevel, color: severityColor),
+                    _SeverityBadge(
+                      label: alert.severityLevel.toUpperCase(),
+                      color: severityColor,
+                    ),
                   ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  alert.adolescentName,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: NeuroColors.onSurface.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -80,33 +93,32 @@ class NeuroAlertCard extends StatelessWidget {
     );
   }
 
-  Color _getSeverityColor() {
-    return switch (alert.severityLevel) {
-      AlertSeverity.low => NeuroColors.alertLow,
-      AlertSeverity.medium => NeuroColors.alertMedium,
-      AlertSeverity.high => NeuroColors.alertHigh,
-    };
-  }
+  static Color _getSeverityColor(String level) =>
+      switch (level.toLowerCase()) {
+        'high' => NeuroColors.alertHigh,
+        'medium' => NeuroColors.alertMedium,
+        _ => NeuroColors.alertLow,
+      };
 
-  IconData _getAlertIcon() {
-    return switch (alert.alertType) {
-      AlertType.moodDrop => Icons.trending_down,
-      AlertType.emotionalPattern => Icons.psychology_outlined,
-      AlertType.journalFrequency => Icons.history_edu,
-      AlertType.contentFlag => Icons.report_problem_outlined,
-    };
-  }
+  static IconData _getAlertIcon(String type) =>
+      switch (type.toLowerCase()) {
+        'mood_drop' => Icons.trending_down,
+        'emotional_pattern' => Icons.psychology_outlined,
+        'journal_frequency' => Icons.history_edu,
+        'content_flag' => Icons.report_problem_outlined,
+        _ => Icons.warning_amber_outlined,
+      };
 
-  String _getAlertTitle() {
-    return switch (alert.alertType) {
-      AlertType.moodDrop => 'Mood Drop Detected',
-      AlertType.emotionalPattern => 'Emotional Pattern',
-      AlertType.journalFrequency => 'Journal Frequency',
-      AlertType.contentFlag => 'Content Flag',
-    };
-  }
+  static String _getAlertTitle(String type) =>
+      switch (type.toLowerCase()) {
+        'mood_drop' => 'Mood Drop Detected',
+        'emotional_pattern' => 'Emotional Pattern',
+        'journal_frequency' => 'Journal Frequency',
+        'content_flag' => 'Content Flag',
+        _ => 'Alert',
+      };
 
-  String _formatTime(DateTime dateTime) {
+  static String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
@@ -121,10 +133,10 @@ class NeuroAlertCard extends StatelessWidget {
 }
 
 class _SeverityBadge extends StatelessWidget {
-  final AlertSeverity severity;
+  final String label;
   final Color color;
 
-  const _SeverityBadge({required this.severity, required this.color});
+  const _SeverityBadge({required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +147,7 @@ class _SeverityBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        severity.name.toUpperCase(),
+        label,
         style: const TextStyle(
           color: Colors.white,
           fontSize: 10,

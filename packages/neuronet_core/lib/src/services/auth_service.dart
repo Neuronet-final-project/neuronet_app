@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/models.dart';
 import '../network/api_client.dart';
@@ -18,15 +17,10 @@ class AuthService {
   final ApiClient _apiClient;
 
   Future<AuthResponse> login(String email, String password) async {
+    final request = LoginRequest(email: email, password: password);
     final response = await _apiClient.post(
       ApiEndpoints.login,
-      data: {
-        'username': email,
-        'password': password,
-      },
-      options: Options(
-        contentType: 'application/x-www-form-urlencoded',
-      ),
+      data: request.toJson(),
     );
     return AuthResponse.fromJson(response.data as Map<String, dynamic>);
   }
