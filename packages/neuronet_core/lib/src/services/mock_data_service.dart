@@ -39,10 +39,11 @@ class MockDataService {
     return List.generate(
       contents.length,
       (index) => JournalEntry(
-        journalId: 'journal-$index',
+        id: 'journal-$index',
         adolescentId: 'user-123',
         content: contents[index],
         createdAt: DateTime.now().subtract(Duration(days: index)),
+        updatedAt: DateTime.now().subtract(Duration(days: index)),
         sentimentScore: 0.5 + (index * 0.1), // Varies from 0.5 to 0.9
       ),
     );
@@ -52,48 +53,33 @@ class MockDataService {
     return List.generate(
       10,
       (index) => MoodRecord(
-        moodId: 'mood-$index',
+        id: 'mood-$index',
         adolescentId: 'user-123',
-        moodType: MoodType.values[index % MoodType.values.length],
+        mood: MoodType.values[index % MoodType.values.length],
         intensity: (index % 5) + 1,
-        recordedAt: DateTime.now().subtract(Duration(hours: index * 4)),
-        contextNotes: 'Mock mood entry $index',
+        createdAt: DateTime.now().subtract(Duration(hours: index * 4)),
+        note: 'Mock mood entry $index',
       ),
     );
   }
 
   static DashboardData getMockAdolescentDashboard() {
     final allJournals = getMockJournals();
-    final sentimentScores = [0.45, 0.7, 0.55, 0.85, 0.6, 0.75, 0.65];
     return DashboardData(
-      trends: List.generate(
-        7,
-        (index) => EmotionalTrend(
-          date: DateTime.now().subtract(Duration(days: 6 - index)),
-          sentimentScore: sentimentScores[index % sentimentScores.length],
-          dominantMood: index % 2 == 0 ? 'Stable' : 'Fluctuating',
-          journalCount: index % 2,
-          moodEntryCount: index % 3,
-        ),
-      ),
       recentJournals: allJournals
           .take(3)
           .map((j) => RecentJournal(
-                id: j.journalId,
+                id: j.id,
                 createdAt: j.createdAt,
-                mood: j.moodType?.name,
+                mood: j.mood,
                 title: j.title,
               ))
           .toList(),
-      totalJournals: 45,
-      totalMoodEntries: 120,
-      activeAlerts: 0,
-      unreadMessages: 2,
       moodDistribution: [
         MoodCount(mood: 'Happy', count: 12),
         MoodCount(mood: 'Calm', count: 8),
       ],
-      generatedAt: DateTime.now(),
+      educationalRecommendations: [],
     );
   }
 

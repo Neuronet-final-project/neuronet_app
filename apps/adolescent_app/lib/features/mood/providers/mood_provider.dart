@@ -45,20 +45,15 @@ class MoodController extends _$MoodController {
     state = state.copyWith(isSubmitting: true, error: null);
 
     try {
-
-
-      // In a real app, this would call a repository
-      // final record = MoodRecord(
-      //   moodId: DateTime.now().millisecondsSinceEpoch.toString(),
-      //   adolescentId: user.userId,
-      //   moodType: state.selectedMood!,
-      //   intensity: state.intensity,
-      //   recordedAt: DateTime.now(),
-      //   contextNotes: state.notes,
-      // );
+      final service = ref.read(journalServiceProvider);
       
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 1));
+      final request = CreateMoodRequest(
+        mood: state.selectedMood!,
+        intensity: state.intensity,
+        note: state.notes,
+      );
+      
+      await service.recordMood(request);
 
       state = state.copyWith(
         isSubmitting: false,

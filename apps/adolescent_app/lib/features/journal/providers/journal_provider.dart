@@ -12,7 +12,7 @@ class JournalController extends _$JournalController {
     return service.getMyJournals();
   }
 
-  Future<void> addEntry(String content, {String? title, MoodType? moodType}) async {
+  Future<void> addEntry(String content, {String? title, MoodType? mood}) async {
     final service = ref.read(journalServiceProvider);
     
     state = const AsyncValue.loading();
@@ -20,7 +20,8 @@ class JournalController extends _$JournalController {
       final request = CreateJournalRequest(
         title: title,
         content: content,
-        moodType: moodType,
+        mood: mood ?? MoodType.neutral,
+        deviceType: 'mobile',
       );
       
       await service.createJournal(request);

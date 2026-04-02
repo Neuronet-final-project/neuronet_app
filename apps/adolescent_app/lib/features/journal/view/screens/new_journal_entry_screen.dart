@@ -40,7 +40,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
       await ref.read(journalControllerProvider.notifier).addEntry(
         content,
         title: title.isEmpty ? null : title,
-        moodType: _selectedMood,
+        mood: _selectedMood,
       );
       if (mounted) {
         Navigator.of(context).pop();

@@ -20,7 +20,7 @@ class JournalDetailScreen extends ConsumerWidget {
       body: journalState.when(
         data: (entries) {
           final entry = entries.firstWhere(
-            (e) => e.journalId == entryId,
+            (e) => e.id == entryId,
             orElse: () => throw Exception('Entry not found'),
           );
 
@@ -32,7 +32,7 @@ class JournalDetailScreen extends ConsumerWidget {
                 Row(
                   children: [
                     Text(
-                      entry.moodType?.emoji ?? '📝',
+                      entry.mood?.emoji ?? '📝',
                       style: const TextStyle(fontSize: 40),
                     ),
                     const SizedBox(width: 16),
@@ -40,7 +40,7 @@ class JournalDetailScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          entry.moodType?.label ?? 'Journal',
+                          entry.mood?.label ?? 'Journal',
                           style: theme.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),

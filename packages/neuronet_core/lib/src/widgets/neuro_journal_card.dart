@@ -19,13 +19,13 @@ class NeuroJournalCard extends StatelessWidget {
     final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
     final sentimentScore = entry.sentimentScore;
     final isAnalyzed = sentimentScore != null;
-    final hasMood = entry.moodType != null;
+    final hasMood = entry.mood != null;
     
     return NeuroDashboardCard(
       title: entry.title ?? dateFormat.format(entry.createdAt),
       subtitle: entry.title != null ? dateFormat.format(entry.createdAt) : null,
       trailing: hasMood 
-          ? Text(entry.moodType!.emoji, style: const TextStyle(fontSize: 20))
+          ? Text(entry.mood!.emoji, style: const TextStyle(fontSize: 20))
           : null,
       child: InkWell(
         onTap: onTap,
@@ -81,7 +81,7 @@ class NeuroJournalCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        entry.moodType!.label,
+                        entry.mood!.label,
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,

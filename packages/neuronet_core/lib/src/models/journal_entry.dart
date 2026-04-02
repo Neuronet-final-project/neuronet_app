@@ -7,14 +7,16 @@ part 'journal_entry.g.dart';
 @freezed
 abstract class JournalEntry with _$JournalEntry {
   const factory JournalEntry({
-    required String journalId,
-    required String adolescentId,
+    @JsonKey(name: '_id') required String id,
+    @JsonKey(name: 'adolescent_id') required String adolescentId,
     String? title,
     required String content,
-    required DateTime createdAt,
-    MoodType? moodType,
-    double? sentimentScore,
-    DateTime? lastAnalyzedAt,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    MoodType? mood,
+    @JsonKey(name: 'sentiment_score') double? sentimentScore,
+    @JsonKey(name: 'risk_level') String? riskLevel,
+    @JsonKey(name: 'keywords_detected') List<String>? keywordsDetected,
   }) = _JournalEntry;
 
   factory JournalEntry.fromJson(Map<String, dynamic> json) =>
@@ -26,7 +28,8 @@ abstract class CreateJournalRequest with _$CreateJournalRequest {
   const factory CreateJournalRequest({
     String? title,
     required String content,
-    MoodType? moodType,
+    required MoodType mood,
+    @JsonKey(name: 'device_type') required String deviceType,
   }) = _CreateJournalRequest;
 
   factory CreateJournalRequest.fromJson(Map<String, dynamic> json) =>
@@ -36,12 +39,12 @@ abstract class CreateJournalRequest with _$CreateJournalRequest {
 @freezed
 abstract class MoodRecord with _$MoodRecord {
   const factory MoodRecord({
-    required String moodId,
-    required String adolescentId,
-    required MoodType moodType,
+    @JsonKey(name: '_id') required String id,
+    @JsonKey(name: 'adolescent_id') required String adolescentId,
+    required MoodType mood,
     int? intensity,
-    required DateTime recordedAt,
-    String? contextNotes,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    String? note,
   }) = _MoodRecord;
 
   factory MoodRecord.fromJson(Map<String, dynamic> json) =>
@@ -51,9 +54,9 @@ abstract class MoodRecord with _$MoodRecord {
 @freezed
 abstract class CreateMoodRequest with _$CreateMoodRequest {
   const factory CreateMoodRequest({
-    required MoodType moodType,
+    required MoodType mood,
     int? intensity,
-    String? contextNotes,
+    String? note,
   }) = _CreateMoodRequest;
 
   factory CreateMoodRequest.fromJson(Map<String, dynamic> json) =>
