@@ -84,10 +84,12 @@ abstract class AdolescentCreateRequest with _$AdolescentCreateRequest {
 @freezed
 abstract class AdolescentResponse with _$AdolescentResponse {
   const factory AdolescentResponse({
+    @JsonKey(name: '_id') @Default('') String id,
     required String email,
     @JsonKey(name: 'full_name') required String fullName,
     @JsonKey(name: 'account_status') required AccountStatus accountStatus,
     required UserRole role,
+    required RelationshipType relationship,
     @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _AdolescentResponse;
 

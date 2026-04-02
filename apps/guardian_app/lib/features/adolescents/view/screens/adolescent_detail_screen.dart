@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import '../../providers/adolescent_provider.dart';
 
 class AdolescentDetailScreen extends ConsumerWidget {
   final String adolescentId;
@@ -12,48 +13,75 @@ class AdolescentDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // In a real app, we would fetch details by ID. 
-    // For now, we use mock data from the dashboard provider or a dedicated detail provider.
-    
+    final detailState = ref.watch(adolescentDetailControllerProvider(adolescentId));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Adolescent Profile'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildProfileHeader(),
-            const SizedBox(height: 32),
-            _buildSectionTitle('Registration Details'),
-            _buildDetailTile('Full Name', 'Adolescent User'),
-            _buildDetailTile('Relationship', 'Parent/Guardian'),
-            _buildDetailTile('Linked Since', 'Jan 15, 2026'),
-            const SizedBox(height: 32),
-            _buildSectionTitle('Active Consent'),
-            _buildConsentItem('Mood Tracking', true),
-            _buildConsentItem('Journal Pattern Analysis', true),
-            _buildConsentItem('Emergency Contact Access', true),
-            _buildConsentItem('Third-party sharing', false),
-            const SizedBox(height: 48),
-            OutlinedButton(
-              onPressed: () {
-                // TODO: Implement unlink logic
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: NeuroColors.error,
-                side: const BorderSide(color: NeuroColors.error),
+      body: detailState.when(
+        data: (state) => _buildContent(context, ref, state),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Error: $err'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.read(adolescentDetailControllerProvider(adolescentId).notifier).refresh(),
+                child: const Text('Retry'),
               ),
-              child: const Text('Unlink Account'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildContent(BuildContext context, WidgetRef ref, AdolescentDetailState detail) {
+    final profile = detail.profile;
+    final consents = detail.consents;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildProfileHeader(profile),
+          const SizedBox(height: 32),
+          _buildSectionTitle('Registration Details'),
+          _buildDetailTile('Full Name', profile.fullName),
+          _buildDetailTile('Email', profile.email),
+          _buildDetailTile('Relationship', profile.relationship.name.toUpperCase()),
+          _buildDetailTile('Account Status', profile.accountStatus.name.toUpperCase()),
+          _buildDetailTile('Linked Since', profile.createdAt.toIso8601String().split('T')[0]),
+          const SizedBox(height: 32),
+          _buildSectionTitle('Active Consent'),
+          if (consents.isEmpty)
+            const Text('No consents record found for this account.')
+          else
+            ...consents.map((c) => _buildConsentItem(
+              c.consentType.label, 
+              c.consentStatus == ConsentStatus.granted,
+            )),
+          const SizedBox(height: 48),
+          OutlinedButton(
+            onPressed: () {
+              // TODO: Implement unlink logic
+            },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: NeuroColors.error,
+              side: const BorderSide(color: NeuroColors.error),
+            ),
+            child: const Text('Unlink Account'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(AdolescentResponse profile) {
     return Center(
       child: Column(
         children: [
@@ -63,16 +91,16 @@ class AdolescentDetailScreen extends ConsumerWidget {
             child: const Icon(Icons.person, size: 50, color: NeuroColors.adolescentPrimary),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Adolescent User',
-            style: TextStyle(
+          Text(
+            profile.fullName,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Text(
-            'Active Member',
-            style: TextStyle(
+          Text(
+            profile.email,
+            style: const TextStyle(
               color: NeuroColors.onSurfaceVariant,
             ),
           ),

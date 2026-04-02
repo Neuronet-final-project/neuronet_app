@@ -45,8 +45,12 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       final isSigningUp = state.matchedLocation == GuardianRoutes.signup;
       final isActivating = state.matchedLocation == GuardianRoutes.activate;
       final isAuthenticated = authState.status == AuthStatus.authenticated;
+      final isInitial = authState.status == AuthStatus.initial || authState.status == AuthStatus.loading;
 
       if (!isAuthenticated && !isLoggingIn && !isActivating && !isSigningUp) {
+        // If we are loading or there was a data error, don't redirect to login yet
+        if (isInitial || authState.status == AuthStatus.error) return null;
+        
         return GuardianRoutes.login;
       }
 

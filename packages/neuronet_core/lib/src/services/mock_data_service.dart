@@ -75,42 +75,28 @@ class MockDataService {
                 title: j.title,
               ))
           .toList(),
-      moodDistribution: [
-        MoodCount(mood: 'Happy', count: 12),
-        MoodCount(mood: 'Calm', count: 8),
-      ],
+      moodDistribution: {
+        'Happy': 12,
+        'Calm': 8,
+      },
       educationalRecommendations: [],
     );
   }
 
   static GuardianDashboardData getMockGuardianDashboard() {
-    final sentimentScores = [0.65, 0.45, 0.75, 0.5, 0.6, 0.55, 0.7];
     return GuardianDashboardData(
-      adolescentId: 'user-123',
-      adolescentName: 'Alex Johnson',
-      weeklyTrends: List.generate(
-        7,
-        (index) => EmotionalTrend(
-          date: DateTime.now().subtract(Duration(days: 6 - index)),
-          sentimentScore: sentimentScores[index % sentimentScores.length],
-          dominantMood: index % 3 == 0 ? 'Stable' : 'Variable',
-          journalCount: 1,
-          moodEntryCount: 2,
-        ),
-      ),
       totalAdolescentsLinked: 2,
       totalJournalCount: 15,
       recentActivityCount: 5,
-      adolescentRisks: [
-        AdolescentRisk(
-          adolescentId: 'user-123',
-          adolescentName: 'Alex Johnson',
-          currentRiskLevel: 'medium',
-        ),
-      ],
+      adolescentRisks: {
+        'user-123': 'Medium',
+      },
       alertList: [],
       unviewedAlertsCount: 1,
-      moodDistribution: [],
+      moodDistribution: {
+        'Stable': 10,
+        'Variable': 5,
+      },
       generatedAt: DateTime.now(),
     );
   }

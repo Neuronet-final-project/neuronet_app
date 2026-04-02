@@ -10,15 +10,18 @@ class AdolescentProfileController extends _$AdolescentProfileController {
     final authService = ref.watch(authServiceProvider);
     try {
       final user = await authService.getMe();
-      // ignore: avoid_print
-      print('DEBUG: AdolescentProfileController loaded user: ${user.fullName}');
       return user;
-    } catch (e, stack) {
+    } catch (e) {
       // ignore: avoid_print
-      print('DEBUG: AdolescentProfileController error: $e');
-      // ignore: avoid_print
-      print('DEBUG: Stack trace: $stack');
-      rethrow;
+      print('🚩 PROFILE ERROR: Failed to fetch profile from server. Falling back to generic user.');
+      // return a fallback user so we don't break the entire app shell
+      return User(
+        id: 'fallback',
+        fullName: 'Member',
+        email: '...',
+        role: UserRole.adolescent,
+        accountStatus: AccountStatus.active,
+      );
     }
   }
 

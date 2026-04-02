@@ -5,14 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../providers/dashboard_provider.dart';
 import 'package:adolescent_app/config/router/app_router.dart';
 import 'package:adolescent_app/features/mood/providers/mood_provider.dart';
+import 'package:adolescent_app/features/profile/providers/profile_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dashboardAsync = ref.watch(adolescentDashboardProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Emotional Health'),
@@ -25,24 +24,18 @@ class DashboardScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(adolescentDashboardProvider.future),
-        child: dashboardAsync.when(
-          data: (data) => SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildWelcomeHeader(context),
-                _buildMoodCheckIn(context, ref),
-                _buildTrendSection(context, data),
-                _buildStatsGrid(context, data),
-                _buildRecentJournals(context, data),
-                _buildActionCards(context),
-              ],
-            ),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildWelcomeHeader(context, ref),
+              _buildMoodCheckIn(context, ref),
+              _buildDataSection(context, ref), // Integrated data-fetching here
+              _buildActionCards(context),
+            ],
           ),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(child: Text('Error: $err')),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -54,14 +47,20 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWelcomeHeader(BuildContext context) {
+  Widget _buildWelcomeHeader(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(adolescentProfileControllerProvider);
+    final name = profileAsync.maybeWhen(
+      data: (user) => user.fullName.split(' ')[0],
+      orElse: () => 'there',
+    );
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Hi Alex,',
+            'Hi $name,',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -88,14 +87,14 @@ class DashboardScreen extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Column(
-          children: data.moodDistribution.map((mc) {
+          children: data.moodDistribution.entries.map((entry) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(mc.mood ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.w500)),
-                  Text('${mc.count} entries'),
+                  Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w500)),
+                  Text('${entry.value} entries'),
                 ],
               ),
             );
@@ -248,12 +247,12 @@ class DashboardScreen extends ConsumerWidget {
                 leading: CircleAvatar(
                   backgroundColor: NeuroColors.adolescentSurface,
                   child: Text(
-                    entry.mood?.characters.firstOrNull ?? '📔',
+                    entry.mood?.emoji ?? '📔',
                     style: const TextStyle(fontSize: 18),
                   ),
                 ),
                 title: Text(entry.title ?? 'Journal Entry', style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('Mood: ${entry.mood ?? 'Unspecified'}'),
+                subtitle: Text('Mood: ${entry.mood?.label ?? 'Unspecified'}'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {},
               ),
@@ -303,6 +302,59 @@ class DashboardScreen extends ConsumerWidget {
             onTap: () => context.push(AdolescentRoutes.aiChat),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDataSection(BuildContext context, WidgetRef ref) {
+    final dashboardAsync = ref.watch(adolescentDashboardProvider);
+
+    return dashboardAsync.when(
+      data: (data) {
+        final isFallback = data.recentJournals.isEmpty && data.moodDistribution.isEmpty;
+
+        return Column(
+          children: [
+            if (isFallback)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.cloud_off, color: Colors.orange.shade700),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'Note: Activity data is currently unavailable. Quick Actions are active.',
+                          style: TextStyle(fontSize: 12, color: Colors.black87),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            _buildTrendSection(context, data),
+            _buildStatsGrid(context, data),
+            _buildRecentJournals(context, data),
+          ],
+        );
+      },
+      loading: () => const Padding(
+        padding: EdgeInsets.all(40),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, stack) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: NeuroErrorWidget(
+          message: 'Dashboard data failed to load.',
+          onRetry: () => ref.invalidate(adolescentDashboardProvider),
+        ),
       ),
     );
   }

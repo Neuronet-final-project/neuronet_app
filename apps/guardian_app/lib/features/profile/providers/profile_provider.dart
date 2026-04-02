@@ -10,15 +10,18 @@ class GuardianProfileController extends _$GuardianProfileController {
     final authService = ref.watch(authServiceProvider);
     try {
       final user = await authService.getMe();
-      // ignore: avoid_print
-      print('DEBUG: GuardianProfileController loaded user: ${user.fullName}');
       return user;
-    } catch (e, stack) {
+    } catch (e) {
       // ignore: avoid_print
-      print('DEBUG: GuardianProfileController error: $e');
-      // ignore: avoid_print
-      print('DEBUG: Stack trace: $stack');
-      rethrow;
+      print('🚩 PROFILE ERROR (Guardian): Failed to fetch profile from server. Falling back to generic user.');
+      // return a fallback user so we don't break the entire app shell
+      return User(
+        id: 'fallback',
+        fullName: 'Guardian',
+        email: '...',
+        role: UserRole.guardian,
+        accountStatus: AccountStatus.active,
+      );
     }
   }
 

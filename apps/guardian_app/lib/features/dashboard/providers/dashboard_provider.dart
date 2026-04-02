@@ -11,7 +11,7 @@ class GuardianDashboardController extends _$GuardianDashboardController {
     try {
       final data = await service.getGuardianDashboard();
       // ignore: avoid_print
-      print('DEBUG: Dashboard data loaded for: ${data.adolescentName}');
+      print('DEBUG: Guardian Dashboard data loaded successfully');
       return data;
     } catch (e, stack) {
       // ignore: avoid_print

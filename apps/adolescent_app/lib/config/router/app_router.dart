@@ -43,11 +43,15 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       final isActivating = state.matchedLocation == AdolescentRoutes.activate;
 
       final isAuthenticated = authState.status == AuthStatus.authenticated;
+      final isInitial = authState.status == AuthStatus.initial || authState.status == AuthStatus.loading;
 
       if (isAuthenticated) {
         if (isLoggingIn || isActivating) return AdolescentRoutes.home;
         return null;
       } else {
+        // If we are loading or there was a data error, don't redirect yet
+        if (isInitial || authState.status == AuthStatus.error) return null;
+        
         if (isLoggingIn || isActivating) return null;
         return AdolescentRoutes.login;
       }

@@ -21,6 +21,7 @@ export 'src/services/mock_data_service.dart';
 export 'src/theme/app_theme.dart';
 
 // Widgets
+export 'src/widgets/neuro_error_widget.dart';
 export 'src/widgets/neuro_card.dart';
 
 export 'src/widgets/neuro_mood_icon.dart';

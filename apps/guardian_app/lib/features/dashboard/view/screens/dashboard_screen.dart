@@ -3,81 +3,115 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/dashboard_provider.dart';
+import 'package:guardian_app/features/profile/providers/profile_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dashboardState = ref.watch(guardianDashboardControllerProvider);
-
     return Scaffold(
-      body: dashboardState.when(
-        data: (data) => _buildContent(context, data),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 120,
+            floating: true,
+            pinned: true,
+            backgroundColor: NeuroColors.guardianPrimary,
+            flexibleSpace: FlexibleSpaceBar(
+              title: const Text('Dashboard'),
+              background: Container(color: NeuroColors.guardianPrimary),
+            ),
+          ),
+          _buildDataSlivers(context),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Quick Actions',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  _QuickActionCard(
+                    title: 'View Alerts',
+                    subtitle: 'Check active alerts for your adolescents',
+                    icon: Icons.notifications_active_outlined,
+                    onTap: () => context.push('/alerts'),
+                  ),
+                  _QuickActionCard(
+                    title: 'Add Adolescent',
+                    subtitle: 'Link a new account to your command center',
+                    icon: Icons.person_add_outlined,
+                    onTap: () => context.push('/register-adolescent'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
+        ],
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, GuardianDashboardData data) {
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 120,
-          floating: true,
-          pinned: true,
-          backgroundColor: NeuroColors.guardianPrimary,
-          flexibleSpace: FlexibleSpaceBar(
-            title: const Text('Dashboard'),
-            background: Container(color: NeuroColors.guardianPrimary),
+  Widget _buildDataSlivers(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final dashboardState = ref.watch(guardianDashboardControllerProvider);
+
+        return dashboardState.when(
+          data: (data) {
+            final isFallback = data.totalAdolescentsLinked == 0 && data.moodDistribution.isEmpty;
+
+            return SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  if (isFallback)
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.orange.shade200),
+                        ),
+                        child: const Text(
+                          'Note: Guardian activity data is temporarily unavailable. Quick Actions are active.',
+                          style: TextStyle(fontSize: 12, color: Colors.black87),
+                        ),
+                      ),
+                    ),
+                  _buildSummarySection(context, data),
+                ],
+              ),
+            );
+          },
+          loading: () => const SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(child: CircularProgressIndicator()),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: _buildSummarySection(context, data),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          sliver: SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Quick Actions',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          error: (err, stack) => SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: NeuroErrorWidget(
+                  message: 'Dashboard data failed to load.',
+                  onRetry: () => ref.read(guardianDashboardControllerProvider.notifier).refresh(),
                 ),
-                const SizedBox(height: 16),
-                _QuickActionCard(
-                  title: 'View Alerts',
-                  subtitle: '${data.unviewedAlertsCount} active alerts requiring attention',
-                  icon: Icons.notifications_active_outlined,
-                  onTap: () => context.push('/alerts'),
-                ),
-                _QuickActionCard(
-                  title: 'Add Adolescent',
-                  subtitle: 'Link a new account to your command center',
-                  icon: Icons.person_add_outlined,
-                  onTap: () => context.push('/register-adolescent'),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 32)),
-      ],
+        );
+      },
     );
   }
 
   Widget _buildSummarySection(BuildContext context, GuardianDashboardData data) {
-    // Calculate stats from weekly trends
-    final avgEmotionalScore = data.weeklyTrends.isEmpty 
-        ? 0.0 
-        : data.weeklyTrends.map((t) => t.sentimentScore).reduce((a, b) => a + b) / data.weeklyTrends.length;
-    
-    final totalJournals = data.weeklyTrends.isEmpty 
-        ? 0 
-        : data.weeklyTrends.map((t) => t.journalCount).reduce((a, b) => a + b);
-
     return Column(
       children: [
         Container(
@@ -105,13 +139,22 @@ class DashboardScreen extends ConsumerWidget {
                           color: NeuroColors.onSurfaceVariant,
                         ),
                       ),
-                      Text(
-                        'Guardian',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: NeuroColors.guardianPrimaryDark,
-                        ),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final profileAsync = ref.watch(guardianProfileControllerProvider);
+                          final name = profileAsync.maybeWhen(
+                            data: (user) => user.fullName.split(' ')[0],
+                            orElse: () => 'Guardian',
+                          );
+                          return Text(
+                            name,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: NeuroColors.guardianPrimaryDark,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -123,63 +166,38 @@ class DashboardScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              InkWell(
-                onTap: () => context.push('/adolescent/mock_id'),
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            data.adolescentName,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text(
-                            'Last check-in: 2h ago',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: NeuroColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      _buildQuickStat(
-                        label: 'Score',
-                        value: avgEmotionalScore.toStringAsFixed(1),
-                        color: NeuroColors.alertLow,
-                      ),
-                      const SizedBox(width: 16),
-                      _buildQuickStat(
-                        label: 'Journals',
-                        value: totalJournals.toString(),
-                        color: NeuroColors.adolescentPrimary,
-                      ),
-                      const SizedBox(width: 16),
-                      _buildQuickStat(
-                        label: 'Alerts',
-                        value: data.unviewedAlertsCount.toString(),
-                        color: data.unviewedAlertsCount > 0 ? NeuroColors.alertHigh : NeuroColors.alertLow,
-                      ),
-                    ],
-                  ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildQuickStat(
+                      label: 'Adolescents',
+                      value: data.totalAdolescentsLinked.toString(),
+                      color: NeuroColors.guardianPrimary,
+                    ),
+                    _buildQuickStat(
+                      label: 'Total Journals',
+                      value: data.totalJournalCount.toString(),
+                      color: NeuroColors.adolescentPrimary,
+                    ),
+                    _buildQuickStat(
+                      label: 'Alerts',
+                      value: data.unviewedAlertsCount.toString(),
+                      color: data.unviewedAlertsCount > 0 ? NeuroColors.alertHigh : NeuroColors.alertLow,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -191,7 +209,7 @@ class DashboardScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Weekly Sentiment Trend',
+                'Mood Distribution Overview',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -199,25 +217,49 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              SizedBox(
-                height: 200,
-                child: NeuroTrendChart(trends: data.weeklyTrends),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _chartLegend('Sentiment', NeuroColors.guardianPrimary),
-                  const SizedBox(width: 16),
-                  _chartLegend('Journals', NeuroColors.adolescentPrimary),
-                ],
-              ),
+              if (data.moodDistribution.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32),
+                    child: Text(
+                      'No mood data recorded yet.',
+                      style: TextStyle(color: NeuroColors.onSurfaceVariant),
+                    ),
+                  ),
+                )
+              else
+                Column(
+                  children: data.moodDistribution.entries.map((entry) {
+                    final mood = entry.key;
+                    final count = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: const BoxDecoration(
+                              color: NeuroColors.guardianPrimary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(mood, style: const TextStyle(fontWeight: FontWeight.w500)),
+                          const Spacer(),
+                          Text('$count entries', style: const TextStyle(color: NeuroColors.onSurfaceVariant)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
             ],
           ),
         ),
       ],
     );
   }
+
 
   Widget _buildQuickStat({required String label, required String value, required Color color}) {
     return Column(
@@ -237,20 +279,6 @@ class DashboardScreen extends ConsumerWidget {
             color: NeuroColors.onSurfaceVariant,
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _chartLegend(String label, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 12, color: NeuroColors.onSurfaceVariant)),
       ],
     );
   }

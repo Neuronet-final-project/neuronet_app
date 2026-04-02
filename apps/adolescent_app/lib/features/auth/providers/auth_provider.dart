@@ -34,7 +34,31 @@ class AuthState {
 class AuthController extends _$AuthController {
   @override
   AuthState build() {
-    return AuthState.unauthenticated();
+    // Check if we are already logged in on startup
+    _checkInitialAuth();
+    return AuthState.initial();
+  }
+
+  Future<void> _checkInitialAuth() async {
+    try {
+      final storage = ref.read(tokenStorageProvider);
+      final token = await storage.getAccessToken();
+      if (token != null) {
+        // We have a token, so we can tentatively assume authenticated
+        // The ProfileController will fetch the real user details
+        state = AuthState.authenticated(User(
+          id: 'session',
+          fullName: 'User',
+          email: '...',
+          role: UserRole.adolescent,
+          accountStatus: AccountStatus.active,
+        ));
+      } else {
+        state = AuthState.unauthenticated();
+      }
+    } catch (e) {
+      state = AuthState.unauthenticated();
+    }
   }
 
   Future<void> login(String email, String password) async {

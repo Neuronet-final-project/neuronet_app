@@ -53,13 +53,13 @@ class AppLoggingInterceptor extends Interceptor {
         break;
       case DioExceptionType.connectionError:
         if (err.message?.contains('XMLHttpRequest') == true) {
-          reason = 'Web/CORS connection error';
-          suggestion = '1. Ensure backend has CORS enabled.\n'
-                       '2. Verify backend is running and reachable at $url.\n'
-                       '3. Check browser console for security/network errors.';
+          reason = 'Web/CORS or Server Crash';
+          suggestion = '1. Verify backend handled the request (Status 500 crash often shows as XHR error).\n'
+                       '2. Ensure backend has CORS enabled for this origin.\n'
+                       '3. Check if the backend process is healthy and logs are clean.';
         } else {
           reason = 'Connection failed';
-          suggestion = 'Ensure server is up and reachable from this device.';
+          suggestion = 'Ensure server is up and reachable from this device. Check firewall rules.';
         }
         break;
       case DioExceptionType.badCertificate:

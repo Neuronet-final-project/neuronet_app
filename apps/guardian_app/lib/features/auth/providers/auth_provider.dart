@@ -35,8 +35,28 @@ class AuthState {
 class AuthController extends _$AuthController {
   @override
   AuthState build() {
-    // We can also check if we are already logged in here by calling storage.hasToken
-    return AuthState.unauthenticated();
+    _checkInitialAuth();
+    return AuthState.initial();
+  }
+
+  Future<void> _checkInitialAuth() async {
+    try {
+      final storage = ref.read(tokenStorageProvider);
+      final token = await storage.getAccessToken();
+      if (token != null) {
+        state = AuthState.authenticated(User(
+          id: 'session',
+          fullName: 'Guardian',
+          email: '...',
+          role: UserRole.guardian,
+          accountStatus: AccountStatus.active,
+        ));
+      } else {
+        state = AuthState.unauthenticated();
+      }
+    } catch (e) {
+      state = AuthState.unauthenticated();
+    }
   }
 
   Future<void> login(String email, String password) async {
