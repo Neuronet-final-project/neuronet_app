@@ -44,13 +44,11 @@ class AuthController extends _$AuthController {
       final storage = ref.read(tokenStorageProvider);
       final token = await storage.getAccessToken();
       if (token != null) {
-        state = AuthState.authenticated(User(
-          id: 'session',
-          fullName: 'Guardian',
-          email: '...',
-          role: UserRole.guardian,
-          accountStatus: AccountStatus.active,
-        ));
+        final authService = ref.read(authServiceProvider);
+        final user = await authService.getMe();
+        // ignore: avoid_print
+        print('DEBUG: /auth/me raw user: ${user.toJson()}');
+        state = AuthState.authenticated(user);
       } else {
         state = AuthState.unauthenticated();
       }

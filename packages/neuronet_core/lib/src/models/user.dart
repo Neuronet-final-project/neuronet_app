@@ -83,16 +83,24 @@ abstract class AdolescentCreateRequest with _$AdolescentCreateRequest {
 
 @freezed
 abstract class AdolescentResponse with _$AdolescentResponse {
+  const AdolescentResponse._();
+
   const factory AdolescentResponse({
     @JsonKey(name: '_id') @Default('') String id,
+    @JsonKey(name: 'adolescent_id') String? adolescentId,
     required String email,
     @JsonKey(name: 'full_name') required String fullName,
-    @JsonKey(name: 'account_status') required AccountStatus accountStatus,
-    required UserRole role,
-    required RelationshipType relationship,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'account_status') AccountStatus? accountStatus,
+    UserRole? role,
+    RelationshipType? relationship,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'current_risk_level') String? currentRiskLevel,
+    @JsonKey(name: 'last_journal_date') DateTime? lastJournalDate,
+    @JsonKey(name: 'unresolved_alerts_count') int? unresolvedAlertsCount,
   }) = _AdolescentResponse;
 
   factory AdolescentResponse.fromJson(Map<String, dynamic> json) =>
       _$AdolescentResponseFromJson(json);
+
+  String get effectiveId => (adolescentId != null && adolescentId!.isNotEmpty) ? adolescentId! : id;
 }
