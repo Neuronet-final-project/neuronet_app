@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/dashboard_provider.dart';
+import 'package:guardian_app/features/dashboard/providers/dashboard_provider.dart';
+import 'package:guardian_app/features/adolescents/providers/adolescent_provider.dart';
 import 'package:guardian_app/features/profile/providers/profile_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -24,6 +25,48 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ),
           _buildDataSlivers(context),
+          SliverToBoxAdapter(
+            child: Consumer(
+              builder: (context, ref, child) {
+                final adolescentsAsync = ref.watch(linkedAdolescentsProvider);
+                
+                return adolescentsAsync.when(
+                  data: (list) {
+                    if (list.isEmpty) return const SizedBox.shrink();
+                    
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Linked Adolescents',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: NeuroColors.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ...list.map((adolescent) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _QuickActionCard(
+                              title: adolescent.fullName,
+                              subtitle: 'Risk Level: ${adolescent.currentRiskLevel ?? "LOW"}',
+                              icon: Icons.face,
+                              onTap: () => context.push('/adolescent/${adolescent.effectiveId}'),
+                            ),
+                          )),
+                        ],
+                      ),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                );
+              },
+            ),
+          ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             sliver: SliverToBoxAdapter(

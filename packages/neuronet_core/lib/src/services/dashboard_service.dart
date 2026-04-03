@@ -53,13 +53,18 @@ class DashboardService {
   /// Fetches the list of linked adolescents for the current guardian.
   Future<List<AdolescentResponse>> getLinkedAdolescents() async {
     final response = await _client.get(ApiEndpoints.guardianAdolescents);
-    final data = response.data as List;
+    // ignore: avoid_print
+    print('DEBUG: /guardians/me/adolescents raw: ${response.data}');
+    final rawMap = response.data as Map<String, dynamic>;
+    final data = rawMap['adolescents'] as List;
     return data.map((e) => AdolescentResponse.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   /// Fetches consents for a specific adolescent by email.
   Future<List<Consent>> getAdolescentConsents(String email) async {
     final response = await _client.get(ApiEndpoints.consentByEmail(email));
+    // ignore: avoid_print
+    print('DEBUG: /consents/$email raw: ${response.data}');
     final data = response.data as List;
     return data.map((e) => Consent.fromJson(e as Map<String, dynamic>)).toList();
   }

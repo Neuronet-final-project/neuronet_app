@@ -1,4 +1,6 @@
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -24,12 +26,18 @@ class AdolescentDetailController extends _$AdolescentDetailController {
     
     // 2. Find the specific adolescent
     final profile = linkedAdolescents.firstWhere(
-      (a) => a.id == adolescentId,
+      (a) => a.effectiveId == adolescentId,
       orElse: () => throw Exception('Adolescent not found'),
     );
     
-    // 3. Fetch consents for this adolescent
-    final consents = await dashboardService.getAdolescentConsents(profile.email);
+    // 3. Fetch consents for this adolescent (Gracefully handle 404/Not Found)
+    List<Consent> consents = [];
+    try {
+      consents = await dashboardService.getAdolescentConsents(profile.email);
+    } catch (e) {
+      // Log for debugging if needed, but don't fail the entire build
+      debugPrint('AdolescentDetailController: No consents found or error fetching for ${profile.email}: $e');
+    }
     
     return AdolescentDetailState(
       profile: profile,
@@ -43,11 +51,23 @@ class AdolescentDetailController extends _$AdolescentDetailController {
       final dashboardService = ref.read(dashboardServiceProvider);
       final linkedAdolescents = await dashboardService.getLinkedAdolescents();
       final profile = linkedAdolescents.firstWhere(
-        (a) => a.id == adolescentId,
+        (a) => a.effectiveId == adolescentId,
         orElse: () => throw Exception('Adolescent not found'),
       );
-      final consents = await dashboardService.getAdolescentConsents(profile.email);
+      
+      List<Consent> consents = [];
+      try {
+        consents = await dashboardService.getAdolescentConsents(profile.email);
+      } catch (e) {
+        debugPrint('AdolescentDetailController refresh: No consents found or error: $e');
+      }
+      
       return AdolescentDetailState(profile: profile, consents: consents);
     });
   }
+}
+@riverpod
+Future<List<AdolescentResponse>> linkedAdolescents(Ref ref) async {
+  final dashboardService = ref.watch(dashboardServiceProvider);
+  return dashboardService.getLinkedAdolescents();
 }

@@ -53,9 +53,9 @@ class AdolescentDetailScreen extends ConsumerWidget {
           _buildSectionTitle('Registration Details'),
           _buildDetailTile('Full Name', profile.fullName),
           _buildDetailTile('Email', profile.email),
-          _buildDetailTile('Relationship', profile.relationship.name.toUpperCase()),
-          _buildDetailTile('Account Status', profile.accountStatus.name.toUpperCase()),
-          _buildDetailTile('Linked Since', profile.createdAt.toIso8601String().split('T')[0]),
+          _buildDetailTile('Relationship', profile.relationship?.name.toUpperCase() ?? 'N/A'),
+          _buildDetailTile('Account Status', profile.accountStatus?.name.toUpperCase() ?? 'ACTIVE'),
+          _buildDetailTile('Linked Since', profile.createdAt?.toIso8601String().split('T')[0] ?? 'N/A'),
           const SizedBox(height: 32),
           _buildSectionTitle('Active Consent'),
           if (consents.isEmpty)
