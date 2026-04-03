@@ -17,7 +17,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
   @override
   Widget build(BuildContext context) {
     final alertsAsync = ref.watch(guardianAlertsControllerProvider);
-
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Alert History'),

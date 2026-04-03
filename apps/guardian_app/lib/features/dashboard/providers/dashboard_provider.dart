@@ -8,18 +8,7 @@ class GuardianDashboardController extends _$GuardianDashboardController {
   @override
   FutureOr<GuardianDashboardData> build() async {
     final service = ref.watch(dashboardServiceProvider);
-    try {
-      final data = await service.getGuardianDashboard();
-      // ignore: avoid_print
-      print('DEBUG: Guardian Dashboard data loaded successfully');
-      return data;
-    } catch (e, stack) {
-      // ignore: avoid_print
-      print('DEBUG: GuardianDashboardController error: $e');
-      // ignore: avoid_print
-      print('DEBUG: Stack trace: $stack');
-      rethrow;
-    }
+    return service.getGuardianDashboard();
   }
 
   Future<void> refresh() async {
@@ -62,11 +51,14 @@ class GuardianAlertsController extends _$GuardianAlertsController {
   }) async {
     final service = ref.read(alertServiceProvider);
     
-    state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await service.resolveAlert(alertId, notes: notes);
       return service.getGuardianAlerts();
     });
+
+    if (state.hasError) {
+      throw state.error!;
+    }
   }
 
   Future<void> refresh() async {

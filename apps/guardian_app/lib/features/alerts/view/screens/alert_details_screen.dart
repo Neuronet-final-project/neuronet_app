@@ -27,7 +27,6 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final alertsAsync = ref.watch(guardianAlertsControllerProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Alert Details'),
@@ -159,14 +158,26 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
     );
   }
 
-  void _resolveAlert(Alert alert) {
-    ref.read(guardianAlertsControllerProvider.notifier).resolveAlert(
-          alert.alertId,
-          notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+  Future<void> _resolveAlert(Alert alert) async {
+    try {
+      final notifier = ref.read(guardianAlertsControllerProvider.notifier);
+      await notifier.resolveAlert(
+        alert.alertId,
+        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Alert resolved successfully')),
         );
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Alert resolved successfully')),
-    );
-    Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to resolve alert: $e')),
+        );
+      }
+    }
   }
 }
