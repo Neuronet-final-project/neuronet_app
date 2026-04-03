@@ -12,7 +12,13 @@ class ProfileScreen extends ConsumerWidget {
     final profileState = ref.watch(guardianProfileControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Profile'), centerTitle: true),
+      backgroundColor: const Color(0xFFFAFAFA),
+      appBar: AppBar(
+        title: const Text('My Profile', style: TextStyle(fontWeight: FontWeight.w600)), 
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: profileState.when(
         data: (user) => _buildContent(context, ref, user),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -35,71 +41,94 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildContent(BuildContext context, WidgetRef ref, User user) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
       child: Column(
         children: [
           _ProfileHeader(user: user),
-          const SizedBox(height: 32),
+          const SizedBox(height: 48),
+          
           _SettingSection(
             title: 'Account Information',
             children: [
               _SettingTile(
                 label: 'Full Name',
                 value: user.fullName,
-                icon: Icons.person_outline,
+                icon: Icons.person_rounded,
+                showDivider: true,
               ),
               _SettingTile(
                 label: 'Email',
                 value: user.email,
-                icon: Icons.email_outlined,
+                icon: Icons.alternate_email_rounded,
+                showDivider: true,
               ),
               _SettingTile(
                 label: 'Role',
                 value: user.role == UserRole.guardian ? 'Guardian' : user.role.name.toUpperCase(),
-                icon: Icons.verified_user_outlined,
+                icon: Icons.verified_user,
+                showDivider: false,
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          
+          const SizedBox(height: 32),
+          
           _SettingSection(
             title: 'Notification Settings',
             children: [
-              SwitchListTile(
-                title: const Text('Alert Notifications'),
-                subtitle: const Text(
-                  'Get notified when patterns are detected',
-                ),
+              _CustomSwitchTile(
+                title: 'Alert Notifications',
+                subtitle: 'Get notified when patterns are detected',
                 value: true,
                 onChanged: (val) {},
-                contentPadding: EdgeInsets.zero,
+                showDivider: true,
               ),
-              SwitchListTile(
-                title: const Text('Counselor Messages'),
-                subtitle: const Text('Push notifications for new messages'),
+              _CustomSwitchTile(
+                title: 'Counselor Messages',
+                subtitle: 'Push notifications for new messages',
                 value: true,
                 onChanged: (val) {},
-                contentPadding: EdgeInsets.zero,
+                showDivider: false,
               ),
             ],
           ),
+          
           const SizedBox(height: 48),
-          TextButton.icon(
-            onPressed: () {
-              ref.read(authControllerProvider.notifier).logout();
-            },
-            icon: const Icon(Icons.logout, color: Colors.red),
-            label: const Text(
-              'Sign Out',
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
+          
+          ElevatedButton(
+            onPressed: () => ref.read(authControllerProvider.notifier).logout(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFEE2E2), // Red 50
+              foregroundColor: const Color(0xFFEF4444), // Red 500
+              elevation: 0,
+              minimumSize: const Size(double.infinity, 56),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.logout_rounded, size: 22),
+                SizedBox(width: 8),
+                Text(
+                  'Sign Out',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 24),
-          const Text(
+          
+          const SizedBox(height: 32),
+          Text(
             'NeuroNet Guardian v0.1.0',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Colors.grey[400],
+              letterSpacing: 1,
+            ),
           ),
         ],
       ),
@@ -115,26 +144,47 @@ class _ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CircleAvatar(
-          radius: 50,
-          backgroundColor: Theme.of(
-            context,
-          ).primaryColor.withValues(alpha: 0.1),
-          child: Icon(
-            Icons.person,
-            size: 60,
-            color: Theme.of(context).primaryColor,
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+            border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.2), width: 4),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                blurRadius: 24,
+                spreadRadius: 8,
+              ),
+            ],
           ),
+          child: Icon(Icons.person_rounded, size: 60, color: Theme.of(context).primaryColor),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         Text(
           user.fullName,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: NeuroColors.onSurface,
+            letterSpacing: -0.5,
+          ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          'Account Status: ${user.accountStatus.name.toUpperCase()}',
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            'Account Status: ${user.accountStatus.name.toUpperCase()}',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
         ),
       ],
     );
@@ -152,21 +202,30 @@ class _SettingSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: NeuroColors.onSurface,
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 16),
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: NeuroColors.onSurface,
+              letterSpacing: 0.5,
+            ),
           ),
         ),
-        const SizedBox(height: 12),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey[200]!),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+            border: Border.all(color: Colors.grey[100]!),
           ),
           child: Column(children: children),
         ),
@@ -179,43 +238,122 @@ class _SettingTile extends StatelessWidget {
   final String label;
   final String value;
   final IconData icon;
+  final bool showDivider;
 
   const _SettingTile({
     required this.label,
     required this.value,
     required this.icon,
+    required this.showDivider,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Icon(icon, color: Theme.of(context).primaryColor, size: 24),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label, 
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      value, 
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: NeuroColors.onSurface,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
-        ],
-      ),
+        ),
+        if (showDivider)
+          Divider(height: 1, thickness: 1, color: Colors.grey[100], indent: 76, endIndent: 20),
+      ],
+    );
+  }
+}
+
+class _CustomSwitchTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final bool showDivider;
+
+  const _CustomSwitchTile({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+    required this.showDivider,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: NeuroColors.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: value,
+                onChanged: onChanged,
+                activeThumbColor: Colors.white,
+                activeTrackColor: Theme.of(context).primaryColor,
+              ),
+            ],
+          ),
+        ),
+        if (showDivider)
+          Divider(height: 1, thickness: 1, color: Colors.grey[100], indent: 20, endIndent: 20),
+      ],
     );
   }
 }

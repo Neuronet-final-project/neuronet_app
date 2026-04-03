@@ -14,7 +14,14 @@ class DashboardService {
   Future<GuardianDashboardData> getGuardianDashboard() async {
     try {
       final response = await _client.get(ApiEndpoints.guardianDashboard);
+      // ignore: avoid_print
+      print('DEBUG: /dashboard/guardian raw: ${response.data}');
       if (response.data == null) return GuardianDashboardData.empty();
+      if (response.data is! Map<String, dynamic>) {
+        // ignore: avoid_print
+        print('DEBUG: /dashboard/guardian unexpected type: ${response.data.runtimeType}');
+        return GuardianDashboardData.empty();
+      }
       return GuardianDashboardData.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       // ignore: avoid_print
@@ -27,11 +34,18 @@ class DashboardService {
   Future<DashboardData> getAdolescentDashboard() async {
     try {
       final response = await _client.get(ApiEndpoints.adolescentDashboard);
+      // ignore: avoid_print
+      print('DEBUG: /dashboard/adolescent raw: ${response.data}');
       if (response.data == null) return DashboardData.empty();
+      if (response.data is! Map<String, dynamic>) {
+        // ignore: avoid_print
+        print('DEBUG: /dashboard/adolescent unexpected type: ${response.data.runtimeType}');
+        return DashboardData.empty();
+      }
       return DashboardData.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       // ignore: avoid_print
-      print('DEBUG: /dashboard/adolescent/me error: $e');
+      print('DEBUG: /dashboard/adolescent error: $e');
       return DashboardData.empty();
     }
   }

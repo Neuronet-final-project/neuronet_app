@@ -17,6 +17,13 @@ class AlertService {
     return list.map((json) => Alert.fromJson(json as Map<String, dynamic>)).toList();
   }
 
+  /// Fetches all alerts for a specific adolescent (self-facing).
+  Future<List<Alert>> getAdolescentAlerts(String adolescentId) async {
+    final response = await _client.get(ApiEndpoints.alertsByAdolescent(adolescentId));
+    final list = response.data as List<dynamic>;
+    return list.map((json) => Alert.fromJson(json as Map<String, dynamic>)).toList();
+  }
+
   /// Marks an alert as viewed.
   Future<void> markViewed(String alertId) async {
     await _client.put(ApiEndpoints.markViewed(alertId));

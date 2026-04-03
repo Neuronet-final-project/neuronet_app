@@ -26,24 +26,16 @@ class JournalHistoryScreen extends ConsumerWidget {
         data: (entries) {
           if (entries.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.edit_note_rounded,
-                    size: 80,
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No entries yet',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('Start writing to track your thoughts.'),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: NeuroEmptyState(
+                  title: 'No entries yet',
+                  message: 'Start writing to track your thoughts and daily journey.',
+                  icon: Icons.edit_note_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                  actionLabel: 'Write First Entry',
+                  onActionPressed: () => context.push(AdolescentRoutes.newJournal),
+                ),
               ),
             );
           }

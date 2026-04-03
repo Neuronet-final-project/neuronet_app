@@ -4,10 +4,27 @@ import 'enums.dart';
 part 'dashboard.freezed.dart';
 part 'dashboard.g.dart';
 
+/// Converts either a List<{mood, count}> or a Map<String, int> from the API
+/// into a uniform Map<String, int> for local use.
+Map<String, int> _moodDistributionFromJson(dynamic json) {
+  if (json is List) {
+    return {
+      for (final item in json)
+        (item as Map<String, dynamic>)['mood'] as String:
+            ((item['count']) as num).toInt(),
+    };
+  }
+  if (json is Map) {
+    return json.map((k, v) => MapEntry(k.toString(), (v as num).toInt()));
+  }
+  return {};
+}
+
+dynamic _moodDistributionToJson(Map<String, int> map) => map;
+
 // ─── Shared sub-models ────────────────────────────────────────────────────────
 
 /// Trend data is currently not provided by the aggregate dashboard endpoints.
-/// This model remains for potential future use or specific trend endpoints.
 @freezed
 abstract class EmotionalTrend with _$EmotionalTrend {
   const factory EmotionalTrend({
@@ -22,18 +39,33 @@ abstract class EmotionalTrend with _$EmotionalTrend {
       _$EmotionalTrendFromJson(json);
 }
 
+/// One adolescent's risk entry as returned inside GuardianDashboardResponse.adolescent_risks.
+@freezed
+abstract class AdolescentRisk with _$AdolescentRisk {
+  const factory AdolescentRisk({
+    @JsonKey(name: 'adolescent_id') required String adolescentId,
+    @JsonKey(name: 'adolescent_name') required String adolescentName,
+    @JsonKey(name: 'current_risk_level') required String currentRiskLevel,
+    @JsonKey(name: 'last_journal_date') DateTime? lastJournalDate,
+    @JsonKey(name: 'educational_recommendations') @Default([]) List<Map<String, dynamic>> educationalRecommendations,
+  }) = _AdolescentRisk;
+
+  factory AdolescentRisk.fromJson(Map<String, dynamic> json) =>
+      _$AdolescentRiskFromJson(json);
+}
+
 /// Brief alert info as returned inside GuardianDashboardResponse.alert_list.
 @freezed
 abstract class AlertBrief with _$AlertBrief {
   const factory AlertBrief({
-    @JsonKey(name: 'id') required String id,
+    @JsonKey(name: 'alert_id') required String alertId,
     @JsonKey(name: 'adolescent_id') required String adolescentId,
     @JsonKey(name: 'adolescent_name') required String adolescentName,
-    @JsonKey(name: 'severity') required String severity,
-    @JsonKey(name: 'type') required String type,
-    @JsonKey(name: 'description') required String description,
+    @JsonKey(name: 'severity_level') required String severityLevel,
+    @JsonKey(name: 'alert_type') required String alertType,
+    @JsonKey(name: 'trigger_description') required String triggerDescription,
     @JsonKey(name: 'created_at') required DateTime createdAt,
-    @JsonKey(name: 'is_viewed') required bool isViewed,
+    @JsonKey(name: 'viewed_status') required bool viewedStatus,
   }) = _AlertBrief;
 
   factory AlertBrief.fromJson(Map<String, dynamic> json) =>
@@ -49,10 +81,10 @@ abstract class GuardianDashboardData with _$GuardianDashboardData {
     @JsonKey(name: 'total_adolescents_linked') @Default(0) int totalAdolescentsLinked,
     @JsonKey(name: 'total_journal_count') @Default(0) int totalJournalCount,
     @JsonKey(name: 'recent_activity_count') @Default(0) int recentActivityCount,
-    @JsonKey(name: 'adolescent_risks') @Default({}) Map<String, String> adolescentRisks,
+    @JsonKey(name: 'adolescent_risks') @Default([]) List<AdolescentRisk> adolescentRisks,
     @JsonKey(name: 'alert_list') @Default([]) List<AlertBrief> alertList,
     @JsonKey(name: 'unviewed_alerts_count') @Default(0) int unviewedAlertsCount,
-    @JsonKey(name: 'mood_distribution') @Default({}) Map<String, int> moodDistribution,
+    @JsonKey(name: 'mood_distribution', fromJson: _moodDistributionFromJson, toJson: _moodDistributionToJson) @Default({}) Map<String, int> moodDistribution,
     @JsonKey(name: 'generated_at') DateTime? generatedAt,
   }) = _GuardianDashboardData;
 
@@ -82,7 +114,7 @@ abstract class RecentJournal with _$RecentJournal {
 abstract class DashboardData with _$DashboardData {
   const factory DashboardData({
     @JsonKey(name: 'recent_journals') required List<RecentJournal> recentJournals,
-    @JsonKey(name: 'mood_distribution') @Default({}) Map<String, int> moodDistribution,
+    @JsonKey(name: 'mood_distribution', fromJson: _moodDistributionFromJson, toJson: _moodDistributionToJson) @Default({}) Map<String, int> moodDistribution,
     @JsonKey(name: 'educational_recommendations') @Default([]) List<Map<String, dynamic>> educationalRecommendations,
     @JsonKey(name: 'generated_at') DateTime? generatedAt,
   }) = _DashboardData;
@@ -92,4 +124,3 @@ abstract class DashboardData with _$DashboardData {
 
   factory DashboardData.empty() => const DashboardData(recentJournals: []);
 }
-

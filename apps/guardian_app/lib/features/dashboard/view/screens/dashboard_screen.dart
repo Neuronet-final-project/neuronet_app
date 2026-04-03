@@ -70,19 +70,14 @@ class DashboardScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   if (isFallback)
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.orange.shade200),
-                        ),
-                        child: const Text(
-                          'Note: Guardian activity data is temporarily unavailable. Quick Actions are active.',
-                          style: TextStyle(fontSize: 12, color: Colors.black87),
-                        ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: NeuroEmptyState(
+                        isMini: true,
+                        title: 'Data Unavailable',
+                        message: 'Guardian activity data is temporarily unavailable. Quick Actions are active.',
+                        icon: Icons.cloud_off,
+                        color: Colors.orange,
                       ),
                     ),
                   _buildSummarySection(context, data),
@@ -218,13 +213,14 @@ class DashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               if (data.moodDistribution.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 32),
-                    child: Text(
-                      'No mood data recorded yet.',
-                      style: TextStyle(color: NeuroColors.onSurfaceVariant),
-                    ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: NeuroEmptyState(
+                    isMini: true,
+                    title: 'No Mood Data',
+                    message: 'Adolescents have not recorded any mood entries yet.',
+                    icon: Icons.analytics_outlined,
+                    color: NeuroColors.guardianPrimary,
                   ),
                 )
               else

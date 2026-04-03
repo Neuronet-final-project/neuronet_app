@@ -13,6 +13,7 @@ import '../../features/profile/view/screens/profile_screen.dart';
 import '../../features/auth/view/screens/login_screen.dart';
 import '../../features/auth/view/screens/sign_up_screen.dart';
 import '../../features/auth/view/screens/activation_screen.dart';
+import '../../features/auth/view/screens/splash_screen.dart';
 import '../../features/adolescents/view/screens/adolescent_detail_screen.dart';
 
 // Auth Provider
@@ -22,6 +23,7 @@ import '../../features/auth/providers/auth_provider.dart';
 class GuardianRoutes {
   const GuardianRoutes._();
 
+  static const String splash = '/splash';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String activate = '/activate';
@@ -39,28 +41,35 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authControllerProvider);
 
   return GoRouter(
-    initialLocation: GuardianRoutes.home,
+    initialLocation: GuardianRoutes.splash,
     redirect: (context, state) {
       final isLoggingIn = state.matchedLocation == GuardianRoutes.login;
       final isSigningUp = state.matchedLocation == GuardianRoutes.signup;
       final isActivating = state.matchedLocation == GuardianRoutes.activate;
+      final isSplash = state.matchedLocation == GuardianRoutes.splash;
       final isAuthenticated = authState.status == AuthStatus.authenticated;
       final isInitial = authState.status == AuthStatus.initial || authState.status == AuthStatus.loading;
 
+      if (isInitial) {
+        return isSplash ? null : GuardianRoutes.splash;
+      }
+
       if (!isAuthenticated && !isLoggingIn && !isActivating && !isSigningUp) {
-        // If we are loading or there was a data error, don't redirect to login yet
-        if (isInitial || authState.status == AuthStatus.error) return null;
-        
+        if (authState.status == AuthStatus.error) return null;
         return GuardianRoutes.login;
       }
 
-      if (isAuthenticated && (isLoggingIn || isActivating || isSigningUp)) {
+      if (isAuthenticated && (isLoggingIn || isActivating || isSigningUp || isSplash)) {
         return GuardianRoutes.home;
       }
 
       return null;
     },
     routes: [
+      GoRoute(
+        path: GuardianRoutes.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
       // Auth Routes
       GoRoute(
         path: GuardianRoutes.login,

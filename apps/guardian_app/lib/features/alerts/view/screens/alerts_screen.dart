@@ -36,23 +36,18 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
 
           if (filteredAlerts.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.notifications_off_outlined, size: 64, color: NeuroColors.onSurfaceVariant),
-                  const SizedBox(height: 16),
-                  Text(
-                    _filterSeverity == null 
-                        ? 'No alerts yet' 
-                        : 'No alerts with severity: $_filterSeverity',
-                    style: const TextStyle(color: NeuroColors.onSurfaceVariant),
-                  ),
-                  if (_filterSeverity != null)
-                    TextButton(
-                      onPressed: () => setState(() => _filterSeverity = null),
-                      child: const Text('Clear Filter'),
-                    ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: NeuroEmptyState(
+                  title: _filterSeverity == null ? 'No alerts yet' : 'No alerts found',
+                  message: _filterSeverity == null 
+                      ? 'We will notify you if any concerning patterns appear.'
+                      : 'No alerts match the "$_filterSeverity" severity filter.',
+                  icon: Icons.notifications_off_outlined,
+                  color: NeuroColors.onSurfaceVariant,
+                  actionLabel: _filterSeverity != null ? 'Clear Filter' : null,
+                  onActionPressed: _filterSeverity != null ? () => setState(() => _filterSeverity = null) : null,
+                ),
               ),
             );
           }

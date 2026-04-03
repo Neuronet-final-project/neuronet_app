@@ -15,6 +15,7 @@ export 'src/services/auth_service.dart';
 export 'src/services/dashboard_service.dart';
 export 'src/services/journal_service.dart';
 export 'src/services/alert_service.dart';
+export 'src/services/educational_service.dart';
 export 'src/services/mock_data_service.dart';
 
 // Theme
@@ -29,3 +30,4 @@ export 'src/widgets/neuro_journal_card.dart';
 export 'src/widgets/neuro_alert_card.dart';
 export 'src/widgets/neuro_summary_card.dart';
 export 'src/widgets/neuro_trend_chart.dart';
+export 'src/widgets/neuro_empty_state.dart';

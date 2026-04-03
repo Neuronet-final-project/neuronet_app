@@ -6,6 +6,8 @@ import '../../providers/dashboard_provider.dart';
 import 'package:adolescent_app/config/router/app_router.dart';
 import 'package:adolescent_app/features/mood/providers/mood_provider.dart';
 import 'package:adolescent_app/features/profile/providers/profile_provider.dart';
+import 'package:adolescent_app/features/alerts/providers/alerts_provider.dart';
+import 'package:adolescent_app/features/educational/providers/educational_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -16,6 +18,10 @@ class DashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('My Emotional Health'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.insights_rounded),
+            onPressed: () => context.push(AdolescentRoutes.alerts),
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
@@ -32,7 +38,9 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               _buildWelcomeHeader(context, ref),
               _buildMoodCheckIn(context, ref),
-              _buildDataSection(context, ref), // Integrated data-fetching here
+              _buildDataSection(context, ref),
+              _buildInsightsSnippet(context, ref),
+              _buildLearningSnippet(context, ref),
               _buildActionCards(context),
             ],
           ),
@@ -316,27 +324,14 @@ class DashboardScreen extends ConsumerWidget {
         return Column(
           children: [
             if (isFallback)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.cloud_off, color: Colors.orange.shade700),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Note: Activity data is currently unavailable. Quick Actions are active.',
-                          style: TextStyle(fontSize: 12, color: Colors.black87),
-                        ),
-                      ),
-                    ],
-                  ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: NeuroEmptyState(
+                  isMini: true,
+                  title: 'Data Unavailable',
+                  message: 'Activity data is currently unavailable. Quick Actions are active.',
+                  icon: Icons.cloud_off,
+                  color: Colors.orange,
                 ),
               ),
             _buildTrendSection(context, data),
@@ -356,6 +351,134 @@ class DashboardScreen extends ConsumerWidget {
           onRetry: () => ref.invalidate(adolescentDashboardProvider),
         ),
       ),
+    );
+  }
+
+  Widget _buildInsightsSnippet(BuildContext context, WidgetRef ref) {
+    final alertsAsync = ref.watch(adolescentAlertsProvider);
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Personal Insights',
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              TextButton(
+                onPressed: () => context.push(AdolescentRoutes.alerts),
+                child: const Text('View All'),
+              ),
+            ],
+          ),
+        ),
+        alertsAsync.when(
+          data: (alerts) {
+            if (alerts.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: NeuroEmptyState(
+                  isMini: true,
+                  title: 'No Insights Yet',
+                  message: 'Keep journaling to unlock patterns and deeper insights!',
+                  icon: Icons.insights_rounded,
+                  color: theme.primaryColor,
+                ),
+              );
+            }
+            final recentAlerts = alerts.take(2).toList();
+            return Column(
+              children: recentAlerts.map((alert) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                      child: Icon(Icons.auto_awesome, color: theme.colorScheme.primary, size: 20),
+                    ),
+                    title: Text(alert.alertType, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(alert.triggerDescription, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    onTap: () => context.push('${AdolescentRoutes.alerts}/${alert.alertId}', extra: alert),
+                  ),
+                ),
+              )).toList(),
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLearningSnippet(BuildContext context, WidgetRef ref) {
+    final recommendationsAsync = ref.watch(adolescentRecommendationsProvider);
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Learning Nook',
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              TextButton(
+                onPressed: () => context.push(AdolescentRoutes.learn),
+                child: const Text('Explore'),
+              ),
+            ],
+          ),
+        ),
+        recommendationsAsync.when(
+          data: (recs) {
+            if (recs.isEmpty) return const SizedBox.shrink();
+            final topRec = recs.first;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Card(
+                color: theme.colorScheme.secondaryContainer.withOpacity(0.2),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  title: Text(
+                    'Picked for You',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.secondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      Text(
+                        topRec.reason,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text('Read: ${topRec.page.title}'),
+                    ],
+                  ),
+                  onTap: () => context.push(AdolescentRoutes.recommendations),
+                ),
+              ),
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (err, stack) => const SizedBox.shrink(),
+        ),
+      ],
     );
   }
 }

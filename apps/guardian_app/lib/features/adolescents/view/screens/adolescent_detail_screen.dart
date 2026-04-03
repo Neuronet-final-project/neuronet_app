@@ -59,7 +59,13 @@ class AdolescentDetailScreen extends ConsumerWidget {
           const SizedBox(height: 32),
           _buildSectionTitle('Active Consent'),
           if (consents.isEmpty)
-            const Text('No consents record found for this account.')
+            const NeuroEmptyState(
+              isMini: true,
+              title: 'No Consents Found',
+              message: 'No consents record found for this account.',
+              icon: Icons.assignment_late_outlined,
+              color: NeuroColors.guardianPrimary,
+            )
           else
             ...consents.map((c) => _buildConsentItem(
               c.consentType.label, 

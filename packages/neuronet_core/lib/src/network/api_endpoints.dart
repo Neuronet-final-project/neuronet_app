@@ -52,6 +52,7 @@ class ApiEndpoints {
   // Educational Pages
   static const String educationalPages = '/educational-pages/';
   static String educationalPageBySlug(String slug) => '/educational-pages/$slug';
+  static String educationalRecommendations(String id) => '/educational/recommendations/adolescent/$id';
 
   // Guardian overview
   static const String guardianAdolescents = '/guardians/me/adolescents';

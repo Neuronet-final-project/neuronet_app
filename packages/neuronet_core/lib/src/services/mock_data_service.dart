@@ -35,7 +35,7 @@ class MockDataService {
       'I saw a beautiful sunset today. It reminded me that there is still beauty in the world, even when things are tough.',
       'I am looking forward to the weekend. I plan to hang out with my friends and just relax.',
     ];
-    
+
     return List.generate(
       contents.length,
       (index) => JournalEntry(
@@ -68,17 +68,16 @@ class MockDataService {
     return DashboardData(
       recentJournals: allJournals
           .take(3)
-          .map((j) => RecentJournal(
-                id: j.id,
-                createdAt: j.createdAt,
-                mood: j.mood,
-                title: j.title,
-              ))
+          .map(
+            (j) => RecentJournal(
+              id: j.id,
+              createdAt: j.createdAt,
+              mood: j.mood,
+              title: j.title,
+            ),
+          )
           .toList(),
-      moodDistribution: {
-        'Happy': 12,
-        'Calm': 8,
-      },
+      moodDistribution: {'Happy': 12, 'Calm': 8},
       educationalRecommendations: [],
     );
   }
@@ -88,15 +87,9 @@ class MockDataService {
       totalAdolescentsLinked: 2,
       totalJournalCount: 15,
       recentActivityCount: 5,
-      adolescentRisks: {
-        'user-123': 'Medium',
-      },
       alertList: [],
       unviewedAlertsCount: 1,
-      moodDistribution: {
-        'Stable': 10,
-        'Variable': 5,
-      },
+      moodDistribution: {'Stable': 10, 'Variable': 5},
       generatedAt: DateTime.now(),
     );
   }
@@ -109,7 +102,8 @@ class MockDataService {
         adolescentName: 'Alex Johnson',
         alertType: 'mood_drop',
         severityLevel: 'medium',
-        triggerDescription: 'Significant drop in mood detected over the last 48 hours.',
+        triggerDescription:
+            'Significant drop in mood detected over the last 48 hours.',
         createdAt: DateTime.now().subtract(const Duration(hours: 2)),
         viewedStatus: false,
       ),
@@ -119,7 +113,8 @@ class MockDataService {
         adolescentName: 'Alex Johnson',
         alertType: 'emotional_pattern',
         severityLevel: 'high',
-        triggerDescription: 'High frequency of negative sentiment in recent journals.',
+        triggerDescription:
+            'High frequency of negative sentiment in recent journals.',
         createdAt: DateTime.now().subtract(const Duration(days: 1)),
         viewedStatus: true,
       ),
@@ -134,8 +129,8 @@ class MockDataService {
         guardianId: 'user-456',
         consentType: type,
         grantedToRole: GrantedToRole.both,
-        consentStatus: type == ConsentType.dataSharing 
-            ? ConsentStatus.revoked 
+        consentStatus: type == ConsentType.dataSharing
+            ? ConsentStatus.revoked
             : ConsentStatus.granted,
         grantedAt: DateTime.now().subtract(const Duration(days: 15)),
       );
@@ -151,7 +146,8 @@ class MockDataService {
         messageId: 'msg-1',
         senderId: 'ai-counselor',
         receiverId: 'user-123',
-        messageContent: "Hi Alex! I'm your AI counselor. How are you feeling today?",
+        messageContent:
+            "Hi Alex! I'm your AI counselor. How are you feeling today?",
         timestamp: now.subtract(const Duration(minutes: 30)),
         messageType: MessageType.aiChat,
         isRead: true,
@@ -169,7 +165,8 @@ class MockDataService {
         messageId: 'msg-3',
         senderId: 'ai-counselor',
         receiverId: 'user-123',
-        messageContent: "I understand. That sounds tough. Would you like to talk about what specifically is making you feel overwhelmed?",
+        messageContent:
+            "I understand. That sounds tough. Would you like to talk about what specifically is making you feel overwhelmed?",
         timestamp: now.subtract(const Duration(minutes: 20)),
         messageType: MessageType.aiChat,
         isRead: true,
@@ -180,9 +177,11 @@ class MockDataService {
   static String getMockAiResponse(String userMessage) {
     if (userMessage.toLowerCase().contains('overwhelmed')) {
       return "It's completely normal to feel that way when things pile up. Let's try to break down your tasks together. What's the biggest thing on your plate right now?";
-    } else if (userMessage.toLowerCase().contains('happy') || userMessage.toLowerCase().contains('good')) {
+    } else if (userMessage.toLowerCase().contains('happy') ||
+        userMessage.toLowerCase().contains('good')) {
       return "That's wonderful to hear! I'm glad you're having a good day. What's been the highlight so far?";
-    } else if (userMessage.toLowerCase().contains('sad') || userMessage.toLowerCase().contains('lonely')) {
+    } else if (userMessage.toLowerCase().contains('sad') ||
+        userMessage.toLowerCase().contains('lonely')) {
       return "I'm here for you. It's okay to feel this way. Want to tell me more about what's on your mind?";
     }
     return "I hear you. Tell me more about that. I'm here to listen and help you reflect.";
@@ -196,7 +195,8 @@ class MockDataService {
         channelId: 'ch-1',
         counselorId: 'c-1',
         channelName: 'Mindfulness & Growth',
-        description: 'Daily tips for emotional balance and personal development.',
+        description:
+            'Daily tips for emotional balance and personal development.',
         channelType: ChannelType.educational,
         createdAt: DateTime.now().subtract(const Duration(days: 60)),
         isFeatured: true,
@@ -206,7 +206,8 @@ class MockDataService {
         channelId: 'ch-2',
         counselorId: 'c-2',
         channelName: 'Teen Support Network',
-        description: 'A safe space to discuss common challenges and share experiences.',
+        description:
+            'A safe space to discuss common challenges and share experiences.',
         channelType: ChannelType.supportive,
         createdAt: DateTime.now().subtract(const Duration(days: 45)),
         isFeatured: false,
@@ -217,7 +218,8 @@ class MockDataService {
         channelId: 'ch-3',
         counselorId: 'c-1',
         channelName: 'Wellness Library',
-        description: 'Curated resources for mental health and stress management.',
+        description:
+            'Curated resources for mental health and stress management.',
         channelType: ChannelType.resourceLibrary,
         createdAt: DateTime.now().subtract(const Duration(days: 30)),
         isFeatured: false,
@@ -299,7 +301,8 @@ class MockDataService {
         messageId: 'gmsg-1',
         senderId: 'counselor-1',
         receiverId: 'user-456',
-        messageContent: "Hello Mrs. Johnson, I'm Dr. Smith, Alex's assigned counselor. How are things going at home?",
+        messageContent:
+            "Hello Mrs. Johnson, I'm Dr. Smith, Alex's assigned counselor. How are things going at home?",
         timestamp: now.subtract(const Duration(days: 2)),
         messageType: MessageType.guardianChat,
         isRead: true,
@@ -308,7 +311,8 @@ class MockDataService {
         messageId: 'gmsg-2',
         senderId: 'user-456',
         receiverId: 'counselor-1',
-        messageContent: "Hello Dr. Smith. Alex seems a bit more withdrawn lately. I noticed the alert about his mood drop.",
+        messageContent:
+            "Hello Dr. Smith. Alex seems a bit more withdrawn lately. I noticed the alert about his mood drop.",
         timestamp: now.subtract(const Duration(days: 1, hours: 22)),
         messageType: MessageType.guardianChat,
         isRead: true,
@@ -317,7 +321,8 @@ class MockDataService {
         messageId: 'gmsg-3',
         senderId: 'counselor-1',
         receiverId: 'user-456',
-        messageContent: "I've noticed that too in our sessions. I'm working with him on some coping strategies. Please keep me updated if you notice any specific triggers.",
+        messageContent:
+            "I've noticed that too in our sessions. I'm working with him on some coping strategies. Please keep me updated if you notice any specific triggers.",
         timestamp: now.subtract(const Duration(days: 1, hours: 20)),
         messageType: MessageType.guardianChat,
         isRead: true,
