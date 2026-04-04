@@ -25,8 +25,8 @@ class RegistrationController extends _$RegistrationController {
   RegistrationState build() {
     return const RegistrationState(
       consents: {
-        ConsentType.journalAnalysis,
-        ConsentType.alertNotification,
+        ConsentType.shareAiSummaries,
+        ConsentType.shareAlerts,
       },
     );
   }

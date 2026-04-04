@@ -16,32 +16,56 @@ class ConsentScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(guardianConsentControllerProvider.notifier).refresh(),
+            onPressed: () =>
+                ref.read(guardianConsentControllerProvider.notifier).refresh(),
           ),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          _buildInfoSection(),
-          consentsAsync.when(
-            data: (consents) => SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final consent = consents[index];
-                  return _buildConsentTile(context, ref, consent);
-                },
-                childCount: consents.length,
-              ),
-            ),
-            loading: () => const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            ),
-            error: (err, stack) => SliverFillRemaining(
-              child: Center(child: Text('Error loading consents: $err')),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
-        ],
+      body: consentsAsync.when(
+        data: (consents) {
+          if (consents.isEmpty) {
+            return const Center(child: Text('No adolescents linked.'));
+          }
+
+          // Group consents by adolescent email
+          final grouped = <String, List<Consent>>{};
+          for (final c in consents) {
+            grouped.putIfAbsent(c.adolescentId, () => []).add(c);
+          }
+
+          return CustomScrollView(
+            slivers: [
+              _buildInfoSection(),
+              ...grouped.entries.expand((entry) => [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+                        child: Text(
+                          'Controls for ${entry.key}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: NeuroColors.adolescentPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          return _buildConsentTile(
+                              context, ref, entry.value[index]);
+                        },
+                        childCount: entry.value.length,
+                      ),
+                    ),
+                  ]),
+              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+            ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error loading consents: $err')),
       ),
     );
   }
@@ -103,20 +127,34 @@ class ConsentScreen extends ConsumerWidget {
           value: isGranted,
           onChanged: (value) async {
             final newStatus = value ? ConsentStatus.granted : ConsentStatus.revoked;
-            await ref.read(guardianConsentControllerProvider.notifier).updateConsent(
-                  consent.consentId,
-                  newStatus,
-                );
-            
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    '${consent.consentType.label} ${value ? 'granted' : 'revoked'} successfully',
-                  ),
-                  duration: const Duration(seconds: 2),
-                ),
+            try {
+              await ref.read(guardianConsentControllerProvider.notifier).updateConsent(
+                consent,
+                newStatus,
               );
+              
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      '${consent.consentType.label} ${value ? 'granted' : 'revoked'} successfully',
+                    ),
+                    backgroundColor: NeuroColors.alertLow,
+                    behavior: SnackBarBehavior.floating,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to update ${consent.consentType.label}: $e'),
+                    backgroundColor: NeuroColors.error,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
             }
           },
           title: Text(

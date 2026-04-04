@@ -129,7 +129,7 @@ class MockDataService {
         guardianId: 'user-456',
         consentType: type,
         grantedToRole: GrantedToRole.both,
-        consentStatus: type == ConsentType.dataSharing
+        consentStatus: type == ConsentType.shareAlerts
             ? ConsentStatus.revoked
             : ConsentStatus.granted,
         grantedAt: DateTime.now().subtract(const Duration(days: 15)),

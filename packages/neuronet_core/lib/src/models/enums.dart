@@ -71,36 +71,24 @@ enum MoodType {
 
 /// Consent types that guardians can manage.
 enum ConsentType {
-  journalAnalysis,
-  counselorCommunication,
-  dataSharing,
-  alertNotification,
-  channelParticipation;
+  shareAiSummaries,
+  shareAlerts;
 
   String toJson() => name;
   static ConsentType fromJson(String json) => values.byName(json);
 
   /// Human-readable label for UI.
   String get label => switch (this) {
-        journalAnalysis => 'Journal Analysis',
-        counselorCommunication => 'Counselor Communication',
-        dataSharing => 'Data Sharing',
-        alertNotification => 'Alert Notifications',
-        channelParticipation => 'Channel Participation',
+        shareAiSummaries => 'AI Summaries & Risk Levels',
+        shareAlerts => 'Security Alerts & Notifications',
       };
 
   /// Description for consent management screen.
   String get description => switch (this) {
-        journalAnalysis =>
-          'Allow AI to analyze journal entries for emotional trends',
-        counselorCommunication =>
-          'Allow direct messaging between adolescent and counselor',
-        dataSharing =>
-          'Share summarized emotional trends with assigned counselor',
-        alertNotification =>
-          'Send alert notifications when emotional patterns are detected',
-        channelParticipation =>
-          'Allow participation in counselor-created channels',
+        shareAiSummaries =>
+          'Allow viewing of AI-generated emotional summaries and designated risk levels.',
+        shareAlerts =>
+          'Receive immediate notifications when critical emotional patterns or risks are detected.',
       };
 }
 

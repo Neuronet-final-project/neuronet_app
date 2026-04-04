@@ -4,8 +4,8 @@ import 'enums.dart';
 part 'dashboard.freezed.dart';
 part 'dashboard.g.dart';
 
-/// Converts either a List<{mood, count}> or a Map<String, int> from the API
-/// into a uniform Map<String, int> for local use.
+/// Converts either a `List<{mood, count}>` or a `Map<String, int>` from the API
+/// into a uniform `Map<String, int>` for local use.
 Map<String, int> _moodDistributionFromJson(dynamic json) {
   if (json is List) {
     return {

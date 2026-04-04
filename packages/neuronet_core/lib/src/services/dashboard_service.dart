@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/models.dart';
 import '../network/api_client.dart';
@@ -62,11 +63,24 @@ class DashboardService {
 
   /// Fetches consents for a specific adolescent by email.
   Future<List<Consent>> getAdolescentConsents(String email) async {
-    final response = await _client.get(ApiEndpoints.consentByEmail(email));
-    // ignore: avoid_print
-    print('DEBUG: /consents/$email raw: ${response.data}');
-    final data = response.data as List;
-    return data.map((e) => Consent.fromJson(e as Map<String, dynamic>)).toList();
+    try {
+      final response = await _client.get(ApiEndpoints.consentByEmail(email));
+      // ignore: avoid_print
+      print('DEBUG: /consents/$email raw: ${response.data}');
+      final data = response.data as List;
+      return data.map((e) => Consent.fromJson(e as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        // ignore: avoid_print
+        print('DEBUG: No consents found for $email (404), returning empty list.');
+        return [];
+      }
+      rethrow;
+    } catch (e) {
+      // ignore: avoid_print
+      print('DEBUG: Unexpected error fetching consents for $email: $e');
+      rethrow;
+    }
   }
 }
 
