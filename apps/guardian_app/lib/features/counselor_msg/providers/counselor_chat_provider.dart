@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -6,55 +8,77 @@ part 'counselor_chat_provider.freezed.dart';
 part 'counselor_chat_provider.g.dart';
 
 @freezed
-abstract class GuardianChatState with _$GuardianChatState {
-  const factory GuardianChatState({
-    @Default([]) List<ChatMessage> messages,
+abstract class CounselorChatState with _$CounselorChatState {
+  const factory CounselorChatState({
+    Conversation? conversation,
+    @Default([]) List<ConversationMessage> messages,
     @Default(false) bool isLoading,
     String? error,
-  }) = _GuardianChatState;
+    @Default(false) bool isNoCounselor,
+  }) = _CounselorChatState;
 }
 
 @riverpod
-class GuardianChatController extends _$GuardianChatController {
+class CounselorChatController extends _$CounselorChatController {
   @override
-  GuardianChatState build() {
-    // Initialize with mock history
-    return GuardianChatState(
-      messages: MockDataService.getGuardianCounselorMessages(),
-    );
+  FutureOr<CounselorChatState> build(String adolescentId) async {
+    try {
+      final messagingService = ref.watch(messagingServiceProvider);
+      
+      debugPrint('CounselorChatController: Building for adolescentId: $adolescentId');
+
+      // Get or create conversation
+      final conversation = await messagingService.getOrCreateConversation(
+        type: ConversationType.counselorGuardian,
+        adolescentId: adolescentId,
+      );
+
+      // Load messages
+      final messages = await messagingService.getMessages(conversation.id);
+
+      return CounselorChatState(
+        conversation: conversation,
+        messages: messages,
+      );
+    } catch (e) {
+      if (e.toString().contains('no_assigned_counselor')) {
+        return const CounselorChatState(isNoCounselor: true);
+      }
+      return CounselorChatState(error: e.toString());
+    }
   }
 
   Future<void> sendMessage(String content) async {
-    if (content.trim().isEmpty) return;
+    final currentConversation = state.value?.conversation;
+    if (currentConversation == null || content.trim().isEmpty) return;
 
-    final newMessage = ChatMessage(
-      messageId: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderId: 'user-456', // Mock Guardian ID
-      receiverId: 'counselor-1',
-      messageContent: content,
-      timestamp: DateTime.now(),
-      messageType: MessageType.guardianChat,
+    // Optimistic update
+    final tempMsg = ConversationMessage(
+      id: 'temp-${DateTime.now().millisecondsSinceEpoch}',
+      conversationId: currentConversation.id,
+      senderEmail: '', // Will be filled by backend
+      senderRole: 'guardian',
+      content: content,
+      createdAt: DateTime.now(),
     );
 
-    state = state.copyWith(
-      messages: [...state.messages, newMessage],
-    );
+    final previousState = state.value!;
+    state = AsyncData(previousState.copyWith(
+      messages: [...previousState.messages, tempMsg],
+    ));
 
-    // Simulate counselor response
-    await Future.delayed(const Duration(seconds: 2));
-    
-    final response = ChatMessage(
-      messageId: (DateTime.now().millisecondsSinceEpoch + 1).toString(),
-      senderId: 'counselor-1',
-      receiverId: 'user-456',
-      messageContent: "Thank you for your message. I'm reviewing Alex's recent progress and will get back to you shortly with more details.",
-      timestamp: DateTime.now(),
-      messageType: MessageType.guardianChat,
-      isRead: false,
-    );
-
-    state = state.copyWith(
-      messages: [...state.messages, response],
-    );
+    try {
+      final messagingService = ref.read(messagingServiceProvider);
+      await messagingService.sendMessage(
+        conversationId: currentConversation.id,
+        content: content,
+      );
+      
+      // Refresh messages to get the real one from backend
+      final messages = await messagingService.getMessages(currentConversation.id);
+      state = AsyncData(previousState.copyWith(messages: messages));
+    } catch (e) {
+      state = AsyncData(previousState.copyWith(error: 'Failed to send message: $e'));
+    }
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/adolescent_provider.dart';
+import '../../../../config/router/app_router.dart';
 
 class AdolescentDetailScreen extends ConsumerWidget {
   final String adolescentId;
@@ -48,7 +50,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProfileHeader(profile),
+          _buildProfileHeader(context, profile),
           const SizedBox(height: 32),
           _buildSectionTitle('Registration Details'),
           _buildDetailTile('Full Name', profile.fullName),
@@ -87,7 +89,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileHeader(AdolescentResponse profile) {
+  Widget _buildProfileHeader(BuildContext context, AdolescentResponse profile) {
     return Center(
       child: Column(
         children: [
@@ -108,6 +110,20 @@ class AdolescentDetailScreen extends ConsumerWidget {
             profile.email,
             style: const TextStyle(
               color: NeuroColors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () {
+              debugPrint('AdolescentDetailScreen: Navigating to chat for adolescent: ${profile.id} (${profile.fullName})');
+              final path = GuardianRoutes.adolescentChat.replaceFirst(':adolescentId', profile.id);
+              context.push('$path?name=${Uri.encodeComponent(profile.fullName)}');
+            },
+            icon: const Icon(Icons.chat_bubble_outline),
+            label: const Text('Contact Counselor'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: NeuroColors.guardianPrimary,
+              foregroundColor: Colors.white,
             ),
           ),
         ],

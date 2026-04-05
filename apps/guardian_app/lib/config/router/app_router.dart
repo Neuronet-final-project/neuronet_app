@@ -35,6 +35,7 @@ class GuardianRoutes {
   static const String profile = '/profile';
   static const String alertDetails = '/alert-details/:alertId';
   static const String adolescentDetails = '/adolescent/:adolescentId';
+  static const String adolescentChat = '/adolescent/:adolescentId/chat';
 }
 
 final guardianRouterProvider = Provider<GoRouter>((ref) {
@@ -119,7 +120,10 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: GuardianRoutes.counselorMsg,
-                builder: (context, state) => const CounselorMsgScreen(),
+                builder: (context, state) => const CounselorMsgScreen(
+                  adolescentId: '', // Default or placeholder
+                  adolescentName: 'General',
+                ),
               ),
             ],
           ),
@@ -151,6 +155,17 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final adolescentId = state.pathParameters['adolescentId']!;
           return AdolescentDetailScreen(adolescentId: adolescentId);
+        },
+      ),
+      GoRoute(
+        path: GuardianRoutes.adolescentChat,
+        builder: (context, state) {
+          final adolescentId = state.pathParameters['adolescentId']!;
+          final adolescentName = state.uri.queryParameters['name'] ?? 'Adolescent';
+          return CounselorMsgScreen(
+            adolescentId: adolescentId,
+            adolescentName: adolescentName,
+          );
         },
       ),
     ],

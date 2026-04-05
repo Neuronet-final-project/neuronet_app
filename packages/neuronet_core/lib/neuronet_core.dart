@@ -17,6 +17,7 @@ export 'src/services/journal_service.dart';
 export 'src/services/alert_service.dart';
 export 'src/services/educational_service.dart';
 export 'src/services/consent_service.dart';
+export 'src/services/messaging_service.dart';
 export 'src/services/mock_data_service.dart';
 
 // Theme
