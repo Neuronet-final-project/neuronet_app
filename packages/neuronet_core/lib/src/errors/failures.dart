@@ -65,12 +65,17 @@ Failure failureFromException(Object exception) {
         return const NetworkFailure();
       case DioExceptionType.badResponse:
         final statusCode = exception.response?.statusCode;
+        final message = _extractErrorMessage(exception.response?.data);
         if (statusCode == 401 || statusCode == 403) {
-          return AuthFailure(statusCode: statusCode);
+          return AuthFailure(
+            message: message ?? 'Authentication required',
+            statusCode: statusCode,
+          );
         }
-        final message = _extractErrorMessage(exception.response?.data) ??
-            'Server error ($statusCode)';
-        return ServerFailure(message: message, statusCode: statusCode);
+        return ServerFailure(
+          message: message ?? 'Server error ($statusCode)',
+          statusCode: statusCode,
+        );
       case DioExceptionType.cancel:
         return const UnknownFailure(message: 'Request cancelled');
       case DioExceptionType.badCertificate:

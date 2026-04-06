@@ -39,11 +39,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     // Listen for error messages
     ref.listen(authControllerProvider, (previous, next) {
-      if (next.status == AuthStatus.error) {
+      if (next.status == AuthStatus.error && previous?.status != AuthStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.errorMessage ?? 'An error occurred'),
-            backgroundColor: theme.colorScheme.error,
+            content: Text(
+              next.errorMessage ?? 'An error occurred',
+              style: TextStyle(
+                color: theme.colorScheme.onErrorContainer,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            backgroundColor: theme.colorScheme.errorContainer,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+            margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -128,20 +141,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    
-                    // Forgot Password
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(color: theme.colorScheme.primary),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    
+
                     // Login Button
                     ElevatedButton(
                       onPressed: authState.status == AuthStatus.loading 
@@ -207,27 +207,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-
-                    // Navigation to Signup
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Don't have an account?",
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                        TextButton(
-                          onPressed: () => context.go(GuardianRoutes.signup),
-                          child: Text(
-                            'Sign Up',
-                            style: TextStyle(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),

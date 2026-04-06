@@ -41,11 +41,36 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
     final theme = Theme.of(context);
 
     ref.listen(authControllerProvider, (previous, next) {
-      if (next.status == AuthStatus.error) {
+      if (next.status == AuthStatus.error && previous?.status != AuthStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.errorMessage ?? 'An error occurred'),
-            backgroundColor: theme.colorScheme.error,
+            content: Text(
+              next.errorMessage ?? 'An error occurred',
+              style: TextStyle(
+                color: theme.colorScheme.onErrorContainer,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            backgroundColor: theme.colorScheme.errorContainer,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+            margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+      if (next.status == AuthStatus.unauthenticated &&
+          previous?.status == AuthStatus.activating) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Account activated! Please login.'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+            margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
           ),
         );
       }

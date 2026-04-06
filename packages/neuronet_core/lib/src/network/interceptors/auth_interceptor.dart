@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../session_expired.dart';
 
 /// Storage abstraction for JWT tokens.
 abstract class TokenStorage {
@@ -85,7 +86,12 @@ class AuthInterceptor extends Interceptor {
           }
         } catch (_) {
           await tokenStorage.clearTokens();
+          notifySessionExpired();
         }
+      } else {
+        // No refresh token available — session is expired
+        await tokenStorage.clearTokens();
+        notifySessionExpired();
       }
     }
     handler.next(err);

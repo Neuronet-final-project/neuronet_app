@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
+import 'package:adolescent_app/config/router/app_router.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -39,9 +40,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     // Listen for error messages
     ref.listen(authControllerProvider, (previous, next) {
-      if (next.status == AuthStatus.error) {
+      if (next.status == AuthStatus.error && previous?.status != AuthStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage ?? 'An error occurred'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(
+              next.errorMessage ?? 'An error occurred',
+              style: TextStyle(
+                color: theme.colorScheme.onErrorContainer,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            backgroundColor: theme.colorScheme.errorContainer,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+            margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
         );
       }
     });
@@ -177,7 +194,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                         TextButton(
-                          onPressed: () => context.push('/activate'),
+                          onPressed: () => context.push(AdolescentRoutes.activate),
                           child: const Text(
                             'Activate Account',
                             style: TextStyle(

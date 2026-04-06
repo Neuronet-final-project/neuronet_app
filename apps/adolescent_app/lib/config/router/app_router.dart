@@ -45,33 +45,59 @@ class AdolescentRoutes {
   static const String recommendations = '/recommendations';
 }
 
+// Global ChangeNotifier for auth state changes.
+// The GoRouter uses this as refreshListenable so it doesn't get recreated.
+final authChangeNotifier = _AuthChangeNotifier();
+
+class _AuthChangeNotifier extends ChangeNotifier {
+  AuthState _state = AuthState.initial();
+  AuthState get state => _state;
+  void update(AuthState s) {
+    _state = s;
+    notifyListeners();
+  }
+}
+
 final adolescentRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authControllerProvider);
+  // Listen to auth changes WITHOUT rebuilding this provider.
+  // The ChangeNotifier fires GoRouter.refresh() via refreshListenable.
+  ref.listen(authControllerProvider, (_, authState) {
+    authChangeNotifier.update(authState);
+  });
 
   return GoRouter(
     initialLocation: AdolescentRoutes.splash,
+    refreshListenable: authChangeNotifier,
     redirect: (BuildContext context, GoRouterState state) {
-      final isLoggingIn = state.matchedLocation == AdolescentRoutes.login;
-      final isActivating = state.matchedLocation == AdolescentRoutes.activate;
-      final isSplash = state.matchedLocation == AdolescentRoutes.splash;
+      final currentLocation = state.matchedLocation;
+      final isLoggingIn = currentLocation == AdolescentRoutes.login;
+      final isActivating = currentLocation == AdolescentRoutes.activate;
+      final isSplash = currentLocation == AdolescentRoutes.splash;
 
-      final isAuthenticated = authState.status == AuthStatus.authenticated;
-      final isInitial = authState.status == AuthStatus.initial || authState.status == AuthStatus.loading;
+      final currentAuth = authChangeNotifier.state;
+      final isAuthenticated = currentAuth.status == AuthStatus.authenticated;
+      final isInitial = currentAuth.status == AuthStatus.initial;
+      final isLoading = currentAuth.status == AuthStatus.loading;
 
+      // 1. True initial state (app just launched) — show splash
       if (isInitial) {
         return isSplash ? null : AdolescentRoutes.splash;
       }
 
+      // 2. Loading (login in progress, activation, etc.) — stay on current page
+      if (isLoading) {
+        return null;
+      }
+
+      // 3. Authenticated — redirect away from auth/splash pages
       if (isAuthenticated) {
         if (isLoggingIn || isActivating || isSplash) return AdolescentRoutes.home;
         return null;
-      } else {
-        // If we are loading or there was a data error, don't redirect yet
-        if (authState.status == AuthStatus.error) return null;
-        
-        if (isLoggingIn || isActivating) return null;
-        return AdolescentRoutes.login;
       }
+
+      // 4. Unauthenticated — send to login (even on error so user can retry)
+      if (isLoggingIn || isActivating) return null;
+      return AdolescentRoutes.login;
     },
     routes: [
       GoRoute(

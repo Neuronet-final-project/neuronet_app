@@ -1,6 +1,11 @@
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 part 'auth_provider.g.dart';
+
+// Wraps the global ValueNotifier so Riverpod can watch it.
+@riverpod
+int sessionExpired(Ref ref) => sessionExpiredNotifier.value;
 
 enum AuthStatus {
   initial,
@@ -34,6 +39,10 @@ class AuthState {
 class AuthController extends _$AuthController {
   @override
   AuthState build() {
+    // Listen for session expiry from AuthInterceptor
+    ref.listen(sessionExpiredProvider, (_, __) {
+      state = AuthState.unauthenticated();
+    });
     // Check if we are already logged in on startup
     _checkInitialAuth();
     return AuthState.initial();
@@ -43,20 +52,23 @@ class AuthController extends _$AuthController {
     try {
       final storage = ref.read(tokenStorageProvider);
       final token = await storage.getAccessToken();
-      if (token != null) {
-        // We have a token, so we can tentatively assume authenticated
-        // The ProfileController will fetch the real user details
-        state = AuthState.authenticated(User(
-          id: 'session',
-          fullName: 'User',
-          email: '...',
-          role: UserRole.adolescent,
-          accountStatus: AccountStatus.active,
-        ));
+      // Minimum splash display time so the user doesn't see a single-frame flash
+      await Future.wait([_resolveAuth(token), Future.delayed(const Duration(milliseconds: 500))]);
+    } catch (e) {
+      state = AuthState.unauthenticated();
+    }
+  }
+
+  Future<void> _resolveAuth(String? token) async {
+    if (token != null) {
+      final authService = ref.read(authServiceProvider);
+      final result = await authService.getMe();
+      if (result.isSuccess) {
+        state = AuthState.authenticated(result.value);
       } else {
         state = AuthState.unauthenticated();
       }
-    } catch (e) {
+    } else {
       state = AuthState.unauthenticated();
     }
   }
@@ -76,15 +88,20 @@ class AuthController extends _$AuthController {
       final storage = ref.read(tokenStorageProvider);
       await storage.saveTokens(accessToken: response.accessToken);
 
-      final user = User(
-        id: 'current',
-        fullName: 'Adolescent User',
-        email: email,
-        role: response.role,
-        accountStatus: AccountStatus.active,
-      );
-
-      state = AuthState.authenticated(user);
+      // Fetch real user profile instead of using hardcoded data
+      final userResult = await authService.getMe();
+      if (userResult.isSuccess) {
+        state = AuthState.authenticated(userResult.value);
+      } else {
+        // Fallback to email-based user if profile fetch fails
+        state = AuthState.authenticated(User(
+          id: 'current',
+          fullName: email.split('@').first,
+          email: email,
+          role: response.role,
+          accountStatus: AccountStatus.active,
+        ));
+      }
     } catch (e) {
       state = AuthState.error(e.toString());
     }

@@ -38,33 +38,58 @@ class GuardianRoutes {
   static const String adolescentChat = '/adolescent/:adolescentId/chat';
 }
 
+// Global ChangeNotifier for auth state changes.
+final _authChangeNotifier = _GuardianAuthChangeNotifier();
+
+class _GuardianAuthChangeNotifier extends ChangeNotifier {
+  AuthState _state = AuthState.initial();
+  AuthState get state => _state;
+  void update(AuthState s) {
+    _state = s;
+    notifyListeners();
+  }
+}
+
 final guardianRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authControllerProvider);
+  // Listen to auth changes WITHOUT rebuilding this provider.
+  ref.listen(authControllerProvider, (_, authState) {
+    _authChangeNotifier.update(authState);
+  });
 
   return GoRouter(
     initialLocation: GuardianRoutes.splash,
+    refreshListenable: _authChangeNotifier,
     redirect: (context, state) {
-      final isLoggingIn = state.matchedLocation == GuardianRoutes.login;
-      final isSigningUp = state.matchedLocation == GuardianRoutes.signup;
-      final isActivating = state.matchedLocation == GuardianRoutes.activate;
-      final isSplash = state.matchedLocation == GuardianRoutes.splash;
-      final isAuthenticated = authState.status == AuthStatus.authenticated;
-      final isInitial = authState.status == AuthStatus.initial || authState.status == AuthStatus.loading;
+      final currentLocation = state.matchedLocation;
+      final isLoggingIn = currentLocation == GuardianRoutes.login;
+      final isSigningUp = currentLocation == GuardianRoutes.signup;
+      final isActivating = currentLocation == GuardianRoutes.activate;
+      final isSplash = currentLocation == GuardianRoutes.splash;
 
+      final currentAuth = _authChangeNotifier.state;
+      final isAuthenticated = currentAuth.status == AuthStatus.authenticated;
+      final isInitial = currentAuth.status == AuthStatus.initial;
+      final isLoading = currentAuth.status == AuthStatus.loading;
+
+      // 1. True initial state (app just launched) — show splash
       if (isInitial) {
         return isSplash ? null : GuardianRoutes.splash;
       }
 
-      if (!isAuthenticated && !isLoggingIn && !isActivating && !isSigningUp) {
-        if (authState.status == AuthStatus.error) return null;
-        return GuardianRoutes.login;
+      // 2. Loading (login in progress, activation, etc.) — stay on current page
+      if (isLoading) {
+        return null;
       }
 
-      if (isAuthenticated && (isLoggingIn || isActivating || isSigningUp || isSplash)) {
-        return GuardianRoutes.home;
+      // 3. Authenticated — redirect away from auth/splash pages
+      if (isAuthenticated) {
+        if (isLoggingIn || isActivating || isSigningUp || isSplash) return GuardianRoutes.home;
+        return null;
       }
 
-      return null;
+      // 4. Unauthenticated — send to login (even on error so user can retry)
+      if (isLoggingIn || isActivating || isSigningUp) return null;
+      return GuardianRoutes.login;
     },
     routes: [
       GoRoute(
