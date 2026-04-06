@@ -41,10 +41,19 @@ class AuthService {
 
   Future<User> getMe() async {
     final response = await _apiClient.get(ApiEndpoints.me);
+    final raw = Map<String, dynamic>.from(response.data as Map<String, dynamic>);
     // ignore: avoid_print
-    print('DEBUG: /auth/me raw data: ${response.data}');
+    print('DEBUG: /auth/me raw data: $raw');
+
+    // Some backend versions return 'id' instead of '_id'.
+    // Normalise so User.fromJson always finds '_id'.
+    if ((raw['_id'] == null || (raw['_id'] as String).isEmpty) &&
+        raw['id'] != null) {
+      raw['_id'] = raw['id'];
+    }
+
     try {
-      return User.fromJson(response.data as Map<String, dynamic>);
+      return User.fromJson(raw);
     } catch (e) {
       // ignore: avoid_print
       print('DEBUG: User.fromJson error: $e');

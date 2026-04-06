@@ -21,8 +21,11 @@ Future<List<Recommendation>> adolescentRecommendations(Ref ref) async {
   final profile = await ref.watch(adolescentProfileControllerProvider.future);
   final service = ref.watch(educationalServiceProvider);
   
-  final id = profile.id == 'fallback' ? 'me' : profile.id;
-  
+  // Guard: backend requires a real adolescent ID — there is no 'me' variant.
+  // If the profile has no real ID yet, return empty to avoid a 404.
+  final id = profile.id;
+  if (id.isEmpty || id == 'fallback') return [];
+
   try {
     return await service.getRecommendations(id);
   } catch (e) {

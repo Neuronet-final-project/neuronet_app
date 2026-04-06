@@ -62,13 +62,38 @@ class DashboardService {
   }
 
   /// Fetches consents for a specific adolescent by email.
+  /// The backend returns a single object (Map), not a List.
   Future<List<Consent>> getAdolescentConsents(String email) async {
     try {
       final response = await _client.get(ApiEndpoints.consentByEmail(email));
       // ignore: avoid_print
       print('DEBUG: /consents/$email raw: ${response.data}');
-      final data = response.data as List;
-      return data.map((e) => Consent.fromJson(e as Map<String, dynamic>)).toList();
+      final data = response.data as Map<String, dynamic>;
+      final adolescentEmail = data['adolescent_email'] as String;
+      return [
+        Consent(
+          consentId: 'ai-$adolescentEmail',
+          adolescentId: adolescentEmail,
+          guardianId: data['guardian_email'] as String? ?? '',
+          consentType: ConsentType.shareAiSummaries,
+          grantedToRole: GrantedToRole.guardian,
+          consentStatus: (data['share_ai_summaries'] as bool? ?? false)
+              ? ConsentStatus.granted
+              : ConsentStatus.revoked,
+          grantedAt: DateTime.now(),
+        ),
+        Consent(
+          consentId: 'alerts-$adolescentEmail',
+          adolescentId: adolescentEmail,
+          guardianId: data['guardian_email'] as String? ?? '',
+          consentType: ConsentType.shareAlerts,
+          grantedToRole: GrantedToRole.guardian,
+          consentStatus: (data['share_alerts'] as bool? ?? false)
+              ? ConsentStatus.granted
+              : ConsentStatus.revoked,
+          grantedAt: DateTime.now(),
+        ),
+      ];
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         // ignore: avoid_print

@@ -9,14 +9,14 @@ Future<List<Alert>> adolescentAlerts(Ref ref) async {
   final profile = await ref.watch(adolescentProfileControllerProvider.future);
   final alertService = ref.watch(alertServiceProvider);
   
-  // Use the real ID from the profile if it's not the fallback
-  // The backend endpoint might support 'me' or require the actual ID
-  final id = profile.id == 'fallback' ? 'me' : profile.id;
-  
+  // Guard: the backend has no generic 'me' endpoint for adolescent alerts.
+  // If the profile has no real ID yet, skip the request entirely.
+  final id = profile.id;
+  if (id.isEmpty || id == 'fallback') return [];
+
   try {
     return await alertService.getAdolescentAlerts(id);
   } catch (e) {
-    // Return empty list on failure for dashboard resiliency
     return [];
   }
 }
