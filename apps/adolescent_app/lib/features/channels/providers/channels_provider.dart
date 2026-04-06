@@ -7,9 +7,7 @@ part 'channels_provider.g.dart';
 class ChannelsController extends _$ChannelsController {
   @override
   FutureOr<List<Channel>> build() async {
-    // In a real app, this would call a repository
-    // For now, we use the expanded MockDataService
-    return MockDataService.getMockChannels();
+    return ref.watch(channelServiceProvider).getMyChannels();
   }
 
   Future<void> toggleFollow(String channelId) async {
@@ -31,11 +29,8 @@ class ChannelsController extends _$ChannelsController {
     );
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(milliseconds: 500));
-      // In real implementation: await ref.read(channelRepositoryProvider).toggleFollow(channelId);
+      await ref.read(channelServiceProvider).subscribeToChannel(channelId);
     } catch (e, st) {
-      // Rollback on error if necessary, or just refresh
       state = AsyncValue.error(e, st);
     }
   }
@@ -45,7 +40,7 @@ class ChannelsController extends _$ChannelsController {
 class ChannelPostsController extends _$ChannelPostsController {
   @override
   FutureOr<List<ChannelPost>> build(String channelId) async {
-    return MockDataService.getMockPosts(channelId);
+    return ref.watch(channelServiceProvider).getChannelPosts(channelId);
   }
 
   Future<void> toggleReaction(String postId) async {
@@ -67,8 +62,11 @@ class ChannelPostsController extends _$ChannelPostsController {
     );
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(milliseconds: 300));
+      await ref.read(channelServiceProvider).interactWithPost(
+            channelId: channelId,
+            postId: postId,
+            type: InteractionType.reaction,
+          );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -78,28 +76,26 @@ class ChannelPostsController extends _$ChannelPostsController {
 @riverpod
 class ChannelCommentsController extends _$ChannelCommentsController {
   @override
-  FutureOr<List<ChannelInteraction>> build(String postId) async {
-    return MockDataService.getMockComments(postId);
+  FutureOr<List<ChannelInteraction>> build(String channelId, String postId) async {
+    return ref.watch(channelServiceProvider).getChannelInteractions(
+          channelId: channelId,
+          postId: postId,
+        );
   }
 
   Future<void> addComment(String content) async {
     final currentState = state.value;
     if (currentState == null) return;
 
-    final newComment = ChannelInteraction(
-      interactionId: 'new-${DateTime.now().millisecondsSinceEpoch}',
-      postId: postId,
-      adolescentId: 'user-123',
-      interactionType: InteractionType.comment,
-      content: content,
-      createdAt: DateTime.now(),
-    );
-
-    // Optimistic update
-    state = AsyncValue.data([...currentState, newComment]);
-
     try {
-      await Future.delayed(const Duration(milliseconds: 400));
+      final newComment = await ref.read(channelServiceProvider).interactWithPost(
+            channelId: channelId,
+            postId: postId,
+            type: InteractionType.comment,
+            content: content,
+          );
+
+      state = AsyncValue.data([...currentState, newComment]);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }

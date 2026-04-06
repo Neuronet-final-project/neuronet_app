@@ -47,7 +47,13 @@ class ApiEndpoints {
 
   // Channels
   static const String myChannels = '/channels/me';
+  static const String channels = '/channels';
   static String channelSubscribe(String id) => '/channels/$id/subscribe';
+  static String channelPosts(String id) => '/channels/$id/posts';
+  static String channelInteractions(String channelId, String postId) =>
+      '/channels/$channelId/posts/$postId/interactions';
+  static String channelInteract(String channelId, String postId) =>
+      '/channels/$channelId/posts/$postId/interact';
 
   // Educational Pages
   static const String educationalPages = '/educational-pages/';

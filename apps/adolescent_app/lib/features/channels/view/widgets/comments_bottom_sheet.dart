@@ -4,8 +4,13 @@ import '../../providers/channels_provider.dart';
 
 class CommentsBottomSheet extends ConsumerStatefulWidget {
   final String postId;
+  final String channelId;
 
-  const CommentsBottomSheet({super.key, required this.postId});
+  const CommentsBottomSheet({
+    super.key,
+    required this.postId,
+    required this.channelId,
+  });
 
   @override
   ConsumerState<CommentsBottomSheet> createState() => _CommentsBottomSheetState();
@@ -24,13 +29,15 @@ class _CommentsBottomSheetState extends ConsumerState<CommentsBottomSheet> {
     final text = _commentController.text.trim();
     if (text.isEmpty) return;
 
-    ref.read(channelCommentsControllerProvider(widget.postId).notifier).addComment(text);
+    ref
+        .read(channelCommentsControllerProvider(widget.channelId, widget.postId).notifier)
+        .addComment(text);
     _commentController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
-    final commentsAsync = ref.watch(channelCommentsControllerProvider(widget.postId));
+    final commentsAsync = ref.watch(channelCommentsControllerProvider(widget.channelId, widget.postId));
     final theme = Theme.of(context);
 
     return Container(

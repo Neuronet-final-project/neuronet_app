@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'educational.freezed.dart';
-part 'educational.g.dart';
 
 @freezed
 abstract class EducationalPage with _$EducationalPage {

@@ -117,12 +117,15 @@ class ChannelDetailScreen extends ConsumerWidget {
     );
   }
     
-      void _showCommentsBottomSheet(BuildContext context, String postId) {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) => CommentsBottomSheet(postId: postId),
-        );
-      }
-    }
+  void _showCommentsBottomSheet(BuildContext context, String postId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CommentsBottomSheet(
+        postId: postId,
+        channelId: channelId,
+      ),
+    );
+  }
+}
