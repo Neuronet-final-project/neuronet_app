@@ -2,7 +2,15 @@
 class ApiEndpoints {
   const ApiEndpoints._();
 
-  static const String baseUrl = 'https://final-year-project-backend-production-da67.up.railway.app';
+  static String _baseUrl = 'https://final-year-project-backend-production-da67.up.railway.app';
+
+  /// Current base URL. Set via [init] at startup.
+  static String get baseUrl => _baseUrl;
+
+  /// Call once at startup after loading environment config.
+  static void init({required String baseUrl}) {
+    _baseUrl = baseUrl;
+  }
 
   // Auth
   static const String login = '/auth/login';

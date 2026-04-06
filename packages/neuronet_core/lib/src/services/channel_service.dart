@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../errors/failures.dart';
 import '../models/models.dart';
 import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
@@ -11,56 +12,98 @@ class ChannelService {
   final ApiClient _client;
 
   /// Fetches channels followed by the current user.
-  Future<List<Channel>> getMyChannels() async {
-    final response = await _client.get(ApiEndpoints.myChannels);
-    final list = response.data as List<dynamic>;
-    return list.map((json) => Channel.fromJson(json as Map<String, dynamic>)).toList();
+  Future<Result<List<Channel>>> getMyChannels() async {
+    try {
+      final response = await _client.get(ApiEndpoints.myChannels);
+      final list = response.data as List<dynamic>;
+      final channels = list
+          .map((json) => Channel.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(channels);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
   }
 
   /// Fetches all available channels for discovery.
-  Future<List<Channel>> getAllChannels() async {
-    final response = await _client.get(ApiEndpoints.channels);
-    final list = response.data as List<dynamic>;
-    return list.map((json) => Channel.fromJson(json as Map<String, dynamic>)).toList();
+  Future<Result<List<Channel>>> getAllChannels() async {
+    try {
+      final response = await _client.get(ApiEndpoints.channels);
+      final list = response.data as List<dynamic>;
+      final channels = list
+          .map((json) => Channel.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(channels);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
   }
 
   /// Fetches posts for a specific channel.
-  Future<List<ChannelPost>> getChannelPosts(String channelId) async {
-    final response = await _client.get(ApiEndpoints.channelPosts(channelId));
-    final list = response.data as List<dynamic>;
-    return list.map((json) => ChannelPost.fromJson(json as Map<String, dynamic>)).toList();
+  Future<Result<List<ChannelPost>>> getChannelPosts(String channelId) async {
+    try {
+      final response = await _client.get(ApiEndpoints.channelPosts(channelId));
+      final list = response.data as List<dynamic>;
+      final posts = list
+          .map((json) => ChannelPost.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(posts);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
   }
 
   /// Fetches interactions (comments/reactions) for a specific post.
-  Future<List<ChannelInteraction>> getChannelInteractions({
+  Future<Result<List<ChannelInteraction>>> getChannelInteractions({
     required String channelId,
     required String postId,
   }) async {
-    final response = await _client.get(ApiEndpoints.channelInteractions(channelId, postId));
-    final list = response.data as List<dynamic>;
-    return list.map((json) => ChannelInteraction.fromJson(json as Map<String, dynamic>)).toList();
+    try {
+      final response = await _client.get(
+        ApiEndpoints.channelInteractions(channelId, postId),
+      );
+      final list = response.data as List<dynamic>;
+      final interactions = list
+          .map((json) => ChannelInteraction.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(interactions);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
   }
 
   /// Subscribes/unsubscribes the user to a channel.
-  Future<void> subscribeToChannel(String channelId) async {
-    await _client.post(ApiEndpoints.channelSubscribe(channelId));
+  Future<Result<void>> subscribeToChannel(String channelId) async {
+    try {
+      await _client.post(ApiEndpoints.channelSubscribe(channelId));
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
   }
 
   /// Interacts with a post (like, comment, etc.).
-  Future<ChannelInteraction> interactWithPost({
+  Future<Result<ChannelInteraction>> interactWithPost({
     required String channelId,
     required String postId,
     required InteractionType type,
     String? content,
   }) async {
-    final response = await _client.post(
-      ApiEndpoints.channelInteract(channelId, postId),
-      data: {
-        'interaction_type': type.name,
-        if (content != null) 'content': content,
-      },
-    );
-    return ChannelInteraction.fromJson(response.data as Map<String, dynamic>);
+    try {
+      final response = await _client.post(
+        ApiEndpoints.channelInteract(channelId, postId),
+        data: {
+          'interaction_type': type.name,
+          if (content != null) 'content': content,
+        },
+      );
+      final interaction = ChannelInteraction.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+      return Result.success(interaction);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
   }
 }
 

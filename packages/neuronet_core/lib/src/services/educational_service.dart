@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../errors/failures.dart';
 import '../models/models.dart';
 import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
@@ -11,72 +12,49 @@ class EducationalService {
   final ApiClient _client;
 
   /// Lists all educational pages.
-  Future<List<EducationalPage>> listPages() async {
-    // ignore: avoid_print
-    print('📚 EducationalService: Fetching pages from ${ApiEndpoints.educationalPages}');
+  Future<Result<List<EducationalPage>>> listPages() async {
     try {
       final response = await _client.get(ApiEndpoints.educationalPages);
-      // ignore: avoid_print
-      print('📚 EducationalService: Raw response type=${response.data.runtimeType}');
-      // ignore: avoid_print
-      print('📚 EducationalService: Raw data=${response.data}');
       final list = response.data as List<dynamic>;
-      final pages = list.map((json) => EducationalPage.fromJson(json as Map<String, dynamic>)).toList();
-      // ignore: avoid_print
-      print('📚 EducationalService: Parsed ${pages.length} pages successfully');
-      return pages;
-    } catch (e, st) {
-      // ignore: avoid_print
-      print('📚 EducationalService ERROR in listPages: $e');
-      // ignore: avoid_print
-      print('📚 EducationalService STACK: $st');
-      rethrow;
+      final pages = list
+          .map((json) => EducationalPage.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(pages);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
     }
   }
 
   /// Gets a specific educational page by its slug.
-  Future<EducationalPage> getPage(String slug) async {
-    // ignore: avoid_print
-    print('📚 EducationalService: Fetching page for slug="$slug"');
+  Future<Result<EducationalPage>> getPage(String slug) async {
     try {
-      final response = await _client.get(ApiEndpoints.educationalPageBySlug(slug));
-      // ignore: avoid_print
-      print('📚 EducationalService: Raw page data=${response.data}');
-      final page = EducationalPage.fromJson(response.data as Map<String, dynamic>);
-      // ignore: avoid_print
-      print('📚 EducationalService: Parsed page id=${page.id} title="${page.title}"');
-      return page;
-    } catch (e, st) {
-      // ignore: avoid_print
-      print('📚 EducationalService ERROR in getPage(slug=$slug): $e');
-      // ignore: avoid_print
-      print('📚 EducationalService STACK: $st');
-      rethrow;
+      final response = await _client.get(
+        ApiEndpoints.educationalPageBySlug(slug),
+      );
+      final page = EducationalPage.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+      return Result.success(page);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
     }
   }
 
   /// Gets personalized recommendations for an adolescent.
-  Future<List<Recommendation>> getRecommendations(String adolescentId) async {
-    final url = ApiEndpoints.educationalRecommendations(adolescentId);
-    // ignore: avoid_print
-    print('📚 EducationalService: Fetching recommendations from $url');
+  Future<Result<List<Recommendation>>> getRecommendations(
+    String adolescentId,
+  ) async {
     try {
-      final response = await _client.get(url);
-      // ignore: avoid_print
-      print('📚 EducationalService: Raw recommendations type=${response.data.runtimeType}');
-      // ignore: avoid_print
-      print('📚 EducationalService: Raw data=${response.data}');
+      final response = await _client.get(
+        ApiEndpoints.educationalRecommendations(adolescentId),
+      );
       final list = response.data as List<dynamic>;
-      final recs = list.map((json) => Recommendation.fromJson(json as Map<String, dynamic>)).toList();
-      // ignore: avoid_print
-      print('📚 EducationalService: Parsed ${recs.length} recommendations successfully');
-      return recs;
-    } catch (e, st) {
-      // ignore: avoid_print
-      print('📚 EducationalService ERROR in getRecommendations($adolescentId): $e');
-      // ignore: avoid_print
-      print('📚 EducationalService STACK: $st');
-      rethrow;
+      final recs = list
+          .map((json) => Recommendation.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(recs);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
     }
   }
 }

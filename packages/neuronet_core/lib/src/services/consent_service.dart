@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../errors/failures.dart';
 import '../models/models.dart';
 import '../network/api_client.dart';
 import '../network/api_endpoints.dart';
@@ -12,71 +13,59 @@ class ConsentService {
   final ApiClient _client;
 
   /// Fetches all consents for the currently authenticated guardian's adolescents.
-  Future<List<Consent>> getGuardianConsents() async {
+  Future<Result<List<Consent>>> getGuardianConsents() async {
     try {
-      print('DEBUG: [ConsentService] Fetching linked adolescents list...');
-      final response = await _client.get(ApiEndpoints.guardianAdolescents);
-      print('DEBUG: [ConsentService] Adolescents response: ${response.data}');
-      
-      if (response.data == null || response.data['adolescents'] == null) {
-        print('DEBUG: [ConsentService] No adolescents found.');
-        return [];
+      final adolescentsResult = await getLinkedAdolescents();
+      if (adolescentsResult.isFailure) {
+        return Result.failure(adolescentsResult.failure);
       }
-      
-      final rawAdolescents = response.data['adolescents'] as List<dynamic>;
-      final adolescents = rawAdolescents.map((e) => AdolescentResponse.fromJson(e as Map<String, dynamic>)).toList();
-      print('DEBUG: [ConsentService] Found ${adolescents.length} adolescents.');
+      final adolescents = adolescentsResult.value;
 
       final allConsents = <Consent>[];
       for (final adolescent in adolescents) {
-        print('DEBUG: [ConsentService] Fetching consents for ${adolescent.email}...');
-        final consents = await getAdolescentConsents(adolescent.email);
-        allConsents.addAll(consents);
+        final consentsResult = await getAdolescentConsents(adolescent.email);
+        if (consentsResult.isSuccess) {
+          allConsents.addAll(consentsResult.value);
+        }
       }
-      
-      print('DEBUG: [ConsentService] Total consents fetched: ${allConsents.length}');
-      return allConsents;
+
+      return Result.success(allConsents);
     } catch (e) {
-      print('DEBUG: [ConsentService] getGuardianConsents error: $e');
-      rethrow;
+      return Result.failure(failureFromException(e));
     }
   }
 
   /// Fetches consents for a specific adolescent by email.
-  Future<List<Consent>> getAdolescentConsents(String email) async {
+  Future<Result<List<Consent>>> getAdolescentConsents(String email) async {
     try {
       final endpoint = ApiEndpoints.consentByEmail(email);
-      print('DEBUG: [ConsentService] getAdolescentConsents($email) calling $endpoint');
       final response = await _client.get(endpoint);
-      print('DEBUG: [ConsentService] getAdolescentConsents($email) response data: ${response.data}');
-      
+
       if (response.data == null) {
-        return _provideDefaultConsents(email);
+        return Result.success(_provideDefaultConsents(email));
       }
-      
-      return _mapBackendResponseToConsents(response.data as Map<String, dynamic>);
+
+      final consents = _mapBackendResponseToConsents(
+        response.data as Map<String, dynamic>,
+      );
+      return Result.success(consents);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        print('DEBUG: [ConsentService] No consents found for $email (404), providing defaults.');
-        return _provideDefaultConsents(email);
+        return Result.success(_provideDefaultConsents(email));
       }
-      print('DEBUG: [ConsentService] getAdolescentConsents($email) dio error: $e');
-      rethrow;
+      return Result.failure(failureFromException(e));
     } catch (e) {
-      print('DEBUG: [ConsentService] getAdolescentConsents($email) unexpected error: $e');
-      rethrow;
+      return Result.failure(failureFromException(e));
     }
   }
 
   /// Updates a consent status using POST /consents/{email}.
-  /// Since the backend uses a single object with multiple flags, we pass everything.
-  Future<void> updateConsent({
+  Future<Result<void>> updateConsent({
     required String email,
     required bool shareAiSummaries,
     required bool shareAlerts,
   }) async {
     try {
-      print('DEBUG: [ConsentService] Updating consents for $email: AI=$shareAiSummaries, Alerts=$shareAlerts');
       await _client.post(
         '/consents/$email',
         data: {
@@ -84,10 +73,9 @@ class ConsentService {
           'share_alerts': shareAlerts,
         },
       );
-      print('DEBUG: [ConsentService] updateConsent successful');
+      return const Result.success(null);
     } catch (e) {
-      print('DEBUG: [ConsentService] updateConsent error: $e');
-      rethrow;
+      return Result.failure(failureFromException(e));
     }
   }
 
@@ -96,21 +84,25 @@ class ConsentService {
     final email = data['adolescent_email'] as String;
     return [
       Consent(
-        consentId: 'fake-ai-${email}', // Virtual ID
+        consentId: 'fake-ai-${email}',
         adolescentId: email,
         guardianId: data['guardian_email'] ?? '',
         consentType: ConsentType.shareAiSummaries,
         grantedToRole: GrantedToRole.guardian,
-        consentStatus: (data['share_ai_summaries'] as bool? ?? false) ? ConsentStatus.granted : ConsentStatus.revoked,
+        consentStatus: (data['share_ai_summaries'] as bool? ?? false)
+            ? ConsentStatus.granted
+            : ConsentStatus.revoked,
         grantedAt: DateTime.now(),
       ),
       Consent(
-        consentId: 'fake-alerts-${email}', // Virtual ID
+        consentId: 'fake-alerts-${email}',
         adolescentId: email,
         guardianId: data['guardian_email'] ?? '',
         consentType: ConsentType.shareAlerts,
         grantedToRole: GrantedToRole.guardian,
-        consentStatus: (data['share_alerts'] as bool? ?? false) ? ConsentStatus.granted : ConsentStatus.revoked,
+        consentStatus: (data['share_alerts'] as bool? ?? false)
+            ? ConsentStatus.granted
+            : ConsentStatus.revoked,
         grantedAt: DateTime.now(),
       ),
     ];
@@ -125,7 +117,7 @@ class ConsentService {
         guardianId: '',
         consentType: ConsentType.shareAiSummaries,
         grantedToRole: GrantedToRole.guardian,
-        consentStatus: ConsentStatus.revoked, // Default to revoked
+        consentStatus: ConsentStatus.revoked,
         grantedAt: DateTime.now(),
       ),
       Consent(
@@ -134,10 +126,28 @@ class ConsentService {
         guardianId: '',
         consentType: ConsentType.shareAlerts,
         grantedToRole: GrantedToRole.guardian,
-        consentStatus: ConsentStatus.revoked, // Default to revoked
+        consentStatus: ConsentStatus.revoked,
         grantedAt: DateTime.now(),
       ),
     ];
+  }
+
+  Future<Result<List<AdolescentResponse>>> getLinkedAdolescents() async {
+    try {
+      final response = await _client.get(ApiEndpoints.guardianAdolescents);
+
+      if (response.data == null || response.data['adolescents'] == null) {
+        return Result.success([]);
+      }
+
+      final rawAdolescents = response.data['adolescents'] as List<dynamic>;
+      final adolescents = rawAdolescents
+          .map((e) => AdolescentResponse.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return Result.success(adolescents);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
   }
 }
 
