@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'config/router/app_router.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:device_preview/device_preview.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  String baseUrl = ApiEndpoints.baseUrl;
+  if (!kIsWeb) {
+    try {
+      await dotenv.load(fileName: '.env');
+      baseUrl = dotenv.env['BASE_URL'] ?? baseUrl;
+    } catch (_) {}
+  }
+  ApiEndpoints.init(baseUrl: baseUrl);
+
   runApp(
     DevicePreview(
       enabled: kIsWeb,

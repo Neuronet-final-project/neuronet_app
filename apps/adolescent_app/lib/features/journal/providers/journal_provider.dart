@@ -9,12 +9,16 @@ class JournalController extends _$JournalController {
   @override
   FutureOr<List<JournalEntry>> build() async {
     final service = ref.watch(journalServiceProvider);
-    return service.getMyJournals();
+    final result = await service.getMyJournals();
+    return result.when(
+      success: (value) => value,
+      failure: (f) => throw Exception(f.message),
+    );
   }
 
   Future<void> addEntry(String content, {String? title, MoodType? mood}) async {
     final service = ref.read(journalServiceProvider);
-    
+
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final request = CreateJournalRequest(
@@ -23,9 +27,17 @@ class JournalController extends _$JournalController {
         mood: mood ?? MoodType.neutral,
         deviceType: 'mobile',
       );
-      
-      await service.createJournal(request);
-      return service.getMyJournals();
+
+      final createResult = await service.createJournal(request);
+      if (createResult.isFailure) {
+        throw Exception(createResult.failure.message);
+      }
+
+      final getResult = await service.getMyJournals();
+      return getResult.when(
+        success: (value) => value,
+        failure: (f) => throw Exception(f.message),
+      );
     });
   }
 }

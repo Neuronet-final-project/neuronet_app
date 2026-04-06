@@ -8,14 +8,19 @@ class GuardianDashboardController extends _$GuardianDashboardController {
   @override
   FutureOr<GuardianDashboardData> build() async {
     final service = ref.watch(dashboardServiceProvider);
-    return service.getGuardianDashboard();
+    final result = await service.getGuardianDashboard();
+    return result.when(
+      success: (data) => data,
+      failure: (f) => throw Exception(f.message),
+    );
   }
 
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final service = ref.read(dashboardServiceProvider);
-      return service.getGuardianDashboard();
+      final result = await service.getGuardianDashboard();
+      return result.value;
     });
   }
 }
@@ -25,12 +30,16 @@ class GuardianAlertsController extends _$GuardianAlertsController {
   @override
   FutureOr<List<Alert>> build() async {
     final service = ref.watch(alertServiceProvider);
-    return service.getGuardianAlerts();
+    final result = await service.getGuardianAlerts();
+    return result.when(
+      success: (alerts) => alerts,
+      failure: (f) => throw Exception(f.message),
+    );
   }
 
   Future<void> markAsViewed(String alertId) async {
     final service = ref.read(alertServiceProvider);
-    
+
     // Optistic update for better UX
     final previousState = state;
     state = AsyncValue.data(
@@ -38,7 +47,11 @@ class GuardianAlertsController extends _$GuardianAlertsController {
     );
 
     try {
-      await service.markViewed(alertId);
+      final result = await service.markViewed(alertId);
+      if (result.isFailure) {
+        state = previousState;
+        throw Exception(result.failure.message);
+      }
     } catch (e) {
       state = previousState;
       rethrow;
@@ -50,10 +63,14 @@ class GuardianAlertsController extends _$GuardianAlertsController {
     String? notes,
   }) async {
     final service = ref.read(alertServiceProvider);
-    
+
     state = await AsyncValue.guard(() async {
-      await service.resolveAlert(alertId, notes: notes);
-      return service.getGuardianAlerts();
+      final resolveResult = await service.resolveAlert(alertId, notes: notes);
+      if (resolveResult.isFailure) {
+        throw Exception(resolveResult.failure.message);
+      }
+      final alertsResult = await service.getGuardianAlerts();
+      return alertsResult.value;
     });
 
     if (state.hasError) {
@@ -65,7 +82,8 @@ class GuardianAlertsController extends _$GuardianAlertsController {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final service = ref.read(alertServiceProvider);
-      return service.getGuardianAlerts();
+      final result = await service.getGuardianAlerts();
+      return result.value;
     });
   }
 }

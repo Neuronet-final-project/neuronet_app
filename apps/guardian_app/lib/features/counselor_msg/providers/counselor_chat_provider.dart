@@ -24,21 +24,36 @@ class CounselorChatController extends _$CounselorChatController {
   FutureOr<CounselorChatState> build(String adolescentId) async {
     try {
       final messagingService = ref.watch(messagingServiceProvider);
-      
+
       debugPrint('CounselorChatController: Building for adolescentId: $adolescentId');
 
       // Get or create conversation
-      final conversation = await messagingService.getOrCreateConversation(
+      final conversationResult = await messagingService.getOrCreateConversation(
         type: ConversationType.counselorGuardian,
         adolescentId: adolescentId,
       );
 
+      if (conversationResult.isFailure) {
+        if (conversationResult.failure.message.contains('no_assigned_counselor')) {
+          return const CounselorChatState(isNoCounselor: true);
+        }
+        return CounselorChatState(error: conversationResult.failure.message);
+      }
+
+      final conversation = conversationResult.value;
+
       // Load messages
-      final messages = await messagingService.getMessages(conversation.id);
+      final messagesResult = await messagingService.getMessages(conversation.id);
+      if (messagesResult.isFailure) {
+        return CounselorChatState(
+          conversation: conversation,
+          error: messagesResult.failure.message,
+        );
+      }
 
       return CounselorChatState(
         conversation: conversation,
-        messages: messages,
+        messages: messagesResult.value,
       );
     } catch (e) {
       if (e.toString().contains('no_assigned_counselor')) {
@@ -69,14 +84,21 @@ class CounselorChatController extends _$CounselorChatController {
 
     try {
       final messagingService = ref.read(messagingServiceProvider);
-      await messagingService.sendMessage(
+      final sendResult = await messagingService.sendMessage(
         conversationId: currentConversation.id,
         content: content,
       );
-      
+
+      if (sendResult.isFailure) {
+        state = AsyncData(previousState.copyWith(error: sendResult.failure.message));
+        return;
+      }
+
       // Refresh messages to get the real one from backend
-      final messages = await messagingService.getMessages(currentConversation.id);
-      state = AsyncData(previousState.copyWith(messages: messages));
+      final messagesResult = await messagingService.getMessages(currentConversation.id);
+      if (messagesResult.isSuccess) {
+        state = AsyncData(previousState.copyWith(messages: messagesResult.value));
+      }
     } catch (e) {
       state = AsyncData(previousState.copyWith(error: 'Failed to send message: $e'));
     }

@@ -7,7 +7,11 @@ part 'channels_provider.g.dart';
 class ChannelsController extends _$ChannelsController {
   @override
   FutureOr<List<Channel>> build() async {
-    return ref.watch(channelServiceProvider).getMyChannels();
+    final result = await ref.watch(channelServiceProvider).getMyChannels();
+    return result.when(
+      success: (value) => value,
+      failure: (f) => throw Exception(f.message),
+    );
   }
 
   Future<void> toggleFollow(String channelId) async {
@@ -29,7 +33,11 @@ class ChannelsController extends _$ChannelsController {
     );
 
     try {
-      await ref.read(channelServiceProvider).subscribeToChannel(channelId);
+      final result = await ref.read(channelServiceProvider).subscribeToChannel(channelId);
+      if (result.isFailure) {
+        // Rollback optimistic update by refetching
+        state = AsyncValue.error(Exception(result.failure.message), StackTrace.current);
+      }
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -40,7 +48,11 @@ class ChannelsController extends _$ChannelsController {
 class ChannelPostsController extends _$ChannelPostsController {
   @override
   FutureOr<List<ChannelPost>> build(String channelId) async {
-    return ref.watch(channelServiceProvider).getChannelPosts(channelId);
+    final result = await ref.watch(channelServiceProvider).getChannelPosts(channelId);
+    return result.when(
+      success: (value) => value,
+      failure: (f) => throw Exception(f.message),
+    );
   }
 
   Future<void> toggleReaction(String postId) async {
@@ -62,11 +74,14 @@ class ChannelPostsController extends _$ChannelPostsController {
     );
 
     try {
-      await ref.read(channelServiceProvider).interactWithPost(
+      final result = await ref.read(channelServiceProvider).interactWithPost(
             channelId: channelId,
             postId: postId,
             type: InteractionType.reaction,
           );
+      if (result.isFailure) {
+        state = AsyncValue.error(Exception(result.failure.message), StackTrace.current);
+      }
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -77,10 +92,14 @@ class ChannelPostsController extends _$ChannelPostsController {
 class ChannelCommentsController extends _$ChannelCommentsController {
   @override
   FutureOr<List<ChannelInteraction>> build(String channelId, String postId) async {
-    return ref.watch(channelServiceProvider).getChannelInteractions(
+    final result = await ref.watch(channelServiceProvider).getChannelInteractions(
           channelId: channelId,
           postId: postId,
         );
+    return result.when(
+      success: (value) => value,
+      failure: (f) => throw Exception(f.message),
+    );
   }
 
   Future<void> addComment(String content) async {
@@ -88,14 +107,19 @@ class ChannelCommentsController extends _$ChannelCommentsController {
     if (currentState == null) return;
 
     try {
-      final newComment = await ref.read(channelServiceProvider).interactWithPost(
+      final result = await ref.read(channelServiceProvider).interactWithPost(
             channelId: channelId,
             postId: postId,
             type: InteractionType.comment,
             content: content,
           );
 
-      state = AsyncValue.data([...currentState, newComment]);
+      if (result.isFailure) {
+        state = AsyncValue.error(Exception(result.failure.message), StackTrace.current);
+        return;
+      }
+
+      state = AsyncValue.data([...currentState, result.value]);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }

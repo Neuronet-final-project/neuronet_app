@@ -8,14 +8,19 @@ class GuardianProfileController extends _$GuardianProfileController {
   @override
   FutureOr<User> build() async {
     final authService = ref.watch(authServiceProvider);
-    return authService.getMe();
+    final result = await authService.getMe();
+    return result.when(
+      success: (user) => user,
+      failure: (f) => throw Exception(f.message),
+    );
   }
 
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final authService = ref.read(authServiceProvider);
-      return authService.getMe();
+      final result = await authService.getMe();
+      return result.value;
     });
   }
 }

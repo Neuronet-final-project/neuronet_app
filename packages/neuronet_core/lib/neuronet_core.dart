@@ -21,6 +21,9 @@ export 'src/services/messaging_service.dart';
 export 'src/services/channel_service.dart';
 export 'src/services/mock_data_service.dart';
 
+// Network
+export 'src/network/api_endpoints.dart';
+
 // Theme
 export 'src/theme/app_theme.dart';
 

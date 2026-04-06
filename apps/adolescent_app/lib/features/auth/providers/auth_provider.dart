@@ -65,8 +65,14 @@ class AuthController extends _$AuthController {
     state = AuthState.loading();
     try {
       final authService = ref.read(authServiceProvider);
-      final response = await authService.login(email, password);
-      
+      final result = await authService.login(email, password);
+
+      if (result.isFailure) {
+        state = AuthState.error(result.failure.message);
+        return;
+      }
+
+      final response = result.value;
       final storage = ref.read(tokenStorageProvider);
       await storage.saveTokens(accessToken: response.accessToken);
 
@@ -77,7 +83,7 @@ class AuthController extends _$AuthController {
         role: response.role,
         accountStatus: AccountStatus.active,
       );
-      
+
       state = AuthState.authenticated(user);
     } catch (e) {
       state = AuthState.error(e.toString());
@@ -88,11 +94,15 @@ class AuthController extends _$AuthController {
     state = AuthState.activating();
     try {
       final authService = ref.read(authServiceProvider);
-      await authService.activateAccount(ActivateAccountRequest(
+      final result = await authService.activateAccount(ActivateAccountRequest(
         email: email,
         activationToken: token,
         password: password,
       ));
+      if (result.isFailure) {
+        state = AuthState.error(result.failure.message);
+        return;
+      }
       state = AuthState.unauthenticated();
     } catch (e) {
       state = AuthState.error(e.toString());

@@ -7,9 +7,12 @@ part 'consent_provider.g.dart';
 class GuardianConsentController extends _$GuardianConsentController {
   @override
   FutureOr<List<Consent>> build() async {
-    print('DEBUG: [GuardianConsentController] Building provider...');
     final service = ref.watch(consentServiceProvider);
-    return service.getGuardianConsents();
+    final result = await service.getGuardianConsents();
+    return result.when(
+      success: (consents) => consents,
+      failure: (f) => throw Exception(f.message),
+    );
   }
 
   Future<void> updateConsent(Consent consent, ConsentStatus status) async {
@@ -37,7 +40,7 @@ class GuardianConsentController extends _$GuardianConsentController {
     try {
       // Find both flags for this child to send to backend
       final childConsents = state.value!.where((c) => c.adolescentId == email);
-      
+
       bool aiValue = childConsents
           .firstWhere((c) => c.consentType == ConsentType.shareAiSummaries)
           .consentStatus == ConsentStatus.granted;
@@ -45,14 +48,17 @@ class GuardianConsentController extends _$GuardianConsentController {
           .firstWhere((c) => c.consentType == ConsentType.shareAlerts)
           .consentStatus == ConsentStatus.granted;
 
-      await service.updateConsent(
+      final result = await service.updateConsent(
         email: email,
         shareAiSummaries: aiValue,
         shareAlerts: alertsValue,
       );
+      if (result.isFailure) {
+        state = previousState;
+        throw Exception(result.failure.message);
+      }
     } catch (e) {
       // Revert on error
-      print('DEBUG: [GuardianConsentController] Update failed, reverting: $e');
       state = previousState;
       rethrow;
     }
@@ -62,7 +68,8 @@ class GuardianConsentController extends _$GuardianConsentController {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final service = ref.read(consentServiceProvider);
-      return service.getGuardianConsents();
+      final result = await service.getGuardianConsents();
+      return result.value;
     });
   }
 }

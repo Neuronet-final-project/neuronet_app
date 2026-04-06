@@ -61,8 +61,8 @@ class RegistrationController extends _$RegistrationController {
 
     try {
       final authService = ref.read(authServiceProvider);
-      
-      final token = await authService.createAdolescent(
+
+      final result = await authService.createAdolescent(
         AdolescentCreateRequest(
           fullName: state.name,
           email: state.email,
@@ -72,7 +72,15 @@ class RegistrationController extends _$RegistrationController {
         ),
       );
 
-      state = state.copyWith(isLoading: false, activationCode: token);
+      if (result.isFailure) {
+        state = state.copyWith(
+          isLoading: false,
+          error: result.failure.message,
+        );
+        return;
+      }
+
+      state = state.copyWith(isLoading: false, activationCode: result.value);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: 'Failed to register adolescent. ${e.toString()}');
     }

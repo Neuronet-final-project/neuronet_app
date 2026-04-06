@@ -45,10 +45,12 @@ class AuthController extends _$AuthController {
       final token = await storage.getAccessToken();
       if (token != null) {
         final authService = ref.read(authServiceProvider);
-        final user = await authService.getMe();
-        // ignore: avoid_print
-        print('DEBUG: /auth/me raw user: ${user.toJson()}');
-        state = AuthState.authenticated(user);
+        final result = await authService.getMe();
+        if (result.isSuccess) {
+          state = AuthState.authenticated(result.value);
+        } else {
+          state = AuthState.unauthenticated();
+        }
       } else {
         state = AuthState.unauthenticated();
       }
@@ -61,8 +63,15 @@ class AuthController extends _$AuthController {
     state = AuthState.loading();
     try {
       final authService = ref.read(authServiceProvider);
-      final response = await authService.login(email, password);
-      
+      final result = await authService.login(email, password);
+
+      if (result.isFailure) {
+        state = AuthState.error(result.failure.message);
+        return;
+      }
+
+      final response = result.value;
+
       // Save the token to storage!
       final storage = ref.read(tokenStorageProvider);
       await storage.saveTokens(
@@ -77,7 +86,7 @@ class AuthController extends _$AuthController {
         role: response.role,
         accountStatus: AccountStatus.active,
       );
-      
+
       state = AuthState.authenticated(user);
     } catch (e) {
       state = AuthState.error(e.toString());
@@ -92,11 +101,15 @@ class AuthController extends _$AuthController {
     state = AuthState.loading();
     try {
       final authService = ref.read(authServiceProvider);
-      await authService.register(GuardianRegisterRequest(
+      final result = await authService.register(GuardianRegisterRequest(
         fullName: fullName,
         email: email,
         password: password,
       ));
+      if (result.isFailure) {
+        state = AuthState.error(result.failure.message);
+        return;
+      }
       // After registration, we usually want them to login
       state = AuthState.unauthenticated();
     } catch (e) {
@@ -108,11 +121,15 @@ class AuthController extends _$AuthController {
     state = AuthState.loading();
     try {
       final authService = ref.read(authServiceProvider);
-      await authService.activateAccount(ActivateAccountRequest(
+      final result = await authService.activateAccount(ActivateAccountRequest(
         email: email,
         activationToken: token,
         password: password,
       ));
+      if (result.isFailure) {
+        state = AuthState.error(result.failure.message);
+        return;
+      }
       state = AuthState.unauthenticated(); // Require login after activation
     } catch (e) {
       state = AuthState.error(e.toString());

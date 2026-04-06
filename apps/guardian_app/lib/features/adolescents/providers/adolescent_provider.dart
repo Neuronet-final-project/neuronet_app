@@ -20,25 +20,27 @@ class AdolescentDetailController extends _$AdolescentDetailController {
   @override
   FutureOr<AdolescentDetailState> build(String adolescentId) async {
     final dashboardService = ref.watch(dashboardServiceProvider);
-    
+
     // 1. Fetch linked adolescents
-    final linkedAdolescents = await dashboardService.getLinkedAdolescents();
-    
+    final linkedResult = await dashboardService.getLinkedAdolescents();
+    if (linkedResult.isFailure) {
+      throw Exception(linkedResult.failure.message);
+    }
+    final linkedAdolescents = linkedResult.value;
+
     // 2. Find the specific adolescent
     final profile = linkedAdolescents.firstWhere(
       (a) => a.effectiveId == adolescentId,
       orElse: () => throw Exception('Adolescent not found'),
     );
-    
+
     // 3. Fetch consents for this adolescent (Gracefully handle 404/Not Found)
     List<Consent> consents = [];
-    try {
-      consents = await dashboardService.getAdolescentConsents(profile.email);
-    } catch (e) {
-      // Log for debugging if needed, but don't fail the entire build
-      debugPrint('AdolescentDetailController: No consents found or error fetching for ${profile.email}: $e');
+    final consentsResult = await dashboardService.getAdolescentConsents(profile.email);
+    if (consentsResult.isSuccess) {
+      consents = consentsResult.value;
     }
-    
+
     return AdolescentDetailState(
       profile: profile,
       consents: consents,
@@ -49,19 +51,22 @@ class AdolescentDetailController extends _$AdolescentDetailController {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final dashboardService = ref.read(dashboardServiceProvider);
-      final linkedAdolescents = await dashboardService.getLinkedAdolescents();
+      final linkedResult = await dashboardService.getLinkedAdolescents();
+      if (linkedResult.isFailure) {
+        throw Exception(linkedResult.failure.message);
+      }
+      final linkedAdolescents = linkedResult.value;
       final profile = linkedAdolescents.firstWhere(
         (a) => a.effectiveId == adolescentId,
         orElse: () => throw Exception('Adolescent not found'),
       );
-      
+
       List<Consent> consents = [];
-      try {
-        consents = await dashboardService.getAdolescentConsents(profile.email);
-      } catch (e) {
-        debugPrint('AdolescentDetailController refresh: No consents found or error: $e');
+      final consentsResult = await dashboardService.getAdolescentConsents(profile.email);
+      if (consentsResult.isSuccess) {
+        consents = consentsResult.value;
       }
-      
+
       return AdolescentDetailState(profile: profile, consents: consents);
     });
   }
@@ -69,5 +74,6 @@ class AdolescentDetailController extends _$AdolescentDetailController {
 @riverpod
 Future<List<AdolescentResponse>> linkedAdolescents(Ref ref) async {
   final dashboardService = ref.watch(dashboardServiceProvider);
-  return dashboardService.getLinkedAdolescents();
+  final result = await dashboardService.getLinkedAdolescents();
+  return result.value;
 }

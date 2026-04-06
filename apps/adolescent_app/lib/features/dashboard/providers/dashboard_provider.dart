@@ -6,5 +6,9 @@ part 'dashboard_provider.g.dart';
 @riverpod
 Future<DashboardData> adolescentDashboard(Ref ref) async {
   final service = ref.watch(dashboardServiceProvider);
-  return service.getAdolescentDashboard();
+  final result = await service.getAdolescentDashboard();
+  return result.when(
+    success: (value) => value,
+    failure: (f) => throw Exception(f.message),
+  );
 }
