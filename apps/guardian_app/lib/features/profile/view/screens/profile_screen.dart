@@ -14,10 +14,17 @@ class ProfileScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
-        title: const Text('My Profile', style: TextStyle(fontWeight: FontWeight.w600)), 
+        title: const Text(
+          'My Profile',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: NeuroColors.guardianPrimary,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: profileState.when(
         data: (user) => _buildContent(context, ref, user),

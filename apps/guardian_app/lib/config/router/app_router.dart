@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 
 // Feature screens
 import '../../features/dashboard/view/screens/dashboard_screen.dart';
@@ -15,6 +16,8 @@ import '../../features/auth/view/screens/sign_up_screen.dart';
 import '../../features/auth/view/screens/activation_screen.dart';
 import '../../features/auth/view/screens/splash_screen.dart';
 import '../../features/adolescents/view/screens/adolescent_detail_screen.dart';
+import '../../features/educational/view/screens/recommendations_screen.dart';
+import '../../features/educational/view/screens/educational_page_detail_screen.dart';
 
 // Auth Provider
 import '../../features/auth/providers/auth_provider.dart';
@@ -36,6 +39,8 @@ class GuardianRoutes {
   static const String alertDetails = '/alert-details/:alertId';
   static const String adolescentDetails = '/adolescent/:adolescentId';
   static const String adolescentChat = '/adolescent/:adolescentId/chat';
+  static const String adolescentRecommendations = '/adolescent/:adolescentId/recommendations';
+  static const String educationalPage = '/learn/:slug';
 }
 
 // Global ChangeNotifier for auth state changes.
@@ -191,6 +196,24 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
             adolescentId: adolescentId,
             adolescentName: adolescentName,
           );
+        },
+      ),
+      GoRoute(
+        path: GuardianRoutes.adolescentRecommendations,
+        builder: (context, state) {
+          final adolescentId = state.pathParameters['adolescentId']!;
+          final adolescentName = state.uri.queryParameters['name'] ?? 'Adolescent';
+          return GuardianRecommendationsScreen(
+            adolescentId: adolescentId,
+            adolescentName: adolescentName,
+          );
+        },
+      ),
+      GoRoute(
+        path: GuardianRoutes.educationalPage,
+        builder: (context, state) {
+          final page = state.extra as EducationalPage;
+          return GuardianEducationalPageDetailScreen(page: page);
         },
       ),
     ],

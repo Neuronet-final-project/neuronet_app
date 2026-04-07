@@ -17,10 +17,17 @@ class ProfileScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
-        title: const Text('My Profile', style: TextStyle(fontWeight: FontWeight.w600)),
+        title: const Text(
+          'My Profile',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: NeuroColors.adolescentPrimary,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: profileState.when(
         data: (user) => _buildContent(context, ref, theme, user),
@@ -176,8 +183,8 @@ class ProfileScreen extends ConsumerWidget {
           ElevatedButton(
             onPressed: () => ref.read(authControllerProvider.notifier).logout(),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFEE2E2), // Red 50
-              foregroundColor: const Color(0xFFEF4444), // Red 500
+              backgroundColor: NeuroColors.adolescentPrimary,
+              foregroundColor: Colors.white,
               elevation: 0,
               minimumSize: const Size(double.infinity, 56),
               shape: RoundedRectangleBorder(

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/adolescent_provider.dart';
-import '../../../../config/router/app_router.dart';
 
 class AdolescentDetailScreen extends ConsumerWidget {
   final String adolescentId;
@@ -115,15 +114,31 @@ class AdolescentDetailScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () {
-              debugPrint('AdolescentDetailScreen: Navigating to chat for adolescent: ${profile.id} (${profile.fullName})');
-              final path = GuardianRoutes.adolescentChat.replaceFirst(':adolescentId', profile.id);
-              context.push('$path?name=${Uri.encodeComponent(profile.fullName)}');
+              final id = profile.effectiveId;
+              context.push(
+                '/adolescent/$id/chat?name=${Uri.encodeComponent(profile.fullName)}',
+              );
             },
             icon: const Icon(Icons.chat_bubble_outline),
             label: const Text('Contact Counselor'),
             style: ElevatedButton.styleFrom(
               backgroundColor: NeuroColors.guardianPrimary,
               foregroundColor: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () {
+              final id = profile.effectiveId;
+              context.push(
+                '/adolescent/$id/recommendations?name=${Uri.encodeComponent(profile.fullName)}',
+              );
+            },
+            icon: const Icon(Icons.auto_awesome),
+            label: const Text('View Recommendations'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: NeuroColors.guardianPrimary,
+              side: BorderSide(color: NeuroColors.guardianPrimary),
             ),
           ),
         ],

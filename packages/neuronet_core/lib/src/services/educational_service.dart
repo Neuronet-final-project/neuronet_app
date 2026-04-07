@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../errors/failures.dart';
 import '../models/models.dart';
@@ -54,6 +55,30 @@ class EducationalService {
           .toList();
       return Result.success(recs);
     } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Gets educational recommendations for a guardian's linked adolescent.
+  ///
+  /// Returns a wrapped object containing `adolescent_id`, `risk_level`,
+  /// and a list of `EducationalPage` recommendations.
+  Future<Result<Map<String, dynamic>>> getGuardianRecommendations(
+    String adolescentId,
+  ) async {
+    try {
+      final response = await _client.get(
+        ApiEndpoints.guardianEducationalRecommendations(adolescentId),
+      );
+      final raw = response.data;
+      debugPrint('[EducationalService] Raw response type: ${raw.runtimeType}');
+      debugPrint('[EducationalService] Raw response: $raw');
+      final map = raw as Map<String, dynamic>;
+      debugPrint('[EducationalService] Keys: ${map.keys.toList()}');
+      return Result.success(map);
+    } catch (e, st) {
+      debugPrint('[EducationalService] getGuardianRecommendations ERROR: $e');
+      debugPrint('[EducationalService] Stack: $st');
       return Result.failure(failureFromException(e));
     }
   }
