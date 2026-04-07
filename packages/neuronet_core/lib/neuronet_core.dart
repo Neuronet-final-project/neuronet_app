@@ -19,6 +19,7 @@ export 'src/services/educational_service.dart';
 export 'src/services/consent_service.dart';
 export 'src/services/messaging_service.dart';
 export 'src/services/channel_service.dart';
+export 'src/services/ai_chat_service.dart';
 export 'src/services/mock_data_service.dart';
 
 // Network

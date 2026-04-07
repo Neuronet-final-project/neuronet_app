@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:intl/intl.dart';
 import '../../providers/ai_chat_provider.dart';
+import '../../../auth/providers/auth_provider.dart';
 
 class AiChatScreen extends ConsumerStatefulWidget {
   const AiChatScreen({super.key});
@@ -35,12 +36,21 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   @override
   Widget build(BuildContext context) {
     final chatState = ref.watch(aiChatProvider);
+    final authState = ref.watch(authControllerProvider);
+    final currentUserId = authState.user?.id;
 
     // Scroll to bottom whenever messages change
     ref.listen(aiChatProvider, (previous, next) {
-      if (next.messages.length != (previous?.messages.length ?? 0) || next.isTyping) {
-        Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
-      }
+      next.when(
+        data: (data) {
+          final prevCount = previous?.value?.messages.length ?? 0;
+          if (data.messages.length != prevCount || data.isTyping) {
+            Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+          }
+        },
+        loading: () {},
+        error: (_, __) {},
+      );
     });
 
     return Scaffold(
@@ -49,12 +59,16 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         title: Column(
           children: [
             const Text('AI Assistant', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(
-              chatState.isTyping ? 'Typing...' : 'Online',
-              style: TextStyle(
-                fontSize: 12,
-                color: chatState.isTyping ? Colors.white70 : Colors.greenAccent,
+            chatState.when(
+              data: (d) => Text(
+                d.isTyping ? 'Typing...' : 'Online',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: d.isTyping ? Colors.white70 : Colors.greenAccent,
+                ),
               ),
+              loading: () => const Text('Loading...', style: TextStyle(fontSize: 12, color: Colors.white70)),
+              error: (_, __) => const Text('Offline', style: TextStyle(fontSize: 12, color: Colors.redAccent)),
             ),
           ],
         ),
@@ -67,24 +81,28 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-              itemCount: chatState.messages.length,
-              itemBuilder: (context, index) {
-                final message = chatState.messages[index];
-                final isUser = message.senderId == 'user-123';
-                return _buildMessageBubble(message, isUser);
-              },
+      body: chatState.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(child: Text('Error: $err')),
+        data: (data) => Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(16),
+                itemCount: data.messages.length,
+                itemBuilder: (context, index) {
+                  final message = data.messages[index];
+                  final isUser = message.senderId == currentUserId;
+                  return _buildMessageBubble(message, isUser);
+                },
+              ),
             ),
-          ),
-          if (chatState.isTyping) _buildTypingIndicator(),
-          _buildQuickPrompts(),
-          _buildMessageInput(),
-        ],
+            if (data.isTyping) _buildTypingIndicator(),
+            _buildQuickPrompts(),
+            _buildMessageInput(data),
+          ],
+        ),
       ),
     );
   }
@@ -191,7 +209,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     );
   }
 
-  Widget _buildMessageInput() {
+  Widget _buildMessageInput(AiChatState state) {
     return Container(
       padding: EdgeInsets.fromLTRB(
         16,
