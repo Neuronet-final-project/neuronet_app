@@ -7,10 +7,12 @@ part 'ai_chat_session.g.dart';
 @freezed
 abstract class AiChatSession with _$AiChatSession {
   const factory AiChatSession({
-    required String id,
-    required String adolescentId,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    @JsonKey(name: 'session_id') String? sessionId,
+    String? id,
+    @JsonKey(name: 'adolescent_id') String? adolescentId,
+    String? adolescentIdAlt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     String? lastMessageContent,
     @Default(false) bool isActive,
   }) = _AiChatSession;
@@ -18,3 +20,7 @@ abstract class AiChatSession with _$AiChatSession {
   factory AiChatSession.fromJson(Map<String, dynamic> json) =>
       _$AiChatSessionFromJson(json);
 }
+
+/// Returns the canonical session ID from the session, regardless of field name.
+String sessionEffectiveId(AiChatSession session) =>
+    session.sessionId ?? session.id ?? '';

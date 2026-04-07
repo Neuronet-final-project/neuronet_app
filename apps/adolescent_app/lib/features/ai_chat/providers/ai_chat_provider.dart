@@ -40,7 +40,7 @@ class AiChat extends _$AiChat {
     final authState = ref.watch(authControllerProvider);
     final userId = authState.user?.id;
     if (userId == null) {
-      return AiChatState(messages: []);
+      return const AiChatState(messages: []);
     }
 
     final aiChatService = ref.watch(aiChatServiceProvider);
@@ -48,10 +48,7 @@ class AiChat extends _$AiChat {
     // Try to get existing sessions
     final sessionsResult = await aiChatService.getMySessions();
     if (sessionsResult.isFailure) {
-      // Fall back to mock data if backend is unavailable
-      return AiChatState(
-        messages: MockDataService.getMockChatMessages(),
-      );
+      return const AiChatState(messages: []);
     }
 
     final sessions = sessionsResult.value;
@@ -59,42 +56,58 @@ class AiChat extends _$AiChat {
     // Get or create the active session
     AiChatSession session;
     final activeSessions = sessions.where((s) => s.isActive).toList();
-    if (activeSessions.isNotEmpty) {
+    if (activeSessions.isNotEmpty && sessionEffectiveId(activeSessions.first).isNotEmpty) {
       session = activeSessions.first;
-    } else if (sessions.isNotEmpty) {
+    } else if (sessions.isNotEmpty && sessionEffectiveId(sessions.first).isNotEmpty) {
       session = sessions.first;
     } else {
       final createResult = await aiChatService.createSession();
       if (createResult.isFailure) {
-        return AiChatState(
-          messages: MockDataService.getMockChatMessages(),
-        );
+        return const AiChatState(messages: []);
       }
       session = createResult.value;
     }
 
     // Load messages for the session
-    final messagesResult = await aiChatService.getSessionMessages(session.id);
+    final messagesResult = await aiChatService.getSessionMessages(sessionEffectiveId(session));
     if (messagesResult.isSuccess) {
+      // Patch "user" senderId to the real user ID so the screen aligns bubbles correctly
+      final patched = messagesResult.value.map((m) {
+        if (m.senderId == 'user') return m.copyWith(senderId: userId);
+        return m;
+      }).toList();
       return AiChatState(
-        messages: messagesResult.value,
+        messages: patched,
         session: session,
       );
     }
 
-    // Fall back to mock data
     return AiChatState(
-      messages: MockDataService.getMockChatMessages(),
+      messages: [],
       session: session,
     );
   }
 
   Future<void> sendMessage(String content) async {
-    final currentSession = state.value?.session;
-    if (currentSession == null || content.trim().isEmpty) return;
+    if (content.trim().isEmpty) return;
 
     final authState = ref.read(authControllerProvider);
     final userId = authState.user?.id ?? 'user';
+    var currentSession = state.value?.session;
+
+    // Create a session if none exists
+    if (currentSession == null) {
+      final aiChatService = ref.read(aiChatServiceProvider);
+      final result = await aiChatService.createSession();
+      if (result.isSuccess) {
+        currentSession = result.value;
+        print('[AiChat] Created session: ${currentSession.id}');
+      } else {
+        print('[AiChat] Failed to create session: ${result.failure.message}');
+        return;
+      }
+    }
+
     final aiChatService = ref.read(aiChatServiceProvider);
 
     // Build user message for local state immediately
@@ -107,40 +120,68 @@ class AiChat extends _$AiChat {
       messageType: MessageType.aiChat,
     );
 
+    print('[AiChat] Sending message: "$content" to session ${sessionEffectiveId(currentSession)}');
+
     // Add user message to state immediately
     state = AsyncData(
       state.value!.copyWith(
         messages: [...state.value!.messages, userMessage],
+        session: currentSession,
         isTyping: true,
+        error: null,
       ),
     );
 
-    // Send to backend — the AI response comes back directly
+    // Send to backend — returns user message + AI response for this exchange
+    // We keep all previous messages and append the AI response
     final result = await aiChatService.sendMessage(
-      sessionId: currentSession.id,
+      sessionId: sessionEffectiveId(currentSession),
       content: content,
     );
 
     if (result.isSuccess) {
+      final aiMessages = result.value;
+      print('[AiChat] ${aiMessages.length} message(s) from backend');
+
+      // Find the AI response (the last message with role=ai/senderId=ai-assistant)
+      // We already added the user message locally, so only append the AI part
+      final aiResponse = aiMessages.reversed
+          .firstWhere(
+            (m) => m.senderId == 'ai-assistant',
+            orElse: () => aiMessages.last,
+          );
+
+      // Replace the locally-added user message with the backend version
+      // (which has the correct timestamp from the server)
+      // Also patch senderId to match the real user ID so the screen aligns it correctly
+      final backendUserMessage = aiMessages.firstWhere(
+        (m) => m.senderId == 'user',
+        orElse: () => userMessage,
+      ).copyWith(senderId: userId);
+
+      // Replace the last two entries: user msg (with backend version) + AI response
+      final updatedMessages = List<ChatMessage>.from(state.value!.messages);
+      if (updatedMessages.length >= 2 &&
+          updatedMessages.last.senderId == userId) {
+        // Replace the local user message with the backend version
+        updatedMessages[updatedMessages.length - 1] = backendUserMessage;
+        updatedMessages.add(aiResponse);
+      } else {
+        // Fallback: just append the AI response
+        updatedMessages.add(aiResponse);
+      }
+
       state = AsyncData(
         state.value!.copyWith(
-          messages: [...state.value!.messages, result.value],
+          messages: updatedMessages,
           isTyping: false,
         ),
       );
     } else {
-      // If backend failed, generate a mock response so the UX doesn't break
-      final fallbackMessage = ChatMessage(
-        messageId: 'msg-${DateTime.now().millisecondsSinceEpoch + 1}',
-        senderId: 'ai-assistant',
-        receiverId: userId,
-        messageContent: MockDataService.getMockAiResponse(content),
-        timestamp: DateTime.now(),
-        messageType: MessageType.aiChat,
-      );
+      // Backend failed — show error but keep the user message
+      print('[AiChat] Backend failed: ${result.failure.message}');
       state = AsyncData(
         state.value!.copyWith(
-          messages: [...state.value!.messages, fallbackMessage],
           isTyping: false,
           error: result.failure.message,
         ),

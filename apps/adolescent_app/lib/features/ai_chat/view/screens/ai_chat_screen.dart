@@ -83,27 +83,80 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       ),
       body: chatState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Error: $err')),
-        data: (data) => Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(16),
-                itemCount: data.messages.length,
-                itemBuilder: (context, index) {
-                  final message = data.messages[index];
-                  final isUser = message.senderId == currentUserId;
-                  return _buildMessageBubble(message, isUser);
-                },
-              ),
+        error: (err, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.wifi_off_rounded, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'Unable to connect to AI Assistant',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Check your internet connection and try again.',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            if (data.isTyping) _buildTypingIndicator(),
-            _buildQuickPrompts(),
-            _buildMessageInput(data),
-          ],
+          ),
         ),
+        data: (data) {
+          if (data.messages.isEmpty) {
+            return _buildEmptyState();
+          }
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: data.messages.length,
+                  itemBuilder: (context, index) {
+                    final message = data.messages[index];
+                    final isUser = message.senderId == currentUserId;
+                    return _buildMessageBubble(message, isUser);
+                  },
+                ),
+              ),
+              if (data.isTyping) _buildTypingIndicator(),
+              _buildQuickPrompts(),
+              _buildMessageInput(data),
+            ],
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.psychology_outlined, size: 80, color: Colors.grey[300]),
+        const SizedBox(height: 16),
+        Text(
+          'Start a Conversation',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Ask me anything about your well-being.\nI\'m here to help you reflect.',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+        ),
+        const SizedBox(height: 32),
+        _buildQuickPrompts(),
+      ],
     );
   }
 
