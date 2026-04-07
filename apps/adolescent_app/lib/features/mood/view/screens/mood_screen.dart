@@ -12,12 +12,31 @@ class MoodScreen extends ConsumerWidget {
     final notifier = ref.read(moodControllerProvider.notifier);
     final colorScheme = Theme.of(context).colorScheme;
 
+    // Show error snackbar when error changes
+    ref.listen(moodControllerProvider, (previous, next) {
+      if (next.error != null && previous?.error != next.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: colorScheme.errorContainer,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    });
+
+    final moodHistoryAsync = ref.watch(moodHistoryProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mood Tracker'),
         actions: [
           IconButton(
-            onPressed: () => notifier.reset(),
+            onPressed: () {
+              notifier.reset();
+              ref.invalidate(moodHistoryProvider);
+            },
             icon: const Icon(Icons.refresh),
             tooltip: 'Reset',
           ),
@@ -67,10 +86,92 @@ class MoodScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 20),
                   ],
+                  _buildMoodHistory(context, moodHistoryAsync),
                 ],
               ),
             ),
     );
+  }
+
+  Widget _buildMoodHistory(BuildContext context, AsyncValue<List<MoodRecord>> historyAsync) {
+    return historyAsync.when(
+      data: (records) {
+        if (records.isEmpty) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Divider(),
+            const SizedBox(height: 16),
+            Text(
+              'Recent Check-ins',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            ...records.take(5).map((r) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Text(r.mood.emoji, style: const TextStyle(fontSize: 24)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          r.mood.label,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        if (r.note != null && r.note!.isNotEmpty)
+                          Text(
+                            r.note!,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: NeuroColors.onSurfaceVariant,
+                                ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        _formatTimeAgo(r.createdAt),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: NeuroColors.onSurfaceVariant,
+                            ),
+                      ),
+                      if (r.intensity != null)
+                        Text(
+                          'Intensity: ${r.intensity}/5',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: NeuroColors.onSurfaceVariant,
+                              ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            )),
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => const SizedBox.shrink(),
+    );
+  }
+
+  String _formatTimeAgo(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${diff.inDays}d ago';
   }
 
   Widget _buildMoodGrid(BuildContext context, MoodState state, MoodController notifier) {

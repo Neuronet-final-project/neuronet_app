@@ -46,13 +46,13 @@ class MoodController extends _$MoodController {
 
     try {
       final service = ref.read(journalServiceProvider);
-      
+
       final request = CreateMoodRequest(
         mood: state.selectedMood!,
         intensity: state.intensity,
         note: state.notes,
       );
-      
+
       await service.recordMood(request);
 
       state = state.copyWith(
@@ -66,4 +66,14 @@ class MoodController extends _$MoodController {
       );
     }
   }
+}
+
+@riverpod
+Future<List<MoodRecord>> moodHistory(Ref ref) async {
+  final service = ref.watch(journalServiceProvider);
+  final result = await service.getMyMoods();
+  return result.when(
+    success: (value) => value,
+    failure: (f) => throw Exception(f.message),
+  );
 }

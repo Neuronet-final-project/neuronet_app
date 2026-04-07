@@ -41,7 +41,7 @@ abstract class MoodRecord with _$MoodRecord {
   const factory MoodRecord({
     @JsonKey(name: '_id') required String id,
     @JsonKey(name: 'adolescent_id') required String adolescentId,
-    required MoodType mood,
+    @JsonKey(name: 'mood', fromJson: _moodFromString, toJson: _moodToJson) required MoodType mood,
     int? intensity,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     String? note,
@@ -50,6 +50,16 @@ abstract class MoodRecord with _$MoodRecord {
   factory MoodRecord.fromJson(Map<String, dynamic> json) =>
       _$MoodRecordFromJson(json);
 }
+
+MoodType _moodFromString(String s) {
+  try {
+    return MoodType.values.byName(s.toLowerCase());
+  } catch (_) {
+    return MoodType.neutral;
+  }
+}
+
+String _moodToJson(MoodType m) => m.toJson();
 
 @freezed
 abstract class CreateMoodRequest with _$CreateMoodRequest {

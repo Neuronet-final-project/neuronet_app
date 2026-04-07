@@ -59,6 +59,18 @@ class ConsentService {
     }
   }
 
+  /// Fetches the current user's (adolescent) own consent settings.
+  /// Calls GET /consents/me — returns the consent object directly.
+  Future<Result<Map<String, dynamic>>> getMyConsent() async {
+    try {
+      final response = await _client.get(ApiEndpoints.myConsent);
+      final data = response.data as Map<String, dynamic>;
+      return Result.success(data);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
   /// Updates a consent status using POST /consents/{email}.
   Future<Result<void>> updateConsent({
     required String email,
@@ -151,7 +163,7 @@ class ConsentService {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 ConsentService consentService(Ref ref) {
   final client = ref.watch(apiClientProvider);
   return ConsentService(client);

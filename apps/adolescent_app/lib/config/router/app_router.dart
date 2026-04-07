@@ -16,6 +16,7 @@ import '../../features/auth/view/screens/activation_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/journal/view/screens/journal_detail_screen.dart';
 import '../../features/profile/view/screens/profile_screen.dart';
+import '../../features/consent_status/view/screens/consent_status_screen.dart';
 import '../../features/alerts/view/screens/alerts_screen.dart';
 import '../../features/alerts/view/screens/alert_detail_screen.dart';
 import '../../features/educational/view/screens/educational_library_screen.dart';
@@ -40,6 +41,7 @@ class AdolescentRoutes {
   static const String channels = '/channels';
   static const String counselorChat = '/counselor-chat';
   static const String profile = '/profile';
+  static const String consentStatus = '/consent-status';
   static const String alerts = '/alerts';
   static const String learn = '/learn';
   static const String recommendations = '/recommendations';
@@ -79,24 +81,38 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       final isInitial = currentAuth.status == AuthStatus.initial;
       final isLoading = currentAuth.status == AuthStatus.loading;
 
+      print('DEBUG: [Router] redirect(current: $currentLocation, auth: ${currentAuth.status})');
+
       // 1. True initial state (app just launched) — show splash
       if (isInitial) {
+        print('DEBUG: [Router] isInitial, redirecting to splash');
         return isSplash ? null : AdolescentRoutes.splash;
       }
 
       // 2. Loading (login in progress, activation, etc.) — stay on current page
       if (isLoading) {
+        print('DEBUG: [Router] isLoading, staying');
         return null;
       }
 
       // 3. Authenticated — redirect away from auth/splash pages
       if (isAuthenticated) {
-        if (isLoggingIn || isActivating || isSplash) return AdolescentRoutes.home;
+        if (isLoggingIn || isActivating || isSplash) {
+          print('DEBUG: [Router] isAuthenticated and on auth page, redirecting to home');
+          return AdolescentRoutes.home;
+        }
         return null;
       }
 
-      // 4. Unauthenticated — send to login (even on error so user can retry)
+      // 4. Unauthenticated or Error — send to login only if strictly unauthenticated.
+      // If there's an error (like network), stay on current page so the UI can show a retry button.
+      if (currentAuth.status == AuthStatus.error) {
+        print('DEBUG: [Router] AuthStatus.error, staying on current page');
+        return null;
+      }
+
       if (isLoggingIn || isActivating) return null;
+      print('DEBUG: [Router] isUnauthenticated, redirecting to login');
       return AdolescentRoutes.login;
     },
     routes: [
@@ -190,6 +206,10 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AdolescentRoutes.alerts,
         builder: (context, state) => const AdolescentAlertsScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.consentStatus,
+        builder: (context, state) => const ConsentStatusScreen(),
       ),
       GoRoute(
         path: '${AdolescentRoutes.alerts}/:id',

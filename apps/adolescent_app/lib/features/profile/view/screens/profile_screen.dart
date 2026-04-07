@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:adolescent_app/features/profile/providers/profile_provider.dart';
 import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
+import 'package:adolescent_app/config/router/app_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -133,7 +135,43 @@ class ProfileScreen extends ConsumerWidget {
           ),
           
           const SizedBox(height: 48),
-          
+
+          // Consent Status Link
+          InkWell(
+            onTap: () => context.push(AdolescentRoutes.consentStatus),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                children: [
+                  Icon(Icons.shield_outlined, color: NeuroColors.adolescentPrimary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Consent Status',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: NeuroColors.onSurface,
+                          ),
+                        ),
+                        Text(
+                          'View what your guardian has approved',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: NeuroColors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: NeuroColors.onSurfaceVariant),
+                ],
+              ),
+            ),
+          ),
+
           // Action Button
           ElevatedButton(
             onPressed: () => ref.read(authControllerProvider.notifier).logout(),
