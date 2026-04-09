@@ -61,8 +61,10 @@ class ChannelCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        channel.description,
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        channel.description ?? 'No description available',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontStyle: FontStyle.italic,
+                            ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),

@@ -7,18 +7,21 @@ part 'channel.g.dart';
 @freezed
 abstract class Channel with _$Channel {
   const factory Channel({
-    required String channelId,
-    required String counselorId,
-    required String channelName,
-    required String description,
-    required ChannelType channelType,
-    required DateTime createdAt,
+    @JsonKey(name: 'channel_id') required String channelId,
+    @JsonKey(name: 'name') required String channelName,
+    String? description,
+    @JsonKey(name: 'is_group') @Default(false) bool isGroup,
+    @JsonKey(name: 'is_subscribed') @Default(false) bool isFollowed,
+    @JsonKey(name: 'counselor_id') @Default('') String counselorId,
+    @JsonKey(name: 'channel_type', unknownEnumValue: ChannelType.educational)
+    @Default(ChannelType.educational)
+    ChannelType channelType,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'subscriber_count') @Default(0) int subscriberCount,
     @Default(true) bool isActive,
     @Default(true) bool allowComments,
     @Default(true) bool allowReactions,
     @Default(false) bool isFeatured,
-    @Default(false) bool isFollowed,
-    @Default(0) int subscriberCount,
   }) = _Channel;
 
   factory Channel.fromJson(Map<String, dynamic> json) =>

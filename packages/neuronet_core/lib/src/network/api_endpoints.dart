@@ -17,6 +17,7 @@ class ApiEndpoints {
   static const String register = '/auth/register';
   static const String activateAccount = '/auth/activate-account';
   static const String me = '/auth/me';
+  static const String updateProfile = '/auth/me'; // PUT method
   static const String createAdolescent = '/auth/guardian/create-adolescent';
   static const String pendingAdolescents = '/auth/guardian/pending-adolescents';
 
@@ -37,6 +38,7 @@ class ApiEndpoints {
   static const String guardianAlerts = '/alerts/guardian/me';
   static const String counselorAlerts = '/alerts/counselor/me';
   static String alertsByAdolescent(String id) => '/alerts/adolescent/$id';
+  static String alertSummary(String id) => '/alerts/adolescent/$id/summary';
   static String resolveAlert(String id) => '/alerts/resolve/$id';
   static String markViewed(String id) => '/alerts/mark-viewed/$id';
 
@@ -52,16 +54,22 @@ class ApiEndpoints {
   // Messaging
   static const String conversations = '/messaging/conversations';
   static String conversationMessages(String id) => '/messaging/conversations/$id/messages';
+  static String sendConversationMessage(String id) => '/messaging/conversations/$id/messages'; // POST
+  static const String uploadMedia = '/messaging/upload';
+
+  // AI Analysis
+  static const String analyzeText = '/ai/analyze-text';
+  static String evaluateRisk(String adolescentId) => '/ai/evaluate-risk/$adolescentId';
 
   // Channels
   static const String myChannels = '/channels/me';
   static const String channels = '/channels';
   static String channelSubscribe(String id) => '/channels/$id/subscribe';
-  static String channelPosts(String id) => '/channels/$id/posts';
-  static String channelInteractions(String channelId, String postId) =>
-      '/channels/$channelId/posts/$postId/interactions';
-  static String channelInteract(String channelId, String postId) =>
-      '/channels/$channelId/posts/$postId/interact';
+  // NOTE: Channel posts/interactions endpoints do NOT exist in backend.
+  // Backend only supports: GET /channels, POST /channels, GET /channels/me, POST /channels/{id}/subscribe
+  // static String channelPosts(String id) => '/channels/$id/posts';  // ❌ Not in backend
+  // static String channelInteractions(String channelId, String postId) => '/channels/$channelId/posts/$postId/interactions';  // ❌ Not in backend
+  // static String channelInteract(String channelId, String postId) => '/channels/$channelId/posts/$postId/interact';  // ❌ Not in backend
 
   // Educational Pages
   static const String educationalPages = '/educational-pages/';

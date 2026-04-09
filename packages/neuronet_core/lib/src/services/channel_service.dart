@@ -30,8 +30,19 @@ class ChannelService {
     try {
       final response = await _client.get(ApiEndpoints.channels);
       final list = response.data as List<dynamic>;
+      print('DEBUG: [ChannelService] getAllChannels() - Raw response: ${list.length} items');
+      if (list.isNotEmpty) {
+        print('DEBUG: [ChannelService] First channel JSON: ${list[0]}');
+      }
       final channels = list
-          .map((json) => Channel.fromJson(json as Map<String, dynamic>))
+          .map((json) {
+            try {
+              return Channel.fromJson(json as Map<String, dynamic>);
+            } catch (e, st) {
+              print('DEBUG: [ChannelService] Failed to parse channel: $e\nJSON: $json\nStack: $st');
+              rethrow;
+            }
+          })
           .toList();
       return Result.success(channels);
     } catch (e) {
@@ -39,68 +50,20 @@ class ChannelService {
     }
   }
 
-  /// Fetches posts for a specific channel.
-  Future<Result<List<ChannelPost>>> getChannelPosts(String channelId) async {
-    try {
-      final response = await _client.get(ApiEndpoints.channelPosts(channelId));
-      final list = response.data as List<dynamic>;
-      final posts = list
-          .map((json) => ChannelPost.fromJson(json as Map<String, dynamic>))
-          .toList();
-      return Result.success(posts);
-    } catch (e) {
-      return Result.failure(failureFromException(e));
-    }
-  }
-
-  /// Fetches interactions (comments/reactions) for a specific post.
-  Future<Result<List<ChannelInteraction>>> getChannelInteractions({
-    required String channelId,
-    required String postId,
-  }) async {
-    try {
-      final response = await _client.get(
-        ApiEndpoints.channelInteractions(channelId, postId),
-      );
-      final list = response.data as List<dynamic>;
-      final interactions = list
-          .map((json) => ChannelInteraction.fromJson(json as Map<String, dynamic>))
-          .toList();
-      return Result.success(interactions);
-    } catch (e) {
-      return Result.failure(failureFromException(e));
-    }
-  }
+  // NOTE: Channel posts and interactions endpoints do NOT exist in backend.
+  // These methods have been removed to prevent 404 errors at runtime.
+  // Backend only supports channel subscription, not channel content management.
+  //
+  // Removed methods:
+  // - getChannelPosts() — endpoint /channels/{id}/posts doesn't exist
+  // - getChannelInteractions() — endpoint /channels/{id}/posts/{pid}/interactions doesn't exist
+  // - interactWithPost() — endpoint /channels/{id}/posts/{pid}/interact doesn't exist
 
   /// Subscribes/unsubscribes the user to a channel.
   Future<Result<void>> subscribeToChannel(String channelId) async {
     try {
       await _client.post(ApiEndpoints.channelSubscribe(channelId));
       return const Result.success(null);
-    } catch (e) {
-      return Result.failure(failureFromException(e));
-    }
-  }
-
-  /// Interacts with a post (like, comment, etc.).
-  Future<Result<ChannelInteraction>> interactWithPost({
-    required String channelId,
-    required String postId,
-    required InteractionType type,
-    String? content,
-  }) async {
-    try {
-      final response = await _client.post(
-        ApiEndpoints.channelInteract(channelId, postId),
-        data: {
-          'interaction_type': type.name,
-          if (content != null) 'content': content,
-        },
-      );
-      final interaction = ChannelInteraction.fromJson(
-        response.data as Map<String, dynamic>,
-      );
-      return Result.success(interaction);
     } catch (e) {
       return Result.failure(failureFromException(e));
     }
