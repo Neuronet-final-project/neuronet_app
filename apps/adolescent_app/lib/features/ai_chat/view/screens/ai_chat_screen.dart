@@ -62,13 +62,12 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             chatState.when(
               data: (d) => Text(
                 d.isTyping ? 'Typing...' : 'Online',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: d.isTyping ? Colors.white70 : Colors.greenAccent,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: d.isTyping ? Colors.white70 : NeuroColors.moodCalm,
                 ),
               ),
-              loading: () => const Text('Loading...', style: TextStyle(fontSize: 12, color: Colors.white70)),
-              error: (_, __) => const Text('Offline', style: TextStyle(fontSize: 12, color: Colors.redAccent)),
+              loading: () => Text('Loading...', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.white70)),
+              error: (_, __) => Text('Offline', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: NeuroColors.alertHigh)),
             ),
           ],
         ),
@@ -84,29 +83,37 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       ),
       body: chatState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.wifi_off_rounded, size: 64, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  'Unable to connect to AI Assistant',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[700]),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Check your internet connection and try again.',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+        error: (err, _) {
+          final theme = Theme.of(context);
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.wifi_off_rounded, size: 64, color: NeuroColors.onSurfaceVariant),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Unable to connect to AI Assistant',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: NeuroColors.onSurface,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Check your internet connection and try again.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: NeuroColors.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
         data: (data) {
           if (data.messages.isEmpty) {
             return _buildEmptyState();
@@ -142,24 +149,26 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   }
 
   Widget _buildEmptyState() {
+    final theme = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.psychology_outlined, size: 80, color: Colors.grey[300]),
+        Icon(Icons.psychology_outlined, size: 80, color: NeuroColors.onSurfaceVariant.withValues(alpha: 0.3)),
         const SizedBox(height: 16),
         Text(
           'Start a Conversation',
-          style: TextStyle(
-            fontSize: 20,
+          style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Colors.grey[600],
+            color: NeuroColors.onSurface,
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          'Ask me anything about your well-being.\nI\'m here to help you reflect.',
+          "Ask me anything about your well-being.\nI'm here to help you reflect.",
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: NeuroColors.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 32),
         _buildQuickPrompts(),
@@ -168,14 +177,14 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   }
 
   Widget _buildTypingIndicator() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
           'AI Assistant is thinking...',
-          style: TextStyle(
-            fontSize: 12,
+          style: theme.textTheme.labelSmall?.copyWith(
             fontStyle: FontStyle.italic,
             color: NeuroColors.onSurfaceVariant,
           ),
@@ -204,7 +213,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             padding: const EdgeInsets.only(right: 8),
             child: ActionChip(
               label: Text(prompts[index]),
-              labelStyle: const TextStyle(fontSize: 13, color: NeuroColors.adolescentPrimary),
+              labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: NeuroColors.adolescentPrimary,
+              ),
               backgroundColor: NeuroColors.adolescentSurface,
               side: BorderSide.none,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
