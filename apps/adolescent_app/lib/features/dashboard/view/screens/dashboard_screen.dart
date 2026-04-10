@@ -309,6 +309,19 @@ class DashboardScreen extends ConsumerWidget {
             tileColor: Colors.white,
             onTap: () => context.push(AdolescentRoutes.aiChat),
           ),
+          const SizedBox(height: 8),
+          ListTile(
+            leading: const CircleAvatar(
+              backgroundColor: NeuroColors.adolescentSurface,
+              child: Icon(Icons.person_outline, color: NeuroColors.adolescentPrimary),
+            ),
+            title: const Text('Chat with Counselor'),
+            subtitle: const Text('Message your human counselor'),
+            trailing: const Icon(Icons.chevron_right),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            tileColor: Colors.white,
+            onTap: () => context.push(AdolescentRoutes.counselorChat),
+          ),
         ],
       ),
     );

@@ -90,6 +90,25 @@ class DashboardScreen extends ConsumerWidget {
                     icon: Icons.person_add_outlined,
                     onTap: () => context.push('/register-adolescent'),
                   ),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final pendingAsync = ref.watch(pendingAdolescentsProvider);
+                      return pendingAsync.when(
+                        data: (pending) {
+                          if (pending.isEmpty) return const SizedBox.shrink();
+                          return _QuickActionCard(
+                            title: 'Pending Activations',
+                            subtitle: '${pending.length} adolescent(s) awaiting activation',
+                            icon: Icons.hourglass_top,
+                            badge: pending.length.toString(),
+                            onTap: () => context.push('/pending-adolescents'),
+                          );
+                        },
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, __) => const SizedBox.shrink(),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -328,12 +347,14 @@ class _QuickActionCard extends StatelessWidget {
   final String subtitle;
   final IconData icon;
   final VoidCallback onTap;
+  final String? badge;
 
   const _QuickActionCard({
     required this.title,
     required this.subtitle,
     required this.icon,
     required this.onTap,
+    this.badge,
   });
 
   @override
@@ -355,9 +376,31 @@ class _QuickActionCard extends StatelessWidget {
           ),
           child: Icon(icon, color: Theme.of(context).primaryColor),
         ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            if (badge != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: NeuroColors.guardianPrimary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  badge!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
         ),
         subtitle: Text(subtitle),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),

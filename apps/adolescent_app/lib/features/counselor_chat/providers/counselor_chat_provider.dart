@@ -11,24 +11,34 @@ class CounselorChatController extends _$CounselorChatController {
   @override
   FutureOr<List<ConversationMessage>> build() async {
     final profile = await ref.watch(adolescentProfileControllerProvider.future);
+    
+    final adolescentId = profile.getEffectiveId();
+    print('DEBUG: [CounselorChat] Profile _id: ${profile.id}');
+    print('DEBUG: [CounselorChat] Profile adolescent_id: ${profile.adolescentId}');
+    print('DEBUG: [CounselorChat] Using effective ID: $adolescentId');
 
     final conversationResult = await ref
         .read(messagingServiceProvider)
         .getOrCreateConversation(
           type: ConversationType.counselorAdolescent,
-          adolescentId: profile.id,
+          adolescentId: adolescentId,
         );
 
     if (conversationResult.isFailure) {
+      print('DEBUG: [CounselorChat] Failed to create conversation: ${conversationResult.failure.message}');
       throw Exception(conversationResult.failure.message);
     }
 
+    print('DEBUG: [CounselorChat] Created conversation: ${conversationResult.value.id}');
     _conversationId = conversationResult.value.id;
 
     final messagesResult = await ref.read(messagingServiceProvider).getMessages(_conversationId!);
     return messagesResult.when(
       success: (value) => value,
-      failure: (f) => throw Exception(f.message),
+      failure: (f) {
+        print('DEBUG: [CounselorChat] Failed to fetch messages: ${f.message}');
+        throw Exception(f.message);
+      },
     );
   }
 

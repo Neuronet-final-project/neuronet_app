@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import '../../../../config/router/app_router.dart';
 
 class AdolescentAlertDetailScreen extends StatelessWidget {
   const AdolescentAlertDetailScreen({
@@ -141,7 +143,7 @@ class AdolescentAlertDetailScreen extends StatelessWidget {
                     icon: Icons.chat_bubble_outline_rounded,
                     title: 'Chat with Counselor',
                     subtitle: 'It\'s always good to reach out if you feel like it.',
-                    onTap: () {}, // Navigate to counselor chat
+                    onTap: () => context.push(AdolescentRoutes.counselorChat),
                   ),
                   
                   const SizedBox(height: 40),

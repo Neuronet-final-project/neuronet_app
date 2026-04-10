@@ -16,6 +16,7 @@ import '../../features/auth/view/screens/sign_up_screen.dart';
 import '../../features/auth/view/screens/activation_screen.dart';
 import '../../features/auth/view/screens/splash_screen.dart';
 import '../../features/adolescents/view/screens/adolescent_detail_screen.dart';
+import '../../features/adolescents/view/screens/pending_adolescents_screen.dart';
 import '../../features/educational/view/screens/recommendations_screen.dart';
 import '../../features/educational/view/screens/educational_page_detail_screen.dart';
 
@@ -32,6 +33,7 @@ class GuardianRoutes {
   static const String activate = '/activate';
   static const String home = '/';
   static const String registerAdolescent = '/register-adolescent';
+  static const String pendingAdolescents = '/pending-adolescents';
   static const String consent = '/consent';
   static const String alerts = '/alerts';
   static const String counselorMsg = '/counselor-messages';
@@ -172,6 +174,10 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: GuardianRoutes.registerAdolescent,
         builder: (context, state) => const RegistrationScreen(),
+      ),
+      GoRoute(
+        path: GuardianRoutes.pendingAdolescents,
+        builder: (context, state) => const PendingAdolescentsScreen(),
       ),
     GoRoute(
         path: GuardianRoutes.alertDetails,

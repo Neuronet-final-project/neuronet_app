@@ -77,3 +77,13 @@ Future<List<AdolescentResponse>> linkedAdolescents(Ref ref) async {
   final result = await dashboardService.getLinkedAdolescents();
   return result.value;
 }
+
+@riverpod
+Future<List<AdolescentResponse>> pendingAdolescents(Ref ref) async {
+  final authService = ref.watch(authServiceProvider);
+  final result = await authService.getPendingAdolescents();
+  return result.when(
+    success: (value) => value,
+    failure: (f) => throw Exception(f.message),
+  );
+}

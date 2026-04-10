@@ -6,8 +6,11 @@ part 'user.g.dart';
 
 @freezed
 abstract class User with _$User {
+  const User._();
+
   const factory User({
     @JsonKey(name: '_id') @Default('') String id,
+    @JsonKey(name: 'adolescent_id') String? adolescentId,
     @JsonKey(name: 'full_name') @Default('User') String fullName,
     required String email,
     required UserRole role,
@@ -16,6 +19,11 @@ abstract class User with _$User {
   }) = _User;
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+
+  /// Returns the most appropriate ID for this user.
+  /// Prefers adolescent_id (used by messaging/alert endpoints) over _id.
+  String getEffectiveId() =>
+      (adolescentId != null && adolescentId!.isNotEmpty) ? adolescentId! : id;
 }
 
 @freezed

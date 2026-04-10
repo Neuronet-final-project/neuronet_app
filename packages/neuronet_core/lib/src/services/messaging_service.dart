@@ -21,6 +21,12 @@ class MessagingService {
     required ConversationType type,
     required String adolescentId,
   }) async {
+    if (adolescentId.isEmpty) {
+      return Result.failure(
+        const UnknownFailure(message: 'Adolescent ID is missing. Please re-login to refresh your profile.'),
+      );
+    }
+
     final url = ApiEndpoints.conversations;
     final payload = {
       'conversation_type': type == ConversationType.counselorAdolescent
@@ -29,6 +35,8 @@ class MessagingService {
       'adolescent_id': adolescentId,
     };
 
+    print('DEBUG: [MessagingService] POST $url with payload: $payload');
+
     try {
       final response = await _apiClient.post(url, data: payload);
       final conversation = Conversation.fromJson(
@@ -36,6 +44,7 @@ class MessagingService {
       );
       return Result.success(conversation);
     } catch (e) {
+      print('DEBUG: [MessagingService] Failed to create conversation: $e');
       return Result.failure(failureFromException(e));
     }
   }

@@ -64,6 +64,9 @@ class AuthService {
         response.data as Map<String, dynamic>,
       );
 
+      // DEBUG: Log raw /auth/me response
+      print('DEBUG: [AuthService] Raw /auth/me response: $raw');
+
       // Some backend versions return 'id' instead of '_id'.
       // Normalise so User.fromJson always finds '_id'.
       if ((raw['_id'] == null || (raw['_id'] as String).isEmpty) &&
@@ -72,6 +75,7 @@ class AuthService {
       }
 
       final user = User.fromJson(raw);
+      print('DEBUG: [AuthService] Parsed User: id="${user.id}", adolescentId="${user.adolescentId}", email="${user.email}"');
       return Result.success(user);
     } catch (e) {
       return Result.failure(failureFromException(e));
