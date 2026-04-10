@@ -217,31 +217,41 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                 final mood = MoodType.values[index];
                 final isSelected = _selectedMood == mood;
                 
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedMood = isSelected ? null : mood),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: isSelected ? NeuroColors.adolescentPrimary : NeuroColors.surface,
-                      borderRadius: BorderRadius.circular(NeuroRadius.lg),
-                      border: Border.all(
-                        color: isSelected ? NeuroColors.adolescentPrimary : NeuroColors.outline,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(mood.emoji, style: const TextStyle(fontSize: 22)),
-                        const SizedBox(width: 12),
-                        Text(
-                          mood.label,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                            color: isSelected ? NeuroColors.adolescentOnPrimary : NeuroColors.onSurface,
-                          ),
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => setState(() => _selectedMood = isSelected ? null : mood),
+                    borderRadius: BorderRadius.circular(NeuroRadius.lg),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOut,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isSelected ? NeuroColors.adolescentPrimary : NeuroColors.surface,
+                        borderRadius: BorderRadius.circular(NeuroRadius.lg),
+                        border: Border.all(
+                          color: isSelected ? NeuroColors.adolescentPrimary : NeuroColors.outline,
                         ),
-                      ],
+                      ),
+                      child: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOut,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected ? NeuroColors.adolescentOnPrimary : NeuroColors.onSurface,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(mood.emoji, style: const TextStyle(fontSize: 22)),
+                            const SizedBox(width: 12),
+                            Text(
+                              mood.label,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 );
