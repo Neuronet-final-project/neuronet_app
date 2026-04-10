@@ -1,23 +1,41 @@
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../profile/providers/profile_provider.dart';
 
+part 'counselor_chat_provider.freezed.dart';
 part 'counselor_chat_provider.g.dart';
+
+@freezed
+abstract class CounselorChatState with _$CounselorChatState {
+  const factory CounselorChatState({
+    Conversation? conversation,
+    /// Counselor email extracted from conversation participants.
+    String? counselorEmail,
+    @Default([]) List<ConversationMessage> messages,
+  }) = _CounselorChatState;
+}
 
 @riverpod
 class CounselorChatController extends _$CounselorChatController {
   String? _conversationId;
+  bool _isSending = false;
+
+  /// Whether a message is currently being sent to the backend.
+  bool get isSending => _isSending;
 
   @override
-  FutureOr<List<ConversationMessage>> build() async {
+  FutureOr<CounselorChatState> build() async {
     final profile = await ref.watch(adolescentProfileControllerProvider.future);
-    
-    final adolescentId = profile.getEffectiveId();
-    debugPrint('[CounselorChat] Profile _id: ${profile.id}');
-    debugPrint('[CounselorChat] Profile adolescent_id: ${profile.adolescentId}');
-    debugPrint('[CounselorChat] Using effective ID: $adolescentId');
 
+    final adolescentId = profile.getEffectiveId();
+    final myEmail = profile.email.toLowerCase();
+    debugPrint('[CounselorChat] ── Initializing counselor chat session ──');
+    debugPrint('[CounselorChat] Profile email: ${profile.email}');
+    debugPrint('[CounselorChat] Using effective adolescent ID: $adolescentId');
+
+    debugPrint('[CounselorChat] Step 1: Getting or creating conversation');
     final conversationResult = await ref
         .read(messagingServiceProvider)
         .getOrCreateConversation(
@@ -26,28 +44,54 @@ class CounselorChatController extends _$CounselorChatController {
         );
 
     if (conversationResult.isFailure) {
-      debugPrint('[CounselorChat] Failed to create conversation: ${conversationResult.failure.message}');
+      debugPrint('[CounselorChat] ✗ Failed: ${conversationResult.failure.message}');
       throw Exception(conversationResult.failure.message);
     }
 
-    debugPrint('[CounselorChat] Created conversation: ${conversationResult.value.id}');
-    _conversationId = conversationResult.value.id;
+    final conversation = conversationResult.value;
+    debugPrint('[CounselorChat] ✓ Conversation: ${conversation.id}');
+    debugPrint('[CounselorChat]   Participants: ${conversation.participants}');
+    _conversationId = conversation.id;
 
+    // Extract counselor email: participants minus the adolescent's own email
+    final counselorEmail = conversation.participants
+        .where((p) => p.toLowerCase() != myEmail)
+        .firstOrNull;
+    debugPrint('[CounselorChat]   Counselor: $counselorEmail');
+
+    debugPrint('[CounselorChat] Step 2: Fetching messages');
     final messagesResult = await ref.read(messagingServiceProvider).getMessages(_conversationId!);
     return messagesResult.when(
-      success: (value) => value,
+      success: (value) {
+        debugPrint('[CounselorChat] ✓ ${value.length} message(s)');
+        for (int i = 0; i < value.length; i++) {
+          final m = value[i];
+          final preview = m.content.substring(0, m.content.length.clamp(0, 60));
+          debugPrint('[CounselorChat]   [$i] ${m.senderRole} | ${m.createdAt} | "$preview"');
+        }
+        return CounselorChatState(
+          conversation: conversation,
+          counselorEmail: counselorEmail,
+          messages: value,
+        );
+      },
       failure: (f) {
-        debugPrint('[CounselorChat] Failed to fetch messages: ${f.message}');
+        debugPrint('[CounselorChat] ✗ Failed: ${f.message}');
         throw Exception(f.message);
       },
     );
   }
 
   Future<void> sendMessage(String content) async {
-    if (_conversationId == null || content.trim().isEmpty) return;
+    if (_conversationId == null || content.trim().isEmpty || _isSending) return;
 
     final currentState = state.value;
     if (currentState == null) return;
+
+    _isSending = true;
+    state = AsyncValue.data(currentState);
+
+    debugPrint('[CounselorChat] ── Sending: "$content" ──');
 
     try {
       final result = await ref.read(messagingServiceProvider).sendMessage(
@@ -56,25 +100,44 @@ class CounselorChatController extends _$CounselorChatController {
           );
 
       if (result.isFailure) {
+        debugPrint('[CounselorChat] ✗ Send failed: ${result.failure.message}');
         state = AsyncValue.error(Exception(result.failure.message), StackTrace.current);
         return;
       }
 
-      state = AsyncValue.data([...currentState, result.value]);
+      final sentMessage = result.value;
+      debugPrint('[CounselorChat] ✓ Sent: id=${sentMessage.id} role=${sentMessage.senderRole}');
+
+      state = AsyncValue.data(currentState.copyWith(
+        messages: [...currentState.messages, sentMessage],
+      ));
     } catch (e, st) {
+      debugPrint('[CounselorChat] ✗ Exception: $e');
       state = AsyncValue.error(e, st);
+    } finally {
+      _isSending = false;
+      state = AsyncValue.data(state.value ?? currentState);
     }
   }
 
   Future<void> refresh() async {
     if (_conversationId == null) return;
+    debugPrint('[CounselorChat] ── Refreshing ──');
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final result = await ref.read(messagingServiceProvider).getMessages(_conversationId!);
       if (result.isFailure) {
+        debugPrint('[CounselorChat] ✗ Refresh failed: ${result.failure.message}');
         throw Exception(result.failure.message);
       }
-      return result.value;
+      final currentConv = state.value?.conversation;
+      final currentCounselorEmail = state.value?.counselorEmail;
+      debugPrint('[CounselorChat] ✓ Refreshed ${result.value.length} message(s)');
+      return CounselorChatState(
+        conversation: currentConv,
+        counselorEmail: currentCounselorEmail,
+        messages: result.value,
+      );
     });
   }
 }

@@ -39,18 +39,31 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
     }
   }
 
+  /// Derive a display name from an email address.
+  static String _emailToDisplayName(String email) {
+    final name = email.split('@').first;
+    return name[0].toUpperCase() + name.substring(1);
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatAsync = ref.watch(counselorChatControllerProvider(widget.adolescentId));
+    final counselorEmail = chatAsync.value?.counselorEmail;
+    final counselorName = counselorEmail != null
+        ? _emailToDisplayName(counselorEmail)
+        : 'Counselor';
 
     return Scaffold(
       appBar: AppBar(
         title: Column(
           children: [
-            const Text('Counselor Messaging'),
+            Text(counselorName),
             Text(
               'Regarding: ${widget.adolescentName}',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Colors.white70,
+                fontSize: 11,
+              ),
             ),
           ],
         ),
@@ -85,7 +98,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                             messageContent: message.content,
                             timestamp: message.createdAt,
                             isUser: isMe,
-                            senderLabel: isMe ? 'You' : 'Counselor',
+                            senderLabel: isMe ? 'You' : counselorName,
                             userColor: NeuroColors.guardianPrimary,
                           );
                         },

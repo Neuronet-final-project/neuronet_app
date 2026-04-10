@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../auth/providers/auth_provider.dart';
 
 part 'counselor_chat_provider.freezed.dart';
 part 'counselor_chat_provider.g.dart';
@@ -11,6 +12,8 @@ part 'counselor_chat_provider.g.dart';
 abstract class CounselorChatState with _$CounselorChatState {
   const factory CounselorChatState({
     Conversation? conversation,
+    /// Counselor email extracted from conversation participants.
+    String? counselorEmail,
     @Default([]) List<ConversationMessage> messages,
     @Default(false) bool isLoading,
     String? error,
@@ -25,9 +28,15 @@ class CounselorChatController extends _$CounselorChatController {
     try {
       final messagingService = ref.watch(messagingServiceProvider);
 
-      debugPrint('CounselorChatController: Building for adolescentId: $adolescentId');
+      // Get guardian email from auth to filter out from participants
+      final authState = ref.watch(authControllerProvider);
+      final guardianEmail = authState.user?.email?.toLowerCase() ?? '';
+      debugPrint('[GuardianCounselorChat] Guardian email: $guardianEmail');
 
-      // Get or create conversation
+      debugPrint('[GuardianCounselorChat] ── Initializing guardian counselor chat ──');
+      debugPrint('[GuardianCounselorChat]   - Adolescent ID: $adolescentId');
+      debugPrint('[GuardianCounselorChat] Step 1: Getting or creating conversation (type=counselor_guardian)');
+
       final conversationResult = await messagingService.getOrCreateConversation(
         type: ConversationType.counselorGuardian,
         adolescentId: adolescentId,
@@ -35,30 +44,52 @@ class CounselorChatController extends _$CounselorChatController {
 
       if (conversationResult.isFailure) {
         if (conversationResult.failure.message.contains('no_assigned_counselor')) {
+          debugPrint('[GuardianCounselorChat] ✗ No counselor assigned to this adolescent');
           return const CounselorChatState(isNoCounselor: true);
         }
+        debugPrint('[GuardianCounselorChat] ✗ Failed to create conversation: ${conversationResult.failure.message}');
         return CounselorChatState(error: conversationResult.failure.message);
       }
 
       final conversation = conversationResult.value;
+      debugPrint('[GuardianCounselorChat] ✓ Conversation: ${conversation.id}');
+      debugPrint('[GuardianCounselorChat]   Participants: ${conversation.participants}');
 
-      // Load messages
+      // Extract counselor email: filter out the guardian's own email
+      final counselorEmail = conversation.participants
+          .where((p) => p.toLowerCase() != guardianEmail)
+          .firstOrNull;
+      debugPrint('[GuardianCounselorChat]   Counselor: $counselorEmail');
+
+      debugPrint('[GuardianCounselorChat] Step 2: Fetching messages');
       final messagesResult = await messagingService.getMessages(conversation.id);
       if (messagesResult.isFailure) {
+        debugPrint('[GuardianCounselorChat] ✗ Failed to fetch: ${messagesResult.failure.message}');
         return CounselorChatState(
           conversation: conversation,
+          counselorEmail: counselorEmail,
           error: messagesResult.failure.message,
         );
       }
 
+      debugPrint('[GuardianCounselorChat] ✓ ${messagesResult.value.length} message(s)');
+      for (int i = 0; i < messagesResult.value.length; i++) {
+        final m = messagesResult.value[i];
+        final preview = m.content.substring(0, m.content.length.clamp(0, 60));
+        debugPrint('[GuardianCounselorChat]   [$i] ${m.senderRole} | ${m.createdAt} | "$preview"');
+      }
+
       return CounselorChatState(
         conversation: conversation,
+        counselorEmail: counselorEmail,
         messages: messagesResult.value,
       );
     } catch (e) {
       if (e.toString().contains('no_assigned_counselor')) {
+        debugPrint('[GuardianCounselorChat] ✗ No counselor assigned (exception path)');
         return const CounselorChatState(isNoCounselor: true);
       }
+      debugPrint('[GuardianCounselorChat] ✗ Unexpected error: $e');
       return CounselorChatState(error: e.toString());
     }
   }
@@ -67,12 +98,16 @@ class CounselorChatController extends _$CounselorChatController {
     final currentConversation = state.value?.conversation;
     if (currentConversation == null || content.trim().isEmpty) return;
 
+    debugPrint('[GuardianCounselorChat] ── Sending message ──');
+    debugPrint('[GuardianCounselorChat]   - Conversation ID: ${currentConversation.id}');
+    debugPrint('[GuardianCounselorChat]   - Content: "$content"');
+
     // Optimistic update
     final tempMsg = ConversationMessage(
       id: 'temp-${DateTime.now().millisecondsSinceEpoch}',
       conversationId: currentConversation.id,
-      senderEmail: '', // Will be filled by backend
-      senderRole: 'guardian',
+      senderEmail: '',
+      senderRole: AppConstants.guardianRole,
       content: content,
       createdAt: DateTime.now(),
     );
@@ -81,6 +116,7 @@ class CounselorChatController extends _$CounselorChatController {
     state = AsyncData(previousState.copyWith(
       messages: [...previousState.messages, tempMsg],
     ));
+    debugPrint('[GuardianCounselorChat]   - Optimistic update applied');
 
     try {
       final messagingService = ref.read(messagingServiceProvider);
@@ -90,16 +126,29 @@ class CounselorChatController extends _$CounselorChatController {
       );
 
       if (sendResult.isFailure) {
+        debugPrint('[GuardianCounselorChat] ✗ Send failed: ${sendResult.failure.message}');
         state = AsyncData(previousState.copyWith(error: sendResult.failure.message));
         return;
       }
 
+      final sentMessage = sendResult.value;
+      debugPrint('[GuardianCounselorChat] ✓ Message sent successfully');
+      debugPrint('[GuardianCounselorChat]   - Message ID: ${sentMessage.id}');
+      debugPrint('[GuardianCounselorChat]   - Sender: ${sentMessage.senderRole}');
+      debugPrint('[GuardianCounselorChat]   - Timestamp: ${sentMessage.createdAt}');
+
       // Refresh messages to get the real one from backend
+      debugPrint('[GuardianCounselorChat] Step 3: Refreshing messages to replace optimistic update');
       final messagesResult = await messagingService.getMessages(currentConversation.id);
       if (messagesResult.isSuccess) {
+        debugPrint('[GuardianCounselorChat] ✓ Refreshed ${messagesResult.value.length} message(s)');
         state = AsyncData(previousState.copyWith(messages: messagesResult.value));
+      } else {
+        debugPrint('[GuardianCounselorChat] ✗ Refresh failed: ${messagesResult.failure.message}');
       }
+      debugPrint('[GuardianCounselorChat] ── Guardian message send complete ──');
     } catch (e) {
+      debugPrint('[GuardianCounselorChat] ✗ Send exception: $e');
       state = AsyncData(previousState.copyWith(error: 'Failed to send message: $e'));
     }
   }

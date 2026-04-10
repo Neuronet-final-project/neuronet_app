@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
-import 'package:intl/intl.dart';
 import '../../providers/counselor_chat_provider.dart';
 
 class CounselorChatScreen extends ConsumerStatefulWidget {
@@ -41,39 +40,66 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
   }
 
+  /// Derive a display name from an email address.
+  /// "counselor2@example.com" → "Counselor2"
+  static String _emailToDisplayName(String email) {
+    final name = email.split('@').first;
+    return name[0].toUpperCase() + name.substring(1);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final messagesAsync = ref.watch(counselorChatControllerProvider);
+    final chatState = ref.watch(counselorChatControllerProvider);
     final theme = Theme.of(context);
 
-    // Scroll to bottom when messages change
+    // Scroll to bottom when messages are added
     ref.listen(counselorChatControllerProvider, (previous, next) {
-      next.when(
-        data: (messages) {
-          final prevCount = previous?.value?.length ?? 0;
-          if (messages.length > prevCount) {
-            Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
-          }
-        },
-        loading: () {},
-        error: (_, __) {},
-      );
+      next.whenData((data) {
+        final prevCount = previous?.value?.messages.length ?? 0;
+        if (data.messages.length > prevCount) {
+          Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+        }
+      });
     });
+
+    // Extract counselor info from state for the AppBar
+    final counselorEmail = chatState.value?.counselorEmail;
+    final appBarTitle = counselorEmail != null
+        ? _emailToDisplayName(counselorEmail)
+        : 'Counselor Chat';
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Counselor Chat'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              appBarTitle,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            if (counselorEmail != null)
+              Text(
+                counselorEmail,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Colors.white70,
+                  fontSize: 11,
+                ),
+              ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
               ref.read(counselorChatControllerProvider.notifier).refresh();
             },
+            tooltip: 'Refresh messages',
           ),
         ],
       ),
-      body: messagesAsync.when(
-        data: (messages) {
+      body: chatState.when(
+        data: (data) {
+          final messages = data.messages;
           if (messages.isEmpty) {
             return _buildEmptyState(context, theme);
           }
@@ -92,7 +118,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                       messageContent: message.content,
                       timestamp: message.createdAt,
                       isUser: isUser,
-                      senderLabel: isUser ? 'You' : 'Counselor',
+                      senderLabel: isUser ? 'You' : appBarTitle,
                       userColor: theme.colorScheme.primary,
                     );
                   },
