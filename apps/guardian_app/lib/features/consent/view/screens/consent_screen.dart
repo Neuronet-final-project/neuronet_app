@@ -76,8 +76,8 @@ class ConsentScreen extends ConsumerWidget {
           );
         },
         loading: () => CustomScrollView(
-          slivers: const [
-            SliverToBoxAdapter(child: SizedBox(height: 24)),
+          slivers: [
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) => const NeuroSkeletonCard(),
