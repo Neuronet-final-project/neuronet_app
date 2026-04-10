@@ -46,7 +46,7 @@ class ConsentScreen extends ConsumerWidget {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: NeuroColors.adolescentPrimary,
+                            color: NeuroColors.guardianPrimary,
                           ),
                         ),
                       ),
@@ -111,7 +111,7 @@ class ConsentScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isGranted 
-              ? NeuroColors.adolescentPrimary.withValues(alpha: 0.3) 
+              ? NeuroColors.guardianPrimary.withValues(alpha: 0.3) 
               : NeuroColors.onSurfaceVariant.withValues(alpha: 0.1),
         ),
         boxShadow: [
@@ -175,8 +175,8 @@ class ConsentScreen extends ConsumerWidget {
               ),
             ),
           ),
-          activeThumbColor: NeuroColors.adolescentPrimary,
-          activeTrackColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.5),
+          activeThumbColor: NeuroColors.guardianPrimary,
+          activeTrackColor: NeuroColors.guardianPrimary.withValues(alpha: 0.5),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         ),
       ),

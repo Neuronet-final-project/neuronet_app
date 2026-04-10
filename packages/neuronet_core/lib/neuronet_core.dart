@@ -28,6 +28,9 @@ export 'src/network/api_endpoints.dart';
 // Theme
 export 'src/theme/app_theme.dart';
 
+// Design tokens
+export 'src/theme/app_theme.dart' show NeuroSpacing, NeuroRadius, NeuroShadows, NeuroGradients;
+
 // Widgets
 export 'src/widgets/neuro_error_widget.dart';
 export 'src/widgets/neuro_card.dart';

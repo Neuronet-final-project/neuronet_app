@@ -63,10 +63,10 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: NeuroColors.background,
       appBar: AppBar(
         title: const Text('Write Your Thoughts'),
-        backgroundColor: Colors.white,
+        backgroundColor: NeuroColors.background,
         foregroundColor: NeuroColors.onSurface,
         elevation: 0,
         actions: [
@@ -76,18 +76,18 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
               onPressed: _isSaving ? null : _handleSave,
               style: ElevatedButton.styleFrom(
                 backgroundColor: NeuroColors.adolescentPrimary,
-                foregroundColor: Colors.white,
+                foregroundColor: NeuroColors.adolescentOnPrimary,
                 minimumSize: const Size(110, 44),
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(NeuroRadius.lg),
                 ),
               ),
               child: _isSaving
                   ? const SizedBox(
                       height: 16,
                       width: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: NeuroColors.adolescentOnPrimary),
                     )
                   : const Text('Save'),
             ),
@@ -140,12 +140,12 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
+                      color: NeuroColors.moodSad.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(NeuroRadius.md),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.privacy_tip_outlined, size: 20, color: Colors.blue),
+                        const Icon(Icons.privacy_tip_outlined, size: 20, color: NeuroColors.moodSad),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -178,7 +178,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
       ),
       decoration: BoxDecoration(
         color: NeuroColors.background,
-        border: Border(top: BorderSide(color: Colors.grey.shade300)),
+        border: Border(top: BorderSide(color: NeuroColors.outline)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -200,7 +200,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   color: _contentController.text.length > 4500
-                      ? Colors.red
+                      ? NeuroColors.error
                       : NeuroColors.onSurfaceVariant,
                 ),
               ),
@@ -222,10 +222,10 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? NeuroColors.adolescentPrimary : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      color: isSelected ? NeuroColors.adolescentPrimary : NeuroColors.surface,
+                      borderRadius: BorderRadius.circular(NeuroRadius.lg),
                       border: Border.all(
-                        color: isSelected ? NeuroColors.adolescentPrimary : Colors.grey.shade300,
+                        color: isSelected ? NeuroColors.adolescentPrimary : NeuroColors.outline,
                       ),
                     ),
                     child: Row(
@@ -238,7 +238,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                            color: isSelected ? Colors.white : NeuroColors.onSurface,
+                            color: isSelected ? NeuroColors.adolescentOnPrimary : NeuroColors.onSurface,
                           ),
                         ),
                       ],

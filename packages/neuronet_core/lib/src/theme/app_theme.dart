@@ -47,9 +47,160 @@ class NeuroColors {
   static const Color moodHopeful = Color(0xFF4FC3F7);
 }
 
+/// Spacing tokens — multiples of 4 for consistent layout rhythm.
+class NeuroSpacing {
+  const NeuroSpacing._();
+
+  static const double xxs = 4.0;   // Tight grouping (badges, icon padding)
+  static const double xs = 8.0;    // Small gap (between list items)
+  static const double sm = 12.0;   // Medium-small (section gaps)
+  static const double md = 16.0;   // Standard padding (card content)
+  static const double lg = 24.0;   // Large padding (screen edges)
+  static const double xl = 32.0;   // Extra-large (section dividers)
+  static const double xxl = 48.0;  // Double extra-large (hero spacing)
+}
+
+/// Border radius tokens — consistent corner sizes across the app.
+class NeuroRadius {
+  const NeuroRadius._();
+
+  static const double sm = 8.0;    // Chips, badges, severity tags
+  static const double md = 12.0;   // Buttons, inputs, small cards
+  static const double lg = 16.0;   // Standard cards, dialogs
+  static const double xl = 24.0;   // Empty states, alert cards, large cards
+  static const double xxl = 40.0;  // Page headers, curved sections
+}
+
+/// Shadow/elevation tokens — depth system for visual hierarchy.
+class NeuroShadows {
+  const NeuroShadows._();
+
+  static const BoxShadow xs = BoxShadow(
+    color: Color(0x0A000000),
+    blurRadius: 4,
+    offset: Offset(0, 2),
+  );
+  static const BoxShadow sm = BoxShadow(
+    color: Color(0x0D000000),
+    blurRadius: 6,
+    offset: Offset(0, 3),
+  );
+  static const BoxShadow md = BoxShadow(
+    color: Color(0x14000000),
+    blurRadius: 8,
+    offset: Offset(0, 4),
+  );
+  static const BoxShadow lg = BoxShadow(
+    color: Color(0x1E000000),
+    blurRadius: 16,
+    offset: Offset(0, 8),
+  );
+  static const BoxShadow xl = BoxShadow(
+    color: Color(0x28000000),
+    blurRadius: 24,
+    offset: Offset(0, 12),
+  );
+}
+
+/// Gradient definitions — per PRD institutional green/pink palette.
+class NeuroGradients {
+  const NeuroGradients._();
+
+  // Adolescent gradient — fresh, calming green
+  static const LinearGradient adolescent = LinearGradient(
+    colors: [Color(0xFF2E7D32), Color(0xFF4CAF50)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Guardian gradient — warm, supportive pink
+  static const LinearGradient guardian = LinearGradient(
+    colors: [Color(0xFFAD1457), Color(0xFFE91E63)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Subtle surface gradient for cards (glassmorphism base)
+  static const LinearGradient surface = LinearGradient(
+    colors: [Colors.white, Color(0xFFF5F5F5)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  // Auth screen background gradient (light, airy)
+  static const LinearGradient authBackground = LinearGradient(
+    colors: [Color(0xFFF5F5F5), Colors.white],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+}
+
 /// Creates a ThemeData for the specified app role.
 class NeuroTheme {
   const NeuroTheme._();
+
+  /// Typography scale — consistent header/body sizes across both apps.
+  static TextTheme _buildTextTheme(Color onSurface, Color onSurfaceVariant) {
+    return TextTheme(
+      headlineLarge: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: onSurface,
+        letterSpacing: -0.5,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        color: onSurface,
+        letterSpacing: -0.25,
+      ),
+      titleLarge: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: onSurface,
+      ),
+      titleMedium: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: onSurface,
+      ),
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.normal,
+        color: onSurface,
+        height: 1.5,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.normal,
+        color: onSurfaceVariant,
+        height: 1.4,
+      ),
+      bodySmall: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.normal,
+        color: onSurfaceVariant,
+      ),
+      labelLarge: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: onSurface,
+        letterSpacing: 0.1,
+      ),
+      labelMedium: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        color: onSurfaceVariant,
+        letterSpacing: 0.5,
+      ),
+      labelSmall: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+        color: onSurfaceVariant,
+        letterSpacing: 0.5,
+      ),
+    );
+  }
 
   static ThemeData adolescentTheme() => _buildTheme(
         primary: NeuroColors.adolescentPrimary,
@@ -85,9 +236,15 @@ class NeuroTheme {
       onError: NeuroColors.onError,
     );
 
+    final textTheme = _buildTextTheme(
+      NeuroColors.onSurface,
+      NeuroColors.onSurfaceVariant,
+    );
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
+      textTheme: textTheme,
       scaffoldBackgroundColor: NeuroColors.background,
       appBarTheme: AppBarTheme(
         backgroundColor: primary,
@@ -101,23 +258,23 @@ class NeuroTheme {
           foregroundColor: onPrimary,
           minimumSize: const Size(double.infinity, 48),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(NeuroRadius.md),
           ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: NeuroColors.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(NeuroRadius.md),
           borderSide: const BorderSide(color: NeuroColors.outline),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(NeuroRadius.md),
           borderSide: const BorderSide(color: NeuroColors.outline),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(NeuroRadius.md),
           borderSide: BorderSide(color: primary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
@@ -128,7 +285,7 @@ class NeuroTheme {
       cardTheme: CardThemeData(
         elevation: 1,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(NeuroRadius.lg),
         ),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),

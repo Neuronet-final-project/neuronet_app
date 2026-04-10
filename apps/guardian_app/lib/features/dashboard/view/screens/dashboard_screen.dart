@@ -139,7 +139,7 @@ class DashboardScreen extends ConsumerWidget {
                         title: 'Data Unavailable',
                         message: 'Guardian activity data is temporarily unavailable. Quick Actions are active.',
                         icon: Icons.cloud_off,
-                        color: Colors.orange,
+                        color: NeuroColors.moodAnxious,
                       ),
                     ),
                   _buildSummarySection(context, data),
@@ -226,14 +226,10 @@ class DashboardScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  color: NeuroColors.surface,
+                  borderRadius: BorderRadius.circular(NeuroRadius.xl),
                   boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
+                    NeuroShadows.md,
                   ],
                 ),
                 child: Row(
@@ -247,7 +243,7 @@ class DashboardScreen extends ConsumerWidget {
                     _buildQuickStat(
                       label: 'Total Journals',
                       value: data.totalJournalCount.toString(),
-                      color: NeuroColors.adolescentPrimary,
+                      color: NeuroColors.guardianPrimary,
                     ),
                     _buildQuickStat(
                       label: 'Alerts',
