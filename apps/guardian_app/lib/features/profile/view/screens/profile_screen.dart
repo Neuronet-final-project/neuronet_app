@@ -12,7 +12,7 @@ class ProfileScreen extends ConsumerWidget {
     final profileState = ref.watch(guardianProfileControllerProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: NeuroColors.background,
       appBar: AppBar(
         title: const Text(
           'My Profile',
@@ -105,8 +105,8 @@ class ProfileScreen extends ConsumerWidget {
           ElevatedButton(
             onPressed: () => ref.read(authControllerProvider.notifier).logout(),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFEE2E2), // Red 50
-              foregroundColor: const Color(0xFFEF4444), // Red 500
+              backgroundColor: NeuroColors.alertHigh.withValues(alpha: 0.1),
+              foregroundColor: NeuroColors.alertHigh,
               elevation: 0,
               minimumSize: const Size(double.infinity, 56),
               shape: RoundedRectangleBorder(

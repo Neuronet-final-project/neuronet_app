@@ -15,7 +15,7 @@ class ProfileScreen extends ConsumerWidget {
     final profileState = ref.watch(adolescentProfileControllerProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: NeuroColors.background,
       appBar: AppBar(
         title: const Text(
           'My Profile',

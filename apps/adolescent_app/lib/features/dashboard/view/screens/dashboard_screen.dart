@@ -145,9 +145,9 @@ class DashboardScreen extends ConsumerWidget {
           ),
           _StatCard(
             label: 'Active Streak',
-            value: '3', // Mock for now until backend adds it
+            value: '—', // Placeholder until backend supports streak tracking
             icon: Icons.local_fire_department,
-            color: NeuroColors.alertHigh,
+            color: NeuroColors.onSurfaceVariant,
           ),
         ],
       ),
