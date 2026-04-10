@@ -57,17 +57,11 @@ class JournalDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 32),
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(NeuroRadius.xl),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    color: NeuroColors.surface,
+                    borderRadius: BorderRadius.circular(NeuroRadius.xl),
+                    boxShadow: [NeuroShadows.md],
                   ),
                   child: Text(
                     entry.content,

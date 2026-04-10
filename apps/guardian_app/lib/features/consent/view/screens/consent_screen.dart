@@ -128,22 +128,16 @@ class ConsentScreen extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: NeuroColors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(NeuroRadius.lg),
         border: Border.all(
-          color: isGranted 
-              ? NeuroColors.guardianPrimary.withValues(alpha: 0.3) 
+          color: isGranted
+              ? NeuroColors.guardianPrimary.withValues(alpha: 0.3)
               : NeuroColors.onSurfaceVariant.withValues(alpha: 0.1),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [NeuroShadows.md],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(NeuroRadius.lg),
         child: SwitchListTile(
           value: isGranted,
           onChanged: (value) async {

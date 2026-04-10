@@ -127,19 +127,13 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(24),
+                    color: NeuroColors.surface,
+                    borderRadius: BorderRadius.circular(NeuroRadius.xl),
                     border: Border.all(
-                      color: theme.colorScheme.outline.withOpacity(0.1),
+                      color: NeuroColors.outline.withValues(alpha: 0.1),
                       width: 1,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.05),
-                        offset: const Offset(0, 4),
-                        blurRadius: 12,
-                      ),
-                    ],
+                    boxShadow: [NeuroShadows.sm],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
