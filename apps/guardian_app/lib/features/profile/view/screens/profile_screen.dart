@@ -223,16 +223,10 @@ class _SettingSection extends StatelessWidget {
         ),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-            border: Border.all(color: Colors.grey[100]!),
+            color: NeuroColors.surface,
+            borderRadius: BorderRadius.circular(NeuroRadius.xl),
+            boxShadow: [NeuroShadows.sm],
+            border: Border.all(color: NeuroColors.outline.withValues(alpha: 0.3)),
           ),
           child: Column(children: children),
         ),
@@ -276,16 +270,16 @@ class _SettingTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      label, 
+                      label,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Colors.grey[500],
+                        color: NeuroColors.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      value, 
+                      value,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: NeuroColors.onSurface,
@@ -298,7 +292,7 @@ class _SettingTile extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          Divider(height: 1, thickness: 1, color: Colors.grey[100], indent: 76, endIndent: 20),
+          Divider(height: 1, thickness: 1, color: NeuroColors.outline.withValues(alpha: 0.3), indent: 76, endIndent: 20),
       ],
     );
   }
@@ -342,7 +336,7 @@ class _CustomSwitchTile extends StatelessWidget {
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Colors.grey[500],
+                        color: NeuroColors.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -352,14 +346,14 @@ class _CustomSwitchTile extends StatelessWidget {
               Switch(
                 value: value,
                 onChanged: onChanged,
-                activeThumbColor: Colors.white,
+                activeThumbColor: NeuroColors.surface,
                 activeTrackColor: Theme.of(context).primaryColor,
               ),
             ],
           ),
         ),
         if (showDivider)
-          Divider(height: 1, thickness: 1, color: Colors.grey[100], indent: 20, endIndent: 20),
+          Divider(height: 1, thickness: 1, color: NeuroColors.outline.withValues(alpha: 0.3), indent: 20, endIndent: 20),
       ],
     );
   }

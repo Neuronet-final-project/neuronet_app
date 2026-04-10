@@ -528,15 +528,9 @@ class _StatCardState extends State<_StatCard> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              color: NeuroColors.surface,
+              borderRadius: BorderRadius.circular(NeuroRadius.lg),
+              boxShadow: [NeuroShadows.md],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

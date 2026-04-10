@@ -103,16 +103,10 @@ class ProfileScreen extends ConsumerWidget {
           // Info Card
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-              border: Border.all(color: Colors.grey[100]!),
+              color: NeuroColors.surface,
+              borderRadius: BorderRadius.circular(NeuroRadius.xl),
+              boxShadow: [NeuroShadows.sm],
+              border: Border.all(color: NeuroColors.outline.withValues(alpha: 0.3)),
             ),
             child: Column(
               children: [
@@ -211,7 +205,7 @@ class ProfileScreen extends ConsumerWidget {
           Text(
             'NeuroNet v${AppConstants.appVersion}',
             style: theme.textTheme.labelSmall?.copyWith(
-              color: Colors.grey[400],
+              color: NeuroColors.onSurfaceVariant.withValues(alpha: 0.6),
               letterSpacing: 1,
             ),
           ),
@@ -248,7 +242,7 @@ class ProfileScreen extends ConsumerWidget {
                     Text(
                       label, 
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Colors.grey[500],
+                        color: NeuroColors.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
@@ -268,7 +262,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ),
         if (showDivider)
-          Divider(height: 1, thickness: 1, color: Colors.grey[100], indent: 76, endIndent: 20),
+          Divider(height: 1, thickness: 1, color: NeuroColors.outline.withValues(alpha: 0.3), indent: 76, endIndent: 20),
       ],
     );
   }
