@@ -74,7 +74,11 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemCount: 4,
+          itemBuilder: (context, index) => const NeuroSkeletonCard(),
+        ),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );

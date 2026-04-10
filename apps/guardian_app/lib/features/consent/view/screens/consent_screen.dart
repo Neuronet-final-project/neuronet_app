@@ -75,7 +75,17 @@ class ConsentScreen extends ConsumerWidget {
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => CustomScrollView(
+          slivers: const [
+            SliverToBoxAdapter(child: SizedBox(height: 24)),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => const NeuroSkeletonCard(),
+                childCount: 3,
+              ),
+            ),
+          ],
+        ),
         error: (err, stack) => Center(child: Text('Error loading consents: $err')),
       ),
     );

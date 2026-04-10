@@ -58,7 +58,14 @@ class JournalHistoryScreen extends ConsumerWidget {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: 4,
+          itemBuilder: (context, index) => const Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: NeuroSkeletonCard(),
+          ),
+        ),
         error: (error, stack) => Center(
           child: Text('Error loading journals: $error'),
         ),
