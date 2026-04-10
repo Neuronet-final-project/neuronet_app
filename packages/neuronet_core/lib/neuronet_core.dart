@@ -34,10 +34,11 @@ export 'src/theme/app_theme.dart' show NeuroSpacing, NeuroRadius, NeuroShadows, 
 // Widgets
 export 'src/widgets/neuro_error_widget.dart';
 export 'src/widgets/neuro_card.dart';
-
 export 'src/widgets/neuro_mood_icon.dart';
 export 'src/widgets/neuro_journal_card.dart';
 export 'src/widgets/neuro_alert_card.dart';
 export 'src/widgets/neuro_summary_card.dart';
 export 'src/widgets/neuro_trend_chart.dart';
 export 'src/widgets/neuro_empty_state.dart';
+export 'src/widgets/neuro_chat_bubble.dart';
+export 'src/widgets/neuro_chat_input.dart';

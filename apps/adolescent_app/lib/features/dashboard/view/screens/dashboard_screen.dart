@@ -243,13 +243,8 @@ class DashboardScreen extends ConsumerWidget {
             ],
           ),
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: data.recentJournals.length,
-          itemBuilder: (context, index) {
-            final entry = data.recentJournals[index];
+        Column(
+          children: data.recentJournals.map((entry) {
             return Card(
               margin: const EdgeInsets.only(bottom: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -267,7 +262,7 @@ class DashboardScreen extends ConsumerWidget {
                 onTap: () {},
               ),
             );
-          },
+          }).toList(),
         ),
       ],
     );

@@ -88,7 +88,13 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                   itemBuilder: (context, index) {
                     final message = messages[index];
                     final isUser = message.senderRole == 'adolescent';
-                    return _buildMessageBubble(context, theme, message, isUser);
+                    return NeuroChatBubble(
+                      messageContent: message.content,
+                      timestamp: message.createdAt,
+                      isUser: isUser,
+                      senderLabel: isUser ? 'You' : 'Counselor',
+                      userColor: theme.colorScheme.primary,
+                    );
                   },
                 ),
               ),
@@ -209,123 +215,11 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     );
   }
 
-  Widget _buildMessageBubble(
-    BuildContext context,
-    ThemeData theme,
-    ConversationMessage message,
-    bool isUser,
-  ) {
-    return Semantics(
-      label: '${isUser ? 'You' : 'Counselor'} said: ${message.content}. Sent at ${DateFormat('h:mm a').format(message.createdAt)}',
-      child: Align(
-        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
-        decoration: BoxDecoration(
-          color: isUser
-              ? theme.colorScheme.primary
-              : theme.colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(isUser ? 16 : 4),
-            bottomRight: Radius.circular(isUser ? 4 : 16),
-          ),
-          boxShadow: [
-            if (!isUser)
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 5,
-                offset: const Offset(0, 2),
-              ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message.content,
-              style: TextStyle(
-                color: isUser
-                    ? theme.colorScheme.onPrimary
-                    : theme.colorScheme.onSurface,
-                fontSize: 15,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              DateFormat('MMM d, h:mm a').format(message.createdAt),
-              style: TextStyle(
-                color: isUser
-                    ? theme.colorScheme.onPrimary.withOpacity(0.7)
-                    : theme.colorScheme.onSurfaceVariant,
-                fontSize: 10,
-              ),
-            ),
-          ],
-        ),
-      ),
-      ),
-    );
-  }
-
   Widget _buildMessageInput(BuildContext context, ThemeData theme) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        8,
-        16,
-        MediaQuery.of(context).padding.bottom + 16,
-      ),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, -2),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _messageController,
-              decoration: InputDecoration(
-                hintText: 'Type your message...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              maxLines: null,
-              textCapitalization: TextCapitalization.sentences,
-              onSubmitted: (_) => _sendMessage(),
-            ),
-          ),
-          const SizedBox(width: 8),
-          CircleAvatar(
-            backgroundColor: theme.colorScheme.primary,
-            radius: 24,
-            child: IconButton(
-              icon: Icon(
-                Icons.send,
-                color: theme.colorScheme.onPrimary,
-              ),
-              onPressed: _sendMessage,
-            ),
-          ),
-        ],
-      ),
+    return NeuroChatInput(
+      controller: _messageController,
+      onSend: _sendMessage,
+      accentColor: theme.colorScheme.primary,
     );
   }
 }

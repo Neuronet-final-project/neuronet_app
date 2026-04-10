@@ -121,7 +121,13 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   itemBuilder: (context, index) {
                     final message = data.messages[index];
                     final isUser = message.senderId == currentUserId;
-                    return _buildMessageBubble(message, isUser);
+                    return NeuroChatBubble(
+                      messageContent: message.messageContent,
+                      timestamp: message.timestamp,
+                      isUser: isUser,
+                      senderLabel: isUser ? 'You' : 'NEURO Assistant',
+                      userColor: NeuroColors.adolescentPrimary,
+                    );
                   },
                 ),
               ),
@@ -158,60 +164,6 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         const SizedBox(height: 32),
         _buildQuickPrompts(),
       ],
-    );
-  }
-
-  Widget _buildMessageBubble(ChatMessage message, bool isUser) {
-    return Semantics(
-      label: '${isUser ? 'You' : 'NEURO Assistant'} said: ${message.messageContent}. Sent at ${DateFormat('h:mm a').format(message.timestamp)}',
-      child: Align(
-        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
-        decoration: BoxDecoration(
-          color: isUser ? NeuroColors.adolescentPrimary : Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(isUser ? 16 : 4),
-            bottomRight: Radius.circular(isUser ? 4 : 16),
-          ),
-          boxShadow: [
-            if (!isUser)
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 5,
-                offset: const Offset(0, 2),
-              ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message.messageContent,
-              style: TextStyle(
-                color: isUser ? Colors.white : NeuroColors.onSurface,
-                fontSize: 15,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              DateFormat('h:mm a').format(message.timestamp),
-              style: TextStyle(
-                color: isUser ? Colors.white70 : NeuroColors.onSurfaceVariant,
-                fontSize: 10,
-              ),
-            ),
-          ],
-        ),
-      ),
-      ),
     );
   }
 
@@ -267,59 +219,17 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   }
 
   Widget _buildMessageInput(AiChatState state) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        8,
-        16,
-        MediaQuery.of(context).padding.bottom + 16,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            offset: const Offset(0, -2),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _messageController,
-              decoration: InputDecoration(
-                hintText: 'Type your message...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: NeuroColors.background,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              maxLines: null,
-              textCapitalization: TextCapitalization.sentences,
-            ),
-          ),
-          const SizedBox(width: 8),
-          CircleAvatar(
-            backgroundColor: NeuroColors.adolescentPrimary,
-            radius: 24,
-            child: IconButton(
-              icon: const Icon(Icons.send, color: Colors.white),
-              onPressed: () {
-                final text = _messageController.text;
-                if (text.isNotEmpty) {
-                  ref.read(aiChatProvider.notifier).sendMessage(text);
-                  _messageController.clear();
-                }
-              },
-            ),
-          ),
-        ],
-      ),
+    return NeuroChatInput(
+      controller: _messageController,
+      onSend: () {
+        final text = _messageController.text;
+        if (text.isNotEmpty) {
+          ref.read(aiChatProvider.notifier).sendMessage(text);
+          _messageController.clear();
+        }
+      },
+      accentColor: NeuroColors.adolescentPrimary,
+      isEnabled: !state.isTyping,
     );
   }
 }

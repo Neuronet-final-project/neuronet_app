@@ -81,7 +81,13 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                         itemBuilder: (context, index) {
                           final message = state.messages[index];
                           final isMe = message.senderRole == 'guardian';
-                          return _MessageBubble(message: message, isMe: isMe);
+                          return NeuroChatBubble(
+                            messageContent: message.content,
+                            timestamp: message.createdAt,
+                            isUser: isMe,
+                            senderLabel: isMe ? 'You' : 'Counselor',
+                            userColor: NeuroColors.guardianPrimary,
+                          );
                         },
                       ),
               ),
@@ -164,61 +170,6 @@ class _EmptyChatView extends StatelessWidget {
   }
 }
 
-class _MessageBubble extends StatelessWidget {
-  final ConversationMessage message;
-  final bool isMe;
-
-  const _MessageBubble({required this.message, required this.isMe});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bgColor = isMe ? theme.primaryColor : Colors.white;
-    final textColor = isMe ? Colors.white : Colors.black87;
-    final alignment = isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-    final borderRadius = BorderRadius.only(
-      topLeft: const Radius.circular(16),
-      topRight: const Radius.circular(16),
-      bottomLeft: Radius.circular(isMe ? 16 : 0),
-      bottomRight: Radius.circular(isMe ? 0 : 16),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Column(
-        crossAxisAlignment: alignment,
-        children: [
-          Container(
-            constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.75),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: borderRadius,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Text(
-              message.content,
-              style: TextStyle(color: textColor, fontSize: 16),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            DateFormat('HH:mm').format(message.createdAt),
-            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ChatInputSection extends StatelessWidget {
   final TextEditingController controller;
   final Function(String) onSend;
@@ -228,53 +179,14 @@ class _ChatInputSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  hintText: 'Type your message...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                ),
-                textCapitalization: TextCapitalization.sentences,
-              ),
-            ),
-            const SizedBox(width: 12),
-            CircleAvatar(
-              backgroundColor: theme.primaryColor,
-              child: IconButton(
-                icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                onPressed: () {
-                  if (controller.text.isNotEmpty) {
-                    onSend(controller.text);
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+    return NeuroChatInput(
+      controller: controller,
+      onSend: () {
+        if (controller.text.isNotEmpty) {
+          onSend(controller.text);
+        }
+      },
+      accentColor: theme.primaryColor,
     );
   }
 }

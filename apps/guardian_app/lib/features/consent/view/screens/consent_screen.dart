@@ -25,7 +25,17 @@ class ConsentScreen extends ConsumerWidget {
       body: consentsAsync.when(
         data: (consents) {
           if (consents.isEmpty) {
-            return const Center(child: Text('No adolescents linked.'));
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: NeuroEmptyState(
+                  title: 'No Consents to Manage',
+                  message: 'Register an adolescent first to manage consent settings.',
+                  icon: Icons.verified_user_outlined,
+                  color: NeuroColors.guardianPrimary,
+                ),
+              ),
+            );
           }
 
           // Group consents by adolescent email

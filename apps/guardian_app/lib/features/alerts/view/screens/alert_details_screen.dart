@@ -33,10 +33,20 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
       ),
       body: alertsAsync.when(
         data: (alerts) {
-          final alert = alerts.firstWhere(
-            (a) => a.alertId == widget.alertId,
-            orElse: () => throw Exception('Alert not found'),
-          );
+          final alert = alerts.where((a) => a.alertId == widget.alertId).firstOrNull;
+          if (alert == null) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: NeuroEmptyState(
+                  title: 'Alert Not Found',
+                  message: 'This alert may have been resolved or deleted.',
+                  icon: Icons.warning_amber_outlined,
+                  color: NeuroColors.onSurfaceVariant,
+                ),
+              ),
+            );
+          }
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
