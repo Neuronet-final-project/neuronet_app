@@ -48,7 +48,11 @@ class AdolescentAlertsScreen extends ConsumerWidget {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemCount: 4,
+          itemBuilder: (context, index) => const NeuroSkeletonCard(),
+        ),
         error: (err, stack) => NeuroErrorWidget(
           message: 'Could not load insights.',
           onRetry: () => ref.refresh(adolescentAlertsProvider),
