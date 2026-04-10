@@ -19,6 +19,7 @@ class AdolescentAlertsScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.refresh(adolescentAlertsProvider),
+            tooltip: 'Refresh alerts',
           ),
         ],
       ),

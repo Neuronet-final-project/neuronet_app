@@ -20,6 +20,7 @@ class PendingAdolescentsScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(pendingAdolescentsProvider),
+            tooltip: 'Refresh pending',
           ),
         ],
       ),

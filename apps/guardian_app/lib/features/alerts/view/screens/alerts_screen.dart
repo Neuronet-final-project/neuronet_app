@@ -25,6 +25,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: _showFilterDialog,
+            tooltip: 'Filter alerts',
           ),
         ],
       ),

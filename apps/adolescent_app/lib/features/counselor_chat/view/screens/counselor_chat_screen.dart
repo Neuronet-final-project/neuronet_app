@@ -215,9 +215,11 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     ConversationMessage message,
     bool isUser,
   ) {
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
+    return Semantics(
+      label: '${isUser ? 'You' : 'Counselor'} said: ${message.content}. Sent at ${DateFormat('h:mm a').format(message.createdAt)}',
+      child: Align(
+        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         constraints: BoxConstraints(
@@ -267,6 +269,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

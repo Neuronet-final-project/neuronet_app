@@ -18,6 +18,7 @@ class ConsentScreen extends ConsumerWidget {
             icon: const Icon(Icons.refresh),
             onPressed: () =>
                 ref.read(guardianConsentControllerProvider.notifier).refresh(),
+            tooltip: 'Refresh consents',
           ),
         ],
       ),

@@ -19,6 +19,7 @@ class JournalHistoryScreen extends ConsumerWidget {
           IconButton(
             onPressed: () => ref.refresh(journalControllerProvider),
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh journals',
           ),
         ],
       ),

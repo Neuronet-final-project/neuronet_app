@@ -39,6 +39,7 @@ class ChannelDetailScreen extends ConsumerWidget {
             onPressed: () => ref
                 .read(channelsControllerProvider.notifier)
                 .toggleFollow(channelId),
+            tooltip: channel?.isFollowed == true ? 'Following channel' : 'Follow channel',
           ),
         ],
       ),

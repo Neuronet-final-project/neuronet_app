@@ -78,6 +78,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             onPressed: () {
               // Show info about AI counselor
             },
+            tooltip: 'About AI Assistant',
           ),
         ],
       ),
@@ -161,9 +162,11 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
   }
 
   Widget _buildMessageBubble(ChatMessage message, bool isUser) {
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
+    return Semantics(
+      label: '${isUser ? 'You' : 'NEURO Assistant'} said: ${message.messageContent}. Sent at ${DateFormat('h:mm a').format(message.timestamp)}',
+      child: Align(
+        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         constraints: BoxConstraints(
@@ -207,6 +210,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

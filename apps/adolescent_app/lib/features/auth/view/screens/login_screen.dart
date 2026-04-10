@@ -15,12 +15,16 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailFocus = FocusNode();
+  final _passwordFocus = FocusNode();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
@@ -114,7 +118,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // Email Field
                     TextFormField(
                       controller: _emailController,
+                      focusNode: _emailFocus,
                       keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         labelText: 'Email',
                         prefixIcon: const Icon(Icons.email_outlined),
@@ -131,13 +137,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         if (!value.contains('@')) return 'Please enter a valid email';
                         return null;
                       },
+                      onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
                     ),
                     const SizedBox(height: 16),
                     
                     // Password Field
                     TextFormField(
                       controller: _passwordController,
+                      focusNode: _passwordFocus,
                       obscureText: true,
+                      textInputAction: TextInputAction.done,
                       decoration: InputDecoration(
                         labelText: 'Password',
                         prefixIcon: const Icon(Icons.lock_outline),
@@ -154,6 +163,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         if (value.length < 6) return 'Password must be at least 6 characters';
                         return null;
                       },
+                      onFieldSubmitted: (_) => _handleLogin(),
                     ),
                     const SizedBox(height: 24),
                     

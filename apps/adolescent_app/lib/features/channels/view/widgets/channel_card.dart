@@ -90,6 +90,7 @@ class ChannelCard extends StatelessWidget {
                     size: 28,
                   ),
                   onPressed: onFollowToggle,
+                  tooltip: channel.isFollowed ? 'Following' : 'Follow channel',
                 ),
               ],
             ),
