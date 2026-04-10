@@ -84,11 +84,11 @@ class ConsentStatusScreen extends ConsumerWidget {
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: item.status == ConsentStatus.granted
-                          ? Colors.green.withValues(alpha: 0.15)
-                          : Colors.orange.withValues(alpha: 0.15),
+                          ? NeuroColors.alertLow.withValues(alpha: 0.15)
+                          : NeuroColors.alertMedium.withValues(alpha: 0.15),
                       child: Icon(
                         item.icon,
-                        color: item.status == ConsentStatus.granted ? Colors.green : Colors.orange,
+                        color: item.status == ConsentStatus.granted ? NeuroColors.alertLow : NeuroColors.alertMedium,
                       ),
                     ),
                     title: Text(
@@ -112,17 +112,17 @@ class ConsentStatusScreen extends ConsumerWidget {
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: item.status == ConsentStatus.granted
-                              ? Colors.green[700]
-                              : Colors.orange[700],
+                              ? NeuroColors.alertLow
+                              : NeuroColors.alertMedium,
                         ),
                       ),
                       backgroundColor: item.status == ConsentStatus.granted
-                          ? Colors.green.withValues(alpha: 0.1)
-                          : Colors.orange.withValues(alpha: 0.1),
+                          ? NeuroColors.alertLow.withValues(alpha: 0.1)
+                          : NeuroColors.alertMedium.withValues(alpha: 0.1),
                       side: BorderSide(
                         color: item.status == ConsentStatus.granted
-                            ? Colors.green.withValues(alpha: 0.3)
-                            : Colors.orange.withValues(alpha: 0.3),
+                            ? NeuroColors.alertLow.withValues(alpha: 0.3)
+                            : NeuroColors.alertMedium.withValues(alpha: 0.3),
                       ),
                     ),
                   ),

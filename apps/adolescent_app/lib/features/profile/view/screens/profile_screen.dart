@@ -209,7 +209,7 @@ class ProfileScreen extends ConsumerWidget {
           
           const SizedBox(height: 32),
           Text(
-            'NeuroNet v1.0.0',
+            'NeuroNet v${AppConstants.appVersion}',
             style: theme.textTheme.labelSmall?.copyWith(
               color: Colors.grey[400],
               letterSpacing: 1,

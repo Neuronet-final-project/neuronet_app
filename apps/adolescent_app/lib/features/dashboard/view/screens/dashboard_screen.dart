@@ -25,7 +25,7 @@ class DashboardScreen extends ConsumerWidget {
           ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
+            onPressed: () => context.push(AdolescentRoutes.alerts),
             tooltip: 'Notifications',
           ),
         ],
@@ -259,7 +259,7 @@ class DashboardScreen extends ConsumerWidget {
                 title: Text(entry.title ?? 'Journal Entry', style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text('Mood: ${entry.mood?.label ?? 'Unspecified'}'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () {},
+                onTap: () => context.push('${AdolescentRoutes.journal}/${entry.id}'),
               ),
             );
           }).toList(),

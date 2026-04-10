@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -7,15 +8,15 @@ part 'channels_provider.g.dart';
 class ChannelsController extends _$ChannelsController {
   @override
   FutureOr<List<Channel>> build() async {
-    print('DEBUG: [ChannelsController] build() - Fetching all available channels');
+    debugPrint('[ChannelsController] build() - Fetching all available channels');
     final result = await ref.watch(channelServiceProvider).getAllChannels();
     return result.when(
       success: (value) {
-        print('DEBUG: [ChannelsController] Successfully fetched ${value.length} channels');
+        debugPrint('[ChannelsController] Successfully fetched ${value.length} channels');
         return value;
       },
       failure: (f) {
-        print('DEBUG: [ChannelsController] Failed to fetch channels: ${f.message}');
+        debugPrint('[ChannelsController] Failed to fetch channels: ${f.message}');
         throw Exception(f.message);
       },
     );
@@ -24,7 +25,7 @@ class ChannelsController extends _$ChannelsController {
   Future<void> toggleFollow(String channelId) async {
     final currentState = state.value;
     if (currentState == null) {
-      print('DEBUG: [ChannelsController] toggleFollow() called but state is null');
+      debugPrint('[ChannelsController] toggleFollow() called but state is null');
       return;
     }
 
@@ -33,7 +34,7 @@ class ChannelsController extends _$ChannelsController {
       orElse: () => throw Exception('Channel $channelId not found'),
     );
     final newFollowed = !channel.isFollowed;
-    print('DEBUG: [ChannelsController] toggleFollow($channelId) - Current: ${channel.isFollowed}, New: $newFollowed');
+    debugPrint('[ChannelsController] toggleFollow($channelId) - Current: ${channel.isFollowed}, New: $newFollowed');
 
     // Optimistic update
     state = AsyncValue.data(
@@ -47,19 +48,19 @@ class ChannelsController extends _$ChannelsController {
         return c;
       }).toList(),
     );
-    print('DEBUG: [ChannelsController] Optimistic update applied');
+    debugPrint('[ChannelsController] Optimistic update applied');
 
     try {
       final result = await ref.read(channelServiceProvider).subscribeToChannel(channelId);
       if (result.isFailure) {
-        print('DEBUG: [ChannelsController] toggleFollow API failed: ${result.failure.message}');
+        debugPrint('[ChannelsController] toggleFollow API failed: ${result.failure.message}');
         // Rollback optimistic update by refetching
         state = AsyncValue.error(Exception(result.failure.message), StackTrace.current);
       } else {
-        print('DEBUG: [ChannelsController] toggleFollow API succeeded');
+        debugPrint('[ChannelsController] toggleFollow API succeeded');
       }
     } catch (e, st) {
-      print('DEBUG: [ChannelsController] toggleFollow exception: $e');
+      debugPrint('[ChannelsController] toggleFollow exception: $e');
       state = AsyncValue.error(e, st);
     }
   }

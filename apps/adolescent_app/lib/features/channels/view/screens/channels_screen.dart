@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -37,14 +38,14 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
         ),
         body: channelsAsync.when(
           data: (channels) {
-            print('DEBUG: [ChannelsScreen] Rendering ${channels.length} channels');
+            debugPrint('[ChannelsScreen] Rendering ${channels.length} channels');
             
             final followedChannels = channels.where((c) => c.isFollowed).toList();
             final availableChannels = channels.where((c) => !c.isFollowed).toList();
 
             return RefreshIndicator(
               onRefresh: () async {
-                print('DEBUG: [ChannelsScreen] Refreshing channels');
+                debugPrint('[ChannelsScreen] Refreshing channels');
                 return ref.refresh(channelsControllerProvider.future);
               },
               child: TabBarView(
@@ -58,11 +59,11 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
             );
           },
           loading: () {
-            print('DEBUG: [ChannelsScreen] Loading channels...');
+            debugPrint('[ChannelsScreen] Loading channels...');
             return const Center(child: CircularProgressIndicator());
           },
           error: (err, stack) {
-            print('DEBUG: [ChannelsScreen] Error: $err\nStack: $stack');
+            debugPrint('[ChannelsScreen] Error: $err\nStack: $stack');
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -89,7 +90,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     onPressed: () {
-                      print('DEBUG: [ChannelsScreen] Retrying load');
+                      debugPrint('[ChannelsScreen] Retrying load');
                       ref.invalidate(channelsControllerProvider);
                     },
                     icon: const Icon(Icons.refresh),
@@ -180,15 +181,15 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
     WidgetRef ref,
     Channel channel,
   ) {
-    print('DEBUG: [ChannelsScreen] Building card for channel: ${channel.channelName} (followed: ${channel.isFollowed})');
+    debugPrint('[ChannelsScreen] Building card for channel: ${channel.channelName} (followed: ${channel.isFollowed})');
     return ChannelCard(
       channel: channel,
       onTap: () {
-        print('DEBUG: [ChannelsScreen] Navigating to channel: ${channel.channelId}');
+        debugPrint('[ChannelsScreen] Navigating to channel: ${channel.channelId}');
         context.push('/channels/${channel.channelId}');
       },
       onFollowToggle: () {
-        print('DEBUG: [ChannelsScreen] Toggle follow for: ${channel.channelId}');
+        debugPrint('[ChannelsScreen] Toggle follow for: ${channel.channelId}');
         ref.read(channelsControllerProvider.notifier).toggleFollow(channel.channelId);
       },
     );

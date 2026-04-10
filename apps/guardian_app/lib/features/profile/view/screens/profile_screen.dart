@@ -131,7 +131,7 @@ class ProfileScreen extends ConsumerWidget {
           
           const SizedBox(height: 32),
           Text(
-            'NeuroNet Guardian v0.1.0',
+            'NeuroNet Guardian v${AppConstants.appVersion}',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Colors.grey[400],
               letterSpacing: 1,

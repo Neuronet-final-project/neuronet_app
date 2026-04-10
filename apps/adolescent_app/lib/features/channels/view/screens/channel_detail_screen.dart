@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
@@ -10,14 +11,14 @@ class ChannelDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('DEBUG: [ChannelDetailScreen] Building for channelId: $channelId');
+    debugPrint('[ChannelDetailScreen] Building for channelId: $channelId');
     final channelsAsync = ref.watch(channelsControllerProvider);
 
     // Find channel info to show in the header
     final channel = channelsAsync.value?.firstWhere(
       (c) => c.channelId == channelId,
       orElse: () {
-        print('DEBUG: [ChannelDetailScreen] Channel not found in list, using fallback');
+        debugPrint('[ChannelDetailScreen] Channel not found in list, using fallback');
         return Channel(
           channelId: channelId,
           channelName: 'Channel',
@@ -28,7 +29,7 @@ class ChannelDetailScreen extends ConsumerWidget {
       },
     );
 
-    print('DEBUG: [ChannelDetailScreen] Channel loaded: ${channel?.channelName ?? 'unknown'}, followed: ${channel?.isFollowed ?? false}');
+    debugPrint('[ChannelDetailScreen] Channel loaded: ${channel?.channelName ?? 'unknown'}, followed: ${channel?.isFollowed ?? false}');
 
     return Scaffold(
       appBar: AppBar(
