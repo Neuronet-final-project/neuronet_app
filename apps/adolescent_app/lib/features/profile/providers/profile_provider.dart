@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -12,8 +13,7 @@ class AdolescentProfileController extends _$AdolescentProfileController {
     if (result.isSuccess) {
       return result.value;
     }
-    // ignore: avoid_print
-    print('PROFILE ERROR: Failed to fetch profile from server. Falling back to generic user.');
+    debugPrint('[Profile] Failed to fetch profile from server. Falling back to generic user.');
     // return a fallback user so we don't break the entire app shell
     return User(
       id: 'fallback',

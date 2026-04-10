@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../errors/failures.dart';
 import '../models/models.dart';
@@ -35,7 +36,7 @@ class MessagingService {
       'adolescent_id': adolescentId,
     };
 
-    print('DEBUG: [MessagingService] POST $url with payload: $payload');
+    debugPrint('[MessagingService] POST $url with payload: $payload');
 
     try {
       final response = await _apiClient.post(url, data: payload);
@@ -44,7 +45,7 @@ class MessagingService {
       );
       return Result.success(conversation);
     } catch (e) {
-      print('DEBUG: [MessagingService] Failed to create conversation: $e');
+      debugPrint('[MessagingService] Failed to create conversation: $e');
       return Result.failure(failureFromException(e));
     }
   }

@@ -15,6 +15,7 @@ import '../../features/auth/view/screens/login_screen.dart';
 import '../../features/auth/view/screens/sign_up_screen.dart';
 import '../../features/auth/view/screens/activation_screen.dart';
 import '../../features/auth/view/screens/splash_screen.dart';
+import '../../features/adolescents/view/screens/adolescent_list_screen.dart';
 import '../../features/adolescents/view/screens/adolescent_detail_screen.dart';
 import '../../features/adolescents/view/screens/pending_adolescents_screen.dart';
 import '../../features/educational/view/screens/recommendations_screen.dart';
@@ -34,6 +35,7 @@ class GuardianRoutes {
   static const String home = '/';
   static const String registerAdolescent = '/register-adolescent';
   static const String pendingAdolescents = '/pending-adolescents';
+  static const String adolescents = '/adolescents';
   static const String consent = '/consent';
   static const String alerts = '/alerts';
   static const String counselorMsg = '/counselor-messages';
@@ -134,28 +136,16 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: GuardianRoutes.consent,
-                builder: (context, state) => const ConsentScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
                 path: GuardianRoutes.alerts,
                 builder: (context, state) => const AlertsScreen(),
-                // Alert details moved to top-level for full-screen
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: GuardianRoutes.counselorMsg,
-                builder: (context, state) => const CounselorMsgScreen(
-                  adolescentId: '', // Default or placeholder
-                  adolescentName: 'General',
-                ),
+                path: GuardianRoutes.adolescents,
+                builder: (context, state) => const AdolescentListScreen(),
               ),
             ],
           ),
@@ -178,6 +168,10 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: GuardianRoutes.pendingAdolescents,
         builder: (context, state) => const PendingAdolescentsScreen(),
+      ),
+      GoRoute(
+        path: GuardianRoutes.consent,
+        builder: (context, state) => const ConsentScreen(),
       ),
     GoRoute(
         path: GuardianRoutes.alertDetails,
@@ -235,7 +229,7 @@ class GuardianShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: SafeArea(child: navigationShell),
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: (index) {
@@ -251,19 +245,14 @@ class GuardianShell extends StatelessWidget {
             label: 'Dashboard',
           ),
           NavigationDestination(
-            icon: Icon(Icons.verified_user_outlined),
-            selectedIcon: Icon(Icons.verified_user),
-            label: 'Consent',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.notifications_outlined),
             selectedIcon: Icon(Icons.notifications),
             label: 'Alerts',
           ),
           NavigationDestination(
-            icon: Icon(Icons.message_outlined),
-            selectedIcon: Icon(Icons.message),
-            label: 'Messages',
+            icon: Icon(Icons.people_outline),
+            selectedIcon: Icon(Icons.people),
+            label: 'Adolescents',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

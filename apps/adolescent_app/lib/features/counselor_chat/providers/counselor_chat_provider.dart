@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../profile/providers/profile_provider.dart';
@@ -13,9 +14,9 @@ class CounselorChatController extends _$CounselorChatController {
     final profile = await ref.watch(adolescentProfileControllerProvider.future);
     
     final adolescentId = profile.getEffectiveId();
-    print('DEBUG: [CounselorChat] Profile _id: ${profile.id}');
-    print('DEBUG: [CounselorChat] Profile adolescent_id: ${profile.adolescentId}');
-    print('DEBUG: [CounselorChat] Using effective ID: $adolescentId');
+    debugPrint('[CounselorChat] Profile _id: ${profile.id}');
+    debugPrint('[CounselorChat] Profile adolescent_id: ${profile.adolescentId}');
+    debugPrint('[CounselorChat] Using effective ID: $adolescentId');
 
     final conversationResult = await ref
         .read(messagingServiceProvider)
@@ -25,18 +26,18 @@ class CounselorChatController extends _$CounselorChatController {
         );
 
     if (conversationResult.isFailure) {
-      print('DEBUG: [CounselorChat] Failed to create conversation: ${conversationResult.failure.message}');
+      debugPrint('[CounselorChat] Failed to create conversation: ${conversationResult.failure.message}');
       throw Exception(conversationResult.failure.message);
     }
 
-    print('DEBUG: [CounselorChat] Created conversation: ${conversationResult.value.id}');
+    debugPrint('[CounselorChat] Created conversation: ${conversationResult.value.id}');
     _conversationId = conversationResult.value.id;
 
     final messagesResult = await ref.read(messagingServiceProvider).getMessages(_conversationId!);
     return messagesResult.when(
       success: (value) => value,
       failure: (f) {
-        print('DEBUG: [CounselorChat] Failed to fetch messages: ${f.message}');
+        debugPrint('[CounselorChat] Failed to fetch messages: ${f.message}');
         throw Exception(f.message);
       },
     );

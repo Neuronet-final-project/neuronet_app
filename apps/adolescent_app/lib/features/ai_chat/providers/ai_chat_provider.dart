@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -101,9 +102,9 @@ class AiChat extends _$AiChat {
       final result = await aiChatService.createSession();
       if (result.isSuccess) {
         currentSession = result.value;
-        print('[AiChat] Created session: ${currentSession.id}');
+        debugPrint('[AiChat] Created session: ${currentSession.id}');
       } else {
-        print('[AiChat] Failed to create session: ${result.failure.message}');
+        debugPrint('[AiChat] Failed to create session: ${result.failure.message}');
         return;
       }
     }
@@ -120,7 +121,7 @@ class AiChat extends _$AiChat {
       messageType: MessageType.aiChat,
     );
 
-    print('[AiChat] Sending message: "$content" to session ${sessionEffectiveId(currentSession)}');
+    debugPrint('[AiChat] Sending message: "$content" to session ${sessionEffectiveId(currentSession)}');
 
     // Add user message to state immediately
     state = AsyncData(
@@ -141,7 +142,7 @@ class AiChat extends _$AiChat {
 
     if (result.isSuccess) {
       final aiMessages = result.value;
-      print('[AiChat] ${aiMessages.length} message(s) from backend');
+      debugPrint('[AiChat] ${aiMessages.length} message(s) from backend');
 
       // Find the AI response (the last message with role=ai/senderId=ai-assistant)
       // We already added the user message locally, so only append the AI part
@@ -179,7 +180,7 @@ class AiChat extends _$AiChat {
       );
     } else {
       // Backend failed — show error but keep the user message
-      print('[AiChat] Backend failed: ${result.failure.message}');
+      debugPrint('[AiChat] Backend failed: ${result.failure.message}');
       state = AsyncData(
         state.value!.copyWith(
           isTyping: false,

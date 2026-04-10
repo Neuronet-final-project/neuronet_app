@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -81,24 +82,24 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       final isInitial = currentAuth.status == AuthStatus.initial;
       final isLoading = currentAuth.status == AuthStatus.loading;
 
-      print('DEBUG: [Router] redirect(current: $currentLocation, auth: ${currentAuth.status})');
+      debugPrint('[Router] redirect(current: $currentLocation, auth: ${currentAuth.status})');
 
       // 1. True initial state (app just launched) — show splash
       if (isInitial) {
-        print('DEBUG: [Router] isInitial, redirecting to splash');
+        debugPrint('[Router] isInitial, redirecting to splash');
         return isSplash ? null : AdolescentRoutes.splash;
       }
 
       // 2. Loading (login in progress, activation, etc.) — stay on current page
       if (isLoading) {
-        print('DEBUG: [Router] isLoading, staying');
+        debugPrint('[Router] isLoading, staying');
         return null;
       }
 
       // 3. Authenticated — redirect away from auth/splash pages
       if (isAuthenticated) {
         if (isLoggingIn || isActivating || isSplash) {
-          print('DEBUG: [Router] isAuthenticated and on auth page, redirecting to home');
+          debugPrint('[Router] isAuthenticated and on auth page, redirecting to home');
           return AdolescentRoutes.home;
         }
         return null;
@@ -107,12 +108,12 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       // 4. Unauthenticated or Error — send to login only if strictly unauthenticated.
       // If there's an error (like network), stay on current page so the UI can show a retry button.
       if (currentAuth.status == AuthStatus.error) {
-        print('DEBUG: [Router] AuthStatus.error, staying on current page');
+        debugPrint('[Router] AuthStatus.error, staying on current page');
         return null;
       }
 
       if (isLoggingIn || isActivating) return null;
-      print('DEBUG: [Router] isUnauthenticated, redirecting to login');
+      debugPrint('[Router] isUnauthenticated, redirecting to login');
       return AdolescentRoutes.login;
     },
     routes: [
@@ -214,8 +215,8 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '${AdolescentRoutes.alerts}/:id',
         builder: (context, state) {
-          final alert = state.extra as Alert;
-          return AdolescentAlertDetailScreen(alert: alert);
+          final alertId = state.pathParameters['id']!;
+          return AdolescentAlertDetailScreen(alertId: alertId);
         },
       ),
       GoRoute(
@@ -246,7 +247,7 @@ class AdolescentShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: navigationShell,
+      body: SafeArea(child: navigationShell),
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: navigationShell.goBranch,

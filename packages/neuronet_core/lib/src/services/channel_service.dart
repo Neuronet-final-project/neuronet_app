@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../errors/failures.dart';
 import '../models/models.dart';
@@ -30,16 +31,16 @@ class ChannelService {
     try {
       final response = await _client.get(ApiEndpoints.channels);
       final list = response.data as List<dynamic>;
-      print('DEBUG: [ChannelService] getAllChannels() - Raw response: ${list.length} items');
+      debugPrint('[ChannelService] getAllChannels() - Raw response: ${list.length} items');
       if (list.isNotEmpty) {
-        print('DEBUG: [ChannelService] First channel JSON: ${list[0]}');
+        debugPrint('[ChannelService] First channel JSON: ${list[0]}');
       }
       final channels = list
           .map((json) {
             try {
               return Channel.fromJson(json as Map<String, dynamic>);
             } catch (e, st) {
-              print('DEBUG: [ChannelService] Failed to parse channel: $e\nJSON: $json\nStack: $st');
+              debugPrint('[ChannelService] Failed to parse channel: $e\nJSON: $json\nStack: $st');
               rethrow;
             }
           })

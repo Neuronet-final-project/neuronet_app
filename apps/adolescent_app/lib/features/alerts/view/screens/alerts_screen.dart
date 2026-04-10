@@ -86,7 +86,7 @@ class _InsightCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: () => context.push('/alerts/${alert.alertId}', extra: alert),
+        onTap: () => context.push('/alerts/${alert.alertId}'),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(

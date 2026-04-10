@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../errors/failures.dart';
 import '../models/models.dart';
@@ -65,7 +66,7 @@ class AuthService {
       );
 
       // DEBUG: Log raw /auth/me response
-      print('DEBUG: [AuthService] Raw /auth/me response: $raw');
+      debugPrint('[AuthService] Raw /auth/me response: $raw');
 
       // Some backend versions return 'id' instead of '_id'.
       // Normalise so User.fromJson always finds '_id'.
@@ -75,7 +76,7 @@ class AuthService {
       }
 
       final user = User.fromJson(raw);
-      print('DEBUG: [AuthService] Parsed User: id="${user.id}", adolescentId="${user.adolescentId}", email="${user.email}"');
+      debugPrint('[AuthService] Parsed User: id="${user.id}", adolescentId="${user.adolescentId}", email="${user.email}"');
       return Result.success(user);
     } catch (e) {
       return Result.failure(failureFromException(e));

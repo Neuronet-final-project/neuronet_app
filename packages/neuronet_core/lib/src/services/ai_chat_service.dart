@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../errors/failures.dart';
 import '../models/ai_chat_session.dart';
 import '../models/chat_message.dart';
@@ -37,15 +38,15 @@ class AiChatService {
   Future<Result<List<AiChatSession>>> getMySessions() async {
     try {
       final response = await _apiClient.get(ApiEndpoints.myAiSessions);
-      print('[AiChatService] GET /ai-chat/sessions/me — status: ${response.statusCode}');
-      print('[AiChatService] Response body: ${response.data}');
+      debugPrint('[AiChatService] GET /ai-chat/sessions/me — status: ${response.statusCode}');
+      debugPrint('[AiChatService] Response body: ${response.data}');
       final data = response.data as List;
       final sessions = data
           .map((e) => AiChatSession.fromJson(e as Map<String, dynamic>))
           .toList();
       return Result.success(sessions);
     } catch (e) {
-      print('[AiChatService] getMySessions error: $e');
+      debugPrint('[AiChatService] getMySessions error: $e');
       return Result.failure(failureFromException(e));
     }
   }
@@ -56,13 +57,13 @@ class AiChatService {
     required String content,
   }) async {
     try {
-      print('[AiChatService] POST ${ApiEndpoints.aiChatMessages(sessionId)} with content: "$content"');
+      debugPrint('[AiChatService] POST ${ApiEndpoints.aiChatMessages(sessionId)} with content: "$content"');
       final response = await _apiClient.post(
         ApiEndpoints.aiChatMessages(sessionId),
         data: {'content': content},
       );
-      print('[AiChatService] Response status: ${response.statusCode}');
-      print('[AiChatService] Response body: ${response.data}');
+      debugPrint('[AiChatService] Response status: ${response.statusCode}');
+      debugPrint('[AiChatService] Response body: ${response.data}');
 
       final data = response.data as Map<String, dynamic>;
       final messagesRaw = data['messages'] as List?;
@@ -80,7 +81,7 @@ class AiChatService {
 
       return Result.success(messages);
     } catch (e) {
-      print('[AiChatService] Error: $e');
+      debugPrint('[AiChatService] Error: $e');
       return Result.failure(failureFromException(e));
     }
   }
@@ -107,7 +108,7 @@ class AiChatService {
         messageType: MessageType.aiChat,
       );
     } catch (e) {
-      print('[AiChatService] Failed to parse message: $e — $json');
+      debugPrint('[AiChatService] Failed to parse message: $e — $json');
       return null;
     }
   }
@@ -117,12 +118,12 @@ class AiChatService {
     String sessionId,
   ) async {
     try {
-      print('[AiChatService] GET ${ApiEndpoints.aiChatMessages(sessionId)}');
+      debugPrint('[AiChatService] GET ${ApiEndpoints.aiChatMessages(sessionId)}');
       final response = await _apiClient.get(
         ApiEndpoints.aiChatMessages(sessionId),
       );
-      print('[AiChatService] GET messages status: ${response.statusCode}');
-      print('[AiChatService] GET messages body: ${response.data}');
+      debugPrint('[AiChatService] GET messages status: ${response.statusCode}');
+      debugPrint('[AiChatService] GET messages body: ${response.data}');
 
       final data = response.data;
 
@@ -133,7 +134,7 @@ class AiChatService {
             .where((m) => m != null)
             .cast<ChatMessage>()
             .toList();
-        print('[AiChatService] Parsed ${messages.length} messages');
+        debugPrint('[AiChatService] Parsed ${messages.length} messages');
         return Result.success(messages);
       }
 
@@ -153,7 +154,7 @@ class AiChatService {
 
       return Result.success([]);
     } catch (e) {
-      print('[AiChatService] getSessionMessages error: $e');
+      debugPrint('[AiChatService] getSessionMessages error: $e');
       return Result.failure(failureFromException(e));
     }
   }

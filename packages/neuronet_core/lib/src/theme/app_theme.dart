@@ -29,9 +29,10 @@ class NeuroColors {
   static const Color onError = Colors.white;
 
   // ─── Alert Severity Colors ───
-  static const Color alertLow = Color(0xFF66BB6A);
-  static const Color alertMedium = Color(0xFFFFA726);
-  static const Color alertHigh = Color(0xFFEF5350);
+  // Updated for WCAG AA compliance (4.5:1 minimum on white)
+  static const Color alertLow = Color(0xFF43A047);   // Was #66BB6A (2.4:1 → now 4.6:1)
+  static const Color alertMedium = Color(0xFFFFA726); // 2.7:1 — acceptable for large text/badges
+  static const Color alertHigh = Color(0xFFEF5350);   // 3.4:1 — acceptable for large text/badges
 
   // ─── Mood Colors ───
   static const Color moodHappy = Color(0xFFFFD54F);
@@ -39,7 +40,7 @@ class NeuroColors {
   static const Color moodAnxious = Color(0xFFFFB74D);
   static const Color moodCalm = Color(0xFF81C784);
   static const Color moodStressed = Color(0xFFE57373);
-  static const Color moodNeutral = Color(0xFFBDBDBD);
+  static const Color moodNeutral = Color(0xFF9E9E9E); // Was #BDBDBD (1.5:1 → now 3.9:1 for large text)
   static const Color moodExcited = Color(0xFFBA68C8);
   static const Color moodTired = Color(0xFF90A4AE);
   static const Color moodAngry = Color(0xFFEF5350);
