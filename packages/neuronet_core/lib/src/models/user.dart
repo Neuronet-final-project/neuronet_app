@@ -110,5 +110,8 @@ abstract class AdolescentResponse with _$AdolescentResponse {
   factory AdolescentResponse.fromJson(Map<String, dynamic> json) =>
       _$AdolescentResponseFromJson(json);
 
+  /// Linked adolescents are always active by definition (they passed activation).
+  AccountStatus get inferredStatus => accountStatus ?? AccountStatus.active;
+
   String get effectiveId => (adolescentId != null && adolescentId!.isNotEmpty) ? adolescentId! : id;
 }

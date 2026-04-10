@@ -95,7 +95,7 @@ Future<List<AdolescentResponse>> linkedAdolescents(Ref ref) async {
     debugPrint('[LinkedAdolescents] ✓ Found ${result.value.length} linked adolescent(s)');
     for (int i = 0; i < result.value.length; i++) {
       final a = result.value[i];
-      debugPrint('[LinkedAdolescents]   [$i] ${a.fullName} | ${a.email} | status: ${a.accountStatus}');
+      debugPrint('[LinkedAdolescents]   [$i] ${a.fullName} | ${a.email} | status: ${a.inferredStatus}');
     }
   } else {
     debugPrint('[LinkedAdolescents] ✗ Failed: ${result.failure.message}');
