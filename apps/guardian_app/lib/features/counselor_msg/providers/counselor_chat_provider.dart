@@ -30,7 +30,7 @@ class CounselorChatController extends _$CounselorChatController {
 
       // Get guardian email from auth to filter out from participants
       final authState = ref.watch(authControllerProvider);
-      final guardianEmail = authState.user?.email?.toLowerCase() ?? '';
+      final guardianEmail = (authState.user?.email ?? '').toLowerCase();
       debugPrint('[GuardianCounselorChat] Guardian email: $guardianEmail');
 
       debugPrint('[GuardianCounselorChat] ── Initializing guardian counselor chat ──');

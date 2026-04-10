@@ -57,12 +57,18 @@ class DashboardService {
     try {
       final response = await _client.get(ApiEndpoints.guardianAdolescents);
       final rawMap = response.data as Map<String, dynamic>;
+      debugPrint('[DashboardService] getLinkedAdolescents raw response: $rawMap');
       final data = rawMap['adolescents'] as List;
       final adolescents = data
-          .map((e) => AdolescentResponse.fromJson(e as Map<String, dynamic>))
+          .map((e) {
+            debugPrint('[DashboardService] Parsing adolescent: $e');
+            return AdolescentResponse.fromJson(e as Map<String, dynamic>);
+          })
           .toList();
+      debugPrint('[DashboardService] ✓ Parsed ${adolescents.length} adolescents');
       return Result.success(adolescents);
     } catch (e) {
+      debugPrint('[DashboardService] ✗ getLinkedAdolescents failed: $e');
       return Result.failure(failureFromException(e));
     }
   }

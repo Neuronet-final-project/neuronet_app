@@ -28,7 +28,7 @@ class EducationalPageDetailScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withOpacity(0.05),
+                color: theme.colorScheme.primary.withValues(alpha: 0.05),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(40),
                   bottomRight: Radius.circular(40),
@@ -39,7 +39,7 @@ class EducationalPageDetailScreen extends StatelessWidget {
                    Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -83,7 +83,7 @@ class EducationalPageDetailScreen extends StatelessWidget {
                 styleSheet: MarkdownStyleSheet(
                   p: theme.textTheme.bodyLarge?.copyWith(
                     height: 1.7,
-                    color: theme.colorScheme.onSurface.withOpacity(0.8),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                   ),
                   h1: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
@@ -102,7 +102,7 @@ class EducationalPageDetailScreen extends StatelessWidget {
                     fontStyle: FontStyle.italic,
                   ),
                   blockquoteDecoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.05),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                     border: Border(
                       left: BorderSide(
@@ -127,7 +127,7 @@ class EducationalPageDetailScreen extends StatelessWidget {
                   label: const Text('I\'ve read this!'),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                    backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),

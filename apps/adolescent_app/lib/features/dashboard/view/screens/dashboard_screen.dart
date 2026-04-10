@@ -409,7 +409,7 @@ class DashboardScreen extends ConsumerWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                      backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
                       child: Icon(Icons.auto_awesome, color: theme.colorScheme.primary, size: 20),
                     ),
                     title: Text(alert.alertType, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -457,7 +457,7 @@ class DashboardScreen extends ConsumerWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Card(
-                color: theme.colorScheme.secondaryContainer.withOpacity(0.2),
+                color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.2),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(16),

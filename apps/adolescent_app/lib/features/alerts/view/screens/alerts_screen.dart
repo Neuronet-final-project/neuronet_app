@@ -73,9 +73,9 @@ class _InsightCard extends StatelessWidget {
     
     // Non-alarming severity colors/labels for teens
     final color = switch (alert.severityLevel.toLowerCase()) {
-      'high' => NeuroColors.alertMedium.withOpacity(0.8), // Avoid red for teens
+      'high' => NeuroColors.alertMedium.withValues(alpha: 0.8), // Avoid red for teens
       'medium' => NeuroColors.alertLow,
-      _ => NeuroColors.alertLow.withOpacity(0.6),
+      _ => NeuroColors.alertLow.withValues(alpha: 0.6),
     };
 
     return Card(
@@ -84,7 +84,7 @@ class _InsightCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24), // Playful rounded corners
         side: BorderSide(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -102,7 +102,7 @@ class _InsightCard extends StatelessWidget {
                    Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

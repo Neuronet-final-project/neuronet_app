@@ -13,13 +13,31 @@ class PendingAdolescentsScreen extends ConsumerWidget {
     final pendingAsync = ref.watch(pendingAdolescentsProvider);
     final theme = Theme.of(context);
 
+    // Log state changes
+    ref.listen(pendingAdolescentsProvider, (previous, next) {
+      next.when(
+        data: (pending) {
+          debugPrint('[PendingScreen] UI received ${pending.length} pending adolescent(s)');
+        },
+        loading: () {
+          debugPrint('[PendingScreen] UI loading state');
+        },
+        error: (err, st) {
+          debugPrint('[PendingScreen] UI error: $err');
+        },
+      );
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pending Activations'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(pendingAdolescentsProvider),
+            onPressed: () {
+              debugPrint('[PendingScreen] Manual refresh triggered');
+              ref.invalidate(pendingAdolescentsProvider);
+            },
             tooltip: 'Refresh pending',
           ),
         ],
@@ -95,7 +113,7 @@ class PendingAdolescentsScreen extends ConsumerWidget {
             Icon(
               Icons.person_add_outlined,
               size: 80,
-              color: theme.colorScheme.primary.withOpacity(0.5),
+              color: theme.colorScheme.primary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(

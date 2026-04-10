@@ -187,7 +187,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
             Icon(
               Icons.chat_bubble_outline_rounded,
               size: 80,
-              color: theme.colorScheme.primary.withOpacity(0.5),
+              color: theme.colorScheme.primary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -230,7 +230,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
           labelStyle: theme.textTheme.labelMedium?.copyWith(
             color: theme.colorScheme.primary,
           ),
-          backgroundColor: theme.colorScheme.primaryContainer.withOpacity(0.3),
+          backgroundColor: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           onPressed: () {
             _messageController.text = prompt;

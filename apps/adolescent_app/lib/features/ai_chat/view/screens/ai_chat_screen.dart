@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
-import 'package:intl/intl.dart';
 import '../../providers/ai_chat_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 

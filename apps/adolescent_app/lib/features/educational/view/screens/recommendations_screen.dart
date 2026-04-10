@@ -65,10 +65,10 @@ class _RecommendationCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: theme.colorScheme.primary.withOpacity(0.1)),
+        side: BorderSide(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),

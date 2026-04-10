@@ -76,7 +76,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.05),
+              color: theme.colorScheme.primary.withValues(alpha: 0.05),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(40),
                 bottomRight: Radius.circular(40),
@@ -88,7 +88,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
+                    color: color.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -155,7 +155,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                         alert.triggerDescription,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           height: 1.6,
-                          color: theme.colorScheme.onSurface.withOpacity(0.8),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                         ),
                       ),
                     ],
@@ -191,7 +191,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurface.withOpacity(0.03),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.03),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(

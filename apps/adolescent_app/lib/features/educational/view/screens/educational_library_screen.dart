@@ -72,7 +72,7 @@ class _PageCard extends StatelessWidget {
       color: theme.colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+        side: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
@@ -86,7 +86,7 @@ class _PageCard extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.1),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
