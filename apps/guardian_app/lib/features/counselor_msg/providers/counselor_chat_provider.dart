@@ -189,4 +189,7 @@ class CounselorChatController extends _$CounselorChatController {
       state = AsyncData(previousState.copyWith(error: 'Failed to send voice message: $e'));
     }
   }
+
+  /// Gets the current conversation ID for use in call initiation.
+  String? get conversationId => state.value?.conversation?.id;
 }

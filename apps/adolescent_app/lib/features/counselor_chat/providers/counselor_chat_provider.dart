@@ -180,4 +180,7 @@ class CounselorChatController extends _$CounselorChatController {
       );
     });
   }
+
+  /// Gets the current conversation ID for use in call initiation.
+  String? get conversationId => _conversationId;
 }

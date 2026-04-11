@@ -22,6 +22,8 @@ export 'src/services/channel_service.dart';
 export 'src/services/ai_chat_service.dart';
 export 'src/services/mock_data_service.dart';
 export 'src/services/voice_recorder_service.dart';
+export 'src/services/call_service.dart';
+export 'src/services/call_controller.dart';
 
 // Network
 export 'src/network/api_endpoints.dart';
@@ -44,6 +46,8 @@ export 'src/widgets/neuro_empty_state.dart';
 export 'src/widgets/neuro_chat_bubble.dart';
 export 'src/widgets/neuro_chat_input.dart';
 export 'src/widgets/neuro_shimmer.dart';
+export 'src/widgets/neuro_incoming_call.dart';
+export 'src/widgets/neuro_active_call.dart';
 
 // Constants
 export 'src/constants/app_constants.dart';

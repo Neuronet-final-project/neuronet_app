@@ -89,6 +89,21 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
       });
     });
 
+    // Listen for incoming calls
+    ref.listen(callControllerProvider, (previous, next) {
+      next.whenData((callState) {
+        final wasNull = previous?.value == null;
+        final hasIncomingCall = callState.currentCall != null &&
+            callState.status == CallStatus.ringing &&
+            !callState.isInCall;
+
+        if (!wasNull && hasIncomingCall) {
+          debugPrint('[CounselorChat] 📞 Incoming call detected!');
+          _showIncomingCallDialog(context, callState);
+        }
+      });
+    });
+
     // Extract counselor info from state for the AppBar
     final counselorEmail = chatState.value?.counselorEmail;
     final appBarTitle = counselorEmail != null
@@ -115,6 +130,16 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.phone),
+            onPressed: _startVoiceCall,
+            tooltip: 'Voice call',
+          ),
+          IconButton(
+            icon: const Icon(Icons.videocam),
+            onPressed: _startVideoCall,
+            tooltip: 'Video call',
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
@@ -278,6 +303,83 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
       onSend: _sendMessage,
       accentColor: theme.colorScheme.primary,
       onSendVoice: _sendVoiceMessage,
+    );
+  }
+
+  // ─── Call Methods ────────────────────────────────────────────────────────
+
+  Future<void> _startVoiceCall() async {
+    final conversationId = ref.read(counselorChatControllerProvider.notifier).conversationId;
+    if (conversationId == null) return;
+
+    final chatState = ref.read(counselorChatControllerProvider).value;
+    final counselorEmail = chatState?.counselorEmail;
+
+    debugPrint('[CounselorChat] Starting voice call...');
+
+    await ref.read(callControllerProvider.notifier).startCall(
+          conversationId: conversationId,
+          callType: CallType.voice,
+          remotePeerEmail: counselorEmail,
+        );
+
+    // Navigate to active call screen
+    if (mounted) {
+      final callState = ref.read(callControllerProvider).value;
+      if (callState?.currentCall != null) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => NeuroActiveCallScreen(
+              call: callState!.currentCall!,
+              remotePeerEmail: callState.remotePeerEmail,
+              accentColor: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _startVideoCall() async {
+    final conversationId = ref.read(counselorChatControllerProvider.notifier).conversationId;
+    if (conversationId == null) return;
+
+    final chatState = ref.read(counselorChatControllerProvider).value;
+    final counselorEmail = chatState?.counselorEmail;
+
+    debugPrint('[CounselorChat] Starting video call...');
+
+    await ref.read(callControllerProvider.notifier).startCall(
+          conversationId: conversationId,
+          callType: CallType.video,
+          remotePeerEmail: counselorEmail,
+        );
+
+    // Navigate to active call screen
+    if (mounted) {
+      final callState = ref.read(callControllerProvider).value;
+      if (callState?.currentCall != null) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => NeuroActiveCallScreen(
+              call: callState!.currentCall!,
+              remotePeerEmail: callState.remotePeerEmail,
+              accentColor: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  void _showIncomingCallDialog(BuildContext context, CallState callState) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => NeuroIncomingCallScreen(
+        incomingCall: callState.currentCall,
+        accentColor: Theme.of(context).colorScheme.primary,
+      ),
     );
   }
 }
