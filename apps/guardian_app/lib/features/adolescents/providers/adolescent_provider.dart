@@ -105,21 +105,34 @@ Future<List<AdolescentResponse>> linkedAdolescents(Ref ref) async {
 
 @riverpod
 Future<List<AdolescentResponse>> pendingAdolescents(Ref ref) async {
-  debugPrint('[PendingAdolescents] ── Fetching pending adolescents ──');
+  debugPrint('[PendingAdolescents] ── Fetching pending/inactive adolescents ──');
   final authService = ref.watch(authServiceProvider);
   debugPrint('[PendingAdolescents] Step 1: Calling authService.getPendingAdolescents()');
   final result = await authService.getPendingAdolescents();
   return result.when(
     success: (value) {
-      debugPrint('[PendingAdolescents] ✓ Found ${value.length} pending adolescent(s)');
+      debugPrint('[PendingAdolescents] ✓ Found ${value.length} adolescent(s) from API');
       for (int i = 0; i < value.length; i++) {
         final a = value[i];
         final dateStr = a.createdAt?.toIso8601String().split('T').first ?? 'unknown';
         final relStr = a.relationship?.name ?? 'none';
-        debugPrint('[PendingAdolescents]   [$i] ${a.fullName} | ${a.email} | created: $dateStr | relationship: $relStr');
+        final statusStr = a.accountStatus?.name ?? 'null';
+        debugPrint('[PendingAdolescents]   [$i] ${a.fullName} | ${a.email} | created: $dateStr | relationship: $relStr | status: $statusStr');
       }
+      
+      // Show adolescents who need activation: pendingActivation OR inactive
+      // Inactive accounts may need re-activation
+      final needsActivation = value
+          .where((a) => 
+            a.accountStatus == AccountStatus.pendingActivation || 
+            a.accountStatus == AccountStatus.inactive
+          )
+          .toList();
+      
+      debugPrint('[PendingAdolescents] Filtered to ${needsActivation.length} pending/inactive adolescent(s)');
       debugPrint('[PendingAdolescents] ── Pending list loaded ──');
-      return value;
+      
+      return needsActivation;
     },
     failure: (f) {
       debugPrint('[PendingAdolescents] ✗ Failed: ${f.message}');

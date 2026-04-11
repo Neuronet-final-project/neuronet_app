@@ -101,12 +101,39 @@ class AuthService {
   Future<Result<List<AdolescentResponse>>> getPendingAdolescents() async {
     try {
       final response = await _apiClient.get(ApiEndpoints.pendingAdolescents);
-      final data = response.data as List;
+      
+      // Log raw response for debugging
+      debugPrint('[AuthService] getPendingAdolescents raw response: ${response.data}');
+      
+      // Handle both wrapped and unwrapped response formats
+      final List<dynamic> data;
+      if (response.data is Map<String, dynamic>) {
+        // Wrapped format: {adolescents: [...]}
+        final wrapped = response.data as Map<String, dynamic>;
+        data = wrapped['adolescents'] as List? ?? [];
+        debugPrint('[AuthService] Extracted ${data.length} adolescents from wrapped response');
+      } else if (response.data is List) {
+        // Direct list format
+        data = response.data as List;
+        debugPrint('[AuthService] Direct list with ${data.length} adolescents');
+      } else {
+        debugPrint('[AuthService] Unexpected response format: ${response.data.runtimeType}');
+        return const Result.failure(
+          UnknownFailure(message: 'Unexpected response format from pending adolescents endpoint'),
+        );
+      }
+      
       final adolescents = data
-          .map((e) => AdolescentResponse.fromJson(e as Map<String, dynamic>))
+          .map((e) {
+            debugPrint('[AuthService] Parsing pending adolescent: $e');
+            return AdolescentResponse.fromJson(e as Map<String, dynamic>);
+          })
           .toList();
+      
+      debugPrint('[AuthService] ✓ Parsed ${adolescents.length} pending adolescent(s)');
       return Result.success(adolescents);
     } catch (e) {
+      debugPrint('[AuthService] ✗ getPendingAdolescents failed: $e');
       return Result.failure(failureFromException(e));
     }
   }

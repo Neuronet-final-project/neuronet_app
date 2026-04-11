@@ -95,13 +95,17 @@ class DashboardScreen extends ConsumerWidget {
                       final pendingAsync = ref.watch(pendingAdolescentsProvider);
                       return pendingAsync.when(
                         data: (pending) {
-                          if (pending.isEmpty) return const SizedBox.shrink();
+                          // Always show the card, even with 0 pending
                           return _QuickActionCard(
                             title: 'Pending Activations',
-                            subtitle: '${pending.length} adolescent(s) awaiting activation',
+                            subtitle: pending.isEmpty
+                                ? 'No adolescents awaiting activation'
+                                : '${pending.length} adolescent(s) awaiting activation',
                             icon: Icons.hourglass_top,
-                            badge: pending.length.toString(),
-                            onTap: () => context.push('/pending-adolescents'),
+                            badge: pending.isEmpty ? '0' : pending.length.toString(),
+                            onTap: pending.isEmpty
+                                ? () => context.push('/register-adolescent')
+                                : () => context.push('/pending-adolescents'),
                           );
                         },
                         loading: () => const SizedBox.shrink(),

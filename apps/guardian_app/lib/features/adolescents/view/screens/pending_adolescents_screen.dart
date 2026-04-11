@@ -155,6 +155,26 @@ class _PendingAdolescentCard extends StatelessWidget {
     final createdDate = adolescent.createdAt != null
         ? DateFormat('MMM d, yyyy • h:mm a').format(adolescent.createdAt!)
         : 'Unknown date';
+    
+    // Determine status badge text and color based on account status
+    final status = adolescent.accountStatus;
+    String badgeText;
+    Color badgeColor;
+    Color badgeTextColor;
+    
+    if (status == AccountStatus.pendingActivation) {
+      badgeText = 'Pending';
+      badgeColor = theme.colorScheme.tertiaryContainer;
+      badgeTextColor = theme.colorScheme.onTertiaryContainer;
+    } else if (status == AccountStatus.inactive) {
+      badgeText = 'Inactive';
+      badgeColor = theme.colorScheme.errorContainer;
+      badgeTextColor = theme.colorScheme.onErrorContainer;
+    } else {
+      badgeText = status?.name.toUpperCase() ?? 'Unknown';
+      badgeColor = theme.colorScheme.surfaceContainerHighest;
+      badgeTextColor = theme.colorScheme.onSurfaceVariant;
+    }
 
     return Card(
       elevation: 0,
@@ -201,13 +221,13 @@ class _PendingAdolescentCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.tertiaryContainer,
+                    color: badgeColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Pending',
+                    badgeText,
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onTertiaryContainer,
+                      color: badgeTextColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -245,16 +265,26 @@ class _PendingAdolescentCard extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      // Copy activation code (not available from this endpoint)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Activation code was shared during registration.'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                      if (status == AccountStatus.pendingActivation) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Activation code was shared during registration.'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      } else if (status == AccountStatus.inactive) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('This account is inactive. Contact support to reactivate.'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
                     },
                     icon: const Icon(Icons.help_outline, size: 18),
-                    label: const Text('Activation Info'),
+                    label: Text(
+                      status == AccountStatus.inactive ? 'Reactivation Info' : 'Activation Info',
+                    ),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
