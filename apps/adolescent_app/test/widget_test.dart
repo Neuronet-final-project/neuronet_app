@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:adolescent_app/features/auth/view/screens/login_screen.dart';
+// ignore: depend_on_referenced_packages
 import 'package:guardian_app/features/auth/view/screens/login_screen.dart'
     as guardian;
 

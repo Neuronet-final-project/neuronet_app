@@ -99,11 +99,14 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // ignore: deprecated_member_use
             ListTile(
               title: const Text('All'),
               leading: Radio<String?>(
                 value: null,
+                // ignore: deprecated_member_use
                 groupValue: _filterSeverity,
+                // ignore: deprecated_member_use
                 onChanged: (value) {
                   setState(() => _filterSeverity = value);
                   Navigator.pop(context);
@@ -118,7 +121,9 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                   title: Text(s),
                   leading: Radio<String?>(
                     value: s,
+                    // ignore: deprecated_member_use
                     groupValue: _filterSeverity,
+                    // ignore: deprecated_member_use
                     onChanged: (value) {
                       setState(() => _filterSeverity = value);
                       Navigator.pop(context);
