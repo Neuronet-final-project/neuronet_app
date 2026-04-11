@@ -36,7 +36,7 @@ class NeuroEmptyState extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 24,
             offset: const Offset(0, 4),
           ),
@@ -49,7 +49,7 @@ class NeuroEmptyState extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(isMini ? 12 : 20),
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.1),
+              color: accentColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

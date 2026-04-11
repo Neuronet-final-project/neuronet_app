@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../errors/failures.dart';
 import '../models/models.dart';
@@ -45,7 +46,9 @@ class DashboardService {
           const UnknownFailure(message: 'Unexpected response format'),
         );
       }
-      final data = DashboardData.fromJson(response.data as Map<String, dynamic>);
+      final data = DashboardData.fromJson(
+        response.data as Map<String, dynamic>,
+      );
       return Result.success(data);
     } catch (e) {
       return Result.failure(failureFromException(e));
@@ -57,15 +60,17 @@ class DashboardService {
     try {
       final response = await _client.get(ApiEndpoints.guardianAdolescents);
       final rawMap = response.data as Map<String, dynamic>;
-      debugPrint('[DashboardService] getLinkedAdolescents raw response: $rawMap');
+      debugPrint(
+        '[DashboardService] getLinkedAdolescents raw response: $rawMap',
+      );
       final data = rawMap['adolescents'] as List;
-      final adolescents = data
-          .map((e) {
-            debugPrint('[DashboardService] Parsing adolescent: $e');
-            return AdolescentResponse.fromJson(e as Map<String, dynamic>);
-          })
-          .toList();
-      debugPrint('[DashboardService] ✓ Parsed ${adolescents.length} adolescents');
+      final adolescents = data.map((e) {
+        debugPrint('[DashboardService] Parsing adolescent: $e');
+        return AdolescentResponse.fromJson(e as Map<String, dynamic>);
+      }).toList();
+      debugPrint(
+        '[DashboardService] ✓ Parsed ${adolescents.length} adolescents',
+      );
       return Result.success(adolescents);
     } catch (e) {
       debugPrint('[DashboardService] ✗ getLinkedAdolescents failed: $e');

@@ -96,7 +96,7 @@ class ConsentService {
     final email = data['adolescent_email'] as String;
     return [
       Consent(
-        consentId: 'fake-ai-${email}',
+        consentId: 'fake-ai-$email',
         adolescentId: email,
         guardianId: data['guardian_email'] ?? '',
         consentType: ConsentType.shareAiSummaries,
@@ -107,7 +107,7 @@ class ConsentService {
         grantedAt: DateTime.now(),
       ),
       Consent(
-        consentId: 'fake-alerts-${email}',
+        consentId: 'fake-alerts-$email',
         adolescentId: email,
         guardianId: data['guardian_email'] ?? '',
         consentType: ConsentType.shareAlerts,
@@ -124,7 +124,7 @@ class ConsentService {
   List<Consent> _provideDefaultConsents(String email) {
     return [
       Consent(
-        consentId: 'empty-ai-${email}',
+        consentId: 'empty-ai-$email',
         adolescentId: email,
         guardianId: '',
         consentType: ConsentType.shareAiSummaries,
@@ -133,7 +133,7 @@ class ConsentService {
         grantedAt: DateTime.now(),
       ),
       Consent(
-        consentId: 'empty-alerts-${email}',
+        consentId: 'empty-alerts-$email',
         adolescentId: email,
         guardianId: '',
         consentType: ConsentType.shareAlerts,

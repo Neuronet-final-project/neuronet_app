@@ -100,7 +100,7 @@ class AiChatService {
           : DateTime.now();
 
       return ChatMessage(
-        messageId: 'msg-${timestamp.millisecondsSinceEpoch}-${role}',
+        messageId: 'msg-${timestamp.millisecondsSinceEpoch}-$role',
         senderId: senderId,
         receiverId: role == 'user' ? 'ai-assistant' : 'user',
         messageContent: content,
