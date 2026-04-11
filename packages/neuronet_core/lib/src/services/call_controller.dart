@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -78,7 +77,6 @@ class CallController extends _$CallController {
   Timer? _durationTimer;
   Timer? _pollTimer;
   Timer? _incomingCallPollTimer;
-  final _signalController = StreamController<SignalRequest>.broadcast();
 
   @override
   Future<CallState> build() async {

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -472,7 +473,7 @@ class _AudioWaveAnimationState extends State<_AudioWaveAnimation>
           children: List.generate(5, (index) {
             final delay = index * 0.15;
             final value = (_controller.value + delay) % 1.0;
-            final height = 8.0 + 24.0 * (value.sin().abs());
+            final height = 8.0 + 24.0 * sin(value).abs();
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 3),
               width: 4,

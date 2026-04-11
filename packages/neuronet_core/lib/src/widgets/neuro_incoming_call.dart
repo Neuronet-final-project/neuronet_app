@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
@@ -207,14 +208,14 @@ class _RingingIndicatorState extends State<_RingingIndicator>
       animation: _controller,
       builder: (context, child) {
         final value = (_controller.value * 2 * 3.14159);
-        final scale = 1.0 + 0.1 * (value.sin().abs());
+        final scale = 1.0 + 0.1 * sin(value).abs();
         return Transform.scale(
           scale: scale,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(3, (index) {
               final delay = index * 0.2;
-              final opacity = ((value + delay).sin().abs());
+              final opacity = sin(value + delay).abs();
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 width: 8,
