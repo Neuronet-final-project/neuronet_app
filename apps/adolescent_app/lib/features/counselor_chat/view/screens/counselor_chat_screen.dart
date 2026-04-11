@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
@@ -38,6 +39,32 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     ref.read(counselorChatControllerProvider.notifier).sendMessage(text);
     _messageController.clear();
     Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+  }
+
+  Future<void> _sendVoiceMessage(File audioFile) async {
+    debugPrint('[CounselorChat] Sending voice message: ${audioFile.path}');
+    
+    // Upload the audio file
+    final messagingService = ref.read(messagingServiceProvider);
+    final uploadResult = await messagingService.uploadMedia(audioFile);
+    
+    if (uploadResult.isFailure) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload voice message: ${uploadResult.failure.message}'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+
+    final attachmentUrl = uploadResult.value;
+    
+    // Send the message with the attachment URL
+    final notifier = ref.read(counselorChatControllerProvider.notifier);
+    await notifier.sendVoiceMessage(attachmentUrl);
   }
 
   /// Derive a display name from an email address.
@@ -114,12 +141,16 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                   itemBuilder: (context, index) {
                     final message = messages[index];
                     final isUser = message.senderRole == 'adolescent';
+                    final isVoice = message.messageType == MessageContentType.audio;
+                    
                     return NeuroChatBubble(
                       messageContent: message.content,
                       timestamp: message.createdAt,
                       isUser: isUser,
                       senderLabel: isUser ? 'You' : appBarTitle,
                       userColor: theme.colorScheme.primary,
+                      isVoiceMessage: isVoice,
+                      voiceUrl: message.attachmentUrl,
                     );
                   },
                 ),
@@ -246,6 +277,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
       controller: _messageController,
       onSend: _sendMessage,
       accentColor: theme.colorScheme.primary,
+      onSendVoice: _sendVoiceMessage,
     );
   }
 }

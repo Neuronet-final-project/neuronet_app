@@ -50,6 +50,12 @@ dependencies:
   logger: ^2.5.0
   flutter_dotenv: ^5.2.1
 
+  # Audio - Voice messages
+  record: ^5.1.2              # Audio recording
+  audioplayers: ^6.1.0        # Audio playback
+  path_provider: ^2.1.4       # Temporary file storage
+  permission_handler: ^11.3.1  # Microphone permission
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

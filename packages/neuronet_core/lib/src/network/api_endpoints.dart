@@ -57,6 +57,15 @@ class ApiEndpoints {
   static String sendConversationMessage(String id) => '/messaging/conversations/$id/messages'; // POST
   static const String uploadMedia = '/messaging/upload';
 
+  // Voice/Video Calls
+  static const String initiateCall = '/messaging/calls/initiate';
+  static const String incomingCalls = '/messaging/calls/incoming';
+  static String callDetails(String callId) => '/messaging/calls/$callId';
+  static String callSignal(String callId) => '/messaging/calls/$callId/signal';
+  static String callAnswer(String callId) => '/messaging/calls/$callId/answer';
+  static String callEnd(String callId) => '/messaging/calls/$callId/end';
+  static String callActive(String callId) => '/messaging/calls/$callId/active';
+
   // AI Analysis
   static const String analyzeText = '/ai/analyze-text';
   static String evaluateRisk(String adolescentId) => '/ai/evaluate-risk/$adolescentId';

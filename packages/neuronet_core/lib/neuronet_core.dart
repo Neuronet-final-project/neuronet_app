@@ -21,6 +21,7 @@ export 'src/services/messaging_service.dart';
 export 'src/services/channel_service.dart';
 export 'src/services/ai_chat_service.dart';
 export 'src/services/mock_data_service.dart';
+export 'src/services/voice_recorder_service.dart';
 
 // Network
 export 'src/network/api_endpoints.dart';
