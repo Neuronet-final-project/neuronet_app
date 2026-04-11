@@ -78,16 +78,22 @@ class VoiceRecorderService {
       }
 
       if (_isWeb) {
-        // Web: record to blob URL (path_provider not available on web)
-        debugPrint('[VoiceRecorder] Starting web recording (blob URL)');
+        // Web: the record package handles web recording via browser MediaRecorder
+        // path_provider is not available on web, but record package still needs a path parameter
+        // On web, this is treated as a blob URL identifier rather than a real file path
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        _currentRecordingPath = 'blob:voice_$timestamp.webm'; // WebM format for web
+
+        debugPrint('[VoiceRecorder] Starting web recording (browser MediaRecorder)');
+
         await _recorder.start(
           RecordConfig(
-            encoder: AudioEncoder.aacLc,
+            encoder: AudioEncoder.opus, // Opus works best for web
             bitRate: 128000,
             sampleRate: 44100,
           ),
+          path: _currentRecordingPath!,
         );
-        _currentRecordingPath = null; // Will be set when stopRecording returns the path
       } else {
         // Mobile: record to temporary file
         final tempDir = await _getTempDir();
@@ -95,7 +101,7 @@ class VoiceRecorderService {
           debugPrint('[VoiceRecorder] Failed to get temporary directory');
           return false;
         }
-        
+
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         _currentRecordingPath = '$tempDir/voice_$timestamp.m4a';
 

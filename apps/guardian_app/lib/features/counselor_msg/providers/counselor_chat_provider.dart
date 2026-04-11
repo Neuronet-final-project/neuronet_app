@@ -152,4 +152,41 @@ class CounselorChatController extends _$CounselorChatController {
       state = AsyncData(previousState.copyWith(error: 'Failed to send message: $e'));
     }
   }
+
+  Future<void> sendVoiceMessage(String attachmentUrl) async {
+    final currentConversation = state.value?.conversation;
+    if (currentConversation == null) return;
+
+    debugPrint('[GuardianCounselorChat] ── Sending voice message ──');
+
+    try {
+      final messagingService = ref.read(messagingServiceProvider);
+      final sendResult = await messagingService.sendMessage(
+        conversationId: currentConversation.id,
+        content: '',
+        messageType: MessageContentType.audio,
+        attachmentUrl: attachmentUrl,
+      );
+
+      if (sendResult.isFailure) {
+        debugPrint('[GuardianCounselorChat] ✗ Send failed: ${sendResult.failure.message}');
+        final previousState = state.value!;
+        state = AsyncData(previousState.copyWith(error: sendResult.failure.message));
+        return;
+      }
+
+      debugPrint('[GuardianCounselorChat] ✓ Voice message sent successfully');
+
+      // Refresh messages to get the real one from backend
+      final messagesResult = await messagingService.getMessages(currentConversation.id);
+      if (messagesResult.isSuccess) {
+        final previousState = state.value!;
+        state = AsyncData(previousState.copyWith(messages: messagesResult.value));
+      }
+    } catch (e) {
+      debugPrint('[GuardianCounselorChat] ✗ Send exception: $e');
+      final previousState = state.value!;
+      state = AsyncData(previousState.copyWith(error: 'Failed to send voice message: $e'));
+    }
+  }
 }

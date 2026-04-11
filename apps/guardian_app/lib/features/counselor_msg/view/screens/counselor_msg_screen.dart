@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
@@ -36,6 +37,29 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
         curve: Curves.easeOut,
       );
     }
+  }
+
+  Future<void> _sendVoiceMessage(File audioFile) async {
+    debugPrint('[GuardianCounselorMsg] Sending voice message: ${audioFile.path}');
+    
+    final messagingService = ref.read(messagingServiceProvider);
+    final uploadResult = await messagingService.uploadMedia(audioFile);
+    
+    if (uploadResult.isFailure) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload voice message: ${uploadResult.failure.message}'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+
+    final attachmentUrl = uploadResult.value;
+    final notifier = ref.read(counselorChatControllerProvider(widget.adolescentId).notifier);
+    await notifier.sendVoiceMessage(attachmentUrl);
   }
 
   /// Derive a display name from an email address.
@@ -93,12 +117,16 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                         itemBuilder: (context, index) {
                           final message = state.messages[index];
                           final isMe = message.senderRole == 'guardian';
+                          final isVoice = message.messageType == MessageContentType.audio;
+                          
                           return NeuroChatBubble(
                             messageContent: message.content,
                             timestamp: message.createdAt,
                             isUser: isMe,
                             senderLabel: isMe ? 'You' : counselorName,
                             userColor: NeuroColors.guardianPrimary,
+                            isVoiceMessage: isVoice,
+                            voiceUrl: message.attachmentUrl,
                           );
                         },
                       ),
@@ -119,6 +147,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                       .sendMessage(content);
                   _messageController.clear();
                 },
+                onSendVoice: _sendVoiceMessage,
               ),
             ],
           );
@@ -185,8 +214,13 @@ class _EmptyChatView extends StatelessWidget {
 class _ChatInputSection extends StatelessWidget {
   final TextEditingController controller;
   final Function(String) onSend;
+  final Future<void> Function(File)? onSendVoice;
 
-  const _ChatInputSection({required this.controller, required this.onSend});
+  const _ChatInputSection({
+    required this.controller, 
+    required this.onSend,
+    this.onSendVoice,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -199,6 +233,7 @@ class _ChatInputSection extends StatelessWidget {
         }
       },
       accentColor: theme.primaryColor,
+      onSendVoice: onSendVoice,
     );
   }
 }
