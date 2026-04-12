@@ -51,14 +51,13 @@ dependencies:
   flutter_dotenv: ^5.2.1
 
   # Audio - Voice messages
-  record: ^5.1.2              # Audio recording
+  record: ^6.2.0              # Audio recording
   audioplayers: ^6.1.0        # Audio playback
   path_provider: ^2.1.4       # Temporary file storage
   permission_handler: ^11.3.1  # Microphone permission
 
   # WebRTC - Voice & Video calls
   flutter_webrtc: ^0.12.6     # WebRTC for real-time audio/video
-  callkeep: ^0.3.3            # Native calling UI on Android
 
 dev_dependencies:
   flutter_test:
