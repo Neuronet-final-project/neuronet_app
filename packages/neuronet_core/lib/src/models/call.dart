@@ -60,15 +60,15 @@ enum CallStatus {
 @freezed
 abstract class Call with _$Call {
   const factory Call({
-    @JsonKey(name: 'call_id') required String id,
-    @JsonKey(name: 'conversation_id') required String conversationId,
-    @JsonKey(name: 'caller_id') required String callerId,
+    @JsonKey(name: 'call_id') @Default('') String id,
+    @JsonKey(name: 'conversation_id') @Default('') String conversationId,
+    @JsonKey(name: 'caller_id') @Default('') String callerId,
     @JsonKey(name: 'caller_email') String? callerEmail,
     @JsonKey(name: 'callee_id') String? calleeId,
     @JsonKey(name: 'callee_email') String? calleeEmail,
-    @JsonKey(name: 'call_type') required CallType callType,
-    required CallStatus status,
-    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'call_type') @Default(CallType.voice) CallType callType,
+    @Default(CallStatus.initiated) CallStatus status,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'answered_at') DateTime? answeredAt,
     @JsonKey(name: 'ended_at') DateTime? endedAt,
   }) = _Call;

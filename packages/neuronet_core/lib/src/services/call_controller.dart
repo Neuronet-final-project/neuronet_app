@@ -74,6 +74,8 @@ class CallState {
 @riverpod
 class CallController extends _$CallController {
   RTCPeerConnection? _peerConnection;
+  MediaStream? _localStream;
+  MediaStream? _remoteStream;
   Timer? _durationTimer;
   Timer? _pollTimer;
   Timer? _incomingCallPollTimer;
@@ -293,6 +295,7 @@ class CallController extends _$CallController {
         if (event.streams.isNotEmpty) {
           debugPrint('[CallController] Remote stream received');
           final remoteStream = event.streams.first;
+          _remoteStream = remoteStream;
           final currentState = state.value;
           if (currentState != null) {
             state = AsyncData(currentState.copyWith(remoteStream: remoteStream));
@@ -327,6 +330,7 @@ class CallController extends _$CallController {
       }
 
       // Add local tracks to peer connection
+      _localStream = localStream;
       localStream.getTracks().forEach((track) {
         _peerConnection!.addTrack(track, localStream);
       });
@@ -444,13 +448,18 @@ class CallController extends _$CallController {
     _pollTimer = null;
 
     // Stop and dispose local stream
-    final currentState = state.value;
-    currentState?.localStream?.getTracks().forEach((track) {
+    _localStream?.getTracks().forEach((track) {
       track.stop();
     });
-    currentState?.remoteStream?.getTracks().forEach((track) {
+    _localStream?.dispose();
+    _localStream = null;
+
+    // Stop and dispose remote stream
+    _remoteStream?.getTracks().forEach((track) {
       track.stop();
     });
+    _remoteStream?.dispose();
+    _remoteStream = null;
 
     // Close peer connection
     await _peerConnection?.close();

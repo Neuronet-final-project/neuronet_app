@@ -53,7 +53,19 @@ class CallService {
   Future<Result<List<Call>>> getIncomingCalls() async {
     try {
       final response = await _apiClient.get(ApiEndpoints.incomingCalls);
-      final data = response.data as List;
+      final dynamic rawData = response.data;
+
+      List<dynamic> data;
+      if (rawData is List) {
+        data = rawData;
+      } else if (rawData is Map<String, dynamic>) {
+        // Handle wrapped responses like {"calls": [...]} or {"data": [...]}
+        data = (rawData['calls'] ?? rawData['data'] ?? []) as List<dynamic>;
+      } else {
+        debugPrint('[CallService] Unexpected response format for incoming calls: ${rawData.runtimeType}');
+        return const Result.success([]);
+      }
+
       final calls = data
           .map((e) => Call.fromJson(e as Map<String, dynamic>))
           .toList();
