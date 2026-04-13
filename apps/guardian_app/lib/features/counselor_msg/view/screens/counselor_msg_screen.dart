@@ -62,6 +62,33 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
     await notifier.sendVoiceMessage(attachmentUrl);
   }
 
+  Future<void> _sendMediaMessage(File mediaFile, MediaAttachmentType type) async {
+    debugPrint('[GuardianCounselorMsg] Sending ${type.name} message: ${mediaFile.path}');
+
+    // Upload the media file
+    final messagingService = ref.read(messagingServiceProvider);
+    final uploadResult = await messagingService.uploadMedia(mediaFile);
+
+    if (uploadResult.isFailure) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload ${type.name}: ${uploadResult.failure.message}'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+
+    final attachmentUrl = uploadResult.value;
+    final messageType = type == MediaAttachmentType.image ? MessageContentType.image : MessageContentType.video;
+
+    // Send the message with the attachment URL
+    final notifier = ref.read(counselorChatControllerProvider(widget.adolescentId).notifier);
+    await notifier.sendMediaMessage(attachmentUrl, messageType);
+  }
+
   /// Derive a display name from an email address.
   static String _emailToDisplayName(String email) {
     final name = email.split('@').first;
@@ -175,6 +202,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                   _messageController.clear();
                 },
                 onSendVoice: _sendVoiceMessage,
+                onSendMedia: _sendMediaMessage,
               ),
             ],
           );
@@ -319,11 +347,13 @@ class _ChatInputSection extends StatelessWidget {
   final TextEditingController controller;
   final Function(String) onSend;
   final Future<void> Function(File)? onSendVoice;
+  final Future<void> Function(File, MediaAttachmentType)? onSendMedia;
 
   const _ChatInputSection({
     required this.controller, 
     required this.onSend,
     this.onSendVoice,
+    this.onSendMedia,
   });
 
   @override
@@ -338,6 +368,7 @@ class _ChatInputSection extends StatelessWidget {
       },
       accentColor: theme.primaryColor,
       onSendVoice: onSendVoice,
+      onSendMedia: onSendMedia,
     );
   }
 }

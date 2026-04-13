@@ -160,6 +160,48 @@ class CounselorChatController extends _$CounselorChatController {
     }
   }
 
+  /// Sends a media message (image or video) by uploading the file first,
+  /// then sending a message with attachment URL.
+  Future<void> sendMediaMessage(String attachmentUrl, MessageContentType messageType) async {
+    if (_conversationId == null || _isSending) return;
+
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    _isSending = true;
+    state = AsyncValue.data(currentState);
+
+    debugPrint('[CounselorChat] ── Sending ${messageType.name} message ──');
+
+    try {
+      final result = await ref.read(messagingServiceProvider).sendMessage(
+            conversationId: _conversationId!,
+            content: '',
+            messageType: messageType,
+            attachmentUrl: attachmentUrl,
+          );
+
+      if (result.isFailure) {
+        debugPrint('[CounselorChat] ✗ Send failed: ${result.failure.message}');
+        state = AsyncValue.error(Exception(result.failure.message), StackTrace.current);
+        return;
+      }
+
+      final sentMessage = result.value;
+      debugPrint('[CounselorChat] ✓ Sent ${messageType.name} message: id=${sentMessage.id}');
+
+      state = AsyncValue.data(currentState.copyWith(
+        messages: [...currentState.messages, sentMessage],
+      ));
+    } catch (e, st) {
+      debugPrint('[CounselorChat] ✗ Exception: $e');
+      state = AsyncValue.error(e, st);
+    } finally {
+      _isSending = false;
+      state = AsyncValue.data(state.value ?? currentState);
+    }
+  }
+
   Future<void> refresh() async {
     if (_conversationId == null) return;
     debugPrint('[CounselorChat] ── Refreshing ──');

@@ -55,6 +55,7 @@ dependencies:
   audioplayers: ^6.1.0        # Audio playback
   path_provider: ^2.1.4       # Temporary file storage
   permission_handler: ^11.3.1  # Microphone permission
+  image_picker: ^1.1.2         # Image/video picker for chat media
 
   # WebRTC - Voice & Video calls
   flutter_webrtc: ^0.12.6     # WebRTC for real-time audio/video

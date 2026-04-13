@@ -62,9 +62,35 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
 
     final attachmentUrl = uploadResult.value;
     
-    // Send the message with the attachment URL
     final notifier = ref.read(counselorChatControllerProvider.notifier);
     await notifier.sendVoiceMessage(attachmentUrl);
+  }
+
+  Future<void> _sendMediaMessage(File mediaFile, MediaAttachmentType type) async {
+    debugPrint('[CounselorChat] Sending ${type.name} message: ${mediaFile.path}');
+
+    // Upload the media file
+    final messagingService = ref.read(messagingServiceProvider);
+    final uploadResult = await messagingService.uploadMedia(mediaFile);
+
+    if (uploadResult.isFailure) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload ${type.name}: ${uploadResult.failure.message}'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+
+    final attachmentUrl = uploadResult.value;
+    final messageType = type == MediaAttachmentType.image ? MessageContentType.image : MessageContentType.video;
+
+    // Send the message with the attachment URL
+    final notifier = ref.read(counselorChatControllerProvider.notifier);
+    await notifier.sendMediaMessage(attachmentUrl, messageType);
   }
 
   /// Derive a display name from an email address.
@@ -303,6 +329,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
       onSend: _sendMessage,
       accentColor: theme.colorScheme.primary,
       onSendVoice: _sendVoiceMessage,
+      onSendMedia: _sendMediaMessage,
     );
   }
 
