@@ -10,26 +10,26 @@ part 'call_controller.g.dart';
 /// ICE servers for WebRTC connectivity.
 /// Uses Google's public STUN server by default.
 const _iceServers = [
+  {'urls': 'stun:stun.relay.metered.ca:80'},
   {
-    'urls': 'stun:stun.l.google.com:19302',
+    'urls': 'turn:global.relay.metered.ca:80',
+    'username': '0fbb88fb5cc9b42eb1553257',
+    'credential': 'RG9sDGNSqV1fbAs9',
   },
   {
-    'urls': 'stun:stun1.l.google.com:19302',
+    'urls': 'turn:global.relay.metered.ca:80?transport=tcp',
+    'username': '0fbb88fb5cc9b42eb1553257',
+    'credential': 'RG9sDGNSqV1fbAs9',
   },
   {
-    'urls': 'turn:openrelay.metered.ca:80',
-    'username': 'openrelayproject',
-    'credential': 'openrelayproject',
+    'urls': 'turn:global.relay.metered.ca:443',
+    'username': '0fbb88fb5cc9b42eb1553257',
+    'credential': 'RG9sDGNSqV1fbAs9',
   },
   {
-    'urls': 'turn:openrelay.metered.ca:443',
-    'username': 'openrelayproject',
-    'credential': 'openrelayproject',
-  },
-  {
-    'urls': 'turn:openrelay.metered.ca:443?transport=tcp',
-    'username': 'openrelayproject',
-    'credential': 'openrelayproject',
+    'urls': 'turns:global.relay.metered.ca:443?transport=tcp',
+    'username': '0fbb88fb5cc9b42eb1553257',
+    'credential': 'RG9sDGNSqV1fbAs9',
   },
 ];
 
@@ -134,7 +134,9 @@ class CallController extends _$CallController {
 
   void _startIncomingCallPolling() {
     _incomingCallPollTimer?.cancel();
-    _incomingCallPollTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
+    _incomingCallPollTimer = Timer.periodic(const Duration(seconds: 2), (
+      _,
+    ) async {
       final state = this.state.value;
       // Only check if not already in a call
       if (state != null && !state.isInCall) {
@@ -190,19 +192,30 @@ class CallController extends _$CallController {
       // the parsed time as UTC before comparing.
       final createdAt = incomingCall.createdAt;
       if (createdAt != null) {
-        final createdAtUtc = createdAt.isUtc ? createdAt : DateTime.utc(
-          createdAt.year, createdAt.month, createdAt.day,
-          createdAt.hour, createdAt.minute, createdAt.second, createdAt.millisecond,
-        );
+        final createdAtUtc = createdAt.isUtc
+            ? createdAt
+            : DateTime.utc(
+                createdAt.year,
+                createdAt.month,
+                createdAt.day,
+                createdAt.hour,
+                createdAt.minute,
+                createdAt.second,
+                createdAt.millisecond,
+              );
         final age = DateTime.now().toUtc().difference(createdAtUtc);
         if (age.inMinutes > 5) {
-          debugPrint('[CallController] Ignoring stale call ${incomingCall.id} '
-              '(ringing for ${age.inMinutes}m, threshold: 5m, created_at=$createdAtUtc UTC, now=${DateTime.now().toUtc()} UTC)');
+          debugPrint(
+            '[CallController] Ignoring stale call ${incomingCall.id} '
+            '(ringing for ${age.inMinutes}m, threshold: 5m, created_at=$createdAtUtc UTC, now=${DateTime.now().toUtc()} UTC)',
+          );
           return;
         }
       }
 
-      debugPrint('[CallController] 📞 Incoming call: ${incomingCall.id} from ${incomingCall.callerEmail}');
+      debugPrint(
+        '[CallController] 📞 Incoming call: ${incomingCall.id} from ${incomingCall.callerEmail}',
+      );
       _lastNotifiedCallId = incomingCall.id;
 
       // Show system notification
@@ -223,7 +236,8 @@ class CallController extends _$CallController {
     if (!_notificationsInitialized) return;
 
     try {
-      final callerDisplay = call.callerEmail?.split('@').first ?? 'Unknown Caller';
+      final callerDisplay =
+          call.callerEmail?.split('@').first ?? 'Unknown Caller';
       final callTypeLabel = call.callType.label;
 
       await _notificationsPlugin.show(
@@ -256,7 +270,9 @@ class CallController extends _$CallController {
     if (_notificationsInitialized) return;
 
     try {
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings = AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      );
       const iosSettings = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
@@ -271,8 +287,11 @@ class CallController extends _$CallController {
       );
 
       // Request permission on Android 13+
-      await _notificationsPlugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+      await _notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.requestNotificationsPermission();
 
       _notificationsInitialized = true;
       debugPrint('[CallController] Notifications initialized');
@@ -301,7 +320,9 @@ class CallController extends _$CallController {
     );
 
     if (initiateResult.isFailure) {
-      debugPrint('[CallController] ✗ Failed to initiate call: ${initiateResult.failure.message}');
+      debugPrint(
+        '[CallController] ✗ Failed to initiate call: ${initiateResult.failure.message}',
+      );
       state = AsyncData(CallState(error: initiateResult.failure.message));
       return;
     }
@@ -309,11 +330,13 @@ class CallController extends _$CallController {
     final call = initiateResult.value;
     debugPrint('[CallController] Call initiated: ${call.id}');
 
-    state = AsyncData(CallState(
-      currentCall: call,
-      status: call.status,
-      remotePeerEmail: remotePeerEmail,
-    ));
+    state = AsyncData(
+      CallState(
+        currentCall: call,
+        status: call.status,
+        remotePeerEmail: remotePeerEmail,
+      ),
+    );
 
     // Setup WebRTC connection (caller creates and sends SDP offer)
     await _setupWebRTC(call.id, callType);
@@ -380,9 +403,12 @@ class CallController extends _$CallController {
 
     _cleanupWebRTC();
     _durationTimer?.cancel();
-    _isOutgoingCaller = false; // Reset so user can receive future incoming calls
+    _isOutgoingCaller =
+        false; // Reset so user can receive future incoming calls
 
-    state = AsyncData(CallState(status: CallStatus.ended, duration: currentState.duration));
+    state = AsyncData(
+      CallState(status: CallStatus.ended, duration: currentState.duration),
+    );
   }
 
   // ─── Mute / Camera Controls ──────────────────────────────────────────────
@@ -440,9 +466,7 @@ class CallController extends _$CallController {
   Future<void> _setupWebRTC(String callId, CallType callType) async {
     try {
       // Create peer connection
-      _peerConnection = await createPeerConnection({
-        'iceServers': _iceServers,
-      });
+      _peerConnection = await createPeerConnection({'iceServers': _iceServers});
 
       // Listen for remote stream
       _peerConnection!.onTrack = (RTCTrackEvent event) {
@@ -451,7 +475,9 @@ class CallController extends _$CallController {
           _remoteStream = remoteStream;
           final currentState = state.value;
           if (currentState != null) {
-            state = AsyncData(currentState.copyWith(remoteStream: remoteStream));
+            state = AsyncData(
+              currentState.copyWith(remoteStream: remoteStream),
+            );
           }
         }
       };
@@ -474,17 +500,20 @@ class CallController extends _$CallController {
           callService.setCallActive(callId).catchError((e) {
             debugPrint('[CallController] setCallActive: $e');
           });
-        } else if (state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
+        } else if (state ==
+                RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
             state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
             state == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
           debugPrint('[CallController] ❌ Peer disconnected/failed/closed');
           _cleanupWebRTC();
           _durationTimer?.cancel();
-          this.state = AsyncData(CallState(
-            status: CallStatus.ended,
-            duration: current.duration,
-            error: 'Call connection lost',
-          ));
+          this.state = AsyncData(
+            CallState(
+              status: CallStatus.ended,
+              duration: current.duration,
+              error: 'Call connection lost',
+            ),
+          );
         }
       };
 
@@ -503,9 +532,7 @@ class CallController extends _$CallController {
       if (callType == CallType.video) {
         localStream = await navigator.mediaDevices.getUserMedia({
           'audio': true,
-          'video': {
-            'facingMode': 'user',
-          },
+          'video': {'facingMode': 'user'},
         });
       } else {
         localStream = await navigator.mediaDevices.getUserMedia({
@@ -534,10 +561,12 @@ class CallController extends _$CallController {
 
       final currentState = state.value;
       if (currentState != null) {
-        state = AsyncData(currentState.copyWith(
-          localStream: localStream,
-          status: CallStatus.active,
-        ));
+        state = AsyncData(
+          currentState.copyWith(
+            localStream: localStream,
+            status: CallStatus.active,
+          ),
+        );
       }
 
       // Duration timer starts when onConnectionState fires "connected"
@@ -547,7 +576,11 @@ class CallController extends _$CallController {
       debugPrint('[CallController] ✗ WebRTC setup failed: $e');
       final currentState = state.value;
       if (currentState != null) {
-        state = AsyncData(currentState.copyWith(error: 'Failed to establish call connection: $e'));
+        state = AsyncData(
+          currentState.copyWith(
+            error: 'Failed to establish call connection: $e',
+          ),
+        );
       }
     }
   }
@@ -557,9 +590,7 @@ class CallController extends _$CallController {
   /// SDP offer via signal polling. Does NOT send an offer.
   Future<void> _setupCalleeWebRTC(String callId, CallType callType) async {
     try {
-      _peerConnection = await createPeerConnection({
-        'iceServers': _iceServers,
-      });
+      _peerConnection = await createPeerConnection({'iceServers': _iceServers});
 
       // Listen for remote stream
       _peerConnection!.onTrack = (RTCTrackEvent event) {
@@ -568,7 +599,9 @@ class CallController extends _$CallController {
           _remoteStream = remoteStream;
           final currentState = state.value;
           if (currentState != null) {
-            state = AsyncData(currentState.copyWith(remoteStream: remoteStream));
+            state = AsyncData(
+              currentState.copyWith(remoteStream: remoteStream),
+            );
           }
         }
       };
@@ -590,17 +623,20 @@ class CallController extends _$CallController {
           callService.setCallActive(callId).catchError((e) {
             debugPrint('[CallController] setCallActive: $e');
           });
-        } else if (state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
+        } else if (state ==
+                RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
             state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
             state == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
           debugPrint('[CallController] ❌ Peer disconnected/failed/closed');
           _cleanupWebRTC();
           _durationTimer?.cancel();
-          this.state = AsyncData(CallState(
-            status: CallStatus.ended,
-            duration: current.duration,
-            error: 'Call connection lost',
-          ));
+          this.state = AsyncData(
+            CallState(
+              status: CallStatus.ended,
+              duration: current.duration,
+              error: 'Call connection lost',
+            ),
+          );
         }
       };
 
@@ -622,7 +658,9 @@ class CallController extends _$CallController {
           'video': {'facingMode': 'user'},
         });
       } else {
-        localStream = await navigator.mediaDevices.getUserMedia({'audio': true});
+        localStream = await navigator.mediaDevices.getUserMedia({
+          'audio': true,
+        });
       }
 
       _localStream = localStream;
@@ -632,19 +670,27 @@ class CallController extends _$CallController {
 
       final currentState = state.value;
       if (currentState != null) {
-        state = AsyncData(currentState.copyWith(
-          localStream: localStream,
-          status: CallStatus.answered,
-        ));
+        state = AsyncData(
+          currentState.copyWith(
+            localStream: localStream,
+            status: CallStatus.answered,
+          ),
+        );
       }
 
       // Don't start duration timer yet — start it when connection is established
-      debugPrint('[CallController] Callee WebRTC setup complete, waiting for caller offer');
+      debugPrint(
+        '[CallController] Callee WebRTC setup complete, waiting for caller offer',
+      );
     } catch (e) {
       debugPrint('[CallController] ✗ Callee WebRTC setup failed: $e');
       final currentState = state.value;
       if (currentState != null) {
-        state = AsyncData(currentState.copyWith(error: 'Failed to establish call connection: $e'));
+        state = AsyncData(
+          currentState.copyWith(
+            error: 'Failed to establish call connection: $e',
+          ),
+        );
       }
     }
   }
@@ -680,7 +726,8 @@ class CallController extends _$CallController {
           final sdpField = signal.data['sdp'];
           final String? sdpString;
           if (sdpField is Map) {
-            sdpString = sdpField['sdp'] as String? ?? sdpField['sdpString'] as String?;
+            sdpString =
+                sdpField['sdp'] as String? ?? sdpField['sdpString'] as String?;
           } else {
             sdpString = sdpField as String?;
           }
@@ -709,7 +756,8 @@ class CallController extends _$CallController {
           final String? sdpString;
           final String? sdpType;
           if (sdpField is Map) {
-            sdpString = sdpField['sdp'] as String? ?? sdpField['sdpString'] as String?;
+            sdpString =
+                sdpField['sdp'] as String? ?? sdpField['sdpString'] as String?;
             sdpType = sdpField['type'] as String?;
           } else {
             sdpString = sdpField as String?;
@@ -735,18 +783,28 @@ class CallController extends _$CallController {
             // Web sends the full RTCIceCandidate.toJSON() object
             candidateStr = candidateField['candidate'] as String;
             sdpMid = (candidateField['sdpMid'] as String?) ?? '0';
-            sdpMLineIndex = (candidateField['sdpMLineIndex'] as num?)?.toInt() ?? 0;
+            sdpMLineIndex =
+                (candidateField['sdpMLineIndex'] as num?)?.toInt() ?? 0;
           } else {
             candidateStr = candidateField as String;
             sdpMid = signal.data['sdpMid'] as String? ?? '0';
-            sdpMLineIndex = (signal.data['sdpMLineIndex'] as num?)?.toInt() ?? 0;
+            sdpMLineIndex =
+                (signal.data['sdpMLineIndex'] as num?)?.toInt() ?? 0;
           }
 
           if (!_remoteDescriptionSet) {
-            final candidate = RTCIceCandidate(candidateStr, sdpMid, sdpMLineIndex);
+            final candidate = RTCIceCandidate(
+              candidateStr,
+              sdpMid,
+              sdpMLineIndex,
+            );
             _iceCandidateQueue.add(candidate);
           } else {
-            final candidate = RTCIceCandidate(candidateStr, sdpMid, sdpMLineIndex);
+            final candidate = RTCIceCandidate(
+              candidateStr,
+              sdpMid,
+              sdpMLineIndex,
+            );
             await _peerConnection!.addCandidate(candidate);
           }
           break;
@@ -763,7 +821,9 @@ class CallController extends _$CallController {
   Future<void> _flushIceCandidates() async {
     if (_iceCandidateQueue.isEmpty || _peerConnection == null) return;
 
-    debugPrint('[CallController] Flushing ${_iceCandidateQueue.length} queued ICE candidates');
+    debugPrint(
+      '[CallController] Flushing ${_iceCandidateQueue.length} queued ICE candidates',
+    );
     for (final candidate in _iceCandidateQueue) {
       try {
         await _peerConnection!.addCandidate(candidate);
@@ -778,7 +838,9 @@ class CallController extends _$CallController {
     final callService = ref.read(callServiceProvider);
     final result = await callService.sendSignal(callId: callId, signal: signal);
     if (result.isFailure) {
-      debugPrint('[CallController] ✗ Failed to send signal: ${result.failure.message}');
+      debugPrint(
+        '[CallController] ✗ Failed to send signal: ${result.failure.message}',
+      );
     }
   }
 
@@ -788,9 +850,11 @@ class CallController extends _$CallController {
     _durationTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       final currentState = state.value;
       if (currentState != null) {
-        state = AsyncData(currentState.copyWith(
-          duration: currentState.duration + const Duration(seconds: 1),
-        ));
+        state = AsyncData(
+          currentState.copyWith(
+            duration: currentState.duration + const Duration(seconds: 1),
+          ),
+        );
       }
     });
   }
@@ -798,7 +862,12 @@ class CallController extends _$CallController {
   // ─── Cleanup ─────────────────────────────────────────────────────────────
 
   Future<void> _cleanupWebRTC() async {
-    if (_peerConnection == null && _localStream == null && _remoteStream == null && _iceCandidateQueue.isEmpty) return;
+    if (_peerConnection == null &&
+        _localStream == null &&
+        _remoteStream == null &&
+        _iceCandidateQueue.isEmpty) {
+      return;
+    }
 
     _pollTimer?.cancel();
     _pollTimer = null;
