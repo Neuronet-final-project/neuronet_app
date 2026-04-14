@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:guardian_app/config/router/app_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:guardian_app/features/auth/providers/auth_provider.dart';
 import 'package:guardian_app/features/profile/providers/profile_provider.dart';
@@ -96,6 +98,19 @@ class ProfileScreen extends ConsumerWidget {
                 value: true,
                 onChanged: (val) {},
                 showDivider: false,
+              ),
+            ],
+          ),
+          
+          _SettingSection(
+            title: 'Privacy & Permissions',
+            children: [
+              _SettingTile(
+                label: 'Consent Management',
+                value: 'Manage access to adolescent data',
+                icon: Icons.verified_user_outlined,
+                showDivider: false,
+                onTap: () => context.push(GuardianRoutes.consent),
               ),
             ],
           ),
@@ -236,59 +251,67 @@ class _SettingSection extends StatelessWidget {
 }
 
 class _SettingTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final bool showDivider;
-
   const _SettingTile({
     required this.label,
     required this.value,
     required this.icon,
     required this.showDivider,
+    this.onTap,
   });
+
+  final String label;
+  final String value;
+  final IconData icon;
+  final bool showDivider;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(16),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(NeuroRadius.xl),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(icon, color: Theme.of(context).primaryColor, size: 24),
                 ),
-                child: Icon(icon, color: Theme.of(context).primaryColor, size: 24),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: NeuroColors.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: NeuroColors.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      value,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: NeuroColors.onSurface,
+                      const SizedBox(height: 4),
+                      Text(
+                        value,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: NeuroColors.onSurface,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                if (onTap != null)
+                  const Icon(Icons.chevron_right, color: NeuroColors.onSurfaceVariant),
+              ],
+            ),
           ),
         ),
         if (showDivider)
