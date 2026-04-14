@@ -175,7 +175,6 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                             itemBuilder: (context, index) {
                               final message = state.messages[index];
                               final isMe = message.senderRole == 'guardian';
-                              final isVoice = message.messageType == MessageContentType.audio;
 
                               return NeuroChatBubble(
                                 messageContent: message.content,
@@ -183,8 +182,8 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                                 isUser: isMe,
                                 senderLabel: isMe ? 'You' : counselorName,
                                 userColor: NeuroColors.guardianPrimary,
-                                isVoiceMessage: isVoice,
-                                voiceUrl: message.attachmentUrl,
+                                messageType: message.messageType,
+                                attachmentUrl: message.attachmentUrl,
                               );
                             },
                           ),
