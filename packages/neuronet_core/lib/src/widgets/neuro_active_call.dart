@@ -56,7 +56,19 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
 
   String get _formattedDuration {
     final state = ref.read(callControllerProvider).value;
+    if (state?.status == CallStatus.initiated) {
+      return 'Calling...';
+    }
     return VoiceRecorderService.formatDuration(state?.duration ?? Duration.zero);
+  }
+
+  bool get _isCallerWaiting {
+    final state = ref.read(callControllerProvider).value;
+    return state?.status == CallStatus.initiated;
+  }
+
+  String get _endButtonLabel {
+    return _isCallerWaiting ? 'Cancel' : 'End Call';
   }
 
   Future<void> _endCall() async {
@@ -75,11 +87,11 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
     return Scaffold(
       body: callState.when(
         data: (state) {
-          // Update remote stream to renderer
-          if (state.remoteStream != null) {
+          // Update remote stream to renderer (with guards to prevent redundant updates)
+          if (state.remoteStream != null && _remoteRenderer.srcObject != state.remoteStream) {
             _remoteRenderer.srcObject = state.remoteStream;
           }
-          if (state.localStream != null) {
+          if (state.localStream != null && _localRenderer.srcObject != state.localStream) {
             _localRenderer.srcObject = state.localStream;
           }
 
@@ -194,7 +206,7 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
                 ),
               ),
 
-              // Bottom: Controls
+              // Bottom: Controls — large round buttons matching web pattern
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 decoration: BoxDecoration(
@@ -208,36 +220,48 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
                   ),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _ControlButton(
-                      icon: state.isMuted ? Icons.mic_off : Icons.mic,
-                      label: state.isMuted ? 'Unmute' : 'Mute',
-                      isActive: state.isMuted,
-                      onPressed: () {
-                        ref.read(callControllerProvider.notifier).toggleMute();
-                      },
-                    ),
-                    _ControlButton(
-                      icon: Icons.cameraswitch,
-                      label: 'Switch Camera',
-                      onPressed: () {
-                        ref.read(callControllerProvider.notifier).switchCamera();
-                      },
-                    ),
-                    _ControlButton(
-                      icon: state.isCameraOn ? Icons.videocam_off : Icons.videocam,
-                      label: state.isCameraOn ? 'Camera Off' : 'Camera On',
-                      isActive: !state.isCameraOn,
-                      onPressed: () {
-                        ref.read(callControllerProvider.notifier).toggleCamera();
-                      },
-                    ),
-                    FloatingActionButton(
-                      heroTag: 'endCall',
+                    // Only show controls after call is connected (not while caller is waiting)
+                    if (!_isCallerWaiting) ...[
+                      _ActiveCallControlButton(
+                        key: const ValueKey('mute_button'),
+                        icon: state.isMuted ? Icons.mic_off : Icons.mic,
+                        label: state.isMuted ? 'Unmute' : 'Mute',
+                        isActive: state.isMuted,
+                        size: 56,
+                        onPressed: () {
+                          ref.read(callControllerProvider.notifier).toggleMute();
+                        },
+                      ),
+                      const SizedBox(width: 24),
+                      _ActiveCallControlButton(
+                        icon: state.isCameraOn ? Icons.videocam_off : Icons.videocam,
+                        label: state.isCameraOn ? 'Video Off' : 'Video On',
+                        isActive: !state.isCameraOn,
+                        size: 56,
+                        onPressed: () {
+                          ref.read(callControllerProvider.notifier).toggleCamera();
+                        },
+                      ),
+                      const SizedBox(width: 24),
+                      _ActiveCallControlButton(
+                        icon: Icons.cameraswitch,
+                        label: 'Flip Camera',
+                        size: 56,
+                        onPressed: () {
+                          ref.read(callControllerProvider.notifier).switchCamera();
+                        },
+                      ),
+                      const SizedBox(width: 24),
+                    ],
+                    _ActiveCallControlButton(
+                      key: const ValueKey('end_call_button'),
+                      icon: Icons.call_end,
+                      label: _endButtonLabel,
                       backgroundColor: Colors.red,
+                      size: 64,
                       onPressed: _endCall,
-                      child: const Icon(Icons.call_end, color: Colors.white),
                     ),
                   ],
                 ),
@@ -357,31 +381,33 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
               ),
             ),
 
-            // Bottom: Controls
+            // Bottom: Controls — large round buttons matching web pattern
             Padding(
               padding: const EdgeInsets.only(bottom: 60.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  FloatingActionButton(
-                    heroTag: 'mute',
-                    backgroundColor: state.isMuted
-                        ? Colors.white
-                        : Colors.white.withValues(alpha: 0.2),
-                    onPressed: () {
-                      ref.read(callControllerProvider.notifier).toggleMute();
-                    },
-                    child: Icon(
-                      state.isMuted ? Icons.mic_off : Icons.mic,
-                      color: state.isMuted ? Colors.red : Colors.white,
-                      size: 28,
+                  // Mute button (only shown after call is connected)
+                  if (!_isCallerWaiting)
+                    _ActiveCallControlButton(
+                      key: const ValueKey('mute_button'),
+                      icon: state.isMuted ? Icons.mic_off : Icons.mic,
+                      label: state.isMuted ? 'Unmute' : 'Mute',
+                      isActive: state.isMuted,
+                      size: 60,
+                      onPressed: () {
+                        ref.read(callControllerProvider.notifier).toggleMute();
+                      },
                     ),
-                  ),
-                  FloatingActionButton(
-                    heroTag: 'endCall',
+                  if (!_isCallerWaiting) const SizedBox(width: 32),
+                  // End/Cancel call button
+                  _ActiveCallControlButton(
+                    key: const ValueKey('end_call_button'),
+                    icon: Icons.call_end,
+                    label: _endButtonLabel,
                     backgroundColor: Colors.red,
+                    size: 72,
                     onPressed: _endCall,
-                    child: const Icon(Icons.call_end, color: Colors.white, size: 32),
                   ),
                 ],
               ),
@@ -496,41 +522,70 @@ class _AudioWaveAnimationState extends State<_AudioWaveAnimation>
   }
 }
 
-/// Small control button for video call screen.
-class _ControlButton extends StatelessWidget {
+/// Large circular call control button for active call screen (mute, end, video, camera).
+/// Matches the web's pattern: large button with label below.
+class _ActiveCallControlButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool isActive;
+  final Color? backgroundColor;
+  final double size;
   final VoidCallback onPressed;
 
-  const _ControlButton({
+  const _ActiveCallControlButton({
+    super.key,
     required this.icon,
     required this.label,
     this.isActive = false,
+    this.backgroundColor,
+    this.size = 60,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bg = backgroundColor ?? (isActive ? Colors.white : Colors.white.withValues(alpha: 0.2));
+    final iconColor = backgroundColor != null ? Colors.white : (isActive ? Colors.red : Colors.white);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FloatingActionButton(
-          heroTag: label,
-          backgroundColor: isActive
-              ? Colors.white
-              : Colors.white.withValues(alpha: 0.2),
-          onPressed: onPressed,
-          child: Icon(
-            icon,
-            color: isActive ? Colors.red : Colors.white,
-            size: 24,
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(size / 2),
+            splashColor: (backgroundColor ?? Colors.white).withValues(alpha: 0.2),
+            child: Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                color: bg,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: (backgroundColor ?? Colors.white).withValues(alpha: 0.3),
+                    blurRadius: backgroundColor != null ? 16 : 8,
+                    spreadRadius: backgroundColor != null ? 2 : 0,
+                  ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: size * 0.45,
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           label,
-          style: const TextStyle(color: Colors.white70, fontSize: 11),
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );

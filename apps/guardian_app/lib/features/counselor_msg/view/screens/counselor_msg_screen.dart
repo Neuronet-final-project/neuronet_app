@@ -121,7 +121,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
             callState.value!.status == CallStatus.initiated);
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: (showActiveCall || showIncomingCall) ? null : AppBar(
         title: Column(
           children: [
             Text(counselorName),

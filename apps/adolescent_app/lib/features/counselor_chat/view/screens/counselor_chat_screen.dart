@@ -150,7 +150,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
             callState.value!.status == CallStatus.initiated);
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: (showActiveCall || showIncomingCall) ? null : AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

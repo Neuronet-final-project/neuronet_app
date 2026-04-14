@@ -208,14 +208,8 @@ void main() {
 
       // Should show the active call UI
       expect(find.textContaining('Caller'), findsOneWidget);
-      expect(
-          find.byWidgetPredicate(
-              (w) => w is FloatingActionButton && w.heroTag == 'endCall'),
-          findsOneWidget);
-      expect(
-          find.byWidgetPredicate(
-              (w) => w is FloatingActionButton && w.heroTag == 'mute'),
-          findsOneWidget);
+      expect(find.byKey(const ValueKey('end_call_button')), findsOneWidget);
+      expect(find.byKey(const ValueKey('mute_button')), findsOneWidget);
     });
 
     testWidgets('shows active call overlay when caller status is initiated',
@@ -239,10 +233,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // Should show the active call UI with end button (to cancel the call)
-      expect(
-          find.byWidgetPredicate(
-              (w) => w is FloatingActionButton && w.heroTag == 'endCall'),
-          findsOneWidget);
+      expect(find.byKey(const ValueKey('end_call_button')), findsOneWidget);
     });
 
     testWidgets('hides overlay when call status is ended',
@@ -430,13 +421,9 @@ void main() {
       expect(find.textContaining('Call Error'), findsNothing);
       expect(find.textContaining('Caller'), findsOneWidget);
 
-      final endButton = find.byWidgetPredicate(
-          (w) => w is FloatingActionButton && w.heroTag == 'endCall');
-      expect(endButton, findsOneWidget);
-
-      final muteButton = find.byWidgetPredicate(
-          (w) => w is FloatingActionButton && w.heroTag == 'mute');
-      expect(muteButton, findsOneWidget);
+      // Find buttons by their label text (new pattern)
+      expect(find.text('End Call'), findsOneWidget);
+      expect(find.text('Mute'), findsOneWidget);
     });
 
     testWidgets('renders video call UI with correct elements',
@@ -473,9 +460,8 @@ void main() {
 
       expect(find.textContaining('Caller'), findsOneWidget);
 
-      final endButton = find.byWidgetPredicate(
-          (w) => w is FloatingActionButton && w.heroTag == 'endCall');
-      expect(endButton, findsOneWidget);
+      // Find end call button by label
+      expect(find.text('End Call'), findsOneWidget);
     });
 
     testWidgets('mute button calls toggleMute on controller',
@@ -508,8 +494,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
       });
 
-      final muteButton = find.byWidgetPredicate(
-          (w) => w is FloatingActionButton && w.heroTag == 'mute');
+      final muteButton = find.byKey(const ValueKey('mute_button'));
       expect(muteButton, findsOneWidget);
 
       await tester.tap(muteButton);
@@ -548,8 +533,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
       });
 
-      final endButton = find.byWidgetPredicate(
-          (w) => w is FloatingActionButton && w.heroTag == 'endCall');
+      final endButton = find.byKey(const ValueKey('end_call_button'));
       expect(endButton, findsOneWidget);
 
       await tester.tap(endButton);
