@@ -23,6 +23,11 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
   final ScrollController _scrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
@@ -98,25 +103,22 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
   @override
   Widget build(BuildContext context) {
     final chatAsync = ref.watch(counselorChatControllerProvider(widget.adolescentId));
+    final callState = ref.watch(callControllerProvider);
     final counselorEmail = chatAsync.value?.counselorEmail;
     final counselorName = counselorEmail != null
         ? _emailToDisplayName(counselorEmail)
         : 'Counselor';
 
-    // Listen for incoming calls
-    ref.listen(callControllerProvider, (previous, next) {
-      next.whenData((callState) {
-        final wasNull = previous?.value == null;
-        final hasIncomingCall = callState.currentCall != null &&
-            callState.status == CallStatus.ringing &&
-            !callState.isInCall;
-
-        if (!wasNull && hasIncomingCall) {
-          debugPrint('[GuardianCounselorMsg] 📞 Incoming call detected!');
-          _showIncomingCallDialog(context, callState);
-        }
-      });
-    });
+    // Determine if we should show a call overlay
+    final showIncomingCall =
+        callState.value?.status == CallStatus.ringing &&
+        callState.value?.currentCall != null;
+    // Show active call for: answered, active, OR initiated (caller waiting)
+    final showActiveCall = callState.value != null &&
+        callState.value!.currentCall != null &&
+        (callState.value!.status == CallStatus.active ||
+            callState.value!.status == CallStatus.answered ||
+            callState.value!.status == CallStatus.initiated);
 
     return Scaffold(
       appBar: AppBar(
@@ -146,69 +148,87 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
           ),
         ],
       ),
-      body: chatAsync.when(
-        data: (state) {
-          if (state.isNoCounselor) {
-            return _NoCounselorView(adolescentName: widget.adolescentName);
-          }
+      body: Stack(
+        children: [
+          chatAsync.when(
+            data: (state) {
+              if (state.isNoCounselor) {
+                return _NoCounselorView(adolescentName: widget.adolescentName);
+              }
 
-          if (state.error != null && state.messages.isEmpty) {
-            return Center(child: Text(state.error!));
-          }
+              if (state.error != null && state.messages.isEmpty) {
+                return Center(child: Text(state.error!));
+              }
 
-          // Auto-scroll when new messages arrive
-          WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+              // Auto-scroll when new messages arrive
+              WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
-          return Column(
-            children: [
-              Expanded(
-                child: state.messages.isEmpty
-                    ? const _EmptyChatView()
-                    : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(16.0),
-                        itemCount: state.messages.length,
-                        itemBuilder: (context, index) {
-                          final message = state.messages[index];
-                          final isMe = message.senderRole == 'guardian';
-                          final isVoice = message.messageType == MessageContentType.audio;
-                          
-                          return NeuroChatBubble(
-                            messageContent: message.content,
-                            timestamp: message.createdAt,
-                            isUser: isMe,
-                            senderLabel: isMe ? 'You' : counselorName,
-                            userColor: NeuroColors.guardianPrimary,
-                            isVoiceMessage: isVoice,
-                            voiceUrl: message.attachmentUrl,
-                          );
-                        },
-                      ),
-              ),
-              if (state.error != null)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    state.error!,
-                    style: const TextStyle(color: Colors.red, fontSize: 12),
+              return Column(
+                children: [
+                  Expanded(
+                    child: state.messages.isEmpty
+                        ? const _EmptyChatView()
+                        : ListView.builder(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.all(16.0),
+                            itemCount: state.messages.length,
+                            itemBuilder: (context, index) {
+                              final message = state.messages[index];
+                              final isMe = message.senderRole == 'guardian';
+                              final isVoice = message.messageType == MessageContentType.audio;
+
+                              return NeuroChatBubble(
+                                messageContent: message.content,
+                                timestamp: message.createdAt,
+                                isUser: isMe,
+                                senderLabel: isMe ? 'You' : counselorName,
+                                userColor: NeuroColors.guardianPrimary,
+                                isVoiceMessage: isVoice,
+                                voiceUrl: message.attachmentUrl,
+                              );
+                            },
+                          ),
                   ),
-                ),
-              _ChatInputSection(
-                controller: _messageController,
-                onSend: (content) {
-                  ref
-                      .read(counselorChatControllerProvider(widget.adolescentId).notifier)
-                      .sendMessage(content);
-                  _messageController.clear();
-                },
-                onSendVoice: _sendVoiceMessage,
-                onSendMedia: _sendMediaMessage,
-              ),
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error: $e')),
+                  if (state.error != null)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        state.error!,
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ),
+                  _ChatInputSection(
+                    controller: _messageController,
+                    onSend: (content) {
+                      ref
+                          .read(counselorChatControllerProvider(widget.adolescentId).notifier)
+                          .sendMessage(content);
+                      _messageController.clear();
+                    },
+                    onSendVoice: _sendVoiceMessage,
+                    onSendMedia: _sendMediaMessage,
+                  ),
+                ],
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, st) => Center(child: Text('Error: $e')),
+          ),
+          // Incoming call overlay (rendered inline — no navigator conflicts)
+          if (showIncomingCall)
+            NeuroIncomingCallScreen(
+              incomingCall: callState.value!.currentCall,
+              accentColor: NeuroColors.guardianPrimary,
+              onDismissed: () {},
+            ),
+          // Active call overlay (rendered inline — no navigator conflicts)
+          if (showActiveCall && callState.value != null)
+            NeuroActiveCallScreen(
+              call: callState.value!.currentCall!,
+              remotePeerEmail: callState.value!.remotePeerEmail,
+              accentColor: NeuroColors.guardianPrimary,
+            ),
+        ],
       ),
     );
   }
@@ -230,21 +250,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
           callType: CallType.voice,
           remotePeerEmail: counselorEmail,
         );
-
-    if (mounted) {
-      final callState = ref.read(callControllerProvider).value;
-      if (callState?.currentCall != null) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => NeuroActiveCallScreen(
-              call: callState!.currentCall!,
-              remotePeerEmail: callState.remotePeerEmail,
-              accentColor: NeuroColors.guardianPrimary,
-            ),
-          ),
-        );
-      }
-    }
+    // Active call screen renders inline via the call controller state.
   }
 
   Future<void> _startVideoCall() async {
@@ -262,32 +268,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
           callType: CallType.video,
           remotePeerEmail: counselorEmail,
         );
-
-    if (mounted) {
-      final callState = ref.read(callControllerProvider).value;
-      if (callState?.currentCall != null) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => NeuroActiveCallScreen(
-              call: callState!.currentCall!,
-              remotePeerEmail: callState.remotePeerEmail,
-              accentColor: NeuroColors.guardianPrimary,
-            ),
-          ),
-        );
-      }
-    }
-  }
-
-  void _showIncomingCallDialog(BuildContext context, CallState callState) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => NeuroIncomingCallScreen(
-        incomingCall: callState.currentCall,
-        accentColor: NeuroColors.guardianPrimary,
-      ),
-    );
+    // Active call screen renders inline via the call controller state.
   }
 }
 

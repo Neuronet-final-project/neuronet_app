@@ -64,8 +64,10 @@ abstract class Call with _$Call {
     @JsonKey(name: 'conversation_id') @Default('') String conversationId,
     @JsonKey(name: 'caller_id') @Default('') String callerId,
     @JsonKey(name: 'caller_email') String? callerEmail,
+    @JsonKey(name: 'caller_name') String? callerName,
     @JsonKey(name: 'callee_id') String? calleeId,
     @JsonKey(name: 'callee_email') String? calleeEmail,
+    @JsonKey(name: 'callee_name') String? calleeName,
     @JsonKey(name: 'call_type') @Default(CallType.voice) CallType callType,
     @Default(CallStatus.initiated) CallStatus status,
     @JsonKey(name: 'created_at') DateTime? createdAt,
@@ -106,6 +108,7 @@ extension SignalRequestExt on SignalRequest {
       );
 
   /// Creates an ICE candidate request.
+  /// Uses nested format matching the web app: { candidate: { candidate: "...", sdpMid: "0", sdpMLineIndex: 0 } }
   static SignalRequest iceCandidate({
     required String candidate,
     required int sdpMLineIndex,
@@ -114,9 +117,11 @@ extension SignalRequestExt on SignalRequest {
       SignalRequest(
         type: 'ice-candidate',
         data: {
-          'candidate': candidate,
-          'sdpMLineIndex': sdpMLineIndex,
-          'sdpMid': sdpMid,
+          'candidate': {
+            'candidate': candidate,
+            'sdpMid': sdpMid,
+            'sdpMLineIndex': sdpMLineIndex,
+          },
         },
       );
 }

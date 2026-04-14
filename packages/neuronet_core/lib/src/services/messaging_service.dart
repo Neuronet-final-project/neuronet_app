@@ -60,8 +60,26 @@ class MessagingService {
       final response = await _apiClient.get(
         ApiEndpoints.conversationMessages(conversationId),
       );
-      final data = response.data as List;
-      final messages = data
+      final dynamic data = response.data;
+
+      List<dynamic> list;
+      if (data is List) {
+        list = data;
+      } else if (data is Map<String, dynamic>) {
+        if (data.containsKey('messages')) {
+          list = data['messages'] as List;
+        } else if (data.containsKey('data')) {
+          list = data['data'] as List;
+        } else if (data.containsKey('results')) {
+          list = data['results'] as List;
+        } else {
+          return const Result.success([]);
+        }
+      } else {
+        return const Result.success([]);
+      }
+
+      final messages = list
           .map((e) => ConversationMessage.fromJson(e as Map<String, dynamic>))
           .toList();
       return Result.success(messages);

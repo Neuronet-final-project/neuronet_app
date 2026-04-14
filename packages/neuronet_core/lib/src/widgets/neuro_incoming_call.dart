@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Incoming call overlay screen shown when a call is detected.
 /// Can be used as a full-screen dialog or pushed as a route.
@@ -10,10 +14,15 @@ class NeuroIncomingCallScreen extends ConsumerStatefulWidget {
   final Call? incomingCall;
   final Color accentColor;
 
+  /// Called when the call is accepted or declined, so the caller can remove
+  /// the overlay and navigate to the active call screen.
+  final VoidCallback? onDismissed;
+
   const NeuroIncomingCallScreen({
     super.key,
     this.incomingCall,
     this.accentColor = Colors.green,
+    this.onDismissed,
   });
 
   @override
@@ -23,56 +32,176 @@ class NeuroIncomingCallScreen extends ConsumerStatefulWidget {
 
 class _NeuroIncomingCallScreenState extends ConsumerState<NeuroIncomingCallScreen> {
   bool _isRinging = true;
+  final AudioPlayer _ringtonePlayer = AudioPlayer();
+  Timer? _ringtoneCycleTimer;
+  File? _ringtoneFile;
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
+    // Start ringtone playback
+    _startRingtone();
     // If no call was passed, check the controller state
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isDisposed) return;
       final state = ref.read(callControllerProvider).value;
       if (widget.incomingCall == null && state?.currentCall == null) {
         // No incoming call found, navigate back
-        if (mounted) Navigator.of(context).pop();
+        if (mounted) {
+          _stopRingtone();
+          Navigator.of(context).pop();
+        }
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _stopRingtone();
+    _ringtonePlayer.dispose();
+    super.dispose();
+  }
+
+  /// Generates a ringtone WAV matching the web's dual-tone pattern
+  /// (440Hz + 480Hz bursts, 2 bursts per cycle, 3-second cycle).
+  Future<File> _generateRingtoneFile() async {
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/neuronet_ringtone.wav');
+
+    const sampleRate = 44100;
+    const durationSec = 3; // Full cycle: 3 seconds
+    const totalSamples = sampleRate * durationSec;
+    const bytesPerSample = 2; // 16-bit
+    const numChannels = 1; // Mono
+    final dataSize = totalSamples * bytesPerSample * numChannels;
+
+    final buffer = BytesBuilder();
+
+    // Write WAV header (44 bytes)
+    _writeWavHeader(buffer, dataSize, sampleRate, numChannels, bytesPerSample * 8);
+
+    // Generate audio data
+    for (int i = 0; i < totalSamples; i++) {
+      final t = i / sampleRate; // Time in seconds
+      double sample = 0.0;
+
+      // First burst: 0.0 – 0.5s
+      if (t < 0.5) {
+        final env = _envelope(t, 0.0, 0.05, 0.4, 0.5);
+        sample += env * (_sine(440, t) + _sine(480, t)) * 0.15;
+      }
+      // Second burst: 0.6 – 1.1s
+      else if (t >= 0.6 && t < 1.1) {
+        final t2 = t - 0.6;
+        final env = _envelope(t2, 0.0, 0.05, 0.4, 0.5);
+        sample += env * (_sine(440, t2) + _sine(480, t2)) * 0.15;
+      }
+      // Rest is silence (1.1s – 3.0s)
+
+      final int16 = (sample.clamp(-1.0, 1.0) * 32767).toInt();
+      buffer.addByte(int16 & 0xFF);
+      buffer.addByte((int16 >> 8) & 0xFF);
+    }
+
+    await file.writeAsBytes(buffer.takeBytes());
+    return file;
+  }
+
+  double _sine(double freq, double t) => sin(2 * pi * freq * t);
+
+  double _envelope(double t, double attackStart, double attackEnd, double sustainEnd, double releaseEnd) {
+    if (t < attackStart) return 0.0;
+    if (t < attackEnd) return (t - attackStart) / (attackEnd - attackStart);
+    if (t < sustainEnd) return 1.0;
+    if (t < releaseEnd) return 1.0 - (t - sustainEnd) / (releaseEnd - sustainEnd);
+    return 0.0;
+  }
+
+  void _writeWavHeader(BytesBuilder buffer, int dataSize, int sampleRate, int numChannels, int bitsPerSample) {
+    final byteData = BytesBuilder();
+
+    // RIFF header
+    byteData.add(_asciiBytes('RIFF'));
+    byteData.add(_uint32(36 + dataSize)); // File size - 8
+    byteData.add(_asciiBytes('WAVE'));
+
+    // fmt chunk
+    byteData.add(_asciiBytes('fmt '));
+    byteData.add(_uint32(16)); // Subchunk1Size (PCM)
+    byteData.add(_uint16(1)); // AudioFormat (PCM)
+    byteData.add(_uint16(numChannels));
+    byteData.add(_uint32(sampleRate));
+    byteData.add(_uint32(sampleRate * numChannels * bitsPerSample ~/ 8)); // ByteRate
+    byteData.add(_uint16(numChannels * bitsPerSample ~/ 8)); // BlockAlign
+    byteData.add(_uint16(bitsPerSample));
+
+    // data chunk
+    byteData.add(_asciiBytes('data'));
+    byteData.add(_uint32(dataSize));
+
+    buffer.add(byteData.takeBytes());
+  }
+
+  List<int> _asciiBytes(String s) => s.codeUnits;
+  List<int> _uint32(int v) => [v & 0xFF, (v >> 8) & 0xFF, (v >> 16) & 0xFF, (v >> 24) & 0xFF];
+  List<int> _uint16(int v) => [v & 0xFF, (v >> 8) & 0xFF];
+
+  /// Starts the ringtone with a repeating pattern matching the web's
+  /// dual-tone burst (440Hz/480Hz) every 3 seconds.
+  Future<void> _startRingtone() async {
+    try {
+      _ringtoneFile = await _generateRingtoneFile();
+      await _ringtonePlayer.setReleaseMode(ReleaseMode.loop);
+      await _ringtonePlayer.setVolume(0.6);
+      await _ringtonePlayer.play(DeviceFileSource(_ringtoneFile!.path));
+    } catch (e) {
+      debugPrint('[NeuroIncomingCall] Failed to start ringtone: $e');
+    }
+  }
+
+  Future<void> _stopRingtone() async {
+    _ringtoneCycleTimer?.cancel();
+    _ringtoneCycleTimer = null;
+    try {
+      await _ringtonePlayer.stop();
+    } catch (_) {}
   }
 
   Future<void> _acceptCall() async {
     if (!_isRinging) return;
     setState(() => _isRinging = false);
+    _stopRingtone();
 
     await ref.read(callControllerProvider.notifier).answerCall();
 
-    if (mounted) {
-      // Navigate to active call screen
-      final state = ref.read(callControllerProvider).value;
-      if (state?.currentCall != null) {
-        Navigator.of(context).pop(); // Close incoming screen
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => NeuroActiveCallScreen(
-              call: state!.currentCall!,
-              remotePeerEmail: state.remotePeerEmail,
-              accentColor: widget.accentColor,
-            ),
-          ),
-        );
-      }
-    }
+    // Notify parent to remove this overlay.
+    // The active call screen will be shown automatically via the inline
+    // Stack overlay when the call controller status changes to "answered".
+    widget.onDismissed?.call();
   }
 
   Future<void> _declineCall() async {
     if (!_isRinging) return;
     setState(() => _isRinging = false);
+    _stopRingtone();
 
     await ref.read(callControllerProvider.notifier).rejectCall();
 
-    if (mounted) Navigator.of(context).pop();
+    // Remove this overlay and notify caller
+    widget.onDismissed?.call();
   }
 
   String get _callerName {
     final call = widget.incomingCall ?? ref.read(callControllerProvider).value?.currentCall;
-    final email = call?.callerEmail;
+    if (call == null) return 'Unknown Caller';
+
+    // Use callerName if available (from backend), otherwise derive from email
+    if (call.callerName != null && call.callerName!.isNotEmpty) {
+      return call.callerName!;
+    }
+    final email = call.callerEmail;
     if (email == null) return 'Unknown Caller';
     return email.split('@').first[0].toUpperCase() + email.split('@').first.substring(1);
   }

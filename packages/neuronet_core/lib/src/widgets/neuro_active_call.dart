@@ -45,6 +45,10 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
   }
 
   String get _remoteName {
+    // Use callerName from the Call model if available (from backend)
+    if (widget.call.callerName != null && widget.call.callerName!.isNotEmpty) {
+      return widget.call.callerName!;
+    }
     final email = widget.remotePeerEmail;
     if (email == null) return 'Unknown';
     return email.split('@').first[0].toUpperCase() + email.split('@').first.substring(1);
@@ -57,7 +61,9 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
 
   Future<void> _endCall() async {
     await ref.read(callControllerProvider.notifier).endCall();
-    if (mounted) {
+    // Only pop if this screen was pushed via Navigator (not when rendered
+    // inline as a Stack overlay — in that case the state change removes it).
+    if (mounted && Navigator.canPop(context)) {
       Navigator.of(context).pop();
     }
   }

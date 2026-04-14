@@ -32,15 +32,12 @@ class CallService {
         'call_type': callType.toJson(),
       };
 
-      debugPrint('[CallService] Initiating ${callType.name} call: $payload');
-
       final response = await _apiClient.post(
         ApiEndpoints.initiateCall,
         data: payload,
       );
 
       final call = Call.fromJson(response.data as Map<String, dynamic>);
-      debugPrint('[CallService] Call initiated: ${call.id}');
       return Result.success(call);
     } catch (e) {
       debugPrint('[CallService] Failed to initiate call: $e');
@@ -55,12 +52,22 @@ class CallService {
       final response = await _apiClient.get(ApiEndpoints.incomingCalls);
       final dynamic rawData = response.data;
 
+      // debugPrint('[CallService] Raw incoming calls response: $rawData');
+
       List<dynamic> data;
       if (rawData is List) {
         data = rawData;
       } else if (rawData is Map<String, dynamic>) {
-        // Handle wrapped responses like {"calls": [...]} or {"data": [...]}
-        data = (rawData['calls'] ?? rawData['data'] ?? []) as List<dynamic>;
+        // Handle wrapped responses: {"calls": [...]} or {"data": [...]} or {"call": {...}}
+        final callsList = rawData['calls'] ?? rawData['data'];
+        if (callsList is List) {
+          data = callsList;
+        } else if (rawData['call'] is Map<String, dynamic>) {
+          // Single call object wrapped: {"call": {...}}
+          data = [rawData['call'] as Map<String, dynamic>];
+        } else {
+          data = [];
+        }
       } else {
         debugPrint('[CallService] Unexpected response format for incoming calls: ${rawData.runtimeType}');
         return const Result.success([]);
@@ -96,7 +103,10 @@ class CallService {
     required SignalRequest signal,
   }) async {
     try {
-      debugPrint('[CallService] Sending signal: ${signal.type}');
+      // Only log signal sends for offers and answers (not ICE candidates)
+      if (signal.type != 'ice-candidate') {
+        debugPrint('[CallService] Sending signal: ${signal.type}');
+      }
 
       await _apiClient.post(
         ApiEndpoints.callSignal(callId),
@@ -133,7 +143,6 @@ class CallService {
   /// Answers an incoming call.
   Future<Result<void>> answerCall(String callId) async {
     try {
-      debugPrint('[CallService] Answering call: $callId');
 
       await _apiClient.post(ApiEndpoints.callAnswer(callId));
       return const Result.success(null);
@@ -146,7 +155,6 @@ class CallService {
   /// Marks a call as active (both peers connected via WebRTC).
   Future<Result<void>> setCallActive(String callId) async {
     try {
-      debugPrint('[CallService] Setting call active: $callId');
 
       await _apiClient.post(ApiEndpoints.callActive(callId));
       return const Result.success(null);
@@ -159,7 +167,6 @@ class CallService {
   /// Ends an active call.
   Future<Result<void>> endCall(String callId) async {
     try {
-      debugPrint('[CallService] Ending call: $callId');
 
       await _apiClient.post(ApiEndpoints.callEnd(callId));
       return const Result.success(null);
