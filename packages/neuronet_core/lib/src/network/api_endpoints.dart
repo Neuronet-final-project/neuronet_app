@@ -74,11 +74,14 @@ class ApiEndpoints {
   static const String myChannels = '/channels/me';
   static const String channels = '/channels';
   static String channelSubscribe(String id) => '/channels/$id/subscribe';
-  // NOTE: Channel posts/interactions endpoints do NOT exist in backend.
-  // Backend only supports: GET /channels, POST /channels, GET /channels/me, POST /channels/{id}/subscribe
-  // static String channelPosts(String id) => '/channels/$id/posts';  // ❌ Not in backend
-  // static String channelInteractions(String channelId, String postId) => '/channels/$channelId/posts/$postId/interactions';  // ❌ Not in backend
-  // static String channelInteract(String channelId, String postId) => '/channels/$channelId/posts/$postId/interact';  // ❌ Not in backend
+  // Channel Posts & Interactions
+  static String channelPosts(String id) => '/channels/$id/posts';
+  static String channelPost(String channelId, String postId) => '/channels/$channelId/posts/$postId';
+  static String channelInteractions(String channelId, String postId) => '/channels/$channelId/posts/$postId/interactions';
+  static String channelInteract(String channelId, String postId) => '/channels/$channelId/posts/$postId/interact';
+  static String channelModerate(String channelId, String postId, String interactionId) =>
+      '/channels/$channelId/posts/$postId/interactions/$interactionId/moderate';
+
 
   // Educational Pages
   static const String educationalPages = '/educational-pages/';

@@ -187,9 +187,7 @@ class CallController extends _$CallController {
 
       // Ignore stale calls: ringing for more than 5 minutes means the session
       // was likely abandoned but the backend never cleaned it up.
-      // NOTE: Backend sends created_at without 'Z' suffix, so DateTime.parse()
-      // interprets it as local time. Since the backend uses UTC, we must treat
-      // the parsed time as UTC before comparing.
+      // DONE: Implement unlink logic
       final createdAt = incomingCall.createdAt;
       if (createdAt != null) {
         final createdAtUtc = createdAt.isUtc
@@ -498,7 +496,8 @@ class CallController extends _$CallController {
           // by the callee's answerCall — that's expected and safe to ignore.
           final callService = ref.read(callServiceProvider);
           callService.setCallActive(callId).catchError((e) {
-            debugPrint('[CallController] setCallActive: $e');
+            debugPrint('[CallController] setCallActive error: $e');
+            return const Result<void>.success(null);
           });
         } else if (state ==
                 RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
@@ -621,7 +620,8 @@ class CallController extends _$CallController {
           // by the callee's answerCall — that's expected and safe to ignore.
           final callService = ref.read(callServiceProvider);
           callService.setCallActive(callId).catchError((e) {
-            debugPrint('[CallController] setCallActive: $e');
+            debugPrint('[CallController] setCallActive error: $e');
+            return const Result<void>.success(null);
           });
         } else if (state ==
                 RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||

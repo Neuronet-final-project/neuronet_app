@@ -31,18 +31,22 @@ abstract class Channel with _$Channel {
 @freezed
 abstract class ChannelPost with _$ChannelPost {
   const factory ChannelPost({
-    required String postId,
-    required String channelId,
-    required String counselorId,
+    required String id,
+    @JsonKey(name: 'channel_id') required String channelId,
+    @JsonKey(name: 'counselor_id') required String counselorId,
+    @JsonKey(name: 'counselor_name') String? counselorName,
     required String title,
     required String content,
-    required DateTime createdAt,
-    DateTime? updatedAt,
-    @Default(false) bool isPinned,
-    @Default(true) bool allowComments,
-    @Default(0) int viewCount,
-    @Default(0) int reactionCount,
-    @Default(false) bool isReacted,
+    @JsonKey(name: 'post_type') @Default('article') String postType,
+    @JsonKey(name: 'is_educational') @Default(false) bool isEducational,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
+    @JsonKey(name: 'is_pinned') @Default(false) bool isPinned,
+    @JsonKey(name: 'allow_comments') @Default(true) bool allowComments,
+    @JsonKey(name: 'view_count') @Default(0) int viewCount,
+    @JsonKey(name: 'reaction_count') @Default(0) int reactionCount,
+    @JsonKey(name: 'comment_count') @Default(0) int commentCount,
+    @JsonKey(name: 'is_reacted') @Default(false) bool isReacted,
   }) = _ChannelPost;
 
   factory ChannelPost.fromJson(Map<String, dynamic> json) =>
@@ -52,13 +56,15 @@ abstract class ChannelPost with _$ChannelPost {
 @freezed
 abstract class ChannelInteraction with _$ChannelInteraction {
   const factory ChannelInteraction({
-    required String interactionId,
-    required String postId,
-    required String adolescentId,
-    required InteractionType interactionType,
+    required String id,
+    @JsonKey(name: 'post_id') required String postId,
+    @JsonKey(name: 'user_id') required String userId,
+    @JsonKey(name: 'user_name') String? userName,
+    @JsonKey(name: 'interaction_type') required String interactionType,
+    @JsonKey(name: 'reaction_type') String? reactionType,
     String? content,
-    required DateTime createdAt,
-    @Default(true) bool isVisible,
+    @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'is_visible') @Default(true) bool isVisible,
   }) = _ChannelInteraction;
 
   factory ChannelInteraction.fromJson(Map<String, dynamic> json) =>

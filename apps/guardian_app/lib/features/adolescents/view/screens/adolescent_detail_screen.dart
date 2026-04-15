@@ -103,7 +103,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
           const SizedBox(height: 48),
           OutlinedButton(
             onPressed: () {
-              // TODO: Implement unlink logic
+              // Logic to be implemented: unlink account
             },
             style: OutlinedButton.styleFrom(
               foregroundColor: NeuroColors.error,

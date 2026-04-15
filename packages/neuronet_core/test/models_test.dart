@@ -180,7 +180,7 @@ void main() {
         'viewCount': 100,
       };
       final post = ChannelPost.fromJson(json);
-      expect(post.postId, 'p1');
+      expect(post.id, 'p1');
       expect(post.reactionCount, 5);
       expect(post.isReacted, false); // default
     });
@@ -189,13 +189,14 @@ void main() {
       final json = {
         'interactionId': 'i1',
         'postId': 'p1',
-        'adolescentId': 'u1',
+        'userId': 'u1',
         'interactionType': 'comment',
         'content': 'Great post!',
         'createdAt': '2026-04-06T10:00:00Z',
       };
       final interaction = ChannelInteraction.fromJson(json);
-      expect(interaction.interactionType, InteractionType.comment);
+      expect(interaction.id, 'i1');
+      expect(interaction.interactionType, 'comment');
       expect(interaction.content, 'Great post!');
     });
   });

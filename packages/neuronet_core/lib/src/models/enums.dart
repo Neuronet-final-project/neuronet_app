@@ -10,7 +10,13 @@ enum UserRole {
   administrator;
 
   String toJson() => name;
-  static UserRole fromJson(String json) => values.byName(json);
+  static UserRole fromJson(String json) {
+    try {
+      return values.byName(json.toLowerCase());
+    } catch (_) {
+      return UserRole.adolescent;
+    }
+  }
 }
 
 /// Account status.
@@ -21,7 +27,7 @@ enum AccountStatus {
   pendingActivation;
 
   String toJson() => name;
-  static AccountStatus fromJson(String json) => values.byName(json);
+  static AccountStatus fromJson(String json) => values.byName(json.toLowerCase());
 }
 
 /// Mood types for mood recording.
@@ -38,7 +44,13 @@ enum MoodType {
   hopeful;
 
   String toJson() => name;
-  static MoodType fromJson(String json) => values.byName(json);
+  static MoodType fromJson(String json) {
+    try {
+      return values.byName(json.toLowerCase());
+    } catch (_) {
+      return MoodType.neutral;
+    }
+  }
 
   /// Emoji representation for UI.
   String get emoji => switch (this) {
@@ -75,7 +87,7 @@ enum ConsentType {
   shareAlerts;
 
   String toJson() => name;
-  static ConsentType fromJson(String json) => values.byName(json);
+  static ConsentType fromJson(String json) => values.byName(json.toLowerCase());
 
   /// Human-readable label for UI.
   String get label => switch (this) {
@@ -99,7 +111,7 @@ enum ConsentStatus {
   expired;
 
   String toJson() => name;
-  static ConsentStatus fromJson(String json) => values.byName(json);
+  static ConsentStatus fromJson(String json) => values.byName(json.toLowerCase());
 }
 
 /// Who consent is granted to.
@@ -109,7 +121,7 @@ enum GrantedToRole {
   both;
 
   String toJson() => name;
-  static GrantedToRole fromJson(String json) => values.byName(json);
+  static GrantedToRole fromJson(String json) => values.byName(json.toLowerCase());
 }
 
 /// Alert severity levels.
@@ -119,7 +131,13 @@ enum AlertSeverity {
   high;
 
   String toJson() => name;
-  static AlertSeverity fromJson(String json) => values.byName(json);
+  static AlertSeverity fromJson(String json) {
+    try {
+      return values.byName(json.toLowerCase());
+    } catch (_) {
+      return AlertSeverity.low;
+    }
+  }
 }
 
 /// Alert types.
@@ -152,7 +170,7 @@ enum MessageType {
   guardianChat;
 
   String toJson() => name;
-  static MessageType fromJson(String json) => values.byName(json);
+  static MessageType fromJson(String json) => values.byName(json.toLowerCase());
 }
 
 /// Channel types.
@@ -163,7 +181,7 @@ enum ChannelType {
   resourceLibrary;
 
   String toJson() => name;
-  static ChannelType fromJson(String json) => values.byName(json);
+  static ChannelType fromJson(String json) => values.byName(json.toLowerCase());
 }
 
 /// Channel interaction types.
@@ -172,7 +190,7 @@ enum InteractionType {
   comment;
 
   String toJson() => name;
-  static InteractionType fromJson(String json) => values.byName(json);
+  static InteractionType fromJson(String json) => values.byName(json.toLowerCase());
 }
 
 /// Guardian relationship type to adolescent.
@@ -182,5 +200,5 @@ enum RelationshipType {
   other;
 
   String toJson() => name;
-  static RelationshipType fromJson(String json) => values.byName(json);
+  static RelationshipType fromJson(String json) => values.byName(json.toLowerCase());
 }

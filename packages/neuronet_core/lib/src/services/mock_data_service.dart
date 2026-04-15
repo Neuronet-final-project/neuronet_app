@@ -231,7 +231,7 @@ class MockDataService {
   static List<ChannelPost> getMockPosts(String channelId) {
     return [
       ChannelPost(
-        postId: 'p-1',
+        id: 'p-1',
         channelId: channelId,
         counselorId: 'c-1',
         title: '5 Minutes to Calm',
@@ -240,10 +240,9 @@ class MockDataService {
         createdAt: DateTime.now().subtract(const Duration(hours: 5)),
         viewCount: 156,
         reactionCount: 24,
-        isReacted: true,
       ),
       ChannelPost(
-        postId: 'p-2',
+        id: 'p-2',
         channelId: channelId,
         counselorId: 'c-1',
         title: 'Developing a Growth Mindset',
@@ -260,18 +259,18 @@ class MockDataService {
   static List<ChannelInteraction> getMockComments(String postId) {
     return [
       ChannelInteraction(
-        interactionId: 'i-1',
+        id: 'i-1',
         postId: postId,
-        adolescentId: 'user-123',
-        interactionType: InteractionType.comment,
+        userId: 'user-123',
+        interactionType: 'comment',
         content: 'This was really helpful! I tried it and feel much better.',
         createdAt: DateTime.now().subtract(const Duration(hours: 2)),
       ),
       ChannelInteraction(
-        interactionId: 'i-2',
+        id: 'i-2',
         postId: postId,
-        adolescentId: 'user-456',
-        interactionType: InteractionType.comment,
+        userId: 'user-456',
+        interactionType: 'comment',
         content: 'Thanks for sharing this, counselor!',
         createdAt: DateTime.now().subtract(const Duration(hours: 1)),
       ),

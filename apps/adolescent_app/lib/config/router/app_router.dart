@@ -3,26 +3,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 // Feature screens (placeholder imports)
-import '../../features/journal/view/screens/journal_history_screen.dart';
-import '../../features/mood/view/screens/mood_screen.dart';
-import '../../features/dashboard/view/screens/dashboard_screen.dart';
-import '../../features/ai_chat/view/screens/ai_chat_screen.dart';
-import '../../features/channels/view/screens/channels_screen.dart';
-import '../../features/channels/view/screens/channel_detail_screen.dart';
-import '../../features/counselor_chat/view/screens/counselor_chat_screen.dart';
-import '../../features/journal/view/screens/new_journal_entry_screen.dart';
-import '../../features/auth/view/screens/login_screen.dart';
-import '../../features/auth/view/screens/activation_screen.dart';
-import '../../features/auth/providers/auth_provider.dart';
-import '../../features/journal/view/screens/journal_detail_screen.dart';
-import '../../features/profile/view/screens/profile_screen.dart';
-import '../../features/consent_status/view/screens/consent_status_screen.dart';
-import '../../features/alerts/view/screens/alerts_screen.dart';
-import '../../features/alerts/view/screens/alert_detail_screen.dart';
-import '../../features/educational/view/screens/educational_library_screen.dart';
-import '../../features/educational/view/screens/educational_page_detail_screen.dart';
-import '../../features/educational/view/screens/recommendations_screen.dart';
-import '../../features/auth/view/screens/splash_screen.dart';
+// Feature screens
+import 'package:adolescent_app/features/journal/view/screens/journal_history_screen.dart';
+import 'package:adolescent_app/features/mood/view/screens/mood_screen.dart';
+import 'package:adolescent_app/features/dashboard/view/screens/dashboard_screen.dart';
+import 'package:adolescent_app/features/ai_chat/view/screens/ai_chat_screen.dart';
+import 'package:adolescent_app/features/channels/view/screens/channels_screen.dart';
+import 'package:adolescent_app/features/channels/view/screens/channel_detail_screen.dart';
+import 'package:adolescent_app/features/counselor_chat/view/screens/counselor_chat_screen.dart';
+import 'package:adolescent_app/features/journal/view/screens/new_journal_entry_screen.dart';
+import 'package:adolescent_app/features/auth/view/screens/login_screen.dart';
+import 'package:adolescent_app/features/auth/view/screens/activation_screen.dart';
+import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
+import 'package:adolescent_app/features/journal/view/screens/journal_detail_screen.dart';
+import 'package:adolescent_app/features/profile/view/screens/profile_screen.dart';
+import 'package:adolescent_app/features/consent_status/view/screens/consent_status_screen.dart';
+import 'package:adolescent_app/features/alerts/view/screens/alerts_screen.dart';
+import 'package:adolescent_app/features/alerts/view/screens/alert_detail_screen.dart';
+import 'package:adolescent_app/features/educational/view/screens/educational_library_screen.dart';
+import 'package:adolescent_app/features/educational/view/screens/educational_page_detail_screen.dart';
+import 'package:adolescent_app/features/educational/view/screens/recommendations_screen.dart';
+import 'package:adolescent_app/features/auth/view/screens/splash_screen.dart';
 import 'package:neuronet_core/neuronet_core.dart'; // For Alert and EducationalPage types in routing extra
 
 /// Route names for the Adolescent app.

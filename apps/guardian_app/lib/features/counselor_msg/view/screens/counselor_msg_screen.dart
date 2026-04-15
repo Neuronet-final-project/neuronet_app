@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
-import 'package:guardian_app/features/counselor_msg/providers/counselor_chat_provider.dart';
+import '../../providers/counselor_chat_provider.dart';
 
 class CounselorMsgScreen extends ConsumerStatefulWidget {
   final String adolescentId;

@@ -114,7 +114,7 @@ void main() {
   // ── Helper: create a test Call ──────────────────────────────────────────────
 
   final dt = DateTime.now().toUtc().subtract(const Duration(seconds: 30));
-  Call _makeCall({
+  Call makeCall({
     String id = 'c1',
     String conversationId = 'conv1',
     CallType callType = CallType.voice,
@@ -141,7 +141,7 @@ void main() {
   group('CallController - Incoming Calls', () {
     test('checkIncomingCalls sets state when active incoming call exists',
         () async {
-      final call = _makeCall();
+      final call = makeCall();
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([call]));
 
@@ -160,7 +160,7 @@ void main() {
 
     test('checkIncomingCalls ignores stale calls (>5 min old)', () async {
       final staleDt = DateTime.now().toUtc().subtract(const Duration(minutes: 10));
-      final staleCall = _makeCall(createdAt: staleDt);
+      final staleCall = makeCall(createdAt: staleDt);
 
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([staleCall]));
@@ -200,7 +200,7 @@ void main() {
       // Verify it's NOT treated as UTC by parse
       expect(backendTimestamp.isUtc, isFalse);
 
-      final staleCall = _makeCall(createdAt: backendTimestamp);
+      final staleCall = makeCall(createdAt: backendTimestamp);
 
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([staleCall]));
@@ -217,7 +217,7 @@ void main() {
     });
 
     test('checkIncomingCalls does not duplicate for same call ID', () async {
-      final call = _makeCall();
+      final call = makeCall();
 
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([call]));
@@ -241,7 +241,7 @@ void main() {
       // The _isOutgoingCaller flag is set in startCall() and prevents
       // checkIncomingCalls from overwriting the caller's state with their own call.
       // We verify the state transitions correctly.
-      final call = _makeCall(status: CallStatus.initiated);
+      final call = makeCall(status: CallStatus.initiated);
 
       when(() => mockCallService.initiateCall(
             conversationId: 'conv1',
@@ -284,7 +284,7 @@ void main() {
 
   group('CallController - Answer Call (Callee)', () {
     test('answerCall sets up callee WebRTC and starts signal polling', () async {
-      final call = _makeCall();
+      final call = makeCall();
 
       // Set up initial ringing state
       when(() => mockCallService.getIncomingCalls())
@@ -317,7 +317,7 @@ void main() {
   group('CallController - Signal Handling', () {
     test('handles nested SDP offer format (web sends {sdp: {type, sdp}})',
         () async {
-      final call = _makeCall();
+      final call = makeCall();
 
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([call]));
@@ -335,17 +335,7 @@ void main() {
       expect(state!.status, CallStatus.answered);
 
       // Simulate receiving a nested-format SDP offer from caller
-      final nestedOfferSignal = SignalRequest(
-        type: 'offer',
-        data: {
-          'sdp': {
-            'type': 'offer',
-            'sdp': 'v=0\r\no=- 4711 4711 IN IP4 127.0.0.1'
-          }
-        },
-      );
-
-      // The controller's _handleSignal is private, but we can verify
+      // The controller's _handleSignal is private, but we can verify...
       // the answer was created by checking if setCallActive was NOT called
       // yet (it's only called after answer is created and sent).
       // In a headless test, we mainly verify the state doesn't crash.
@@ -356,7 +346,7 @@ void main() {
     });
 
     test('handles flat SDP answer format', () async {
-      final call = _makeCall();
+      final call = makeCall();
 
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([call]));
@@ -374,7 +364,7 @@ void main() {
     });
 
     test('handles nested ICE candidate format', () async {
-      final call = _makeCall();
+      final call = makeCall();
 
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([call]));
@@ -394,7 +384,7 @@ void main() {
     test('handles flat ICE candidate format', () async {
       // Same setup — verifies the controller doesn't crash on flat format.
       // The actual parsing is tested in the signal format mismatch test below.
-      final call = _makeCall();
+      final call = makeCall();
 
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([call]));
@@ -415,7 +405,7 @@ void main() {
 
   group('CallController - Actions', () {
     test('endCall calls endCall on service and sets status to ended', () async {
-      final call = _makeCall();
+      final call = makeCall();
 
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([call]));
@@ -438,7 +428,7 @@ void main() {
 
     test('rejectCall calls endCall on service and sets status to rejected',
         () async {
-      final call = _makeCall();
+      final call = makeCall();
 
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([call]));
@@ -499,7 +489,7 @@ void main() {
 
   group('CallController - Reject', () {
     test('rejectCall sets status to rejected', () async {
-      final call = _makeCall();
+      final call = makeCall();
 
       when(() => mockCallService.getIncomingCalls())
           .thenAnswer((_) async => Result.success([call]));
@@ -522,7 +512,6 @@ void main() {
 
   group('CallController - Cleanup', () {
     test('disposing the controller cleans up resources', () async {
-      final controller = container!.read(callControllerProvider.notifier);
       await container!.read(callControllerProvider.future);
 
       // Dispose the container — this triggers onDispose in the controller

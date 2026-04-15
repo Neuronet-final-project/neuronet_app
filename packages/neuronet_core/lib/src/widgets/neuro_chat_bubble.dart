@@ -19,8 +19,6 @@ class NeuroChatBubble extends StatefulWidget {
     this.senderLabel,
     this.userColor,
     this.maxWidthFactor = 0.75,
-    this.isVoiceMessage = false,
-    this.voiceUrl,
     this.messageType = MessageContentType.text,
     this.attachmentUrl,
   });
@@ -42,14 +40,6 @@ class NeuroChatBubble extends StatefulWidget {
 
   /// Maximum width as a fraction of screen width. Defaults to 0.75.
   final double maxWidthFactor;
-
-  /// Whether this is a voice message.
-  @Deprecated('Use messageType instead')
-  final bool isVoiceMessage;
-
-  /// URL or file path to the voice audio file.
-  @Deprecated('Use attachmentUrl instead')
-  final String? voiceUrl;
 
   /// The type of content in this message.
   final MessageContentType messageType;
@@ -91,8 +81,7 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> {
     final formattedTime = DateFormat('h:mm a').format(widget.timestamp);
     final label = widget.senderLabel ?? (widget.isUser ? 'You' : 'Contact');
 
-    final isVoice = widget.messageType == MessageContentType.audio || 
-                   (widget.messageType == MessageContentType.text && widget.isVoiceMessage);
+    final isVoice = widget.messageType == MessageContentType.audio;
 
     return Semantics(
       label: isVoice
@@ -127,11 +116,9 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> {
   }
 
   Widget _buildBubbleContent(BuildContext context, Color accentColor, String formattedTime) {
-    final effectiveType = widget.messageType == MessageContentType.text && widget.isVoiceMessage
-        ? MessageContentType.audio
-        : widget.messageType;
+    final effectiveType = widget.messageType;
 
-    final effectiveUrl = widget.attachmentUrl ?? widget.voiceUrl;
+    final effectiveUrl = widget.attachmentUrl;
 
     return switch (effectiveType) {
       MessageContentType.audio => _buildVoiceBubble(accentColor, formattedTime, effectiveUrl),

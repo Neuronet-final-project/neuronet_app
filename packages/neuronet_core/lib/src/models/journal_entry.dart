@@ -13,7 +13,7 @@ abstract class JournalEntry with _$JournalEntry {
     required String content,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
-    MoodType? mood,
+    @JsonKey(name: 'mood', fromJson: _nullableMoodFromString, toJson: _nullableMoodToJson) MoodType? mood,
     @JsonKey(name: 'sentiment_score') double? sentimentScore,
     @JsonKey(name: 'risk_level') String? riskLevel,
     @JsonKey(name: 'keywords_detected') List<String>? keywordsDetected,
@@ -28,7 +28,7 @@ abstract class CreateJournalRequest with _$CreateJournalRequest {
   const factory CreateJournalRequest({
     String? title,
     required String content,
-    required MoodType mood,
+    @JsonKey(name: 'mood', fromJson: _moodFromString, toJson: _moodToJson) required MoodType mood,
     @JsonKey(name: 'device_type') required String deviceType,
   }) = _CreateJournalRequest;
 
@@ -60,6 +60,13 @@ MoodType _moodFromString(String s) {
 }
 
 String _moodToJson(MoodType m) => m.toJson();
+
+MoodType? _nullableMoodFromString(dynamic s) {
+  if (s == null) return null;
+  return _moodFromString(s.toString());
+}
+
+String? _nullableMoodToJson(MoodType? m) => m?.toJson();
 
 @freezed
 abstract class CreateMoodRequest with _$CreateMoodRequest {

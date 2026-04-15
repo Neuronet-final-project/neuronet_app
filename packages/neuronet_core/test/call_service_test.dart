@@ -168,10 +168,6 @@ void main() {
   });
 
   group('CallService - sendSignal', () {
-    final offerSignalJson = {
-      'type': 'offer',
-      'data': {'sdp': 'v=0...', 'type': 'offer'},
-    };
     final offerSignal = SignalRequestExt.sdpOffer('v=0...');
 
     test('returns success when signal is posted', () async {

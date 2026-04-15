@@ -112,7 +112,7 @@ void main() {
     });
   });
 
-  Widget _buildTestWidget({
+  Widget buildTestWidget({
     required Widget child,
     CallState? initialState,
   }) {
@@ -171,7 +171,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        _buildTestWidget(
+        buildTestWidget(
           child: CallOverlayTestWidget(callState: callState),
           initialState: callState,
         ),
@@ -197,7 +197,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        _buildTestWidget(
+        buildTestWidget(
           child: CallOverlayTestWidget(callState: callState),
           initialState: callState,
         ),
@@ -223,7 +223,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        _buildTestWidget(
+        buildTestWidget(
           child: CallOverlayTestWidget(callState: callState),
           initialState: callState,
         ),
@@ -247,7 +247,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        _buildTestWidget(
+        buildTestWidget(
           child: CallOverlayTestWidget(callState: callState),
           initialState: callState,
         ),
@@ -272,7 +272,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        _buildTestWidget(
+        buildTestWidget(
           child: CallOverlayTestWidget(callState: callState),
           initialState: callState,
         ),
@@ -294,7 +294,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        _buildTestWidget(
+        buildTestWidget(
           child: CallOverlayTestWidget(callState: callState),
           initialState: callState,
         ),
@@ -316,7 +316,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        _buildTestWidget(
+        buildTestWidget(
           child: CallOverlayTestWidget(callState: callState),
           initialState: callState,
         ),
@@ -338,7 +338,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        _buildTestWidget(
+        buildTestWidget(
           child: CallOverlayTestWidget(callState: callState),
           initialState: callState,
         ),
