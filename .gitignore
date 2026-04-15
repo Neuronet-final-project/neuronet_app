@@ -70,4 +70,5 @@ coverage/
 **/web/
 
 # Pubspec lock
-**/pubspec.lock
+# Documentation
+/docs/
