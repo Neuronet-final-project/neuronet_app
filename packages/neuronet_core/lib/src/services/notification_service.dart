@@ -60,6 +60,19 @@ class NotificationService extends _$NotificationService {
     }
   }
 
+  /// Manually trigger token registration with the backend.
+  /// Call this after successful login.
+  Future<void> triggerRegistration() async {
+    debugPrint('[NotificationService] Manual registration trigger...');
+    String? token = await _fcm.getToken();
+    if (token != null) {
+      debugPrint('[NotificationService] FCM Token for registration: $token');
+      await _registerTokenWithBackend(token);
+    } else {
+      debugPrint('[NotificationService] No FCM token found during manual trigger');
+    }
+  }
+
   Future<void> _registerTokenWithBackend(String token) async {
     // Only register if we are likely to be authenticated
     // Note: This service might build before AuthState is fully resolved
