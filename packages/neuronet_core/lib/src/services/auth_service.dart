@@ -137,4 +137,25 @@ class AuthService {
       return Result.failure(failureFromException(e));
     }
   }
+
+  Future<Result<void>> registerDeviceToken(String deviceToken) async {
+    try {
+      await _apiClient.post(
+        ApiEndpoints.deviceToken,
+        data: {'device_token': deviceToken},
+      );
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  Future<Result<void>> unregisterDeviceToken() async {
+    try {
+      await _apiClient.delete(ApiEndpoints.deviceToken);
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
 }

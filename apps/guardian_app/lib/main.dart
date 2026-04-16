@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'config/router/app_router.dart';
 
@@ -19,6 +20,12 @@ Future<void> main() async {
   }
   ApiEndpoints.init(baseUrl: baseUrl);
 
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase initialization failed: $e');
+  }
+
   runApp(
     DevicePreview(
       enabled: kIsWeb,
@@ -32,6 +39,11 @@ class GuardianApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Initialize Notification Service
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationServiceProvider.notifier).initialize();
+    });
+
     final router = ref.watch(guardianRouterProvider);
 
     return MaterialApp.router(

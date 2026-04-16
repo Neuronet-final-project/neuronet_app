@@ -14,6 +14,7 @@ export 'src/errors/failures.dart';
 export 'src/services/auth_service.dart';
 export 'src/services/dashboard_service.dart';
 export 'src/services/journal_service.dart';
+export 'src/services/notification_service.dart';
 export 'src/services/alert_service.dart';
 export 'src/services/educational_service.dart';
 export 'src/services/consent_service.dart';
