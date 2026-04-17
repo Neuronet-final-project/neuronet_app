@@ -22,6 +22,8 @@ abstract class Alert with _$Alert {
     @JsonKey(name: 'main_concern') @Default('') String mainConcern,
     @JsonKey(name: 'ai_summary') @Default('') String aiSummary,
     @JsonKey(name: 'concern_category') @Default('') String concernCategory,
+    @JsonKey(name: 'behavioral_analysis') Map<String, dynamic>? behavioralAnalysis,
+    @JsonKey(name: 'channel_recommendations') Map<String, dynamic>? channelRecommendations,
   }) = _Alert;
 
   factory Alert.fromJson(Map<String, dynamic> json) => _$AlertFromJson(json);

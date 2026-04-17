@@ -55,7 +55,17 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
     Alert alert,
   ) {
     final color = _getFriendlyColor(alert.severityLevel);
-    final friendlyEmotions = alert.detectedEmotions.map(_getFriendlyEmotion).toList();
+    
+    // Safely pull from behavioral_analysis map if available
+    final dynamic rawEmotions = alert.behavioralAnalysis?['emotions'] ?? alert.detectedEmotions;
+    final List<String> emotionsList = (rawEmotions is List) ? rawEmotions.cast<String>() : <String>[];
+    final friendlyEmotions = emotionsList.map(_getFriendlyEmotion).toList();
+    
+    final String aiSummary = alert.behavioralAnalysis?['behavioral_summary'] as String? ?? alert.aiSummary;
+    
+    final bool hasRecommendations = alert.channelRecommendations != null && 
+                                   alert.channelRecommendations!['recommended_channels'] != null &&
+                                   (alert.channelRecommendations!['recommended_channels'] as List).isNotEmpty;
 
     return SingleChildScrollView(
       child: Column(
@@ -113,7 +123,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // AI Summary (teen-friendly)
-                if (alert.aiSummary.isNotEmpty)
+                if (aiSummary.isNotEmpty)
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -142,7 +152,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          _makeTeenFriendly(alert.aiSummary),
+                          _makeTeenFriendly(aiSummary),
                           style: theme.textTheme.bodyLarge?.copyWith(
                             height: 1.6,
                             color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
@@ -226,6 +236,31 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                 ],
 
                 const SizedBox(height: 32),
+
+                // AI Channel Recommendations
+                if (hasRecommendations) ...[
+                  Text(
+                    'Groups that might help',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ...(alert.channelRecommendations!['recommended_channels'] as List).map((ch) {
+                    final map = ch as Map<String, dynamic>;
+                    return _ActionTile(
+                      icon: Icons.group_rounded,
+                      title: map['channel_name'] as String? ?? 'Support Group',
+                      subtitle: 'Highly recommended for you based on recent journals.',
+                      onTap: () {
+                         ScaffoldMessenger.of(context).showSnackBar(
+                           const SnackBar(content: Text('Navigating to support channel...'))
+                         );
+                      },
+                    );
+                  }).toList(),
+                  const SizedBox(height: 32),
+                ],
 
                 // Non-clinical suggestion section
                 Text(
