@@ -67,6 +67,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
     Alert alert,
   ) {
     final color = _getFriendlyColor(alert.severityLevel);
+    final friendlyEmotions = alert.detectedEmotions.map(_getFriendlyEmotion).toList();
 
     return SingleChildScrollView(
       child: Column(
@@ -118,49 +119,123 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
 
           const SizedBox(height: 24),
 
-          // Trigger Content
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: NeuroColors.surface,
-                    borderRadius: BorderRadius.circular(NeuroRadius.xl),
-                    border: Border.all(
-                      color: NeuroColors.outline.withValues(alpha: 0.1),
-                      width: 1,
+                // AI Summary (teen-friendly)
+                if (alert.aiSummary.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: NeuroColors.surface,
+                      borderRadius: BorderRadius.circular(NeuroRadius.xl),
+                      border: Border.all(
+                        color: NeuroColors.outline.withValues(alpha: 0.1),
+                        width: 1,
+                      ),
+                      boxShadow: [NeuroShadows.sm],
                     ),
-                    boxShadow: [NeuroShadows.sm],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.auto_awesome, size: 20, color: color),
-                          const SizedBox(width: 8),
-                          Text(
-                            'What we noticed',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.auto_awesome, size: 20, color: color),
+                            const SizedBox(width: 8),
+                            Text(
+                              'What we noticed',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        alert.triggerDescription,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          height: 1.6,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                          ],
                         ),
+                        const SizedBox(height: 12),
+                        Text(
+                          _makeTeenFriendly(alert.aiSummary),
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            height: 1.6,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: NeuroColors.surface,
+                      borderRadius: BorderRadius.circular(NeuroRadius.xl),
+                      border: Border.all(
+                        color: NeuroColors.outline.withValues(alpha: 0.1),
+                        width: 1,
                       ),
-                    ],
+                      boxShadow: [NeuroShadows.sm],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.auto_awesome, size: 20, color: color),
+                            const SizedBox(width: 8),
+                            Text(
+                              'What we noticed',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          alert.triggerDescription,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            height: 1.6,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+
+                // Emotions section (teen-friendly with emojis)
+                if (friendlyEmotions.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  Text(
+                    'Feelings we picked up on',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: friendlyEmotions.map((emotion) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.06),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                          ),
+                        ),
+                        child: Text(
+                          emotion,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
 
                 const SizedBox(height: 32),
 
@@ -176,7 +251,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                   icon: Icons.edit_note_rounded,
                   title: 'Keep Journaling',
                   subtitle: 'Sharing your thoughts helps us find more patterns.',
-                  onTap: () {}, // Navigate to journal
+                  onTap: () {},
                 ),
                 _ActionTile(
                   icon: Icons.chat_bubble_outline_rounded,
@@ -235,6 +310,8 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
       'mooddrop' => Icons.water_drop_outlined,
       'journalfrequency' => Icons.history_edu_rounded,
       'contentflag' => Icons.lightbulb_outline_rounded,
+      'high_risk_sentiment' => Icons.show_chart_rounded,
+      'high_risk_chat' => Icons.chat_bubble_outline_rounded,
       _ => Icons.notifications_none_rounded,
     };
   }
@@ -245,8 +322,37 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
       'mooddrop' => 'Energy Shift',
       'journalfrequency' => 'Activity Update',
       'contentflag' => 'Mindfulness Prompt',
+      'high_risk_sentiment' => 'Mood Pattern',
+      'high_risk_chat' => 'Chat Insight',
       _ => 'Notice',
     };
+  }
+
+  String _getFriendlyEmotion(String emotion) {
+    return switch (emotion.toLowerCase()) {
+      'sadness' => '😔 Feeling down',
+      'loneliness' => '🫂 Feeling alone',
+      'hopelessness' => '💭 Tough thoughts',
+      'fear' => '😨 Feeling scared',
+      'anger' => '😤 Feeling frustrated',
+      'nervousness' => '😰 Feeling nervous',
+      'anxiety' => '🌊 Waves of worry',
+      'disappointment' => '😞 Disappointed',
+      'grief' => '💔 Heavy heart',
+      'annoyance' => '😒 Annoyed',
+      'confusion' => '🤔 Confused',
+      _ => '💫 $emotion',
+    };
+  }
+
+  String _makeTeenFriendly(String summary) {
+    return summary
+        .replaceAll('The adolescent', 'You')
+        .replaceAll('the adolescent', 'you')
+        .replaceAll('signs of', 'patterns around')
+        .replaceAll('Main concern:', 'What we noticed:')
+        .replaceAll('Risk level:', '')
+        .replaceAll('detected over', 'noticed in');
   }
 
   String _formatFullDate(DateTime date) {

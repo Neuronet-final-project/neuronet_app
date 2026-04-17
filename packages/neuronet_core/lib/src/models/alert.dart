@@ -17,6 +17,11 @@ abstract class Alert with _$Alert {
     @JsonKey(name: 'trigger_description') required String triggerDescription,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'viewed_status') required bool viewedStatus,
+    // Stage 2 – Emotion & Theme enrichment
+    @JsonKey(name: 'detected_emotions') @Default([]) List<String> detectedEmotions,
+    @JsonKey(name: 'main_concern') @Default('') String mainConcern,
+    @JsonKey(name: 'ai_summary') @Default('') String aiSummary,
+    @JsonKey(name: 'concern_category') @Default('') String concernCategory,
   }) = _Alert;
 
   factory Alert.fromJson(Map<String, dynamic> json) => _$AlertFromJson(json);

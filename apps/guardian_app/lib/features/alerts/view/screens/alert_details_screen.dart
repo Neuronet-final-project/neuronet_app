@@ -55,6 +55,18 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
               children: [
                 _buildHeader(alert),
                 const SizedBox(height: 24),
+                if (alert.mainConcern.isNotEmpty) ...[
+                  _buildConcernBadge(alert),
+                  const SizedBox(height: 16),
+                ],
+                if (alert.aiSummary.isNotEmpty) ...[
+                  _buildAiSummary(alert),
+                  const SizedBox(height: 16),
+                ],
+                if (alert.detectedEmotions.isNotEmpty) ...[
+                  _buildEmotions(alert),
+                  const SizedBox(height: 16),
+                ],
                 _buildDescription(alert),
                 const SizedBox(height: 24),
                 _buildNotesField(),
@@ -110,6 +122,124 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
     );
   }
 
+  Widget _buildConcernBadge(Alert alert) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'MAIN CONCERN',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.5,
+            color: NeuroColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: NeuroColors.onSurface,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            alert.mainConcern,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAiSummary(Alert alert) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: NeuroColors.primary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: NeuroColors.primary.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.psychology, size: 18, color: NeuroColors.primary),
+              const SizedBox(width: 8),
+              const Text(
+                'AI Analysis',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            alert.aiSummary,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmotions(Alert alert) {
+    final color = switch (alert.severityLevel.toLowerCase()) {
+      'high' => NeuroColors.alertHigh,
+      'medium' => NeuroColors.alertMedium,
+      _ => NeuroColors.alertLow,
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'DETECTED EMOTIONS',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.5,
+            color: NeuroColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 6,
+          children: alert.detectedEmotions.map((emotion) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withValues(alpha: 0.2)),
+              ),
+              child: Text(
+                emotion,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
   Widget _buildDescription(Alert alert) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +265,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
         Text(
           alert.triggerDescription,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: NeuroColors.onSurface,
           ),

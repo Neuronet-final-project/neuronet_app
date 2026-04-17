@@ -78,11 +78,14 @@ class _InsightCard extends StatelessWidget {
       _ => NeuroColors.alertLow.withValues(alpha: 0.6),
     };
 
+    // Friendly emotion labels for teens
+    final friendlyEmotions = alert.detectedEmotions.take(3).map(_getFriendlyEmotion).toList();
+
     return Card(
       elevation: 0,
       color: theme.colorScheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24), // Playful rounded corners
+        borderRadius: BorderRadius.circular(24),
         side: BorderSide(
           color: color.withValues(alpha: 0.3),
           width: 2,
@@ -124,20 +127,52 @@ class _InsightCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'A new pattern noticed',
+                alert.aiSummary.isNotEmpty
+                    ? _makeTeenFriendly(alert.aiSummary)
+                    : 'A new pattern noticed',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                alert.triggerDescription,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
               ),
+              if (alert.aiSummary.isEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  alert.triggerDescription,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+
+              // Friendly emotion chips for teens
+              if (friendlyEmotions.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: friendlyEmotions.map((emotion) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        emotion,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -170,8 +205,39 @@ class _InsightCard extends StatelessWidget {
       'mooddrop' => 'Energy Shift',
       'journalfrequency' => 'Activity Note',
       'contentflag' => 'Mindfulness Prompt',
+      'high_risk_sentiment' => 'Mood Pattern',
+      'high_risk_chat' => 'Chat Insight',
       _ => 'Notice',
     };
+  }
+
+  /// Make raw AI emotions teen-friendly
+  String _getFriendlyEmotion(String emotion) {
+    return switch (emotion.toLowerCase()) {
+      'sadness' => '😔 Feeling down',
+      'loneliness' => '🫂 Feeling alone',
+      'hopelessness' => '💭 Tough thoughts',
+      'fear' => '😨 Feeling scared',
+      'anger' => '😤 Feeling frustrated',
+      'nervousness' => '😰 Feeling nervous',
+      'anxiety' => '🌊 Waves of worry',
+      'disappointment' => '😞 Disappointed',
+      'grief' => '💔 Heavy heart',
+      'annoyance' => '😒 Annoyed',
+      'confusion' => '🤔 Confused',
+      _ => '💫 $emotion',
+    };
+  }
+
+  /// Convert AI summary to teen-friendly language
+  String _makeTeenFriendly(String summary) {
+    return summary
+        .replaceAll('The adolescent', 'You')
+        .replaceAll('the adolescent', 'you')
+        .replaceAll('signs of', 'patterns around')
+        .replaceAll('Main concern:', 'What we noticed:')
+        .replaceAll('Risk level:', '')
+        .replaceAll('detected over', 'noticed in');
   }
 
   String _formatDate(DateTime date) {
