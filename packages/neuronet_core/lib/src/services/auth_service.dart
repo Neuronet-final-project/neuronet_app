@@ -18,9 +18,13 @@ class AuthService {
   AuthService(this._apiClient);
   final ApiClient _apiClient;
 
-  Future<Result<AuthResponse>> login(String email, String password) async {
+  Future<Result<AuthResponse>> login(
+    String email,
+    String password, {
+    UserRole? role,
+  }) async {
     try {
-      final request = LoginRequest(email: email, password: password);
+      final request = LoginRequest(email: email, password: password, role: role);
       final response = await _apiClient.post(
         ApiEndpoints.login,
         data: request.toJson(),

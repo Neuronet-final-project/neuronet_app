@@ -78,7 +78,7 @@ class AuthController extends _$AuthController {
     state = AuthState.loading();
     try {
       final authService = ref.read(authServiceProvider);
-      final result = await authService.login(email, password);
+      final result = await authService.login(email, password, role: UserRole.guardian);
 
       if (result.isFailure) {
         state = AuthState.error(result.failure.message);
