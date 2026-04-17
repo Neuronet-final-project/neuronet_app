@@ -8,30 +8,135 @@ command:
     runPubGetInParallel: true
 
 scripts:
-  analyze:
-    exec: flutter analyze --no-pub
-    description: Run flutter analyze in all packages
-  
-  test:
-    exec: flutter test
-    description: Run tests in all packages
-  
+  # Development - Run apps
+  run_adolescent:
+    run: melos exec --scope="adolescent_app" -- "flutter run"
+    description: Run the adolescent app in debug mode
+
+  run_guardian:
+    run: melos exec --scope="guardian_app" -- "flutter run"
+    description: Run the guardian app in debug mode
+
+  run_adolescent_web:
+    run: melos exec --scope="adolescent_app" -- "flutter run -d chrome"
+    description: Run the adolescent app on Chrome (web)
+
+  run_guardian_web:
+    run: melos exec --scope="guardian_app" -- "flutter run -d chrome"
+    description: Run the guardian app on Chrome (web)
+
+  run_adolescent_profile:
+    run: melos exec --scope="adolescent_app" -- "flutter run --profile"
+    description: Run the adolescent app in profile mode (for performance testing)
+
+  run_guardian_profile:
+    run: melos exec --scope="guardian_app" -- "flutter run --profile"
+    description: Run the guardian app in profile mode (for performance testing)
+
+  # Build - Create APKs/AppBundles
+  build_apk_adolescent:
+    run: melos exec --scope="adolescent_app" -- "flutter build apk --debug"
+    description: Build debug APK for adolescent app
+
+  build_apk_guardian:
+    run: melos exec --scope="guardian_app" -- "flutter build apk --debug"
+    description: Build debug APK for guardian app
+
+  build_apk_adolescent_release:
+    run: melos exec --scope="adolescent_app" -- "flutter build apk --release"
+    description: Build release APK for adolescent app
+
+  build_apk_guardian_release:
+    run: melos exec --scope="guardian_app" -- "flutter build apk --release"
+    description: Build release APK for guardian app
+
+  build_appbundle_adolescent:
+    run: melos exec --scope="adolescent_app" -- "flutter build appbundle --release"
+    description: Build release App Bundle for adolescent app (for Play Store)
+
+  build_appbundle_guardian:
+    run: melos exec --scope="guardian_app" -- "flutter build appbundle --release"
+    description: Build release App Bundle for guardian app (for Play Store)
+
+  # Build All - Build both apps at once
+  build_all_apks:
+    run: |
+      melos build_apk_adolescent_release
+      melos build_apk_guardian_release
+    description: Build release APKs for both apps
+
+  # Code Generation
   build_runner:
     exec: dart run build_runner build --delete-conflicting-outputs
-    description: Run build_runner in all packages
+    description: Run build_runner (Freezed, Riverpod, JSON serialization)
     packageFilters:
       dependsOn: build_runner
-  
+
   build_runner_watch:
     exec: dart run build_runner watch --delete-conflicting-outputs
     description: Watch mode for build_runner
     packageFilters:
       dependsOn: build_runner
-  
-  clean:
-    exec: flutter clean
-    description: Clean all packages
-  
+
+  # Code Quality
+  analyze:
+    exec: flutter analyze --no-pub
+    description: Run flutter analyze in all packages
+
+  analyze_strict:
+    exec: dart analyze --fatal-infos
+    description: Run strict analysis (fail on info-level issues)
+
+  test:
+    exec: flutter test
+    description: Run tests in all packages
+
+  test_coverage:
+    exec: flutter test --coverage
+    description: Run tests with coverage output
+
   format:
     exec: dart format .
     description: Format all packages
+
+  format_check:
+    exec: dart format --set-exit-if-changed .
+    description: Check formatting (fail if changes needed)
+
+  lint_fix:
+    exec: dart fix --apply
+    description: Auto-fix lint issues in all packages
+
+  # Maintenance
+  clean:
+    exec: flutter clean
+    description: Clean all packages
+
+  pub_get:
+    exec: flutter pub get
+    description: Run flutter pub get in all packages
+
+  pub_upgrade:
+    exec: flutter pub upgrade
+    description: Upgrade all dependencies in all packages
+
+  # Full Workflow Commands
+  setup:
+    run: |
+      melos bootstrap
+      melos build_runner
+    description: Initial setup - bootstrap workspace and run code generation
+
+  dev:
+    run: |
+      melos bootstrap
+      melos build_runner
+      echo "Setup complete! Use 'melos run_adolescent' or 'melos run_guardian' to start apps"
+    description: Complete development setup (bootstrap + codegen + instructions)
+
+  pre_commit_check:
+    run: |
+      melos format_check
+      melos analyze_strict
+      melos test
+    description: Run all checks before committing (format + analyze + test)

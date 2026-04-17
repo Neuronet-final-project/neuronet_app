@@ -87,7 +87,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
   Widget build(BuildContext context) {
     final channelsAsync = ref.watch(channelsControllerProvider);
 
-    final channel = channelsAsync.value?.firstWhere(
+    final channel = channelsAsync.value?.channels.firstWhere(
       (c) => c.channelId == widget.channelId,
       orElse: () => Channel(
         channelId: widget.channelId,

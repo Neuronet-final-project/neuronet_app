@@ -30,19 +30,37 @@ class ProfileScreen extends ConsumerWidget {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: profileState.when(
-        data: (user) => _buildContent(context, ref, theme, user),
+        data: (state) {
+          if (state.isLoading && state.user == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state.error != null && state.user == null) {
+            return Center(
+              child: NeuroErrorWidget(
+                message: 'Error: ${state.error}',
+                onRetry: () => ref.read(adolescentProfileControllerProvider.notifier).refresh(),
+              ),
+            );
+          }
+
+          final user = state.user;
+          if (user == null) {
+             return Center(
+              child: NeuroErrorWidget(
+                message: 'User profile not found.',
+                onRetry: () => ref.read(adolescentProfileControllerProvider.notifier).refresh(),
+              ),
+            );
+          }
+
+          return _buildContent(context, ref, theme, user);
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Error: $err'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.read(adolescentProfileControllerProvider.notifier).refresh(),
-                child: const Text('Retry'),
-              ),
-            ],
+          child: NeuroErrorWidget(
+            message: 'Error: $err',
+            onRetry: () => ref.read(adolescentProfileControllerProvider.notifier).refresh(),
           ),
         ),
       ),

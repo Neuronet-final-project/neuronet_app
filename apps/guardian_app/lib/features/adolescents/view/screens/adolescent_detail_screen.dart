@@ -19,23 +19,55 @@ class AdolescentDetailScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Adolescent Profile')),
       body: detailState.when(
-        data: (state) => _buildContent(context, ref, state),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Error: $err'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref
+        data: (state) {
+          if (state.isLoading && state.profile == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state.error != null && state.profile == null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: NeuroErrorWidget(
+                  message: state.error!,
+                  onRetry: () => ref
+                      .read(
+                        adolescentDetailControllerProvider(adolescentId).notifier,
+                      )
+                      .refresh(),
+                ),
+              ),
+            );
+          }
+
+          final profile = state.profile;
+          if (profile == null) {
+            return Center(
+              child: NeuroErrorWidget(
+                message: 'Adolescent profile not found.',
+                onRetry: () => ref
                     .read(
                       adolescentDetailControllerProvider(adolescentId).notifier,
                     )
                     .refresh(),
-                child: const Text('Retry'),
               ),
-            ],
+            );
+          }
+
+          return _buildContent(context, ref, state);
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: NeuroErrorWidget(
+              message: 'Error: $err',
+              onRetry: () => ref
+                  .read(
+                    adolescentDetailControllerProvider(adolescentId).notifier,
+                  )
+                  .refresh(),
+            ),
           ),
         ),
       ),
@@ -45,10 +77,10 @@ class AdolescentDetailScreen extends ConsumerWidget {
   Widget _buildContent(
     BuildContext context,
     WidgetRef ref,
-    AdolescentDetailState detail,
+    AdolescentDetailState state,
   ) {
-    final profile = detail.profile;
-    final consents = detail.consents;
+    final profile = state.profile!;
+    final consents = state.consents;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),

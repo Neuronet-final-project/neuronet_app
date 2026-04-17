@@ -68,12 +68,37 @@ class MoodController extends _$MoodController {
   }
 }
 
+@freezed
+abstract class MoodHistoryState with _$MoodHistoryState {
+  const factory MoodHistoryState({
+    @Default([]) List<MoodRecord> records,
+    @Default(false) bool isLoading,
+    String? error,
+  }) = _MoodHistoryState;
+}
+
 @riverpod
-Future<List<MoodRecord>> moodHistory(Ref ref) async {
-  final service = ref.watch(journalServiceProvider);
-  final result = await service.getMyMoods();
-  return result.when(
-    success: (value) => value,
-    failure: (f) => throw Exception(f.message),
-  );
+class MoodHistoryController extends _$MoodHistoryController {
+  @override
+  FutureOr<MoodHistoryState> build() async {
+    final service = ref.read(journalServiceProvider);
+    final result = await service.getMyMoods();
+    
+    return result.when(
+      success: (value) => MoodHistoryState(records: value, isLoading: false),
+      failure: (f) => MoodHistoryState(isLoading: false, error: f.message),
+    );
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final service = ref.read(journalServiceProvider);
+      final result = await service.getMyMoods();
+      return result.when(
+        success: (value) => MoodHistoryState(records: value, isLoading: false),
+        failure: (f) => MoodHistoryState(isLoading: false, error: f.message),
+      );
+    });
+  }
 }

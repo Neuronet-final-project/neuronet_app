@@ -30,7 +30,28 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
         ],
       ),
       body: alertsAsync.when(
-        data: (alerts) {
+        data: (state) {
+          if (state.isLoading && state.alerts.isEmpty) {
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: 4,
+              itemBuilder: (context, index) => const NeuroSkeletonCard(),
+            );
+          }
+
+          if (state.error != null && state.alerts.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: NeuroErrorWidget(
+                  message: 'Error: ${state.error}',
+                  onRetry: () => ref.read(guardianAlertsControllerProvider.notifier).refresh(),
+                ),
+              ),
+            );
+          }
+
+          final alerts = state.alerts;
           final filteredAlerts = _filterSeverity == null
               ? alerts
               : alerts.where((a) => a.severityLevel.toLowerCase() == _filterSeverity!.toLowerCase()).toList();
@@ -67,7 +88,15 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
           itemCount: 4,
           itemBuilder: (context, index) => const NeuroSkeletonCard(),
         ),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: NeuroErrorWidget(
+              message: 'Failed to load alerts.',
+              onRetry: () => ref.read(guardianAlertsControllerProvider.notifier).refresh(),
+            ),
+          ),
+        ),
       ),
     );
   }

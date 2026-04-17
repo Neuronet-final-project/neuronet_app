@@ -9,7 +9,7 @@ class RecommendationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final recommendationsAsync = ref.watch(adolescentRecommendationsProvider);
+    final recommendationsAsync = ref.watch(adolescentRecommendationsControllerProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -18,7 +18,15 @@ class RecommendationsScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: recommendationsAsync.when(
-        data: (recommendations) {
+        data: (state) {
+          if (state.error != null) {
+            return NeuroErrorWidget(
+              message: state.error!,
+              onRetry: () => ref.read(adolescentRecommendationsControllerProvider.notifier).refresh(),
+            );
+          }
+
+          final recommendations = state.recommendations;
           if (recommendations.isEmpty) {
              return Center(
               child: Padding(
@@ -46,7 +54,7 @@ class RecommendationsScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => NeuroErrorWidget(
           message: 'Could not load your picks.',
-          onRetry: () => ref.refresh(adolescentRecommendationsProvider),
+          onRetry: () => ref.read(adolescentRecommendationsControllerProvider.notifier).refresh(),
         ),
       ),
     );

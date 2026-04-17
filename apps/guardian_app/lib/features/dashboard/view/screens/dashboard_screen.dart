@@ -129,7 +129,37 @@ class DashboardScreen extends ConsumerWidget {
         final dashboardState = ref.watch(guardianDashboardControllerProvider);
 
         return dashboardState.when(
-          data: (data) {
+          data: (state) {
+            if (state.isLoading && state.data == null) {
+              return const SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            if (state.error != null && state.data == null) {
+              return SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: NeuroErrorWidget(
+                      message: 'Dashboard data failed to load: ${state.error}',
+                      onRetry: () => ref.read(guardianDashboardControllerProvider.notifier).refresh(),
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            final data = state.data;
+            if (data == null) {
+              return const SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(child: Text('No dashboard data available.')),
+              );
+            }
+
             final isFallback = data.totalAdolescentsLinked == 0 && data.moodDistribution.isEmpty;
 
             return SliverToBoxAdapter(
@@ -161,7 +191,7 @@ class DashboardScreen extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: NeuroErrorWidget(
-                  message: 'Dashboard data failed to load.',
+                  message: 'Dashboard data failed to load: $err',
                   onRetry: () => ref.read(guardianDashboardControllerProvider.notifier).refresh(),
                 ),
               ),
@@ -204,12 +234,12 @@ class DashboardScreen extends ConsumerWidget {
                         builder: (context, ref, child) {
                           final profileAsync = ref.watch(guardianProfileControllerProvider);
                           final name = profileAsync.maybeWhen(
-                            data: (user) => user.fullName.split(' ')[0],
+                            data: (state) => state.user?.fullName.split(' ')[0] ?? 'Guardian',
                             orElse: () => 'Guardian',
                           );
                           return Text(
                             name,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: NeuroColors.guardianPrimaryDark,

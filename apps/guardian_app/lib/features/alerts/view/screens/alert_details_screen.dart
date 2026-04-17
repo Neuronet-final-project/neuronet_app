@@ -32,8 +32,24 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
         title: const Text('Alert Details'),
       ),
       body: alertsAsync.when(
-        data: (alerts) {
-          final alert = alerts.where((a) => a.alertId == widget.alertId).firstOrNull;
+        data: (state) {
+          if (state.isLoading && state.alerts.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state.error != null && state.alerts.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: NeuroErrorWidget(
+                  message: 'Error: ${state.error}',
+                  onRetry: () => ref.read(guardianAlertsControllerProvider.notifier).refresh(),
+                ),
+              ),
+            );
+          }
+
+          final alert = state.alerts.where((a) => a.alertId == widget.alertId).firstOrNull;
           if (alert == null) {
             return const Center(
               child: Padding(

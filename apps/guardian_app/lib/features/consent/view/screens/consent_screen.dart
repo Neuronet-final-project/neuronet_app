@@ -23,7 +23,34 @@ class ConsentScreen extends ConsumerWidget {
         ],
       ),
       body: consentsAsync.when(
-        data: (consents) {
+        data: (state) {
+          if (state.isLoading && state.consents.isEmpty) {
+            return CustomScrollView(
+              slivers: [
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => const NeuroSkeletonCard(),
+                    childCount: 3,
+                  ),
+                ),
+              ],
+            );
+          }
+
+          if (state.error != null && state.consents.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: NeuroErrorWidget(
+                  message: 'Error: ${state.error}',
+                  onRetry: () => ref.read(guardianConsentControllerProvider.notifier).refresh(),
+                ),
+              ),
+            );
+          }
+
+          final consents = state.consents;
           if (consents.isEmpty) {
             return const Center(
               child: Padding(
@@ -86,7 +113,15 @@ class ConsentScreen extends ConsumerWidget {
             ),
           ],
         ),
-        error: (err, stack) => Center(child: Text('Error loading consents: $err')),
+        error: (err, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: NeuroErrorWidget(
+              message: 'Failed to load consent settings.',
+              onRetry: () => ref.read(guardianConsentControllerProvider.notifier).refresh(),
+            ),
+          ),
+        ),
       ),
     );
   }

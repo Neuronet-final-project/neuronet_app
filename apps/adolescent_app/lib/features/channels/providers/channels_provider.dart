@@ -1,76 +1,80 @@
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+part 'channels_provider.freezed.dart';
 part 'channels_provider.g.dart';
+
+@freezed
+abstract class ChannelsState with _$ChannelsState {
+  const factory ChannelsState({
+    @Default([]) List<Channel> channels,
+    @Default(false) bool isLoading,
+    String? error,
+  }) = _ChannelsState;
+}
 
 @riverpod
 class ChannelsController extends _$ChannelsController {
   @override
-  FutureOr<List<Channel>> build() async {
+  FutureOr<ChannelsState> build() async {
     debugPrint('[ChannelsController] build() - Fetching all available channels');
-    final result = await ref.watch(channelServiceProvider).getAllChannels();
+    final service = ref.watch(channelServiceProvider);
+    final result = await service.getAllChannels();
+    
     return result.when(
       success: (value) {
         debugPrint('[ChannelsController] Successfully fetched ${value.length} channels');
-        return value;
+        return ChannelsState(channels: value, isLoading: false);
       },
       failure: (f) {
         debugPrint('[ChannelsController] Failed to fetch channels: ${f.message}');
-        throw Exception(f.message);
+        return ChannelsState(isLoading: false, error: f.message);
       },
     );
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final service = ref.read(channelServiceProvider);
+      final result = await service.getAllChannels();
+      return result.when(
+        success: (value) => ChannelsState(channels: value, isLoading: false),
+        failure: (f) => ChannelsState(isLoading: false, error: f.message),
+      );
+    });
   }
 
   Future<void> toggleFollow(String channelId) async {
     final currentState = state.value;
-    if (currentState == null) {
-      debugPrint('[ChannelsController] toggleFollow() called but state is null');
-      return;
-    }
+    if (currentState == null) return;
 
-    final channel = currentState.firstWhere(
-      (c) => c.channelId == channelId,
-      orElse: () => throw Exception('Channel $channelId not found'),
-    );
+    final channels = currentState.channels;
+    final index = channels.indexWhere((c) => c.channelId == channelId);
+    if (index == -1) return;
+
+    final channel = channels[index];
     final newFollowed = !channel.isFollowed;
-    debugPrint('[ChannelsController] toggleFollow($channelId) - Current: ${channel.isFollowed}, New: $newFollowed');
 
     // Optimistic update
-    state = AsyncValue.data(
-      currentState.map((c) {
-        if (c.channelId == channelId) {
-          return c.copyWith(
-            isFollowed: newFollowed,
-            subscriberCount: c.subscriberCount + (newFollowed ? 1 : -1),
-          );
-        }
-        return c;
-      }).toList(),
+    final updatedChannels = List<Channel>.from(channels);
+    updatedChannels[index] = channel.copyWith(
+      isFollowed: newFollowed,
+      subscriberCount: channel.subscriberCount + (newFollowed ? 1 : -1),
     );
-    debugPrint('[ChannelsController] Optimistic update applied');
+    
+    state = AsyncValue.data(currentState.copyWith(channels: updatedChannels));
 
     try {
       final result = await ref.read(channelServiceProvider).subscribeToChannel(channelId);
       if (result.isFailure) {
-        debugPrint('[ChannelsController] toggleFollow API failed: ${result.failure.message}');
-        // Rollback optimistic update by refetching
-        state = AsyncValue.error(Exception(result.failure.message), StackTrace.current);
-      } else {
-        debugPrint('[ChannelsController] toggleFollow API succeeded');
+        // Rollback on failure
+        state = AsyncValue.data(currentState.copyWith(error: result.failure.message));
       }
-    } catch (e, st) {
-      debugPrint('[ChannelsController] toggleFollow exception: $e');
-      state = AsyncValue.error(e, st);
+    } catch (e) {
+      state = AsyncValue.data(currentState.copyWith(error: e.toString()));
     }
   }
 }
-
-// NOTE: Channel posts and comments controllers removed.
-// Backend does NOT support channel posts or interactions.
-// These endpoints return 404:
-// - GET /channels/{id}/posts
-// - GET /channels/{id}/posts/{pid}/interactions
-// - POST /channels/{id}/posts/{pid}/interact
-//
-// If channel content features are needed, the backend must be updated first.

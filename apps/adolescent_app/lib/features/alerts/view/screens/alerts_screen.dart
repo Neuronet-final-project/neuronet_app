@@ -9,7 +9,7 @@ class AdolescentAlertsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final alertsAsync = ref.watch(adolescentAlertsProvider);
+    final alertsAsync = ref.watch(adolescentAlertsControllerProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -18,13 +18,21 @@ class AdolescentAlertsScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.refresh(adolescentAlertsProvider),
+            onPressed: () => ref.read(adolescentAlertsControllerProvider.notifier).refresh(),
             tooltip: 'Refresh alerts',
           ),
         ],
       ),
       body: alertsAsync.when(
-        data: (alerts) {
+        data: (state) {
+          if (state.error != null) {
+            return NeuroErrorWidget(
+              message: state.error!,
+              onRetry: () => ref.read(adolescentAlertsControllerProvider.notifier).refresh(),
+            );
+          }
+
+          final alerts = state.alerts;
           if (alerts.isEmpty) {
             return Center(
               child: Padding(
@@ -55,7 +63,7 @@ class AdolescentAlertsScreen extends ConsumerWidget {
         ),
         error: (err, stack) => NeuroErrorWidget(
           message: 'Could not load insights.',
-          onRetry: () => ref.refresh(adolescentAlertsProvider),
+          onRetry: () => ref.read(adolescentAlertsControllerProvider.notifier).refresh(),
         ),
       ),
     );

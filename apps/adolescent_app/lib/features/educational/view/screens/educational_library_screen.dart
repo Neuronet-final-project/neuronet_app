@@ -9,7 +9,7 @@ class EducationalLibraryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final pagesAsync = ref.watch(educationalPagesProvider);
+    final pagesAsync = ref.watch(educationalPagesControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -23,7 +23,15 @@ class EducationalLibraryScreen extends ConsumerWidget {
         ],
       ),
       body: pagesAsync.when(
-        data: (pages) {
+        data: (state) {
+          if (state.error != null) {
+            return NeuroErrorWidget(
+              message: state.error!,
+              onRetry: () => ref.read(educationalPagesControllerProvider.notifier).refresh(),
+            );
+          }
+
+          final pages = state.pages;
           if (pages.isEmpty) {
             return Center(
               child: Padding(
@@ -51,7 +59,7 @@ class EducationalLibraryScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => NeuroErrorWidget(
           message: 'Could not load library.',
-          onRetry: () => ref.refresh(educationalPagesProvider),
+          onRetry: () => ref.read(educationalPagesControllerProvider.notifier).refresh(),
         ),
       ),
     );

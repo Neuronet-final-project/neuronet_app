@@ -36,7 +36,15 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
           ),
         ),
         body: channelsAsync.when(
-          data: (channels) {
+          data: (state) {
+            if (state.error != null) {
+              return NeuroErrorWidget(
+                message: state.error!,
+                onRetry: () => ref.read(channelsControllerProvider.notifier).refresh(),
+              );
+            }
+
+            final channels = state.channels;
             debugPrint('[ChannelsScreen] Rendering ${channels.length} channels');
             
             final followedChannels = channels.where((c) => c.isFollowed).toList();
@@ -45,7 +53,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
             return RefreshIndicator(
               onRefresh: () async {
                 debugPrint('[ChannelsScreen] Refreshing channels');
-                return ref.refresh(channelsControllerProvider.future);
+                return ref.read(channelsControllerProvider.notifier).refresh();
               },
               child: TabBarView(
                 children: [
@@ -63,40 +71,9 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
           },
           error: (err, stack) {
             debugPrint('[ChannelsScreen] Error: $err\nStack: $stack');
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error loading channels',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(
-                      '$err',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      debugPrint('[ChannelsScreen] Retrying load');
-                      ref.invalidate(channelsControllerProvider);
-                    },
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
-                  ),
-                ],
-              ),
+            return NeuroErrorWidget(
+              message: 'Error loading channels: $err',
+              onRetry: () => ref.read(channelsControllerProvider.notifier).refresh(),
             );
           },
         ),
