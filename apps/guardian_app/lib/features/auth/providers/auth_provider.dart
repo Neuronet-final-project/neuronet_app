@@ -64,6 +64,8 @@ class AuthController extends _$AuthController {
       final result = await authService.getMe();
       if (result.isSuccess) {
         state = AuthState.authenticated(result.value);
+        // Trigger push notification registration
+        ref.read(notificationServiceProvider.notifier).triggerRegistration();
       } else {
         state = AuthState.unauthenticated();
       }
@@ -76,7 +78,7 @@ class AuthController extends _$AuthController {
     state = AuthState.loading();
     try {
       final authService = ref.read(authServiceProvider);
-      final result = await authService.login(email, password);
+      final result = await authService.login(email, password, role: UserRole.guardian);
 
       if (result.isFailure) {
         state = AuthState.error(result.failure.message);
@@ -95,6 +97,8 @@ class AuthController extends _$AuthController {
       final userResult = await authService.getMe();
       if (userResult.isSuccess) {
         state = AuthState.authenticated(userResult.value);
+        // Trigger push notification registration
+        ref.read(notificationServiceProvider.notifier).triggerRegistration();
       } else {
         // Fallback to email-based user if profile fetch fails
         state = AuthState.authenticated(User(

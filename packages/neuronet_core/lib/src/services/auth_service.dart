@@ -18,9 +18,13 @@ class AuthService {
   AuthService(this._apiClient);
   final ApiClient _apiClient;
 
-  Future<Result<AuthResponse>> login(String email, String password) async {
+  Future<Result<AuthResponse>> login(
+    String email,
+    String password, {
+    UserRole? role,
+  }) async {
     try {
-      final request = LoginRequest(email: email, password: password);
+      final request = LoginRequest(email: email, password: password, role: role);
       final response = await _apiClient.post(
         ApiEndpoints.login,
         data: request.toJson(),
@@ -134,6 +138,27 @@ class AuthService {
       return Result.success(adolescents);
     } catch (e) {
       debugPrint('[AuthService] ✗ getPendingAdolescents failed: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  Future<Result<void>> registerDeviceToken(String deviceToken) async {
+    try {
+      await _apiClient.post(
+        ApiEndpoints.deviceToken,
+        data: {'device_token': deviceToken},
+      );
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  Future<Result<void>> unregisterDeviceToken() async {
+    try {
+      await _apiClient.delete(ApiEndpoints.deviceToken);
+      return const Result.success(null);
+    } catch (e) {
       return Result.failure(failureFromException(e));
     }
   }

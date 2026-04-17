@@ -20,6 +20,7 @@ class ApiEndpoints {
   static const String updateProfile = '/auth/me'; // PUT method
   static const String createAdolescent = '/auth/guardian/create-adolescent';
   static const String pendingAdolescents = '/auth/guardian/pending-adolescents';
+  static const String deviceToken = '/auth/device-token';
 
   // Dashboard
   static const String guardianDashboard = '/dashboard/guardian';

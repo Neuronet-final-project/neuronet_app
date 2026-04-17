@@ -137,6 +137,7 @@ class CallController extends _$CallController {
     _incomingCallPollTimer = Timer.periodic(const Duration(seconds: 2), (
       _,
     ) async {
+      if (!ref.mounted) return;
       final state = this.state.value;
       // Only check if not already in a call
       if (state != null && !state.isInCall) {
@@ -154,6 +155,8 @@ class CallController extends _$CallController {
   Future<void> checkIncomingCalls() async {
     final callService = ref.read(callServiceProvider);
     final result = await callService.getIncomingCalls();
+
+    if (!ref.mounted) return;
 
     if (result.isSuccess && result.value.isNotEmpty) {
       final incomingCall = result.value.first;
@@ -707,6 +710,8 @@ class CallController extends _$CallController {
   Future<void> _pollSignals(String callId) async {
     final callService = ref.read(callServiceProvider);
     final result = await callService.getSignals(callId);
+
+    if (!ref.mounted) return;
 
     if (result.isSuccess && result.value.isNotEmpty) {
       for (final signal in result.value) {

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1050662232150",
+    "project_id": "neuronet-7a3cc",
+    "storage_bucket": "neuronet-7a3cc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1050662232150:android:6c58b3bb3e4a56f0d09bf7",
+        "android_client_info": {
+          "package_name": "com.neuronet.adolescent_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCygbNDarMDmUX5Cy2vNxcBB0LLyePo3kw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1050662232150:android:054d57ccfb5bf2bcd09bf7",
+        "android_client_info": {
+          "package_name": "com.neuronet.guardian_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCygbNDarMDmUX5Cy2vNxcBB0LLyePo3kw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
