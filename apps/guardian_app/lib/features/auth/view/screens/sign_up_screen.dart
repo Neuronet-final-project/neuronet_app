@@ -17,6 +17,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
@@ -146,10 +148,21 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     // Password Field
                     TextFormField(
                       controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: Icon(Icons.lock_outline),
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            color: theme.primaryColor,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Please enter your password';
@@ -162,10 +175,21 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     // Confirm Password Field
                     TextFormField(
                       controller: _confirmPasswordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
+                      obscureText: _obscureConfirmPassword,
+                      decoration: InputDecoration(
                         labelText: 'Confirm Password',
-                        prefixIcon: Icon(Icons.lock_reset),
+                        prefixIcon: const Icon(Icons.lock_reset),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                            color: theme.primaryColor,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword = !_obscureConfirmPassword;
+                            });
+                          },
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Please confirm your password';
