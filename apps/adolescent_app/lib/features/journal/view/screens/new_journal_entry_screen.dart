@@ -61,6 +61,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(journalControllerProvider);
     final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: NeuroColors.background,
