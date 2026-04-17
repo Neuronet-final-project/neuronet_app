@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -9,8 +9,9 @@ part 'notification_service.g.dart';
 
 @Riverpod(keepAlive: true)
 class NotificationService extends _$NotificationService {
-  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  FirebaseMessaging? _fcm;
+  FlutterLocalNotificationsPlugin? _localNotifications;
+  bool _initialized = false;
 
   @override
   FutureOr<void> build() async {
@@ -18,10 +19,20 @@ class NotificationService extends _$NotificationService {
   }
 
   Future<void> initialize() async {
-    debugPrint('[NotificationService] Initializing...');
+    if (_initialized) return;
+    
+    // Safety check for Firebase initialization
+    if (Firebase.apps.isEmpty) {
+      debugPrint('[NotificationService] Skipping initialization: Firebase not initialized');
+      return;
+    }
 
-    // 1. Request permissions (iOS/Android 13+)
-    NotificationSettings settings = await _fcm.requestPermission(
+    try {
+      debugPrint('[NotificationService] Initializing...');
+      _fcm = FirebaseMessaging.instance;
+      _localNotifications = FlutterLocalNotificationsPlugin();
+      
+    NotificationSettings settings = await _fcm!.requestPermission(
       alert: true,
       badge: true,
       sound: true,
@@ -31,14 +42,14 @@ class NotificationService extends _$NotificationService {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       // 2. Get FCM token
-      String? token = await _fcm.getToken();
+      String? token = await _fcm!.getToken();
       if (token != null) {
         debugPrint('[NotificationService] FCM Token: $token');
         await _registerTokenWithBackend(token);
       }
 
       // 3. Listen for token refreshes
-      _fcm.onTokenRefresh.listen((newToken) {
+      _fcm!.onTokenRefresh.listen((newToken) {
         debugPrint('[NotificationService] Token refreshed: $newToken');
         _registerTokenWithBackend(newToken);
       });
@@ -50,21 +61,43 @@ class NotificationService extends _$NotificationService {
         android: initializationSettingsAndroid,
         iOS: DarwinInitializationSettings(),
       );
-      await _localNotifications.initialize(initializationSettings);
+      await _localNotifications!.initialize(initializationSettings);
+
+      // Create high importance channel for Android
+      await _localNotifications!
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(const AndroidNotificationChannel(
+            'high_importance_channel',
+            'High Importance Notifications',
+            description: 'This channel is used for important notifications.',
+            importance: Importance.max,
+          ));
 
       // 5. Handle foreground messages
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
       // 6. Handle notification clicks when app is in background/terminated
       FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationClick);
+      
+      _initialized = true;
+    }
+    } catch (e) {
+      debugPrint('[NotificationService] Initialization failed: $e');
     }
   }
 
   /// Manually trigger token registration with the backend.
   /// Call this after successful login.
   Future<void> triggerRegistration() async {
+    if (!_initialized) {
+      debugPrint('[NotificationService] triggerRegistration called before initialization. Initializing first...');
+      await initialize();
+    }
+    if (!_initialized) return; // Still not initialized (e.g. no Firebase)
+
     debugPrint('[NotificationService] Manual registration trigger...');
-    String? token = await _fcm.getToken();
+    String? token = await _fcm?.getToken();
     if (token != null) {
       debugPrint('[NotificationService] FCM Token for registration: $token');
       await _registerTokenWithBackend(token);
@@ -94,8 +127,8 @@ class NotificationService extends _$NotificationService {
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
 
-    if (notification != null && android != null) {
-      _localNotifications.show(
+    if (notification != null && android != null && _localNotifications != null) {
+      _localNotifications!.show(
         notification.hashCode,
         notification.title,
         notification.body,
