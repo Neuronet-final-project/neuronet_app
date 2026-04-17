@@ -10,16 +10,24 @@ class JournalDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final journalState = ref.watch(journalControllerProvider);
+    final journalAsync = ref.watch(journalControllerProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Journal Entry'),
       ),
-      body: journalState.when(
-        data: (entries) {
-          final entry = entries.firstWhere(
+      body: journalAsync.when(
+        data: (state) {
+          if (state.isLoading && state.entries.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state.error != null && state.entries.isEmpty) {
+            return Center(child: Text('Error: ${state.error}'));
+          }
+
+          final entry = state.entries.firstWhere(
             (e) => e.id == entryId,
             orElse: () => throw Exception('Entry not found'),
           );

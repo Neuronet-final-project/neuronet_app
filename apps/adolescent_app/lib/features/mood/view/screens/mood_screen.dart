@@ -26,7 +26,7 @@ class MoodScreen extends ConsumerWidget {
       }
     });
 
-    final moodHistoryAsync = ref.watch(moodHistoryProvider);
+    final moodHistoryAsync = ref.watch(moodHistoryControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -35,7 +35,7 @@ class MoodScreen extends ConsumerWidget {
           IconButton(
             onPressed: () {
               notifier.reset();
-              ref.invalidate(moodHistoryProvider);
+              ref.read(moodHistoryControllerProvider.notifier).refresh();
             },
             icon: const Icon(Icons.refresh),
             tooltip: 'Reset',
@@ -52,16 +52,16 @@ class MoodScreen extends ConsumerWidget {
                   Text(
                     'How are you feeling right now?',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.primary,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Select the emoji that best matches your current mood.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: NeuroColors.onSurfaceVariant,
-                        ),
+                      color: NeuroColors.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   _buildMoodGrid(context, state, notifier),
@@ -72,7 +72,9 @@ class MoodScreen extends ConsumerWidget {
                     _buildNotesSection(context, state, notifier),
                     const SizedBox(height: 40),
                     ElevatedButton(
-                      onPressed: state.isSubmitting ? null : () => notifier.submitMood(),
+                      onPressed: state.isSubmitting
+                          ? null
+                          : () => notifier.submitMood(),
                       child: state.isSubmitting
                           ? const SizedBox(
                               height: 20,
@@ -86,16 +88,43 @@ class MoodScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 20),
                   ],
-                  _buildMoodHistory(context, moodHistoryAsync),
+                  _buildMoodHistory(context, ref, moodHistoryAsync),
                 ],
               ),
             ),
     );
   }
 
-  Widget _buildMoodHistory(BuildContext context, AsyncValue<List<MoodRecord>> historyAsync) {
+  Widget _buildMoodHistory(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<MoodHistoryState> historyAsync,
+  ) {
     return historyAsync.when(
-      data: (records) {
+      data: (state) {
+        if (state.isLoading && state.records.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.error != null && state.records.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: NeuroErrorWidget(
+                message: 'Could not load history: ${state.error}',
+                onRetry: () =>
+                    ref.read(moodHistoryControllerProvider.notifier).refresh(),
+              ),
+            ),
+          );
+        }
+
+        final records = state.records;
         if (records.isEmpty) return const SizedBox.shrink();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,65 +133,85 @@ class MoodScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             Text(
               'Recent Check-ins',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            ...records.take(5).map((r) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Text(r.mood.emoji, style: const TextStyle(fontSize: 24)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            ...records
+                .take(5)
+                .map(
+                  (r) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
                       children: [
                         Text(
-                          r.mood.label,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          r.mood.emoji,
+                          style: const TextStyle(fontSize: 24),
                         ),
-                        if (r.note != null && r.note!.isNotEmpty)
-                          Text(
-                            r.note!,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: NeuroColors.onSurfaceVariant,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                r.mood.label,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              if (r.note != null && r.note!.isNotEmpty)
+                                Text(
+                                  r.note!,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: NeuroColors.onSurfaceVariant,
+                                      ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            ],
                           ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              _formatTimeAgo(r.createdAt),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: NeuroColors.onSurfaceVariant,
+                                  ),
+                            ),
+                            if (r.intensity != null)
+                              Text(
+                                'Intensity: ${r.intensity}/5',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: NeuroColors.onSurfaceVariant,
+                                    ),
+                              ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        _formatTimeAgo(r.createdAt),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: NeuroColors.onSurfaceVariant,
-                            ),
-                      ),
-                      if (r.intensity != null)
-                        Text(
-                          'Intensity: ${r.intensity}/5',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: NeuroColors.onSurfaceVariant,
-                              ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            )),
+                ),
           ],
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => const SizedBox.shrink(),
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      error: (err, stack) => Center(
+        child: NeuroErrorWidget(
+          message: 'Error: $err',
+          onRetry: () =>
+              ref.read(moodHistoryControllerProvider.notifier).refresh(),
+        ),
+      ),
     );
   }
 
@@ -174,7 +223,11 @@ class MoodScreen extends ConsumerWidget {
     return '${diff.inDays}d ago';
   }
 
-  Widget _buildMoodGrid(BuildContext context, MoodState state, MoodController notifier) {
+  Widget _buildMoodGrid(
+    BuildContext context,
+    MoodState state,
+    MoodController notifier,
+  ) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -196,7 +249,11 @@ class MoodScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildIntensitySection(BuildContext context, MoodState state, MoodController notifier) {
+  Widget _buildIntensitySection(
+    BuildContext context,
+    MoodState state,
+    MoodController notifier,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -205,9 +262,9 @@ class MoodScreen extends ConsumerWidget {
           children: [
             Text(
               'How intense is this feeling?',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -248,15 +305,19 @@ class MoodScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNotesSection(BuildContext context, MoodState state, MoodController notifier) {
+  Widget _buildNotesSection(
+    BuildContext context,
+    MoodState state,
+    MoodController notifier,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Any context? (Optional)',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         TextField(
@@ -284,17 +345,17 @@ class MoodScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           Text(
             'Mood Saved!',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Text(
             'Your emotional check-in helps us understand your needs.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: NeuroColors.onSurfaceVariant,
-                ),
+              color: NeuroColors.onSurfaceVariant,
+            ),
           ),
         ],
       ),

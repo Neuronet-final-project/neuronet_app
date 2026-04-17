@@ -15,7 +15,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final alertsAsync = ref.watch(adolescentAlertsProvider);
+    final alertsAsync = ref.watch(adolescentAlertsControllerProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -24,7 +24,15 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: alertsAsync.when(
-        data: (alerts) {
+        data: (state) {
+          if (state.error != null) {
+            return NeuroErrorWidget(
+              message: state.error!,
+              onRetry: () => ref.read(adolescentAlertsControllerProvider.notifier).refresh(),
+            );
+          }
+
+          final alerts = state.alerts;
           final alert = alerts.firstWhere(
             (a) => a.alertId == alertId,
             orElse: () => throw Exception('Alert not found'),
@@ -32,29 +40,9 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
           return _buildContent(context, ref, theme, alert);
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: NeuroColors.error),
-              const SizedBox(height: 16),
-              Text(
-                'Failed to load alert details',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                err.toString(),
-                style: theme.textTheme.bodyMedium?.copyWith(color: NeuroColors.onSurfaceVariant),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => ref.invalidate(adolescentAlertsProvider),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
+        error: (err, stack) => NeuroErrorWidget(
+          message: 'Failed to load alert details',
+          onRetry: () => ref.read(adolescentAlertsControllerProvider.notifier).refresh(),
         ),
       ),
     );

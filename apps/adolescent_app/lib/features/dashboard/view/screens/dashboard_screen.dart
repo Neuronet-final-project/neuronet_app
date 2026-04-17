@@ -31,7 +31,7 @@ class DashboardScreen extends ConsumerWidget {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(adolescentDashboardProvider.future),
+        onRefresh: () => ref.refresh(adolescentDashboardControllerProvider.future),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -60,7 +60,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget _buildWelcomeHeader(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(adolescentProfileControllerProvider);
     final name = profileAsync.maybeWhen(
-      data: (user) => user.fullName.split(' ')[0],
+      data: (state) => state.user?.fullName.split(' ')[0] ?? 'there',
       orElse: () => 'there',
     );
 
@@ -325,10 +325,30 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildDataSection(BuildContext context, WidgetRef ref) {
-    final dashboardAsync = ref.watch(adolescentDashboardProvider);
+    final dashboardAsync = ref.watch(adolescentDashboardControllerProvider);
 
     return dashboardAsync.when(
-      data: (data) {
+      data: (state) {
+        if (state.isLoading && state.data == null) {
+          return const Padding(
+            padding: EdgeInsets.all(40),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (state.error != null && state.data == null) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: NeuroErrorWidget(
+              message: 'Dashboard data failed to load: ${state.error}',
+              onRetry: () => ref.read(adolescentDashboardControllerProvider.notifier).refresh(),
+            ),
+          );
+        }
+
+        final data = state.data;
+        if (data == null) return const SizedBox.shrink();
+
         final isFallback = data.recentJournals.isEmpty && data.moodDistribution.isEmpty;
 
         return Column(
@@ -357,15 +377,15 @@ class DashboardScreen extends ConsumerWidget {
       error: (err, stack) => Padding(
         padding: const EdgeInsets.all(16),
         child: NeuroErrorWidget(
-          message: 'Dashboard data failed to load.',
-          onRetry: () => ref.invalidate(adolescentDashboardProvider),
+          message: 'Dashboard data failed to load: $err',
+          onRetry: () => ref.read(adolescentDashboardControllerProvider.notifier).refresh(),
         ),
       ),
     );
   }
 
   Widget _buildInsightsSnippet(BuildContext context, WidgetRef ref) {
-    final alertsAsync = ref.watch(adolescentAlertsProvider);
+    final alertsAsync = ref.watch(adolescentAlertsControllerProvider);
     final theme = Theme.of(context);
 
     return Column(
@@ -388,7 +408,8 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         alertsAsync.when(
-          data: (alerts) {
+          data: (state) {
+            final alerts = state.alerts;
             if (alerts.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -428,7 +449,7 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildLearningSnippet(BuildContext context, WidgetRef ref) {
-    final recommendationsAsync = ref.watch(adolescentRecommendationsProvider);
+    final recommendationsAsync = ref.watch(adolescentRecommendationsControllerProvider);
     final theme = Theme.of(context);
 
     return Column(
@@ -451,7 +472,8 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         recommendationsAsync.when(
-          data: (recs) {
+          data: (state) {
+            final recs = state.recommendations;
             if (recs.isEmpty) return const SizedBox.shrink();
             final topRec = recs.first;
             return Padding(

@@ -9,8 +9,10 @@ part 'adolescent_provider.g.dart';
 @freezed
 abstract class AdolescentDetailState with _$AdolescentDetailState {
   const factory AdolescentDetailState({
-    required AdolescentResponse profile,
+    AdolescentResponse? profile,
     @Default([]) List<Consent> consents,
+    @Default(false) bool isLoading,
+    String? error,
   }) = _AdolescentDetailState;
 }
 
@@ -20,59 +22,52 @@ class AdolescentDetailController extends _$AdolescentDetailController {
   FutureOr<AdolescentDetailState> build(String adolescentId) async {
     final dashboardService = ref.watch(dashboardServiceProvider);
 
-    debugPrint('[AdolescentDetail] ── Fetching details for adolescent ID: $adolescentId ──');
-
-    // 1. Fetch linked adolescents
-    debugPrint('[AdolescentDetail] Step 1: Fetching linked adolescents');
     final linkedResult = await dashboardService.getLinkedAdolescents();
     if (linkedResult.isFailure) {
-      debugPrint('[AdolescentDetail] ✗ Failed to fetch linked adolescents: ${linkedResult.failure.message}');
-      throw Exception(linkedResult.failure.message);
+      return AdolescentDetailState(isLoading: false, error: linkedResult.failure.message);
     }
+
     final linkedAdolescents = linkedResult.value;
-    debugPrint('[AdolescentDetail] ✓ Found ${linkedAdolescents.length} linked adolescent(s)');
-
-    // 2. Find the specific adolescent
-    debugPrint('[AdolescentDetail] Step 2: Searching for adolescent with ID: $adolescentId');
-    final profile = linkedAdolescents.firstWhere(
-      (a) => a.effectiveId == adolescentId,
-      orElse: () => throw Exception('Adolescent not found'),
+    final profile = linkedAdolescents.cast<AdolescentResponse?>().firstWhere(
+      (a) => a?.effectiveId == adolescentId,
+      orElse: () => null,
     );
-    debugPrint('[AdolescentDetail] ✓ Found: ${profile.fullName} (${profile.email})');
 
-    // 3. Fetch consents for this adolescent
-    debugPrint('[AdolescentDetail] Step 3: Fetching consents for ${profile.email}');
+    if (profile == null) {
+      return const AdolescentDetailState(isLoading: false, error: 'Adolescent not found');
+    }
+
     List<Consent> consents = [];
     final consentsResult = await dashboardService.getAdolescentConsents(profile.email);
     if (consentsResult.isSuccess) {
       consents = consentsResult.value;
-      debugPrint('[AdolescentDetail] ✓ Fetched ${consents.length} consent(s)');
-    } else {
-      debugPrint('[AdolescentDetail] ⚠ Consents fetch failed: ${consentsResult.failure.message} (using empty list)');
     }
 
-    debugPrint('[AdolescentDetail] ── Details loaded ──');
     return AdolescentDetailState(
       profile: profile,
       consents: consents,
+      isLoading: false,
     );
   }
 
   Future<void> refresh() async {
-    debugPrint('[AdolescentDetail] ── Refreshing ──');
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final dashboardService = ref.read(dashboardServiceProvider);
       final linkedResult = await dashboardService.getLinkedAdolescents();
+      
       if (linkedResult.isFailure) {
-        debugPrint('[AdolescentDetail] ✗ Refresh failed: ${linkedResult.failure.message}');
-        throw Exception(linkedResult.failure.message);
+        return AdolescentDetailState(isLoading: false, error: linkedResult.failure.message);
       }
-      final linkedAdolescents = linkedResult.value;
-      final profile = linkedAdolescents.firstWhere(
-        (a) => a.effectiveId == adolescentId,
-        orElse: () => throw Exception('Adolescent not found'),
+
+      final profile = linkedResult.value.cast<AdolescentResponse?>().firstWhere(
+        (a) => a?.effectiveId == adolescentId,
+        orElse: () => null,
       );
+
+      if (profile == null) {
+        return const AdolescentDetailState(isLoading: false, error: 'Adolescent not found');
+      }
 
       List<Consent> consents = [];
       final consentsResult = await dashboardService.getAdolescentConsents(profile.email);
@@ -80,8 +75,7 @@ class AdolescentDetailController extends _$AdolescentDetailController {
         consents = consentsResult.value;
       }
 
-      debugPrint('[AdolescentDetail] ✓ Refreshed: ${profile.fullName}');
-      return AdolescentDetailState(profile: profile, consents: consents);
+      return AdolescentDetailState(profile: profile, consents: consents, isLoading: false);
     });
   }
 }
@@ -93,50 +87,32 @@ Future<List<AdolescentResponse>> linkedAdolescents(Ref ref) async {
   final result = await dashboardService.getLinkedAdolescents();
   if (result.isSuccess) {
     debugPrint('[LinkedAdolescents] ✓ Found ${result.value.length} linked adolescent(s)');
-    for (int i = 0; i < result.value.length; i++) {
-      final a = result.value[i];
-      debugPrint('[LinkedAdolescents]   [$i] ${a.fullName} | ${a.email} | status: ${a.inferredStatus}');
-    }
+    return result.value;
   } else {
     debugPrint('[LinkedAdolescents] ✗ Failed: ${result.failure.message}');
+    return []; // Return empty list instead of throwing
   }
-  return result.value;
 }
 
 @riverpod
 Future<List<AdolescentResponse>> pendingAdolescents(Ref ref) async {
   debugPrint('[PendingAdolescents] ── Fetching pending/inactive adolescents ──');
   final authService = ref.watch(authServiceProvider);
-  debugPrint('[PendingAdolescents] Step 1: Calling authService.getPendingAdolescents()');
   final result = await authService.getPendingAdolescents();
+  
   return result.when(
     success: (value) {
-      debugPrint('[PendingAdolescents] ✓ Found ${value.length} adolescent(s) from API');
-      for (int i = 0; i < value.length; i++) {
-        final a = value[i];
-        final dateStr = a.createdAt?.toIso8601String().split('T').first ?? 'unknown';
-        final relStr = a.relationship?.name ?? 'none';
-        final statusStr = a.accountStatus?.name ?? 'null';
-        debugPrint('[PendingAdolescents]   [$i] ${a.fullName} | ${a.email} | created: $dateStr | relationship: $relStr | status: $statusStr');
-      }
-      
-      // Show adolescents who need activation: pendingActivation OR inactive
-      // Inactive accounts may need re-activation
       final needsActivation = value
           .where((a) => 
             a.accountStatus == AccountStatus.pendingActivation || 
             a.accountStatus == AccountStatus.inactive
           )
           .toList();
-      
-      debugPrint('[PendingAdolescents] Filtered to ${needsActivation.length} pending/inactive adolescent(s)');
-      debugPrint('[PendingAdolescents] ── Pending list loaded ──');
-      
       return needsActivation;
     },
     failure: (f) {
       debugPrint('[PendingAdolescents] ✗ Failed: ${f.message}');
-      throw Exception(f.message);
+      return []; // Return empty list instead of throwing
     },
   );
 }

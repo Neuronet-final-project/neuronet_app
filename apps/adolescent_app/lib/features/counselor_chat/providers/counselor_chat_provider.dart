@@ -27,12 +27,13 @@ class CounselorChatController extends _$CounselorChatController {
 
   @override
   FutureOr<CounselorChatState> build() async {
-    final profile = await ref.watch(adolescentProfileControllerProvider.future);
+    final profileState = await ref.watch(adolescentProfileControllerProvider.future);
+    final user = profileState.user;
 
-    final adolescentId = profile.getEffectiveId();
-    final myEmail = profile.email.toLowerCase();
+    final adolescentId = user?.id ?? '';
+    final myEmail = user?.email.toLowerCase() ?? '';
     debugPrint('[CounselorChat] ── Initializing counselor chat session ──');
-    debugPrint('[CounselorChat] Profile email: ${profile.email}');
+    debugPrint('[CounselorChat] Profile email: $myEmail');
     debugPrint('[CounselorChat] Using effective adolescent ID: $adolescentId');
 
     debugPrint('[CounselorChat] Step 1: Getting or creating conversation');

@@ -1,26 +1,41 @@
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+part 'profile_provider.freezed.dart';
 part 'profile_provider.g.dart';
+
+@freezed
+abstract class AdolescentProfileState with _$AdolescentProfileState {
+  const factory AdolescentProfileState({
+    User? user,
+    @Default(false) bool isLoading,
+    String? error,
+  }) = _AdolescentProfileState;
+}
 
 @riverpod
 class AdolescentProfileController extends _$AdolescentProfileController {
   @override
-  FutureOr<User> build() async {
+  FutureOr<AdolescentProfileState> build() async {
     final authService = ref.watch(authServiceProvider);
     final result = await authService.getMe();
-    if (result.isSuccess) {
-      return result.value;
-    }
-    debugPrint('[Profile] Failed to fetch profile from server. Falling back to generic user.');
-    // return a fallback user so we don't break the entire app shell
-    return User(
-      id: 'fallback',
-      fullName: 'Member',
-      email: '...',
-      role: UserRole.adolescent,
-      accountStatus: AccountStatus.active,
+    
+    return result.when(
+      success: (value) => AdolescentProfileState(user: value, isLoading: false),
+      failure: (f) {
+        debugPrint('[Profile] Failed to fetch profile from server: ${f.message}');
+        // Fallback user to prevent total app failure
+        final fallback = User(
+          id: 'fallback',
+          fullName: 'Member',
+          email: '...',
+          role: UserRole.adolescent,
+          accountStatus: AccountStatus.active,
+        );
+        return AdolescentProfileState(user: fallback, isLoading: false, error: f.message);
+      },
     );
   }
 
@@ -29,10 +44,15 @@ class AdolescentProfileController extends _$AdolescentProfileController {
     state = await AsyncValue.guard(() async {
       final authService = ref.read(authServiceProvider);
       final result = await authService.getMe();
-      if (result.isFailure) {
-        throw Exception(result.failure.message);
-      }
-      return result.value;
+      
+      return result.when(
+        success: (value) => AdolescentProfileState(user: value, isLoading: false),
+        failure: (f) => AdolescentProfileState(
+          user: state.value?.user,
+          isLoading: false,
+          error: f.message,
+        ),
+      );
     });
   }
 }
