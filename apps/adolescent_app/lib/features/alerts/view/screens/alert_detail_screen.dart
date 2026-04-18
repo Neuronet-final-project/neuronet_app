@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../../../config/router/app_router.dart';
 import '../../providers/alerts_provider.dart';
+import '../../channels/providers/channels_provider.dart';
 
 class AdolescentAlertDetailScreen extends ConsumerWidget {
   const AdolescentAlertDetailScreen({
@@ -246,7 +247,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ...(alert.channelRecommendations?.recommended_channels ?? []).map((ch) {
+                  ...(alert.channelRecommendations?['recommended_channels'] as List? ?? []).map((ch) {
                     final map = ch as Map<String, dynamic>;
                     final channelId = map['channel_id'] as String?;
                     
