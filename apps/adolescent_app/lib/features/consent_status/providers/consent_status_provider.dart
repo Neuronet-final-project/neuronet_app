@@ -10,6 +10,8 @@ abstract class ConsentStatusState with _$ConsentStatusState {
   const factory ConsentStatusState({
     @Default(true) bool shareAiSummaries,
     @Default(true) bool shareAlerts,
+    @Default(true) bool participation,
+    @Default(true) bool counselorChat,
   }) = _ConsentStatusState;
 }
 
@@ -24,6 +26,8 @@ class AdolescentConsentController extends _$AdolescentConsentController {
         return ConsentStatusState(
           shareAiSummaries: data['share_ai_summaries'] as bool? ?? true,
           shareAlerts: data['share_alerts'] as bool? ?? true,
+          participation: data['participation'] as bool? ?? true,
+          counselorChat: data['counselor_chat'] as bool? ?? true,
         );
       },
       failure: (f) => throw Exception(f.message),

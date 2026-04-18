@@ -76,6 +76,8 @@ class ConsentService {
     required String email,
     required bool shareAiSummaries,
     required bool shareAlerts,
+    required bool participation,
+    required bool counselorChat,
   }) async {
     try {
       await _client.post(
@@ -83,6 +85,8 @@ class ConsentService {
         data: {
           'share_ai_summaries': shareAiSummaries,
           'share_alerts': shareAlerts,
+          'participation': participation,
+          'counselor_chat': counselorChat,
         },
       );
       return const Result.success(null);
@@ -117,6 +121,28 @@ class ConsentService {
             : ConsentStatus.revoked,
         grantedAt: DateTime.now(),
       ),
+      Consent(
+        consentId: 'fake-participation-$email',
+        adolescentId: email,
+        guardianId: data['guardian_email'] ?? '',
+        consentType: ConsentType.participation,
+        grantedToRole: GrantedToRole.guardian,
+        consentStatus: (data['participation'] as bool? ?? false)
+            ? ConsentStatus.granted
+            : ConsentStatus.revoked,
+        grantedAt: DateTime.now(),
+      ),
+      Consent(
+        consentId: 'fake-chat-$email',
+        adolescentId: email,
+        guardianId: data['guardian_email'] ?? '',
+        consentType: ConsentType.counselorChat,
+        grantedToRole: GrantedToRole.guardian,
+        consentStatus: (data['counselor_chat'] as bool? ?? false)
+            ? ConsentStatus.granted
+            : ConsentStatus.revoked,
+        grantedAt: DateTime.now(),
+      ),
     ];
   }
 
@@ -137,6 +163,24 @@ class ConsentService {
         adolescentId: email,
         guardianId: '',
         consentType: ConsentType.shareAlerts,
+        grantedToRole: GrantedToRole.guardian,
+        consentStatus: ConsentStatus.revoked,
+        grantedAt: DateTime.now(),
+      ),
+      Consent(
+        consentId: 'empty-participation-$email',
+        adolescentId: email,
+        guardianId: '',
+        consentType: ConsentType.participation,
+        grantedToRole: GrantedToRole.guardian,
+        consentStatus: ConsentStatus.revoked,
+        grantedAt: DateTime.now(),
+      ),
+      Consent(
+        consentId: 'empty-chat-$email',
+        adolescentId: email,
+        guardianId: '',
+        consentType: ConsentType.counselorChat,
         grantedToRole: GrantedToRole.guardian,
         consentStatus: ConsentStatus.revoked,
         grantedAt: DateTime.now(),

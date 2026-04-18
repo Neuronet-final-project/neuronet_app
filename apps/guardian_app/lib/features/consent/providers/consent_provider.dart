@@ -60,11 +60,19 @@ class GuardianConsentController extends _$GuardianConsentController {
       bool alertsValue = childConsents
           .firstWhere((c) => c.consentType == ConsentType.shareAlerts)
           .consentStatus == ConsentStatus.granted;
+      bool participationValue = childConsents
+          .firstWhere((c) => c.consentType == ConsentType.participation)
+          .consentStatus == ConsentStatus.granted;
+      bool chatValue = childConsents
+          .firstWhere((c) => c.consentType == ConsentType.counselorChat)
+          .consentStatus == ConsentStatus.granted;
 
       final result = await service.updateConsent(
         email: email,
         shareAiSummaries: aiValue,
         shareAlerts: alertsValue,
+        participation: participationValue,
+        counselorChat: chatValue,
       );
       
       if (result.isFailure) {

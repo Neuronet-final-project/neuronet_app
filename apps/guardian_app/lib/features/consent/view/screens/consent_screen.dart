@@ -11,58 +11,32 @@ class ConsentScreen extends ConsumerWidget {
     final consentsAsync = ref.watch(guardianConsentControllerProvider);
 
     return Scaffold(
+      backgroundColor: NeuroColors.background,
       appBar: AppBar(
-        title: const Text('Privacy & Consents'),
+        title: const Text('Privacy & Oversight'),
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             onPressed: () =>
                 ref.read(guardianConsentControllerProvider.notifier).refresh(),
-            tooltip: 'Refresh consents',
+            tooltip: 'Refresh settings',
           ),
         ],
       ),
       body: consentsAsync.when(
         data: (state) {
           if (state.isLoading && state.consents.isEmpty) {
-            return CustomScrollView(
-              slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => const NeuroSkeletonCard(),
-                    childCount: 3,
-                  ),
-                ),
-              ],
-            );
+            return _buildLoadingState();
           }
 
           if (state.error != null && state.consents.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: NeuroErrorWidget(
-                  message: 'Error: ${state.error}',
-                  onRetry: () => ref.read(guardianConsentControllerProvider.notifier).refresh(),
-                ),
-              ),
-            );
+            return _buildErrorState(ref, state.error!);
           }
 
           final consents = state.consents;
           if (consents.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: NeuroEmptyState(
-                  title: 'No Consents to Manage',
-                  message: 'Register an adolescent first to manage consent settings.',
-                  icon: Icons.verified_user_outlined,
-                  color: NeuroColors.guardianPrimary,
-                ),
-              ),
-            );
+            return _buildEmptyState();
           }
 
           // Group consents by adolescent email
@@ -71,164 +45,258 @@ class ConsentScreen extends ConsumerWidget {
             grouped.putIfAbsent(c.adolescentId, () => []).add(c);
           }
 
-          return CustomScrollView(
-            slivers: [
-              _buildInfoSection(),
-              ...grouped.entries.expand((entry) => [
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
-                        child: Text(
-                          'Controls for ${entry.key}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: NeuroColors.guardianPrimary,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          return _buildConsentTile(
-                              context, ref, entry.value[index]);
-                        },
-                        childCount: entry.value.length,
-                      ),
-                    ),
-                  ]),
-              const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          return ListView(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            children: [
+              _buildHeader(),
+              ...grouped.entries.map((entry) => _buildAdolescentGroup(context, ref, entry.key, entry.value)),
+              const SizedBox(height: 40),
             ],
           );
         },
-        loading: () => CustomScrollView(
-          slivers: [
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => const NeuroSkeletonCard(),
-                childCount: 3,
+        loading: () => _buildLoadingState(),
+        error: (err, stack) => _buildErrorState(ref, 'Failed to load settings'),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Security & Consent Hub',
+            style: NeuroStyles.h2.copyWith(color: NeuroColors.guardianPrimary),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Configure how Neuronet supports your adolescent. Balance their journey toward independence with the oversight needed for a safe environment.',
+            style: NeuroStyles.bodyMedium.copyWith(color: NeuroColors.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdolescentGroup(BuildContext context, WidgetRef ref, String email, List<Consent> adolescentConsents) {
+    // Find specific consents
+    final participation = adolescentConsents.firstWhere((c) => c.consentType == ConsentType.participation);
+    final aiSummaries = adolescentConsents.firstWhere((c) => c.consentType == ConsentType.shareAiSummaries);
+    final alerts = adolescentConsents.firstWhere((c) => c.consentType == ConsentType.shareAlerts);
+    final counselorChat = adolescentConsents.firstWhere((c) => c.consentType == ConsentType.counselorChat);
+
+    final isParticipationGranted = participation.consentStatus == ConsentStatus.granted;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+          child: Row(
+            children: [
+              const Icon(Icons.person_outline_rounded, size: 20, color: NeuroColors.guardianPrimary),
+              const SizedBox(width: 8),
+              Text(
+                'Settings for $email',
+                style: NeuroStyles.labelLarge.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: NeuroColors.onSurface,
+                  letterSpacing: 0.5,
+                ),
               ),
-            ),
-          ],
-        ),
-        error: (err, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: NeuroErrorWidget(
-              message: 'Failed to load consent settings.',
-              onRetry: () => ref.read(guardianConsentControllerProvider.notifier).refresh(),
-            ),
+            ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildInfoSection() {
-    return const SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        
+        // AI Participation Section (The Master Control)
+        _buildSectionCard(
+          title: 'AI Analysis & Participation',
+          subtitle: 'Core data processing controls',
+          statusIcon: Icons.psychology_outlined,
           children: [
-            Text(
-              'Guardian Oversight Controls',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: NeuroColors.onSurface,
-              ),
+            _buildConsentSwitch(
+              context, 
+              ref, 
+              participation,
+              isMaster: true,
             ),
-            SizedBox(height: 12),
-            Text(
-              'Manage which aspects of the adolescent\'s data and interactions you wish to monitor or authorize. These settings help maintain a balance between support and independence.',
-              style: TextStyle(
-                fontSize: 14,
-                color: NeuroColors.onSurfaceVariant,
-                height: 1.5,
+            if (isParticipationGranted) ...[
+              const Divider(indent: 72, endIndent: 20, height: 1),
+              _buildConsentSwitch(
+                context, 
+                ref, 
+                aiSummaries,
+                iconPath: Icons.summarize_outlined,
               ),
+            ],
+          ],
+        ),
+
+        const SizedBox(height: 16),
+
+        // Safety & Communication Section
+        _buildSectionCard(
+          title: 'Safety & Communication',
+          subtitle: 'Alerts and external interactions',
+          statusIcon: Icons.security_outlined,
+          children: [
+            _buildConsentSwitch(
+              context, 
+              ref, 
+              alerts,
+              iconPath: Icons.notifications_active_outlined,
+            ),
+            const Divider(indent: 72, endIndent: 20, height: 1),
+            _buildConsentSwitch(
+              context, 
+              ref, 
+              counselorChat,
+              iconPath: Icons.chat_bubble_outline_rounded,
             ),
           ],
         ),
-      ),
+        
+        const SizedBox(height: 24),
+      ],
     );
   }
 
-  Widget _buildConsentTile(BuildContext context, WidgetRef ref, Consent consent) {
-    final isGranted = consent.consentStatus == ConsentStatus.granted;
-
+  Widget _buildSectionCard({
+    required String title,
+    required String subtitle,
+    required IconData statusIcon,
+    required List<Widget> children,
+  }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: NeuroColors.surface,
-        borderRadius: BorderRadius.circular(NeuroRadius.lg),
-        border: Border.all(
-          color: isGranted
-              ? NeuroColors.guardianPrimary.withValues(alpha: 0.3)
-              : NeuroColors.onSurfaceVariant.withValues(alpha: 0.1),
-        ),
-        boxShadow: [NeuroShadows.md],
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+        border: Border.all(color: NeuroColors.outlineVariant, width: 1),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(NeuroRadius.lg),
-        child: SwitchListTile(
-          value: isGranted,
-          onChanged: (value) async {
-            final newStatus = value ? ConsentStatus.granted : ConsentStatus.revoked;
-            try {
-              await ref.read(guardianConsentControllerProvider.notifier).updateConsent(
-                consent,
-                newStatus,
-              );
-              
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '${consent.consentType.label} ${value ? 'granted' : 'revoked'} successfully',
-                    ),
-                    backgroundColor: NeuroColors.alertLow,
-                    behavior: SnackBarBehavior.floating,
-                    duration: const Duration(seconds: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                );
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to update ${consent.consentType.label}: $e'),
-                    backgroundColor: NeuroColors.error,
-                    behavior: SnackBarBehavior.floating,
+                  child: Icon(statusIcon, color: NeuroColors.guardianPrimary, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: NeuroStyles.titleMedium.copyWith(fontWeight: FontWeight.bold)),
+                      Text(subtitle, style: NeuroStyles.bodySmall.copyWith(color: NeuroColors.onSurfaceVariant)),
+                    ],
                   ),
-                );
-              }
-            }
-          },
-          title: Text(
-            consent.consentType.label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+                ),
+              ],
             ),
           ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: Text(
-              consent.consentType.description,
-              style: const TextStyle(
-                fontSize: 12,
-                color: NeuroColors.onSurfaceVariant,
-              ),
-            ),
-          ),
-          activeThumbColor: NeuroColors.guardianPrimary,
-          activeTrackColor: NeuroColors.guardianPrimary.withValues(alpha: 0.5),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ...children,
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConsentSwitch(
+    BuildContext context, 
+    WidgetRef ref, 
+    Consent consent, {
+    bool isMaster = false,
+    IconData? iconPath,
+  }) {
+    final isGranted = consent.consentStatus == ConsentStatus.granted;
+
+    return SwitchListTile.adaptive(
+      value: isGranted,
+      onChanged: (value) async {
+        final newStatus = value ? ConsentStatus.granted : ConsentStatus.revoked;
+        try {
+          await ref.read(guardianConsentControllerProvider.notifier).updateConsent(
+            consent,
+            newStatus,
+          );
+          
+          if (context.mounted) {
+            NeuroToast.show(
+              context,
+              '${consent.consentType.label} updated',
+              type: value ? NeuroToastType.success : NeuroToastType.info,
+            );
+          }
+        } catch (e) {
+          if (context.mounted) {
+            NeuroToast.show(context, 'Update failed: $e', type: NeuroToastType.error);
+          }
+        }
+      },
+      title: Text(
+        consent.consentType.label,
+        style: NeuroStyles.bodyLarge.copyWith(
+          fontWeight: isMaster ? FontWeight.bold : FontWeight.w500,
+          color: isMaster ? NeuroColors.onSurface : NeuroColors.onSurface.withValues(alpha: 0.8),
         ),
+      ),
+      subtitle: Text(
+        consent.consentType.description,
+        style: NeuroStyles.bodySmall.copyWith(color: NeuroColors.onSurfaceVariant),
+      ),
+      secondary: iconPath != null 
+        ? Icon(iconPath, color: isGranted ? NeuroColors.guardianPrimary : NeuroColors.onSurfaceVariant, size: 24)
+        : null,
+      activeColor: NeuroColors.guardianPrimary,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(20),
+      itemCount: 3,
+      itemBuilder: (context, index) => const Padding(
+        padding: EdgeInsets.only(bottom: 16),
+        child: NeuroSkeletonCard(height: 120),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(WidgetRef ref, String message) {
+    return Center(
+      child: NeuroErrorWidget(
+        message: message,
+        onRetry: () => ref.read(guardianConsentControllerProvider.notifier).refresh(),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return const Center(
+      child: NeuroEmptyState(
+        title: 'No Linked Accounts',
+        message: 'Consent management will appear once an adolescent account is linked.',
+        icon: Icons.link_off_rounded,
       ),
     );
   }
 }
+
