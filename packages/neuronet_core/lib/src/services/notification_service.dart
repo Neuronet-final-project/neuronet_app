@@ -1,89 +1,118 @@
+import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter/foundation.dart';
 import 'auth_service.dart';
+import 'dart:ui';
 
 part 'notification_service.g.dart';
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `Firebase.initializeApp()` before using other Firebase services.
+  await Firebase.initializeApp();
+  debugPrint('[NotificationService] Handling background message: ${message.messageId}');
+}
 
 @Riverpod(keepAlive: true)
 class NotificationService extends _$NotificationService {
   FirebaseMessaging? _fcm;
   FlutterLocalNotificationsPlugin? _localNotifications;
   bool _initialized = false;
+  Completer<void>? _initCompleter;
+  final List<StreamSubscription> _subscriptions = [];
 
   @override
   FutureOr<void> build() async {
-    // Service is ready, but needs manual initialize() call after Firebase.initializeApp()
+    // We don't await here to keep build() sync-like, but it starts the process
+    _initializeInternal();
+    
+    // Cleanup on dispose
+    ref.onDispose(() {
+      for (var sub in _subscriptions) {
+        sub.cancel();
+      }
+      _subscriptions.clear();
+      _initialized = false;
+      _initCompleter = null;
+    });
   }
 
-  Future<void> initialize() async {
+  Future<void> _initializeInternal() async {
     if (_initialized) return;
+    if (_initCompleter != null) return _initCompleter!.future;
     
-    // Safety check for Firebase initialization
-    if (Firebase.apps.isEmpty) {
-      debugPrint('[NotificationService] Skipping initialization: Firebase not initialized');
-      return;
-    }
-
+    _initCompleter = Completer<void>();
+    
     try {
+      // Small delay to ensure native Firebase services are fully ready
+      await Future.delayed(const Duration(milliseconds: 500));
+      
       debugPrint('[NotificationService] Initializing...');
       _fcm = FirebaseMessaging.instance;
       _localNotifications = FlutterLocalNotificationsPlugin();
       
-    NotificationSettings settings = await _fcm!.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    debugPrint('[NotificationService] User granted permission: ${settings.authorizationStatus}');
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      // 2. Get FCM token
-      String? token = await _fcm!.getToken();
-      if (token != null) {
-        debugPrint('[NotificationService] FCM Token: $token');
-        await _registerTokenWithBackend(token);
-      }
-
-      // 3. Listen for token refreshes
-      _fcm!.onTokenRefresh.listen((newToken) {
-        debugPrint('[NotificationService] Token refreshed: $newToken');
-        _registerTokenWithBackend(newToken);
-      });
-
-      // 4. Configure local notifications for foreground messages
-      const AndroidInitializationSettings initializationSettingsAndroid =
-          AndroidInitializationSettings('@mipmap/ic_launcher');
-      const InitializationSettings initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid,
-        iOS: DarwinInitializationSettings(),
+      NotificationSettings settings = await _fcm!.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
       );
-      await _localNotifications!.initialize(initializationSettings);
 
-      // Create high importance channel for Android
-      await _localNotifications!
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(const AndroidNotificationChannel(
-            'high_importance_channel',
-            'High Importance Notifications',
-            description: 'This channel is used for important notifications.',
-            importance: Importance.max,
-          ));
+      debugPrint('[NotificationService] User granted permission: ${settings.authorizationStatus}');
 
-      // 5. Handle foreground messages
-      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+      if (settings.authorizationStatus == AuthorizationStatus.authorized || 
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        // 2. Get FCM token
+        String? token = await _fcm!.getToken();
+        if (token != null) {
+          debugPrint('[NotificationService] FCM Token: $token');
+          await _registerTokenWithBackend(token);
+        }
 
-      // 6. Handle notification clicks when app is in background/terminated
-      FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationClick);
-      
-      _initialized = true;
-    }
+        // 3. Listen for token refreshes
+        _subscriptions.add(_fcm!.onTokenRefresh.listen((newToken) {
+          debugPrint('[NotificationService] Token refreshed: $newToken');
+          _registerTokenWithBackend(newToken);
+        }));
+
+        // 4. Configure local notifications for foreground messages
+        const AndroidInitializationSettings initializationSettingsAndroid =
+            AndroidInitializationSettings('@mipmap/ic_launcher');
+        const InitializationSettings initializationSettings = InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: DarwinInitializationSettings(),
+        );
+        await _localNotifications!.initialize(initializationSettings);
+
+        // Create high importance channel for Android
+        await _localNotifications!
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.createNotificationChannel(const AndroidNotificationChannel(
+              'high_importance_channel',
+              'High Importance Notifications',
+              description: 'This channel is used for important notifications.',
+              importance: Importance.max,
+            ));
+
+        // 5. Handle foreground messages
+        _subscriptions.add(FirebaseMessaging.onMessage.listen(_handleForegroundMessage));
+
+        // 5.5 Handle background messages
+        FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+        // 6. Handle notification clicks when app is in background/terminated
+        _subscriptions.add(FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationClick));
+        
+        _initialized = true;
+      }
     } catch (e) {
       debugPrint('[NotificationService] Initialization failed: $e');
+    } finally {
+      _initCompleter?.complete();
     }
   }
 
@@ -91,18 +120,12 @@ class NotificationService extends _$NotificationService {
   /// Call this after successful login.
   Future<void> triggerRegistration() async {
     if (!_initialized) {
-      debugPrint('[NotificationService] triggerRegistration called before initialization. Initializing first...');
-      await initialize();
+      await _initializeInternal();
     }
-    if (!_initialized) return; // Still not initialized (e.g. no Firebase)
-
-    debugPrint('[NotificationService] Manual registration trigger...');
+    
     String? token = await _fcm?.getToken();
     if (token != null) {
-      debugPrint('[NotificationService] FCM Token for registration: $token');
       await _registerTokenWithBackend(token);
-    } else {
-      debugPrint('[NotificationService] No FCM token found during manual trigger');
     }
   }
 
@@ -122,16 +145,31 @@ class NotificationService extends _$NotificationService {
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
-    debugPrint('[NotificationService] Handling foreground message: ${message.notification?.title}');
+    debugPrint('[NotificationService] Handling foreground message: ${message.notification?.title ?? "Data only"}');
     
     RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
+    String? title = notification?.title;
+    String? body = notification?.body;
 
-    if (notification != null && android != null && _localNotifications != null) {
+    // Fallback for data-only messages (useful if backend doesn't include 'notification' block)
+    if (title == null && body == null && message.data.containsKey('type')) {
+      if (message.data['type'] == 'chat') {
+        title = 'New Message';
+        body = 'You received a message in your chat';
+      } else {
+        title = 'System Update';
+        body = 'You have a new notification';
+      }
+    }
+
+    if (title != null && _localNotifications != null) {
+      final id = DateTime.now().millisecondsSinceEpoch % 1000000;
+      debugPrint('[NotificationService] Displaying local notification: $title (ID: $id)');
+      
       _localNotifications!.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
+        id,
+        title,
+        body,
         const NotificationDetails(
           android: AndroidNotificationDetails(
             'high_importance_channel',
@@ -139,6 +177,11 @@ class NotificationService extends _$NotificationService {
             importance: Importance.max,
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
           ),
         ),
         payload: message.data['type'],

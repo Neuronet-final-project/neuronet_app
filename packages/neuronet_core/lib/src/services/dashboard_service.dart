@@ -61,7 +61,7 @@ class DashboardService {
       final response = await _client.get(ApiEndpoints.guardianAdolescents);
       final rawMap = response.data as Map<String, dynamic>;
       debugPrint(
-        '[DashboardService] getLinkedAdolescents raw response: $rawMap',
+        '[DIAGNOSTIC_LOG] getLinkedAdolescents raw response: $rawMap',
       );
       final data = rawMap['adolescents'] as List;
       final adolescents = data.map((e) {

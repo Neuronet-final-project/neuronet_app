@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'config/router/app_router.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:device_preview/device_preview.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
+  debugPrint('>>> MAIN STARTING: Adolescent App <<<');
   WidgetsFlutterBinding.ensureInitialized();
 
   String baseUrl = ApiEndpoints.baseUrl;
@@ -21,7 +24,11 @@ Future<void> main() async {
   ApiEndpoints.init(baseUrl: baseUrl);
   
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('>>> FIREBASE INITIALIZED <<<');
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   } catch (e) {
     debugPrint('Firebase initialization failed: $e');
   }
@@ -39,10 +46,8 @@ class AdolescentApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Initialize Notification Service
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(notificationServiceProvider.notifier).initialize();
-    });
+    // Wake up the notification service
+    ref.watch(notificationServiceProvider);
 
     final router = ref.watch(adolescentRouterProvider);
 
