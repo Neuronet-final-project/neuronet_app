@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../../../config/router/app_router.dart';
 import '../../providers/alerts_provider.dart';
-import '../../channels/providers/channels_provider.dart';
+import '../../../channels/providers/channels_provider.dart';
 
 class AdolescentAlertDetailScreen extends ConsumerWidget {
   const AdolescentAlertDetailScreen({
