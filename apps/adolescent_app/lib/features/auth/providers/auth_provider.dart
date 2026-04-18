@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -64,7 +65,15 @@ class AuthController extends _$AuthController {
       final authService = ref.read(authServiceProvider);
       final result = await authService.getMe();
       if (result.isSuccess) {
-        state = AuthState.authenticated(result.value);
+        final user = result.value;
+        if (user.role != UserRole.adolescent) {
+          debugPrint('[AuthController] SECURITY: Unauthorized role (${user.role}) for Adolescent app.');
+          final storage = ref.read(tokenStorageProvider);
+          await storage.clearTokens();
+          state = AuthState.unauthenticated();
+          return;
+        }
+        state = AuthState.authenticated(user);
         // Trigger push notification registration
         ref.read(notificationServiceProvider.notifier).triggerRegistration();
       } else {
@@ -87,13 +96,29 @@ class AuthController extends _$AuthController {
       }
 
       final response = result.value;
+
+      // SECURITY: Validate role matches the app
+      if (response.role != UserRole.adolescent) {
+        state = AuthState.error('Unauthorized access: This account does not have Adolescent privileges.');
+        return;
+      }
+
       final storage = ref.read(tokenStorageProvider);
       await storage.saveTokens(accessToken: response.accessToken);
 
       // Fetch real user profile instead of using hardcoded data
       final userResult = await authService.getMe();
       if (userResult.isSuccess) {
-        state = AuthState.authenticated(userResult.value);
+        final user = userResult.value;
+
+        // Double check role from profile
+        if (user.role != UserRole.adolescent) {
+          await storage.clearTokens();
+          state = AuthState.error('Unauthorized access: Account role mismatch.');
+          return;
+        }
+
+        state = AuthState.authenticated(user);
         // Trigger push notification registration
         ref.read(notificationServiceProvider.notifier).triggerRegistration();
       } else {

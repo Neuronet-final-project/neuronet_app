@@ -68,7 +68,7 @@ class ConsentScreen extends ConsumerWidget {
         children: [
           Text(
             'Security & Consent Hub',
-            style: NeuroStyles.h2.copyWith(color: NeuroColors.guardianPrimary),
+            style: NeuroStyles.headlineMedium.copyWith(color: NeuroColors.guardianPrimary),
           ),
           const SizedBox(height: 8),
           Text(
@@ -181,7 +181,7 @@ class ConsentScreen extends ConsumerWidget {
             offset: const Offset(0, 10),
           ),
         ],
-        border: Border.all(color: NeuroColors.outlineVariant, width: 1),
+        border: Border.all(color: NeuroColors.outline, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,7 +264,7 @@ class ConsentScreen extends ConsumerWidget {
       secondary: iconPath != null 
         ? Icon(iconPath, color: isGranted ? NeuroColors.guardianPrimary : NeuroColors.onSurfaceVariant, size: 24)
         : null,
-      activeColor: NeuroColors.guardianPrimary,
+      activeTrackColor: NeuroColors.guardianPrimary,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
     );
   }

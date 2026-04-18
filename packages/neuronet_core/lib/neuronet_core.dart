@@ -49,6 +49,7 @@ export 'src/widgets/neuro_chat_input.dart';
 export 'src/widgets/neuro_shimmer.dart';
 export 'src/widgets/neuro_incoming_call.dart';
 export 'src/widgets/neuro_active_call.dart';
+export 'src/widgets/neuro_toast.dart';
 
 // Constants
 export 'src/constants/app_constants.dart';

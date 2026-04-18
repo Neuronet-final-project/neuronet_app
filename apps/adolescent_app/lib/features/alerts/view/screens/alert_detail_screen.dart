@@ -294,7 +294,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                         );
                       }
                     );
-                  }).toList(),
+                  }),
                   const SizedBox(height: 32),
                 ],
 

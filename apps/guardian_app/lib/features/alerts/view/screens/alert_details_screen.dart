@@ -175,16 +175,16 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: NeuroColors.primary.withValues(alpha: 0.05),
+        color: NeuroColors.guardianPrimary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: NeuroColors.primary.withValues(alpha: 0.15)),
+        border: Border.all(color: NeuroColors.guardianPrimary.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.psychology, size: 18, color: NeuroColors.primary),
+              Icon(Icons.psychology, size: 18, color: NeuroColors.guardianPrimary),
               const SizedBox(width: 8),
               const Text(
                 'AI Analysis',
