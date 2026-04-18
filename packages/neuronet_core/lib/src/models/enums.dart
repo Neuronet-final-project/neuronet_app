@@ -94,6 +94,7 @@ enum ConsentType {
   static ConsentType fromJson(String json) => values.byName(json.toLowerCase());
 
   /// Human-readable label for UI.
+  String get label => switch (this) {
         shareAiSummaries => 'AI Summaries & Risk Levels',
         shareAlerts => 'Security Alerts & Notifications',
         participation => 'General Participation & AI Analysis',

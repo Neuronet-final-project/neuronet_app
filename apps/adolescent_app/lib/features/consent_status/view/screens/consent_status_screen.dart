@@ -41,7 +41,7 @@ class ConsentStatusScreen extends ConsumerWidget {
           
           Text(
             'Core Transparency',
-            style: NeuroStyles.titleLarge.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           
@@ -57,7 +57,7 @@ class ConsentStatusScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           Text(
             'Sharing & Visibility',
-            style: NeuroStyles.titleLarge.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 
@@ -85,7 +85,7 @@ class ConsentStatusScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           Text(
             'Interaction Controls',
-            style: NeuroStyles.titleLarge.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 
@@ -131,13 +131,13 @@ class ConsentStatusScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           Text(
             'Your Privacy Matters',
-            style: NeuroStyles.h3,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             'We value transparency. Below are the oversight settings currently active for your account.',
-            style: NeuroStyles.bodyMedium.copyWith(color: NeuroColors.onSurfaceVariant),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NeuroColors.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -168,7 +168,7 @@ class ConsentStatusScreen extends ConsumerWidget {
         border: Border.all(
           color: isGranted && !isDisabled 
             ? NeuroColors.alertLow.withValues(alpha: 0.2) 
-            : NeuroColors.outlineVariant,
+            : NeuroColors.outline,
           width: 1,
         ),
       ),
@@ -182,7 +182,7 @@ class ConsentStatusScreen extends ConsumerWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: NeuroStyles.titleMedium.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               _buildStatusIndicator(statusText, statusColor),
@@ -191,7 +191,7 @@ class ConsentStatusScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           Text(
             description,
-            style: NeuroStyles.bodySmall.copyWith(color: NeuroColors.onSurfaceVariant, height: 1.4),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: NeuroColors.onSurfaceVariant, height: 1.4),
           ),
           if (warning != null) ...[
             const SizedBox(height: 12),
@@ -208,7 +208,7 @@ class ConsentStatusScreen extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Text(
                     warning,
-                    style: NeuroStyles.labelSmall.copyWith(color: NeuroColors.alertMedium, fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: NeuroColors.alertMedium, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -228,7 +228,7 @@ class ConsentStatusScreen extends ConsumerWidget {
       ),
       child: Text(
         text,
-        style: NeuroStyles.labelSmall.copyWith(
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: color,
           fontWeight: FontWeight.bold,
         ),
@@ -243,7 +243,7 @@ class ConsentStatusScreen extends ConsumerWidget {
         gradient: LinearGradient(
           colors: [
             NeuroColors.adolescentPrimary.withValues(alpha: 0.05),
-            NeuroColors.adolescentSecondary.withValues(alpha: 0.05),
+            NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(28),
@@ -280,7 +280,7 @@ class ConsentStatusScreen extends ConsumerWidget {
           Expanded(
             child: Text(
               text,
-              style: NeuroStyles.bodySmall.copyWith(color: NeuroColors.onSurfaceVariant),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: NeuroColors.onSurfaceVariant),
             ),
           ),
         ],
