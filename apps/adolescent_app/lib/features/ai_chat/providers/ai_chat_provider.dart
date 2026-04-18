@@ -102,7 +102,7 @@ class AiChat extends _$AiChat {
       final result = await aiChatService.createSession();
       if (result.isSuccess) {
         currentSession = result.value;
-        debugPrint('[AiChat] Created session: ${currentSession.id}');
+        debugPrint('[AiChat] Created session: ${sessionEffectiveId(currentSession)}');
       } else {
         debugPrint('[AiChat] Failed to create session: ${result.failure.message}');
         return;
@@ -144,25 +144,29 @@ class AiChat extends _$AiChat {
       final aiMessages = result.value;
       debugPrint('[AiChat] ${aiMessages.length} message(s) from backend');
 
+      if (aiMessages.isEmpty) {
+        state = AsyncData(state.value!.copyWith(isTyping: false));
+        return;
+      }
+
       // Find the AI response (the last message with role=ai/senderId=ai-assistant)
       // We already added the user message locally, so only append the AI part
-      final aiResponse = aiMessages.reversed
-          .firstWhere(
-            (m) => m.senderId == 'ai-assistant',
-            orElse: () => aiMessages.last,
-          );
+      final aiResponse = aiMessages.reversed.firstWhere(
+        (m) => m.senderId == 'ai-assistant',
+        orElse: () => aiMessages.last,
+      );
 
       // Replace the locally-added user message with the backend version
       // (which has the correct timestamp from the server)
       // Also patch senderId to match the real user ID so the screen aligns it correctly
       final backendUserMessage = aiMessages.firstWhere(
-        (m) => m.senderId == 'user',
+        (m) => m.senderId == 'user' || m.senderId == userId,
         orElse: () => userMessage,
       ).copyWith(senderId: userId);
 
-      // Replace the last two entries: user msg (with backend version) + AI response
+      // Replace the last entry (local user message) with the backend version + append AI response
       final updatedMessages = List<ChatMessage>.from(state.value!.messages);
-      if (updatedMessages.length >= 2 &&
+      if (updatedMessages.isNotEmpty &&
           updatedMessages.last.senderId == userId) {
         // Replace the local user message with the backend version
         updatedMessages[updatedMessages.length - 1] = backendUserMessage;

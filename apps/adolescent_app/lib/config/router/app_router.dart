@@ -24,6 +24,7 @@ import 'package:adolescent_app/features/educational/view/screens/educational_lib
 import 'package:adolescent_app/features/educational/view/screens/educational_page_detail_screen.dart';
 import 'package:adolescent_app/features/educational/view/screens/recommendations_screen.dart';
 import 'package:adolescent_app/features/auth/view/screens/splash_screen.dart';
+import 'package:adolescent_app/features/onboarding/view/screens/onboarding_screen.dart';
 import 'package:neuronet_core/neuronet_core.dart'; // For Alert and EducationalPage types in routing extra
 
 /// Route names for the Adolescent app.
@@ -31,6 +32,7 @@ class AdolescentRoutes {
   const AdolescentRoutes._();
 
   static const String splash = '/splash';
+  static const String onboarding = '/onboarding';
   static const String login = '/login';
   static const String activate = '/activate';
   static const String home = '/';
@@ -64,8 +66,14 @@ class _AuthChangeNotifier extends ChangeNotifier {
 final adolescentRouterProvider = Provider<GoRouter>((ref) {
   // Listen to auth changes WITHOUT rebuilding this provider.
   // The ChangeNotifier fires GoRouter.refresh() via refreshListenable.
+  // Listen to auth changes.
   ref.listen(authControllerProvider, (_, authState) {
     authChangeNotifier.update(authState);
+  });
+
+  // Listen to onboarding status changes.
+  ref.listen(onboardingStatusProvider, (_, __) {
+    authChangeNotifier.notifyListeners();
   });
 
   return GoRouter(
@@ -76,43 +84,55 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       final isLoggingIn = currentLocation == AdolescentRoutes.login;
       final isActivating = currentLocation == AdolescentRoutes.activate;
       final isSplash = currentLocation == AdolescentRoutes.splash;
+      final isOnboarding = currentLocation == AdolescentRoutes.onboarding;
 
       final currentAuth = authChangeNotifier.state;
       final isAuthenticated = currentAuth.status == AuthStatus.authenticated;
       final isInitial = currentAuth.status == AuthStatus.initial;
       final isLoading = currentAuth.status == AuthStatus.loading;
 
-      debugPrint('[Router] redirect(current: $currentLocation, auth: ${currentAuth.status})');
+      // Access onboarding status
+      final onboardingAsync = ref.read(onboardingStatusProvider);
+      final onboardingComplete = onboardingAsync.value ?? false;
 
-      // 1. True initial state (app just launched) — show splash
-      if (isInitial) {
-        debugPrint('[Router] isInitial, redirecting to splash');
+      debugPrint('[Router] redirect(current: $currentLocation, auth: ${currentAuth.status}, onboarding: $onboardingComplete)');
+
+      // 1. True initial state (app just launched) or onboarding/auth still loading
+      if (isInitial || onboardingAsync.isLoading) {
+        debugPrint('[Router] Waiting for init (isInitial: $isInitial, onboardingLoading: ${onboardingAsync.isLoading})');
         return isSplash ? null : AdolescentRoutes.splash;
       }
 
-      // 2. Loading (login in progress, activation, etc.) — stay on current page
+      // 2. Check for Onboarding (only for unauthenticated users)
+      if (!isAuthenticated && !isLoading) {
+        if (!onboardingComplete && !isOnboarding) {
+          debugPrint('[Router] Onboarding not complete, redirecting to /onboarding');
+          return AdolescentRoutes.onboarding;
+        }
+      }
+
+      // 3. Loading (login in progress, activation, etc.) — stay on current page
       if (isLoading) {
         debugPrint('[Router] isLoading, staying');
         return null;
       }
 
-      // 3. Authenticated — redirect away from auth/splash pages
+      // 4. Authenticated — redirect away from auth/splash/onboarding pages
       if (isAuthenticated) {
-        if (isLoggingIn || isActivating || isSplash) {
-          debugPrint('[Router] isAuthenticated and on auth page, redirecting to home');
+        if (isLoggingIn || isActivating || isSplash || isOnboarding) {
+          debugPrint('[Router] isAuthenticated, redirecting to home');
           return AdolescentRoutes.home;
         }
         return null;
       }
 
-      // 4. Unauthenticated or Error — send to login only if strictly unauthenticated.
-      // If there's an error (like network), stay on current page so the UI can show a retry button.
+      // 5. Unauthenticated or Error — send to login only if strictly unauthenticated.
       if (currentAuth.status == AuthStatus.error) {
         debugPrint('[Router] AuthStatus.error, staying on current page');
         return null;
       }
 
-      if (isLoggingIn || isActivating) return null;
+      if (isLoggingIn || isActivating || isOnboarding) return null;
       debugPrint('[Router] isUnauthenticated, redirecting to login');
       return AdolescentRoutes.login;
     },
@@ -120,6 +140,10 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AdolescentRoutes.splash,
         builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.onboarding,
+        builder: (context, state) => const AdolescentOnboardingScreen(),
       ),
       // Auth routes
       GoRoute(

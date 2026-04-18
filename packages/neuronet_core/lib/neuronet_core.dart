@@ -12,16 +12,17 @@ export 'src/errors/failures.dart';
 
 // Services
 export 'src/services/auth_service.dart';
+export 'src/services/ai_chat_service.dart';
 export 'src/services/dashboard_service.dart';
 export 'src/services/journal_service.dart';
 export 'src/services/notification_service.dart';
 export 'src/services/alert_service.dart';
 export 'src/services/educational_service.dart';
 export 'src/services/consent_service.dart';
-export 'src/services/messaging_service.dart';
 export 'src/services/channel_service.dart';
-export 'src/services/ai_chat_service.dart';
-export 'src/services/mock_data_service.dart';
+export 'src/services/journal_service.dart';
+export 'src/services/messaging_service.dart';
+export 'src/services/onboarding_service.dart';
 export 'src/services/voice_recorder_service.dart';
 export 'src/services/call_service.dart';
 export 'src/services/call_controller.dart';
@@ -44,6 +45,7 @@ export 'src/widgets/neuro_alert_card.dart';
 export 'src/widgets/neuro_summary_card.dart';
 export 'src/widgets/neuro_trend_chart.dart';
 export 'src/widgets/neuro_empty_state.dart';
+export 'src/widgets/neuro_onboarding.dart';
 export 'src/widgets/neuro_chat_bubble.dart';
 export 'src/widgets/neuro_chat_input.dart';
 export 'src/widgets/neuro_shimmer.dart';

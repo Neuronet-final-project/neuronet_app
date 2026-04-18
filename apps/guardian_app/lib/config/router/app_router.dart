@@ -15,6 +15,7 @@ import '../../features/auth/view/screens/login_screen.dart';
 import '../../features/auth/view/screens/sign_up_screen.dart';
 import '../../features/auth/view/screens/activation_screen.dart';
 import '../../features/auth/view/screens/splash_screen.dart';
+import '../../features/onboarding/view/screens/onboarding_screen.dart';
 import '../../features/adolescents/view/screens/adolescent_list_screen.dart';
 import '../../features/adolescents/view/screens/adolescent_detail_screen.dart';
 import '../../features/adolescents/view/screens/pending_adolescents_screen.dart';
@@ -29,6 +30,7 @@ class GuardianRoutes {
   const GuardianRoutes._();
 
   static const String splash = '/splash';
+  static const String onboarding = '/onboarding';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String activate = '/activate';
@@ -60,9 +62,14 @@ class _GuardianAuthChangeNotifier extends ChangeNotifier {
 }
 
 final guardianRouterProvider = Provider<GoRouter>((ref) {
-  // Listen to auth changes WITHOUT rebuilding this provider.
+  // Listen to auth changes.
   ref.listen(authControllerProvider, (_, authState) {
     _authChangeNotifier.update(authState);
+  });
+
+  // Listen to onboarding status changes.
+  ref.listen(onboardingStatusProvider, (_, __) {
+    _authChangeNotifier.notifyListeners(); // Force router to re-evaluate when status is loaded
   });
 
   return GoRouter(
@@ -74,36 +81,56 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       final isSigningUp = currentLocation == GuardianRoutes.signup;
       final isActivating = currentLocation == GuardianRoutes.activate;
       final isSplash = currentLocation == GuardianRoutes.splash;
+      final isOnboarding = currentLocation == GuardianRoutes.onboarding;
 
       final currentAuth = _authChangeNotifier.state;
       final isAuthenticated = currentAuth.status == AuthStatus.authenticated;
       final isInitial = currentAuth.status == AuthStatus.initial;
       final isLoading = currentAuth.status == AuthStatus.loading;
 
-      // 1. True initial state (app just launched) — show splash
-      if (isInitial) {
+      // Access onboarding status
+      final onboardingAsync = ref.read(onboardingStatusProvider);
+      final onboardingComplete = onboardingAsync.value ?? false;
+
+      debugPrint('[Router] redirect(current: $currentLocation, auth: ${currentAuth.status}, onboarding: $onboardingComplete)');
+
+      // 1. True initial state (app just launched) or onboarding/auth still loading
+      if (isInitial || onboardingAsync.isLoading) {
+        debugPrint('[Router] Waiting for init (isInitial: $isInitial, onboardingLoading: ${onboardingAsync.isLoading})');
         return isSplash ? null : GuardianRoutes.splash;
       }
 
-      // 2. Loading (login in progress, activation, etc.) — stay on current page
+      // 2. Check for Onboarding (only for unauthenticated users)
+      if (!isAuthenticated && !isLoading) {
+        if (!onboardingComplete && !isOnboarding) {
+          debugPrint('[Router] Onboarding not complete, redirecting to /onboarding');
+          return GuardianRoutes.onboarding;
+        }
+      }
+
+      // 3. Loading (login in progress, activation, etc.) — stay on current page
       if (isLoading) {
         return null;
       }
 
-      // 3. Authenticated — redirect away from auth/splash pages
+      // 4. Authenticated — redirect away from auth/splash/onboarding pages
       if (isAuthenticated) {
-        if (isLoggingIn || isActivating || isSigningUp || isSplash) return GuardianRoutes.home;
+        if (isLoggingIn || isActivating || isSigningUp || isSplash || isOnboarding) return GuardianRoutes.home;
         return null;
       }
 
-      // 4. Unauthenticated — send to login (even on error so user can retry)
-      if (isLoggingIn || isActivating || isSigningUp) return null;
+      // 5. Unauthenticated — send to login (even on error so user can retry)
+      if (isLoggingIn || isActivating || isSigningUp || isOnboarding) return null;
       return GuardianRoutes.login;
     },
     routes: [
       GoRoute(
         path: GuardianRoutes.splash,
         builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: GuardianRoutes.onboarding,
+        builder: (context, state) => const GuardianOnboardingScreen(),
       ),
       // Auth Routes
       GoRoute(
