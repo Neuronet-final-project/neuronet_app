@@ -253,9 +253,17 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                       title: map['channel_name'] as String? ?? 'Support Group',
                       subtitle: 'Highly recommended for you based on recent journals.',
                       onTap: () {
-                         ScaffoldMessenger.of(context).showSnackBar(
-                           const SnackBar(content: Text('Navigating to support channel...'))
-                         );
+                        final channelId = map['channel_id'] as String?;
+                        if (channelId != null) {
+                          context.push('${AdolescentRoutes.channels}/$channelId');
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Channel not found. Please try again later.'),
+                              backgroundColor: Colors.redAccent,
+                            ),
+                          );
+                        }
                       },
                     );
                   }).toList(),

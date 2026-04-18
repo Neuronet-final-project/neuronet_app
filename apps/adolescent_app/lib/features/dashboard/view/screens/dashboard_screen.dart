@@ -23,11 +23,6 @@ class DashboardScreen extends ConsumerWidget {
             onPressed: () => context.push(AdolescentRoutes.alerts),
             tooltip: 'View insights',
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () => context.push(AdolescentRoutes.alerts),
-            tooltip: 'Notifications',
-          ),
         ],
       ),
       body: RefreshIndicator(

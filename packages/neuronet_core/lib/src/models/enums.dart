@@ -2,6 +2,8 @@
 /// These match the backend API enum values exactly.
 library;
 
+import 'package:json_annotation/json_annotation.dart';
+
 /// User roles in the system.
 enum UserRole {
   adolescent,
@@ -142,13 +144,27 @@ enum AlertSeverity {
 
 /// Alert types.
 enum AlertType {
+  @JsonValue('emotionalPattern')
   emotionalPattern,
+  @JsonValue('moodDrop')
   moodDrop,
+  @JsonValue('journalFrequency')
   journalFrequency,
-  contentFlag;
+  @JsonValue('contentFlag')
+  contentFlag,
+  @JsonValue('high_risk_sentiment')
+  highRiskSentiment,
+  @JsonValue('emotional_insight')
+  emotionalInsight;
 
   String toJson() => name;
-  static AlertType fromJson(String json) => values.byName(json);
+  static AlertType fromJson(String json) {
+    try {
+      return values.byName(json);
+    } catch (_) {
+      return AlertType.emotionalInsight;
+    }
+  }
 }
 
 /// Alert action status.
