@@ -185,7 +185,7 @@ class ConsentStatusScreen extends ConsumerWidget {
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
-              _buildStatusIndicator(statusText, statusColor),
+              _buildStatusIndicator(context, statusText, statusColor),
             ],
           ),
           const SizedBox(height: 12),
@@ -219,7 +219,7 @@ class ConsentStatusScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatusIndicator(String text, Color color) {
+  Widget _buildStatusIndicator(BuildContext context, String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
@@ -262,15 +262,15 @@ class ConsentStatusScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 16),
-          _buildEducationItem('Your guardian manages these settings to ensure you have the right support.'),
-          _buildEducationItem('If you have questions about these settings, we encourage you to discuss them with your guardian.'),
-          _buildEducationItem('Neuronet uses AI only for emotional insight, never for clinical diagnosis.'),
+          _buildEducationItem(context, 'Your guardian manages these settings to ensure you have the right support.'),
+          _buildEducationItem(context, 'If you have questions about these settings, we encourage you to discuss them with your guardian.'),
+          _buildEducationItem(context, 'Neuronet uses AI only for emotional insight, never for clinical diagnosis.'),
         ],
       ),
     );
   }
 
-  Widget _buildEducationItem(String text) {
+  Widget _buildEducationItem(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
