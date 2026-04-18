@@ -59,6 +59,7 @@ abstract class ConversationMessage with _$ConversationMessage {
         MessageContentType.audio => '🎤 Voice message',
         MessageContentType.video => '🎥 Video',
         MessageContentType.file => '📎 File',
+        MessageContentType.callLog => '📞 Call Log',
       };
 }
 
@@ -73,7 +74,9 @@ enum MessageContentType {
   @JsonValue('video')
   video,
   @JsonValue('file')
-  file;
+  file,
+  @JsonValue('call_log')
+  callLog;
 
   String toJson() => name;
   static MessageContentType fromJson(String json) => values.byName(json);
