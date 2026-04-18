@@ -246,25 +246,52 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ...(alert.channelRecommendations!['recommended_channels'] as List).map((ch) {
+                  ...(alert.channelRecommendations?.recommended_channels ?? []).map((ch) {
                     final map = ch as Map<String, dynamic>;
-                    return _ActionTile(
-                      icon: Icons.group_rounded,
-                      title: map['channel_name'] as String? ?? 'Support Group',
-                      subtitle: 'Highly recommended for you based on recent journals.',
-                      onTap: () {
-                        final channelId = map['channel_id'] as String?;
-                        if (channelId != null) {
-                          context.push('${AdolescentRoutes.channels}/$channelId');
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Channel not found. Please try again later.'),
-                              backgroundColor: Colors.redAccent,
+                    final channelId = map['channel_id'] as String?;
+                    
+                    return Consumer(
+                      builder: (context, ref, _) {
+                        final channelsAsync = ref.watch(channelsControllerProvider);
+                        final channel = channelsAsync.value?.channels.where(
+                          (c) => c.channelId == channelId
+                        ).firstOrNull;
+                        final isFollowed = channel?.isFollowed ?? false;
+
+                        return _ActionTile(
+                          icon: Icons.group_rounded,
+                          title: map['channel_name'] as String? ?? 'Support Group',
+                          subtitle: 'Highly recommended for you based on recent journals.',
+                          onTap: () {
+                            if (channelId != null) {
+                              context.push('${AdolescentRoutes.channels}/$channelId');
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Channel not found. Please try again later.'),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                            }
+                          },
+                          trailing: channelId != null ? FilledButton.tonal(
+                            onPressed: () {
+                              ref.read(channelsControllerProvider.notifier).toggleFollow(channelId);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(isFollowed ? 'Left group' : 'Joined ${map['channel_name']}!'),
+                                  behavior: SnackBarBehavior.floating,
+                                )
+                              );
+                            },
+                            style: FilledButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
                             ),
-                          );
-                        }
-                      },
+                            child: Text(isFollowed ? 'JOINED' : 'JOIN'),
+                          ) : null,
+                        );
+                      }
                     );
                   }).toList(),
                   const SizedBox(height: 32),
@@ -397,12 +424,14 @@ class _ActionTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.trailing,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -414,9 +443,9 @@ class _ActionTile extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         onTap: onTap,
         leading: Icon(icon, color: theme.colorScheme.primary),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
         subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
-        trailing: const Icon(Icons.chevron_right_rounded),
+        trailing: trailing ?? const Icon(Icons.chevron_right_rounded),
       ),
     );
   }
