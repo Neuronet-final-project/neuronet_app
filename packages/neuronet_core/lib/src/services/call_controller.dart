@@ -331,19 +331,25 @@ class CallController extends _$CallController {
     final call = initiateResult.value;
     debugPrint('[CallController] Call initiated: ${call.id}');
 
+    // Set state as 'initiated' but DON'T mark as active yet.
+    // The call screen should show a "connecting..." state until
+    // _setupWebRTC finishes and provides the localStream.
     state = AsyncData(
       CallState(
         currentCall: call,
-        status: call.status,
+        status: CallStatus.initiated,
         remotePeerEmail: remotePeerEmail,
       ),
     );
 
-    // Setup WebRTC connection (caller creates and sends SDP offer)
+    // Setup WebRTC connection (caller creates and sends SDP offer).
+    // This will update state with localStream when ready.
     await _setupWebRTC(call.id, callType);
 
     // Start polling for signals to receive callee's answer
-    _startSignalPolling(call.id);
+    if (ref.mounted) {
+      _startSignalPolling(call.id);
+    }
   }
 
   // ─── Answer Incoming Call ────────────────────────────────────────────────
@@ -366,12 +372,13 @@ class CallController extends _$CallController {
 
     // Setup WebRTC for the callee: create media + peer connection but DON'T
     // send an offer — wait for the caller's offer via signal polling.
+    // _setupCalleeWebRTC will set localStream and status internally.
     await _setupCalleeWebRTC(call.id, call.callType);
 
-    state = AsyncData(currentState.copyWith(status: CallStatus.answered));
-
     // Start signal polling to receive the caller's offer
-    _startSignalPolling(call.id);
+    if (ref.mounted) {
+      _startSignalPolling(call.id);
+    }
   }
 
   /// Rejects/declines an incoming call.
@@ -471,6 +478,7 @@ class CallController extends _$CallController {
 
       // Listen for remote stream
       _peerConnection!.onTrack = (RTCTrackEvent event) {
+        if (!ref.mounted) return;
         if (event.streams.isNotEmpty) {
           final remoteStream = event.streams.first;
           _remoteStream = remoteStream;
@@ -485,42 +493,52 @@ class CallController extends _$CallController {
 
       // ─── Connection state change listener ─────────────────────────────
       // Only log meaningful state transitions: connected/disconnected/failed
-      _peerConnection!.onConnectionState = (RTCPeerConnectionState state) {
+      _peerConnection!.onConnectionState = (RTCPeerConnectionState peerState) {
+        if (!ref.mounted) return;
         final current = this.state.value;
         if (current == null) return;
 
-        this.state = AsyncData(current.copyWith(connectionState: state));
+        this.state = AsyncData(current.copyWith(connectionState: peerState));
 
-        if (state == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
+        if (peerState == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
           debugPrint('[CallController] ✅ Peer connected');
           _startDurationTimer();
+
+          // Transition to active state now that connection is established
+          this.state = AsyncData(current.copyWith(status: CallStatus.active));
+
           // Notify backend the call is fully connected.
           // This may fail with 400 if the status was already set to "active"
           // by the callee's answerCall — that's expected and safe to ignore.
-          final callService = ref.read(callServiceProvider);
-          callService.setCallActive(callId).catchError((e) {
-            debugPrint('[CallController] setCallActive error: $e');
-            return const Result<void>.success(null);
-          });
-        } else if (state ==
+          if (ref.mounted) {
+            final callService = ref.read(callServiceProvider);
+            callService.setCallActive(callId).catchError((e) {
+              debugPrint('[CallController] setCallActive error: $e');
+              return const Result<void>.success(null);
+            });
+          }
+        } else if (peerState ==
                 RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
-            state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
-            state == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
+            peerState == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
+            peerState == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
           debugPrint('[CallController] ❌ Peer disconnected/failed/closed');
           _cleanupWebRTC();
           _durationTimer?.cancel();
-          this.state = AsyncData(
-            CallState(
-              status: CallStatus.ended,
-              duration: current.duration,
-              error: 'Call connection lost',
-            ),
-          );
+          if (ref.mounted) {
+            this.state = AsyncData(
+              CallState(
+                status: CallStatus.ended,
+                duration: current.duration,
+                error: 'Call connection lost',
+              ),
+            );
+          }
         }
       };
 
       // Listen for ICE candidates and send them to the peer
       _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
+        if (!ref.mounted) return;
         final signal = SignalRequestExt.iceCandidate(
           candidate: candidate.candidate!,
           sdpMLineIndex: candidate.sdpMLineIndex!,
@@ -566,7 +584,7 @@ class CallController extends _$CallController {
         state = AsyncData(
           currentState.copyWith(
             localStream: localStream,
-            status: CallStatus.active,
+            // Keep status as initiated/connecting until fully connected
           ),
         );
       }
@@ -596,6 +614,7 @@ class CallController extends _$CallController {
 
       // Listen for remote stream
       _peerConnection!.onTrack = (RTCTrackEvent event) {
+        if (!ref.mounted) return;
         if (event.streams.isNotEmpty) {
           final remoteStream = event.streams.first;
           _remoteStream = remoteStream;
@@ -609,42 +628,52 @@ class CallController extends _$CallController {
       };
 
       // Connection state change listener
-      _peerConnection!.onConnectionState = (RTCPeerConnectionState state) {
+      _peerConnection!.onConnectionState = (RTCPeerConnectionState peerState) {
+        if (!ref.mounted) return;
         final current = this.state.value;
         if (current == null) return;
 
-        this.state = AsyncData(current.copyWith(connectionState: state));
+        this.state = AsyncData(current.copyWith(connectionState: peerState));
 
-        if (state == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
+        if (peerState == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
           debugPrint('[CallController] ✅ Peer connected');
           _startDurationTimer();
+
+          // Transition to active state now that connection is established
+          this.state = AsyncData(current.copyWith(status: CallStatus.active));
+
           // Notify backend the call is fully connected.
           // This may fail with 400 if the status was already set to "active"
           // by the callee's answerCall — that's expected and safe to ignore.
-          final callService = ref.read(callServiceProvider);
-          callService.setCallActive(callId).catchError((e) {
-            debugPrint('[CallController] setCallActive error: $e');
-            return const Result<void>.success(null);
-          });
-        } else if (state ==
+          if (ref.mounted) {
+            final callService = ref.read(callServiceProvider);
+            callService.setCallActive(callId).catchError((e) {
+              debugPrint('[CallController] setCallActive error: $e');
+              return const Result<void>.success(null);
+            });
+          }
+        } else if (peerState ==
                 RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
-            state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
-            state == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
+            peerState == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
+            peerState == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
           debugPrint('[CallController] ❌ Peer disconnected/failed/closed');
           _cleanupWebRTC();
           _durationTimer?.cancel();
-          this.state = AsyncData(
-            CallState(
-              status: CallStatus.ended,
-              duration: current.duration,
-              error: 'Call connection lost',
-            ),
-          );
+          if (ref.mounted) {
+            this.state = AsyncData(
+              CallState(
+                status: CallStatus.ended,
+                duration: current.duration,
+                error: 'Call connection lost',
+              ),
+            );
+          }
         }
       };
 
       // Listen for ICE candidates and send them
       _peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
+        if (!ref.mounted) return;
         final signal = SignalRequestExt.iceCandidate(
           candidate: candidate.candidate!,
           sdpMLineIndex: candidate.sdpMLineIndex!,
@@ -703,6 +732,10 @@ class CallController extends _$CallController {
   void _startSignalPolling(String callId) {
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
+      if (!ref.mounted) {
+        _pollTimer?.cancel();
+        return;
+      }
       await _pollSignals(callId);
     });
   }
@@ -840,6 +873,7 @@ class CallController extends _$CallController {
   }
 
   Future<void> _sendSignal(String callId, SignalRequest signal) async {
+    if (!ref.mounted) return;
     final callService = ref.read(callServiceProvider);
     final result = await callService.sendSignal(callId: callId, signal: signal);
     if (result.isFailure) {
@@ -852,7 +886,12 @@ class CallController extends _$CallController {
   // ─── Duration Timer ──────────────────────────────────────────────────────
 
   void _startDurationTimer() {
+    _durationTimer?.cancel();
     _durationTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!ref.mounted) {
+        _durationTimer?.cancel();
+        return;
+      }
       final currentState = state.value;
       if (currentState != null) {
         state = AsyncData(

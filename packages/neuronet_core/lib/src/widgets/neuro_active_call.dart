@@ -25,6 +25,7 @@ class NeuroActiveCallScreen extends ConsumerStatefulWidget {
 class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
+  bool _renderersInitialized = false;
 
   @override
   void initState() {
@@ -33,8 +34,17 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
   }
 
   Future<void> _initRenderers() async {
-    await _localRenderer.initialize();
-    await _remoteRenderer.initialize();
+    try {
+      await _localRenderer.initialize();
+      await _remoteRenderer.initialize();
+      if (mounted) {
+        setState(() {
+          _renderersInitialized = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('[NeuroActiveCallScreen] Error initializing renderers: $e');
+    }
   }
 
   @override
@@ -73,16 +83,18 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
 
   Future<void> _endCall() async {
     await ref.read(callControllerProvider.notifier).endCall();
-    // Only pop if this screen was pushed via Navigator (not when rendered
-    // inline as a Stack overlay — in that case the state change removes it).
-    if (mounted && Navigator.canPop(context)) {
-      Navigator.of(context).pop();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final callState = ref.watch(callControllerProvider);
+
+    // Ensure renderers are initialized before showing any WebRTC UI
+    if (!_renderersInitialized) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       body: callState.when(
