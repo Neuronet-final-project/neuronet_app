@@ -117,17 +117,42 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
               onRefresh: _loadData,
               child: CustomScrollView(
                 slivers: [
-                  if (channel?.description != null && channel!.description!.isNotEmpty)
-                    SliverToBoxAdapter(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        color: NeuroColors.adolescentPrimary.withValues(alpha: 0.05),
-                        child: Text(
-                          channel.description!,
-                          style: const TextStyle(fontSize: 14, color: NeuroColors.onSurfaceVariant),
+                    if (channel != null)
+                      SliverToBoxAdapter(
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          color: NeuroColors.adolescentPrimary.withValues(alpha: 0.05),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.people_outline,
+                                      size: 16, color: NeuroColors.adolescentPrimary),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${channel.subscriberCount} followers',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: NeuroColors.adolescentPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (channel.description != null &&
+                                  channel.description!.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Text(
+                                  channel.description!,
+                                  style: const TextStyle(
+                                      fontSize: 14, color: NeuroColors.onSurfaceVariant),
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
                   
                   if (_posts.isEmpty)
                     const SliverFillRemaining(
