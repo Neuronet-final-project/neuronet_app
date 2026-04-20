@@ -13,7 +13,7 @@ class AdolescentListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Adolescents'),
+        title: const Text('Messages'),
       ),
       body: adolescentsState.when(
         data: (adolescents) => _buildContent(context, adolescents),
@@ -86,7 +86,7 @@ class _AdolescentCard extends StatelessWidget {
         onTap: () {
           final id = adolescent.effectiveId;
           context.push(
-            '/adolescent/$id?name=${Uri.encodeComponent(adolescent.fullName)}',
+            '/adolescent/$id/chat?name=${Uri.encodeComponent(adolescent.fullName)}',
           );
         },
         child: Padding(
