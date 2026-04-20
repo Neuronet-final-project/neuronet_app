@@ -107,6 +107,28 @@ class DashboardService {
               : ConsentStatus.revoked,
           grantedAt: DateTime.now(),
         ),
+        Consent(
+          consentId: 'participation-$adolescentEmail',
+          adolescentId: adolescentEmail,
+          guardianId: data['guardian_email'] as String? ?? '',
+          consentType: ConsentType.participation,
+          grantedToRole: GrantedToRole.guardian,
+          consentStatus: (data['participation'] as bool? ?? false)
+              ? ConsentStatus.granted
+              : ConsentStatus.revoked,
+          grantedAt: DateTime.now(),
+        ),
+        Consent(
+          consentId: 'chat-$adolescentEmail',
+          adolescentId: adolescentEmail,
+          guardianId: data['guardian_email'] as String? ?? '',
+          consentType: ConsentType.counselorChat,
+          grantedToRole: GrantedToRole.guardian,
+          consentStatus: (data['counselor_chat'] as bool? ?? false)
+              ? ConsentStatus.granted
+              : ConsentStatus.revoked,
+          grantedAt: DateTime.now(),
+        ),
       ];
       return Result.success(consents);
     } on DioException catch (e) {
