@@ -13,10 +13,18 @@ class ConsentStatusScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: NeuroColors.background,
       appBar: AppBar(
-        title: const Text('Privacy Hub'),
+        title: Text(
+          'Privacy Hub',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: NeuroColors.onSurface,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
+        foregroundColor: NeuroColors.onSurface,
+        iconTheme: const IconThemeData(color: NeuroColors.onSurface),
       ),
       body: consentAsync.when(
         data: (state) => _buildContent(context, state),
