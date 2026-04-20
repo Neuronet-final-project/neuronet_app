@@ -162,4 +162,28 @@ class AuthService {
       return Result.failure(failureFromException(e));
     }
   }
+
+  Future<Result<void>> updateProfile(Map<String, dynamic> data) async {
+    try {
+      await _apiClient.put(
+        ApiEndpoints.updateProfile,
+        data: data,
+      );
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  Future<Result<void>> updateAdolescentProfile(Map<String, dynamic> data) async {
+    try {
+      await _apiClient.put(
+        '/auth/adolescent/profile',
+        data: data,
+      );
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
 }

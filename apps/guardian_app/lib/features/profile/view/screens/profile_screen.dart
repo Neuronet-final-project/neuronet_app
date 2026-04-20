@@ -27,6 +27,13 @@ class ProfileScreen extends ConsumerWidget {
         backgroundColor: NeuroColors.guardianPrimary,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, color: Colors.white),
+            onPressed: () => _showEditDialog(context, ref, profileState.value?.user),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: profileState.when(
         data: (state) {
@@ -68,6 +75,71 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+    );
+   }
+
+  void _showEditDialog(BuildContext context, WidgetRef ref, User? user) {
+    if (user == null) return;
+
+    final nameController = TextEditingController(text: user.fullName);
+    final passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Edit Profile'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Full Name'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              decoration: const InputDecoration(
+                labelText: 'New Password (optional)',
+                helperText: 'Leave empty to keep current password',
+              ),
+              obscureText: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final result = await ref
+                  .read(guardianProfileControllerProvider.notifier)
+                  .updateProfile(
+                    fullName: nameController.text.isNotEmpty
+                        ? nameController.text
+                        : null,
+                    password: passwordController.text.isNotEmpty
+                        ? passwordController.text
+                        : null,
+                  );
+
+              if (ctx.mounted) {
+                Navigator.pop(ctx);
+                if (result.isSuccess) {
+                  NeuroToast.show(context, 'Profile updated successfully',
+                      type: NeuroToastType.success);
+                } else {
+                  NeuroToast.show(
+                      context, 'Update failed: ${result.failure.message}',
+                      type: NeuroToastType.error);
+                }
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
       ),
     );
   }

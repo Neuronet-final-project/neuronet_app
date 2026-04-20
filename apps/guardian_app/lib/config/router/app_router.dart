@@ -179,6 +179,14 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: GuardianRoutes.consent,
+                builder: (context, state) => const ConsentScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: GuardianRoutes.profile,
                 builder: (context, state) => const ProfileScreen(),
               ),
@@ -195,10 +203,6 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: GuardianRoutes.pendingAdolescents,
         builder: (context, state) => const PendingAdolescentsScreen(),
-      ),
-      GoRoute(
-        path: GuardianRoutes.consent,
-        builder: (context, state) => const ConsentScreen(),
       ),
     GoRoute(
         path: GuardianRoutes.alertDetails,
@@ -279,7 +283,12 @@ class GuardianShell extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.chat_bubble_outline),
             selectedIcon: Icon(Icons.chat_bubble),
-            label: 'Messages',
+            label: 'Adolescents',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.security_outlined),
+            selectedIcon: Icon(Icons.security),
+            label: 'Privacy',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

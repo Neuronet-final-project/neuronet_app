@@ -38,4 +38,20 @@ class GuardianProfileController extends _$GuardianProfileController {
       );
     });
   }
+
+  Future<Result<void>> updateProfile({String? fullName, String? password}) async {
+    final authService = ref.read(authServiceProvider);
+    
+    final updateData = <String, dynamic>{};
+    if (fullName != null) updateData['full_name'] = fullName;
+    if (password != null) updateData['password'] = password;
+    
+    final result = await authService.updateProfile(updateData);
+    
+    if (result.isSuccess) {
+      await refresh();
+    }
+    
+    return result;
+  }
 }
