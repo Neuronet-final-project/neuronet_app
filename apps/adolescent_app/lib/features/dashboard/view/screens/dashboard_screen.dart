@@ -368,13 +368,13 @@ class _StatsRow extends ConsumerWidget {
           child: Row(
             children: [
               _StatPill(label: 'Journals', value: '$journals', icon: Icons.menu_book_rounded,
-                  gradient: const [Color(0xFF7C4DFF), Color(0xFFB47CFF)]),
+                  gradient: const [Color(0xFFA875FF), Color(0xFF8D53FF)]),
               const SizedBox(width: 10),
-              _StatPill(label: 'Moods', value: '$moods', icon: Icons.mood_rounded,
-                  gradient: const [Color(0xFF26C6DA), Color(0xFF64B5F6)]),
+              _StatPill(label: 'Moods', value: '$moods', icon: Icons.sentiment_very_satisfied_rounded,
+                  gradient: const [Color(0xFF38C7F0), Color(0xFF4DB0F6)]),
               const SizedBox(width: 10),
               _StatPill(label: 'For You', value: '$recs', icon: Icons.school_rounded,
-                  gradient: const [Color(0xFFFF7043), Color(0xFFFFB74D)]),
+                  gradient: const [Color(0xFFFF8A49), Color(0xFFFF9F49)]),
             ],
           ),
         );
@@ -402,37 +402,46 @@ class _StatPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
-              color: gradient.first.withValues(alpha: 0.35),
-              blurRadius: 12,
+              color: gradient.last.withValues(alpha: 0.3),
+              blurRadius: 10,
               offset: const Offset(0, 4),
             )
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: Colors.white, size: 20),
-            const SizedBox(height: 8),
-            Text(value,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900)),
-            Text(label,
-                style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500)),
+            Icon(icon, color: Colors.white, size: 22),
+            const SizedBox(height: 24),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(value,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        height: 1.1,
+                        fontWeight: FontWeight.w800)),
+                const SizedBox(height: 1),
+                Text(label,
+                    style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.95),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600)),
+              ],
+            ),
           ],
         ),
       ),
     );
+
   }
 }
 
