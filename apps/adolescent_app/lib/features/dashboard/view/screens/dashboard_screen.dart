@@ -9,157 +9,272 @@ import 'package:adolescent_app/features/profile/providers/profile_provider.dart'
 import 'package:adolescent_app/features/alerts/providers/alerts_provider.dart';
 import 'package:adolescent_app/features/educational/providers/educational_provider.dart';
 
+// ─── Local Design Tokens ──────────────────────────────────────────────────────
+const _kPurple   = Color(0xFF7C4DFF);
+const _kLavender = Color(0xFFB47CFF);
+const _kDeepPurple = Color(0xFF5E35B1);
+const _kBlue     = Color(0xFF64B5F6);
+const _kSurface  = Color(0xFFF5F3FF);
+const _kSurfaceVariant = Color(0xFFEDE7FF);
+const _kBody     = Color(0xFF2D1B6B);
+const _kSubtle   = Color(0xFF9E9EB8);
+const _kCard     = Colors.white;
+
+// Quick-action card accent colors (icon gradient only, card is white)
+const _cardColors = [
+  [Color(0xFF7C4DFF), Color(0xFFB47CFF)], // purple
+  [Color(0xFF00BCD4), Color(0xFF4FC3F7)], // cyan → sky
+  [Color(0xFFFF7043), Color(0xFFFFAB40)], // deep orange → amber
+  [Color(0xFF43A047), Color(0xFF81C784)], // green
+];
+
+// ─── Main Screen ──────────────────────────────────────────────────────────────
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Emotional Health'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.insights_rounded),
-            onPressed: () => context.push(AdolescentRoutes.alerts),
-            tooltip: 'View insights',
-          ),
-        ],
-      ),
+      backgroundColor: _kSurface,
       body: RefreshIndicator(
+        color: _kPurple,
         onRefresh: () => ref.refresh(adolescentDashboardControllerProvider.future),
-        child: SingleChildScrollView(
+        child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildWelcomeHeader(context, ref),
-              _buildMoodCheckIn(context, ref),
-              _buildDataSection(context, ref),
-              _buildInsightsSnippet(context, ref),
-              _buildLearningSnippet(context, ref),
-              _buildActionCards(context),
-            ],
-          ),
+          slivers: [
+            _HeroAppBar(ref: ref),
+            SliverToBoxAdapter(child: _MoodCheckInRow(ref: ref)),
+            SliverToBoxAdapter(child: _StatsRow(ref: ref)),
+            SliverToBoxAdapter(child: _QuickActionGrid()),
+            SliverToBoxAdapter(child: _RecentJournals(ref: ref)),
+            SliverToBoxAdapter(child: _InsightsBanner(ref: ref)),
+            SliverToBoxAdapter(child: _LearningCard(ref: ref)),
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AdolescentRoutes.aiChat),
-        backgroundColor: NeuroColors.adolescentPrimary,
-        icon: const Icon(Icons.assistant, color: Colors.white),
-        label: const Text('AI Assistant', style: TextStyle(color: Colors.white)),
+      floatingActionButton: _SageAIButton(
+        onTap: () => context.push(AdolescentRoutes.aiChat),
       ),
     );
   }
+}
 
-  Widget _buildWelcomeHeader(BuildContext context, WidgetRef ref) {
+// ─── Hero SliverAppBar ────────────────────────────────────────────────────────
+class _HeroAppBar extends ConsumerWidget {
+  const _HeroAppBar({required this.ref});
+  final WidgetRef ref;
+
+  String get _greeting {
+    final h = DateTime.now().hour;
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(adolescentProfileControllerProvider);
+    final alertsAsync  = ref.watch(adolescentAlertsControllerProvider);
+
     final name = profileAsync.maybeWhen(
-      data: (state) => state.user?.fullName.split(' ')[0] ?? 'there',
+      data: (s) => s.user?.fullName.split(' ').first ?? 'there',
       orElse: () => 'there',
     );
-
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Hi $name,',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "Here's how you've been feeling lately.",
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: NeuroColors.onSurfaceVariant,
-                ),
-          ),
-        ],
-      ),
+    final unread = alertsAsync.maybeWhen(
+      data: (s) => s.alerts.where((a) => !a.viewedStatus).length,
+      orElse: () => 0,
     );
-  }
 
-  Widget _buildTrendSection(BuildContext context, DashboardData data) {
-    if (data.moodDistribution.isEmpty) return const SizedBox.shrink();
-
-    return NeuroDashboardCard(
-      title: 'Mood Distribution',
-      subtitle: 'Recent check-ins',
-      height: null,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          children: data.moodDistribution.entries.map((entry) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w500)),
-                  Text('${entry.value} entries'),
-                ],
+    return SliverAppBar(
+      expandedHeight: 200,
+      pinned: true,
+      elevation: 0,
+      backgroundColor: _kPurple,
+      flexibleSpace: FlexibleSpaceBar(
+        collapseMode: CollapseMode.parallax,
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF6A1FDB), _kPurple, _kLavender],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Stack(
+            children: [
+              // Decorative orbs
+              Positioned(top: -30, right: -30,
+                child: _Orb(size: 140, color: Colors.white.withValues(alpha: 0.06))),
+              Positioned(bottom: 10, left: -20,
+                child: _Orb(size: 100, color: Color(0xFF64B5F6).withValues(alpha: 0.15))),
+              // Content
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Logo tile
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.3)),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.self_improvement_rounded,
+                                    color: Colors.white, size: 16),
+                                SizedBox(width: 5),
+                                Text('NEURONET',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 11,
+                                        letterSpacing: 1.2)),
+                              ],
+                            ),
+                          ),
+                          // Notification bell
+                          GestureDetector(
+                            onTap: () => context.push(AdolescentRoutes.alerts),
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Container(
+                                  width: 38, height: 38,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.15),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                        color: Colors.white.withValues(alpha: 0.3)),
+                                  ),
+                                  child: const Icon(Icons.notifications_outlined,
+                                      color: Colors.white, size: 20),
+                                ),
+                                if (unread > 0)
+                                  Positioned(
+                                    right: -2, top: -2,
+                                    child: Container(
+                                      width: 16, height: 16,
+                                      decoration: const BoxDecoration(
+                                          color: Color(0xFFFF6B6B),
+                                          shape: BoxShape.circle),
+                                      child: Center(
+                                        child: Text(
+                                          unread > 9 ? '9+' : '$unread',
+                                          style: const TextStyle(
+                                              fontSize: 8, color: Colors.white,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _greeting.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 10,
+                          letterSpacing: 2,
+                          color: Colors.white.withValues(alpha: 0.75),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Hey $name 👋',
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        "How's your inner world today?",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.white.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
+            ],
+          ),
+// ─── Mood Check-in Row ────────────────────────────────────────────────────────
+class _MoodCheckInRow extends ConsumerWidget {
+  const _MoodCheckInRow({required this.ref});
+  final WidgetRef ref;
 
-  Widget _buildStatsGrid(BuildContext context, DashboardData data) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.5,
-        children: [
-          _StatCard(
-            label: 'Recent Journals',
-            value: data.recentJournals.length.toString(),
-            icon: Icons.book,
-            color: NeuroColors.moodSad,
-          ),
-          _StatCard(
-            label: 'Mood Variants',
-            value: data.moodDistribution.length.toString(),
-            icon: Icons.mood,
-            color: NeuroColors.moodAnxious,
-          ),
-          _StatCard(
-            label: 'Recommendations',
-            value: data.educationalRecommendations.length.toString(),
-            icon: Icons.school,
-            color: NeuroColors.adolescentPrimary,
-          ),
-          _StatCard(
-            label: 'Active Streak',
-            value: '—', // Placeholder until backend supports streak tracking
-            icon: Icons.local_fire_department,
-            color: NeuroColors.onSurfaceVariant,
-          ),
-        ],
-      ),
-    );
-  }
+  static const _moods = [
+    MoodType.happy, MoodType.calm, MoodType.excited,
+    MoodType.hopeful, MoodType.neutral, MoodType.tired,
+    MoodType.anxious, MoodType.sad,
+  ];
 
-  Widget _buildMoodCheckIn(BuildContext context, WidgetRef ref) {
+  // Background colors matching screenshot exactly
+  static const _bg = [
+    Color(0xFFFFF3B0), // happy   – warm yellow
+    Color(0xFFC4EDD4), // calm    – mint green
+    Color(0xFFFFD3E8), // excited – soft pink
+    Color(0xFF2B3558), // hopeful – dark navy
+    Color(0xFFE6E2F0), // neutral – soft lavender
+    Color(0xFFE4DEF5), // tired   – light purple
+    Color(0xFFFFDDBB), // anxious – soft peach
+    Color(0xFFDDD8F5), // sad     – pale violet
+  ];
+
+  // Per-mood label color matching screenshot
+  static const _labelColors = [
+    Color(0xFF8A6D00), // happy
+    Color(0xFF2E7D55), // calm
+    Color(0xFFB5006E), // excited (pink text)
+    Colors.white,      // hopeful (white on dark navy)
+    Color(0xFF6B5FA0), // neutral
+    Color(0xFF6B5FA0), // tired
+    Color(0xFFB85C00), // anxious
+    Color(0xFF4A3A90), // sad
+  ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          child: Text(
-            'How are you feeling right now?',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('How are you feeling?',
+                  style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: _kBody)),
+              GestureDetector(
+                onTap: () => context.go(AdolescentRoutes.mood),
+                child: const Text('All moods →',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: _kPurple,
+                        fontWeight: FontWeight.w600)),
+              ),
+            ],
           ),
         ),
         SizedBox(
@@ -167,415 +282,727 @@ class DashboardScreen extends ConsumerWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: MoodType.values.length,
-            itemBuilder: (context, index) {
-              final mood = MoodType.values[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: InkWell(
-                  onTap: () {
-                    ref.read(moodControllerProvider.notifier).selectMood(mood);
-                    context.go(AdolescentRoutes.mood);
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    width: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+            itemCount: _moods.length,
+            itemBuilder: (context, i) {
+              final mood = _moods[i];
+              return GestureDetector(
+                onTap: () {
+                  ref.read(moodControllerProvider.notifier).selectMood(mood);
+                  context.go(AdolescentRoutes.mood);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 64, height: 64,
+                        decoration: BoxDecoration(
+                          color: _bg[i],
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Text(mood.emoji,
+                              style: const TextStyle(fontSize: 30)),
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          mood.emoji,
-                          style: const TextStyle(fontSize: 32),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          mood.label,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: NeuroColors.onSurfaceVariant,
-                              ),
-                        ),
-                      ],
-                    ),
+                      const SizedBox(height: 5),
+                      Text(
+                        mood.label,
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: _labelColors[i],
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ),
                 ),
               );
             },
           ),
         ),
-        const SizedBox(height: 16),
       ],
     );
   }
+}
 
-  Widget _buildRecentJournals(BuildContext context, DashboardData data) {
-    if (data.recentJournals.isEmpty) return const SizedBox.shrink();
+// ─── Stats Row ────────────────────────────────────────────────────────────────
+class _StatsRow extends ConsumerWidget {
+  const _StatsRow({required this.ref});
+  final WidgetRef ref;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashAsync = ref.watch(adolescentDashboardControllerProvider);
+
+    return dashAsync.maybeWhen(
+      data: (state) {
+        final data = state.data;
+        final journals = data?.recentJournals.length ?? 0;
+        final moods = data?.moodDistribution.length ?? 0;
+        final recs = data?.educationalRecommendations.length ?? 0;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Recent Journals',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              TextButton(
-                onPressed: () => context.go(AdolescentRoutes.journal),
-                child: const Text('View All'),
-              ),
+              _StatPill(label: 'Journals', value: '$journals', icon: Icons.menu_book_rounded,
+                  gradient: const [Color(0xFF7C4DFF), Color(0xFFB47CFF)]),
+              const SizedBox(width: 10),
+              _StatPill(label: 'Moods', value: '$moods', icon: Icons.mood_rounded,
+                  gradient: const [Color(0xFF26C6DA), Color(0xFF64B5F6)]),
+              const SizedBox(width: 10),
+              _StatPill(label: 'For You', value: '$recs', icon: Icons.school_rounded,
+                  gradient: const [Color(0xFFFF7043), Color(0xFFFFB74D)]),
             ],
           ),
-        ),
-        Column(
-          children: data.recentJournals.map((entry) {
-            return Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: NeuroColors.adolescentSurface,
-                  child: Text(
-                    entry.mood?.emoji ?? '📔',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                ),
-                title: Text(entry.title ?? 'Journal Entry', style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('Mood: ${entry.mood?.label ?? 'Unspecified'}'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('${AdolescentRoutes.journal}/${entry.id}'),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
+        );
+      },
+      orElse: () => const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: LinearProgressIndicator(color: _kPurple, backgroundColor: _kSurfaceVariant),
+      ),
     );
   }
+}
 
-  Widget _buildActionCards(BuildContext context) {
+class _StatPill extends StatelessWidget {
+  const _StatPill({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.gradient,
+  });
+  final String label, value;
+  final IconData icon;
+  final List<Color> gradient;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: gradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: gradient.first.withValues(alpha: 0.35),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(height: 8),
+            Text(value,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900)),
+            Text(label,
+                style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Quick Action 2×2 Grid ────────────────────────────────────────────────────
+class _QuickActionGrid extends StatelessWidget {
+  const _QuickActionGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    final actions = [
+      _ActionData('Write Journal', 'Express yourself 📝',
+          Icons.edit_note_rounded, _cardColors[0],
+          () => context.push(AdolescentRoutes.newJournal)),
+      _ActionData('AI Companion', 'Talk it out 🤖',
+          Icons.smart_toy_rounded, _cardColors[1],
+          () => context.push(AdolescentRoutes.aiChat)),
+      _ActionData('Counselor', 'Human support 💬',
+          Icons.support_agent_rounded, _cardColors[2],
+          () => context.push(AdolescentRoutes.counselorChat)),
+      _ActionData('Learn & Grow', 'Explore resources 📚',
+          Icons.lightbulb_rounded, _cardColors[3],
+          () => context.push(AdolescentRoutes.learn)),
+    ];
+
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Quick Actions',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 12),
+            child: Text('Quick Actions',
+                style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: _kBody)),
           ),
-          const SizedBox(height: 12),
-          ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: NeuroColors.adolescentSurface,
-              child: Icon(Icons.add, color: NeuroColors.adolescentPrimary),
-            ),
-            title: const Text('Add Journal Entry'),
-            subtitle: const Text('How was your day?'),
-            trailing: const Icon(Icons.chevron_right),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            tileColor: Colors.white,
-            onTap: () => context.push(AdolescentRoutes.newJournal),
-          ),
-          const SizedBox(height: 8),
-          ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: NeuroColors.adolescentSurface,
-              child: Icon(Icons.chat_bubble_outline, color: NeuroColors.adolescentPrimary),
-            ),
-            title: const Text('Chat with AI'),
-            subtitle: const Text('Get support anytime'),
-            trailing: const Icon(Icons.chevron_right),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            tileColor: Colors.white,
-            onTap: () => context.push(AdolescentRoutes.aiChat),
-          ),
-          const SizedBox(height: 8),
-          ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: NeuroColors.adolescentSurface,
-              child: Icon(Icons.person_outline, color: NeuroColors.adolescentPrimary),
-            ),
-            title: const Text('Chat with Counselor'),
-            subtitle: const Text('Message your human counselor'),
-            trailing: const Icon(Icons.chevron_right),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            tileColor: Colors.white,
-            onTap: () => context.push(AdolescentRoutes.counselorChat),
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 2.2,
+            children: actions.map((a) => _ActionCard(data: a)).toList(),
           ),
         ],
       ),
     );
   }
-
-  Widget _buildDataSection(BuildContext context, WidgetRef ref) {
-    final dashboardAsync = ref.watch(adolescentDashboardControllerProvider);
-
-    return dashboardAsync.when(
-      data: (state) {
-        if (state.isLoading && state.data == null) {
-          return const Padding(
-            padding: EdgeInsets.all(40),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (state.error != null && state.data == null) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: NeuroErrorWidget(
-              message: 'Dashboard data failed to load: ${state.error}',
-              onRetry: () => ref.read(adolescentDashboardControllerProvider.notifier).refresh(),
-            ),
-          );
-        }
-
-        final data = state.data;
-        if (data == null) return const SizedBox.shrink();
-
-        final isFallback = data.recentJournals.isEmpty && data.moodDistribution.isEmpty;
-
-        return Column(
-          children: [
-            if (isFallback)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: NeuroEmptyState(
-                  isMini: true,
-                  title: 'Data Unavailable',
-                  message: 'Activity data is currently unavailable. Quick Actions are active.',
-                  icon: Icons.cloud_off,
-                  color: Colors.orange,
-                ),
-              ),
-            _buildTrendSection(context, data),
-            _buildStatsGrid(context, data),
-            _buildRecentJournals(context, data),
-          ],
-        );
-      },
-      loading: () => const Padding(
-        padding: EdgeInsets.all(40),
-        child: Center(child: CircularProgressIndicator()),
-      ),
-      error: (err, stack) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: NeuroErrorWidget(
-          message: 'Dashboard data failed to load: $err',
-          onRetry: () => ref.read(adolescentDashboardControllerProvider.notifier).refresh(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInsightsSnippet(BuildContext context, WidgetRef ref) {
-    final alertsAsync = ref.watch(adolescentAlertsControllerProvider);
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Personal Insights',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              TextButton(
-                onPressed: () => context.push(AdolescentRoutes.alerts),
-                child: const Text('View All'),
-              ),
-            ],
-          ),
-        ),
-        alertsAsync.when(
-          data: (state) {
-            final alerts = state.alerts;
-            if (alerts.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: NeuroEmptyState(
-                  isMini: true,
-                  title: 'No Insights Yet',
-                  message: 'Keep journaling to unlock patterns and deeper insights!',
-                  icon: Icons.insights_rounded,
-                  color: theme.primaryColor,
-                ),
-              );
-            }
-            final recentAlerts = alerts.take(2).toList();
-            return Column(
-              children: recentAlerts.map((alert) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      child: Icon(Icons.auto_awesome, color: theme.colorScheme.primary, size: 20),
-                    ),
-                    title: Text(alert.alertType, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(alert.triggerDescription, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    onTap: () => context.push('${AdolescentRoutes.alerts}/${alert.alertId}', extra: alert),
-                  ),
-                ),
-              )).toList(),
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => const SizedBox.shrink(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLearningSnippet(BuildContext context, WidgetRef ref) {
-    final recommendationsAsync = ref.watch(adolescentRecommendationsControllerProvider);
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Learning Nook',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              TextButton(
-                onPressed: () => context.push(AdolescentRoutes.learn),
-                child: const Text('Explore'),
-              ),
-            ],
-          ),
-        ),
-        recommendationsAsync.when(
-          data: (state) {
-            final recs = state.recommendations;
-            if (recs.isEmpty) return const SizedBox.shrink();
-            final topRec = recs.first;
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Card(
-                color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(16),
-                  title: Text(
-                    'Picked for You',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.secondary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 8),
-                      Text(
-                        topRec.reason,
-                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text('Read: ${topRec.page.title}'),
-                    ],
-                  ),
-                  onTap: () => context.push(AdolescentRoutes.recommendations),
-                ),
-              ),
-            );
-          },
-          loading: () => const SizedBox.shrink(),
-          error: (err, stack) => const SizedBox.shrink(),
-        ),
-      ],
-    );
-  }
 }
 
-class _StatCard extends StatefulWidget {
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
+class _ActionData {
+  const _ActionData(this.title, this.sub, this.icon, this.colors, this.onTap);
+  final String title, sub;
   final IconData icon;
-  final Color color;
+  final List<Color> colors;
+  final VoidCallback onTap;
+}
+
+class _ActionCard extends StatefulWidget {
+  const _ActionCard({required this.data});
+  final _ActionData data;
 
   @override
-  State<_StatCard> createState() => _StatCardState();
+  State<_ActionCard> createState() => _ActionCardState();
 }
 
-class _StatCardState extends State<_StatCard> {
-  bool _isPressed = false;
+class _ActionCardState extends State<_ActionCard> {
+  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      label: '${widget.label}: ${widget.value}',
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _isPressed = true),
-        onTapUp: (_) => setState(() => _isPressed = false),
-        onTapCancel: () => setState(() => _isPressed = false),
-        child: AnimatedScale(
-          scale: _isPressed ? 0.97 : 1.0,
-          duration: const Duration(milliseconds: 100),
-          curve: Curves.easeOut,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: NeuroColors.surface,
-              borderRadius: BorderRadius.circular(NeuroRadius.lg),
-              boxShadow: [NeuroShadows.md],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(widget.icon, color: widget.color, size: 24),
-                Column(
+    return GestureDetector(
+      onTap: widget.data.onTap,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.95 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+                color: widget.data.colors.first.withValues(alpha: 0.15)),
+            boxShadow: [
+              BoxShadow(
+                color: widget.data.colors.first.withValues(alpha: 0.12),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 38, height: 38,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: widget.data.colors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: Icon(widget.data.icon, color: Colors.white, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      widget.value,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    Text(
-                      widget.label,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: NeuroColors.onSurfaceVariant,
-                          ),
-                    ),
+                    Text(widget.data.title,
+                        style: TextStyle(
+                            color: _kBody,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800),
+                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 1),
+                    Text(widget.data.sub,
+                        style: const TextStyle(
+                            color: _kSubtle, fontSize: 10),
+                        maxLines: 1, overflow: TextOverflow.ellipsis),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+}
+
+// ─── Recent Journals ──────────────────────────────────────────────────────────
+class _RecentJournals extends ConsumerWidget {
+  const _RecentJournals({required this.ref});
+  final WidgetRef ref;
+
+  String _daysAgo(DateTime dt) {
+    final d = DateTime.now().difference(dt).inDays;
+    if (d == 0) return 'Today';
+    if (d == 1) return 'Yesterday';
+    return '$d days ago';
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashAsync = ref.watch(adolescentDashboardControllerProvider);
+
+    return dashAsync.maybeWhen(
+      data: (state) {
+        final journals = state.data?.recentJournals ?? [];
+        if (journals.isEmpty) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Recent Journals',
+                      style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: _kBody)),
+                  GestureDetector(
+                    onTap: () => context.go(AdolescentRoutes.journal),
+                    child: const Text('View all →',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: _kPurple,
+                            fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...journals.take(3).map((entry) => _JournalRow(
+                    entry: entry,
+                    daysAgo: _daysAgo(entry.createdAt),
+                    onTap: () => context.push(
+                        '${AdolescentRoutes.journal}/${entry.id}'),
+                  )),
+            ],
+          ),
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _JournalRow extends StatelessWidget {
+  const _JournalRow({
+    required this.entry,
+    required this.daysAgo,
+    required this.onTap,
+  });
+  final RecentJournal entry;
+  final String daysAgo;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: _kCard,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: _kPurple.withValues(alpha: 0.08)),
+          boxShadow: const [
+            BoxShadow(
+                color: Color(0x0A000000),
+                blurRadius: 10,
+                offset: Offset(0, 2))
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44, height: 44,
+              decoration: BoxDecoration(
+                color: _kSurfaceVariant,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Center(
+                child: entry.mood != null
+                    ? Text(entry.mood!.emoji,
+                        style: const TextStyle(fontSize: 22))
+                    : const Icon(Icons.menu_book_rounded,
+                        color: _kPurple, size: 22),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    entry.title ?? 'Journal Entry',
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: _kBody),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    daysAgo +
+                        (entry.mood != null
+                            ? '  ·  Feeling ${entry.mood!.label}'
+                            : ''),
+                    style: const TextStyle(fontSize: 11, color: _kSubtle),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: _kSubtle),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Insights Banner ──────────────────────────────────────────────────────────
+class _InsightsBanner extends ConsumerWidget {
+  const _InsightsBanner({required this.ref});
+  final WidgetRef ref;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final alertsAsync = ref.watch(adolescentAlertsControllerProvider);
+
+    return alertsAsync.maybeWhen(
+      data: (state) {
+        final alerts = state.alerts;
+        if (alerts.isEmpty) return const SizedBox.shrink();
+        final alert = alerts.first;
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          child: GestureDetector(
+            onTap: () => context.push(
+                '${AdolescentRoutes.alerts}/${alert.alertId}',
+                extra: alert),
+            child: Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF5E35B1), Color(0xFF7C4DFF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: _kDeepPurple.withValues(alpha: 0.35),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  )
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44, height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.auto_awesome_rounded,
+                        color: Colors.white, size: 22),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Personal Insight ✨',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 2),
+                        Text(
+                          alert.triggerDescription,
+                          style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.85),
+                              fontSize: 12),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios_rounded,
+                      color: Colors.white70, size: 14),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
+    );
+  }
+}
+
+// ─── Learning Card ────────────────────────────────────────────────────────────
+class _LearningCard extends ConsumerWidget {
+  const _LearningCard({required this.ref});
+  final WidgetRef ref;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final recsAsync = ref.watch(adolescentRecommendationsControllerProvider);
+
+    return recsAsync.maybeWhen(
+      data: (state) {
+        if (state.recommendations.isEmpty) return const SizedBox.shrink();
+        final rec = state.recommendations.first;
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Try This Today',
+                      style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: _kBody)),
+                  GestureDetector(
+                    onTap: () => context.push(AdolescentRoutes.recommendations),
+                    child: const Text('More →',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: _kPurple,
+                            fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () => context.push(AdolescentRoutes.recommendations),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: _kCard,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                        color: _kPurple.withValues(alpha: 0.12)),
+                    boxShadow: const [
+                      BoxShadow(
+                          color: Color(0x0A000000),
+                          blurRadius: 10,
+                          offset: Offset(0, 2))
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF66BB6A), Color(0xFFA5D6A7)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Icon(Icons.lightbulb_rounded,
+                            color: Colors.white, size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: _kSurfaceVariant,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text('RECOMMENDED',
+                                  style: TextStyle(
+                                      fontSize: 9,
+                                      letterSpacing: 1,
+                                      fontWeight: FontWeight.w700,
+                                      color: _kPurple)),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              rec.page.title,
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: _kBody),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              rec.reason,
+                              style: const TextStyle(
+                                  fontSize: 12, color: _kSubtle),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                const Icon(Icons.access_time_rounded,
+                                    size: 12, color: _kSubtle),
+                                const SizedBox(width: 3),
+                                const Text('2 min read',
+                                    style: TextStyle(
+                                        fontSize: 11, color: _kSubtle)),
+                                const Spacer(),
+                                Text('Read now →',
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        color: _kPurple,
+                                        fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
+    );
+  }
+}
+
+// ─── SAGE AI FAB ──────────────────────────────────────────────────────────────
+class _SageAIButton extends StatefulWidget {
+  const _SageAIButton({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  State<_SageAIButton> createState() => _SageAIButtonState();
+}
+
+class _SageAIButtonState extends State<_SageAIButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1600))
+      ..repeat(reverse: true);
+    _pulse = Tween<double>(begin: 1.0, end: 1.08)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (_, child) => Transform.scale(scale: _pulse.value, child: child),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Container(
+          width: 60, height: 60,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF6A1FDB), _kPurple, _kLavender],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            shape: BoxShape.circle,
+            boxShadow: const [NeuroShadows.adolescentGlow],
+          ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              const Icon(Icons.smart_toy_rounded,
+                  color: Colors.white, size: 28),
+              Positioned(
+                top: 0, right: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 5, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: const [
+                      BoxShadow(
+                          color: Color(0x22000000), blurRadius: 4)
+                    ],
+                  ),
+                  child: const Text('AI',
+                      style: TextStyle(
+                          fontSize: 7,
+                          fontWeight: FontWeight.w900,
+                          color: _kPurple)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+class _Orb extends StatelessWidget {
+  const _Orb({required this.size, required this.color});
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: size, height: size,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+      );
 }
