@@ -133,7 +133,7 @@ class _HeroAppBar extends ConsumerWidget {
                                 Icon(Icons.self_improvement_rounded,
                                     color: Colors.white, size: 16),
                                 SizedBox(width: 5),
-                                Text('NEURONET',
+                                Text('ADOLESCENT',
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w800,
@@ -149,7 +149,7 @@ class _HeroAppBar extends ConsumerWidget {
                               clipBehavior: Clip.none,
                               children: [
                                 Container(
-                                  width: 38, height: 38,
+                                  width: 40, height: 40,
                                   decoration: BoxDecoration(
                                     color: Colors.white.withValues(alpha: 0.15),
                                     shape: BoxShape.circle,
@@ -157,25 +157,25 @@ class _HeroAppBar extends ConsumerWidget {
                                         color: Colors.white.withValues(alpha: 0.3)),
                                   ),
                                   child: const Icon(Icons.notifications_outlined,
-                                      color: Colors.white, size: 20),
+                                      color: Colors.white, size: 22),
                                 ),
-                                if (unread > 0)
-                                  Positioned(
-                                    right: -2, top: -2,
-                                    child: Container(
-                                      width: 16, height: 16,
-                                      decoration: const BoxDecoration(
-                                          color: Color(0xFFFF6B6B),
-                                          shape: BoxShape.circle),
-                                      child: Center(
-                                        child: Text(
-                                          unread > 9 ? '9+' : '$unread',
-                                          style: const TextStyle(
-                                              fontSize: 8, color: Colors.white,
-                                              fontWeight: FontWeight.bold),
+                                Positioned(
+                                  right: -2, top: -2,
+                                  child: unread > 0
+                                    ? Container(
+                                        width: 18, height: 18,
+                                        decoration: BoxDecoration(
+                                            color: const Color(0xFFFF6B6B),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: _kPurple, width: 1.5)),
+                                        child: Center(
+                                          child: Text(
+                                            unread > 9 ? '9+' : '$unread',
+                                            style: const TextStyle(
+                                                fontSize: 9, color: Colors.white,
+                                                fontWeight: FontWeight.w900),
+                                          ),
                                         ),
-                                      ),
-                                    ),
                                   ),
                               ],
                             ),
@@ -223,12 +223,38 @@ class _HeroAppBar extends ConsumerWidget {
           style: TextStyle(
               color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18)),
       actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: GestureDetector(
-            onTap: () => context.push(AdolescentRoutes.alerts),
-            child: const Icon(Icons.notifications_outlined,
-                color: Colors.white, size: 24),
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: GestureDetector(
+              onTap: () => context.push(AdolescentRoutes.alerts),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.notifications_outlined,
+                      color: Colors.white, size: 26),
+                  if (unread > 0)
+                    Positioned(
+                      right: -4, top: -4,
+                      child: Container(
+                        width: 18, height: 18,
+                        decoration: BoxDecoration(
+                            color: const Color(0xFFFF6B6B),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: _kPurple, width: 2)),
+                        child: Center(
+                          child: Text(
+                            unread > 9 ? '9+' : '$unread',
+                            style: const TextStyle(
+                                fontSize: 9, color: Colors.white,
+                                fontWeight: FontWeight.w900),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
