@@ -216,6 +216,26 @@ class _HeroAppBar extends ConsumerWidget {
               ),
             ],
           ),
+        ),
+      ),
+      // Collapsed app bar title
+      title: const Text('NeuroNet',
+          style: TextStyle(
+              color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18)),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: GestureDetector(
+            onTap: () => context.push(AdolescentRoutes.alerts),
+            child: const Icon(Icons.notifications_outlined,
+                color: Colors.white, size: 24),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 // ─── Mood Check-in Row ────────────────────────────────────────────────────────
 class _MoodCheckInRow extends ConsumerWidget {
   const _MoodCheckInRow({required this.ref});
@@ -227,28 +247,27 @@ class _MoodCheckInRow extends ConsumerWidget {
     MoodType.anxious, MoodType.sad,
   ];
 
-  // Background colors matching screenshot exactly
+  // Precise hex colors extracted from screenshots
   static const _bg = [
-    Color(0xFFFFF3B0), // happy   – warm yellow
-    Color(0xFFC4EDD4), // calm    – mint green
-    Color(0xFFFFD3E8), // excited – soft pink
-    Color(0xFF2B3558), // hopeful – dark navy
-    Color(0xFFE6E2F0), // neutral – soft lavender
-    Color(0xFFE4DEF5), // tired   – light purple
-    Color(0xFFFFDDBB), // anxious – soft peach
-    Color(0xFFDDD8F5), // sad     – pale violet
+    Color(0xFFFFDF8D), // happy   (yellow)
+    Color(0xFFC7EBCB), // calm    (mint)
+    Color(0xFFFFD1DF), // excited (pink)
+    Color(0xFFD5EDFC), // hopeful (light blue)
+    Color(0xFFEBEBE6), // neutral (beige/grey)
+    Color(0xFFD2D5E6), // tired   (periwinkle)
+    Color(0xFFFFD4A9), // anxious (peach)
+    Color(0xFFD5DAED), // sad     (soft violet/blue)
   ];
 
-  // Per-mood label color matching screenshot
   static const _labelColors = [
-    Color(0xFF8A6D00), // happy
-    Color(0xFF2E7D55), // calm
-    Color(0xFFB5006E), // excited (pink text)
-    Colors.white,      // hopeful (white on dark navy)
-    Color(0xFF6B5FA0), // neutral
-    Color(0xFF6B5FA0), // tired
-    Color(0xFFB85C00), // anxious
-    Color(0xFF4A3A90), // sad
+    Color(0xFF906636), // happy
+    Color(0xFF3F694F), // calm
+    Color(0xFF883C5A), // excited
+    Color(0xFF3B5D7C), // hopeful
+    Color(0xFF61615E), // neutral
+    Color(0xFF4C526A), // tired
+    Color(0xFF9C5E35), // anxious
+    Color(0xFF313D60), // sad
   ];
 
   @override
@@ -257,7 +276,7 @@ class _MoodCheckInRow extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -278,7 +297,7 @@ class _MoodCheckInRow extends ConsumerWidget {
           ),
         ),
         SizedBox(
-          height: 100,
+          height: 110,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -291,27 +310,29 @@ class _MoodCheckInRow extends ConsumerWidget {
                   context.go(AdolescentRoutes.mood);
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 10),
+                  padding: const EdgeInsets.only(right: 12),
                   child: Column(
                     children: [
                       Container(
-                        width: 64, height: 64,
+                        width: 74, height: 74,
                         decoration: BoxDecoration(
                           color: _bg[i],
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(26),
                         ),
                         child: Center(
-                          child: Text(mood.emoji,
-                              style: const TextStyle(fontSize: 30)),
+                          child: Text(
+                            mood.emoji,
+                            style: const TextStyle(fontSize: 34),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 8),
                       Text(
                         mood.label,
                         style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 12,
                             color: _labelColors[i],
-                            fontWeight: FontWeight.w600),
+                            fontWeight: FontWeight.w800),
                       ),
                     ],
                   ),
@@ -320,6 +341,7 @@ class _MoodCheckInRow extends ConsumerWidget {
             },
           ),
         ),
+        const SizedBox(height: 8),
       ],
     );
   }
