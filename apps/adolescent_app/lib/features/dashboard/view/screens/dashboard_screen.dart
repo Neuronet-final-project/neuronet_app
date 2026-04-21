@@ -142,7 +142,7 @@ class _HeroAppBar extends ConsumerWidget {
                               ],
                             ),
                           ),
-                          // Notification bell
+                          // Insights button
                           GestureDetector(
                             onTap: () => context.push(AdolescentRoutes.alerts),
                             child: Stack(
@@ -156,26 +156,27 @@ class _HeroAppBar extends ConsumerWidget {
                                     border: Border.all(
                                         color: Colors.white.withValues(alpha: 0.3)),
                                   ),
-                                  child: const Icon(Icons.notifications_outlined,
+                                  child: const Icon(Icons.auto_awesome_rounded,
                                       color: Colors.white, size: 22),
                                 ),
-                                Positioned(
-                                  right: -2, top: -2,
-                                  child: unread > 0
-                                    ? Container(
-                                        width: 18, height: 18,
-                                        decoration: BoxDecoration(
-                                            color: const Color(0xFFFF6B6B),
-                                            shape: BoxShape.circle,
-                                            border: Border.all(color: _kPurple, width: 1.5)),
-                                        child: Center(
-                                          child: Text(
-                                            unread > 9 ? '9+' : '$unread',
-                                            style: const TextStyle(
-                                                fontSize: 9, color: Colors.white,
-                                                fontWeight: FontWeight.w900),
-                                          ),
+                                if (unread > 0)
+                                  Positioned(
+                                    right: -2, top: -2,
+                                    child: Container(
+                                      width: 18, height: 18,
+                                      decoration: BoxDecoration(
+                                          color: const Color(0xFFFF6B6B),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: _kPurple, width: 1.5)),
+                                      child: Center(
+                                        child: Text(
+                                          unread > 9 ? '9+' : '$unread',
+                                          style: const TextStyle(
+                                              fontSize: 9, color: Colors.white,
+                                              fontWeight: FontWeight.w900),
                                         ),
+                                      ),
+                                    ),
                                   ),
                               ],
                             ),
@@ -798,11 +799,25 @@ class _InsightsBanner extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Personal Insight ✨',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800)),
+                        Row(
+                          children: [
+                            const Text('Personal Insight ✨',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800)),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text("We've got you 💙",
+                                style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 2),
                         Text(
                           alert.triggerDescription,
