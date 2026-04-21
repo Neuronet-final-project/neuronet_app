@@ -1,9 +1,17 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
 import 'package:adolescent_app/config/router/app_router.dart';
+
+// ─── Rotating taglines shown under the logo ────────────────────────────────
+const _taglines = [
+  'Your Emotional Support Space 💜',
+  'You are not alone in this 🌿',
+  'Every feeling is valid here ✨',
+];
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -13,33 +21,74 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _emailFocus = FocusNode();
   final _passwordFocus = FocusNode();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
-  late final AnimationController _animController;
+  bool _isInitialized = false;
+
+  // Entrance animation
+  late AnimationController _enterCtrl;
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
+
+  // Logo pulse ring
+  late AnimationController _pulseCtrl;
+  late Animation<double> _pulseAnim;
+
+  // Tagline rotation
+  int _taglineIndex = 0;
+  late AnimationController _taglineCtrl;
+  late Animation<double> _taglineFade;
 
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
-    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _initAnimations();
+  }
+
+  void _initAnimations() {
+
+    // Entrance
+    _enterCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _fadeAnim = CurvedAnimation(parent: _enterCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
-    _animController.forward();
+        .animate(CurvedAnimation(parent: _enterCtrl, curve: Curves.easeOut));
+    _enterCtrl.forward();
+
+    // Pulse ring
+    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800))
+      ..repeat(reverse: true);
+    _pulseAnim = Tween<double>(begin: 0.85, end: 1.08)
+        .animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
+
+    // Tagline fade cycle
+    _taglineCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _taglineFade = CurvedAnimation(parent: _taglineCtrl, curve: Curves.easeInOut);
+    _taglineCtrl.value = 1.0;
+    _isInitialized = true;
+    _startTaglineCycle();
+  }
+
+  void _startTaglineCycle() async {
+    await Future.delayed(const Duration(seconds: 3));
+    while (mounted) {
+      await _taglineCtrl.reverse();
+      if (!mounted) break;
+      setState(() => _taglineIndex = (_taglineIndex + 1) % _taglines.length);
+      await _taglineCtrl.forward();
+      await Future.delayed(const Duration(seconds: 3));
+    }
   }
 
   @override
   void dispose() {
-    _animController.dispose();
+    _enterCtrl.dispose();
+    _pulseCtrl.dispose();
+    _taglineCtrl.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _emailFocus.dispose();
@@ -50,7 +99,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   void _handleLogin() {
     if (_formKey.currentState!.validate()) {
       ref.read(authControllerProvider.notifier).login(
-            _emailController.text,
+            _emailController.text.trim(),
             _passwordController.text,
           );
     }
@@ -59,6 +108,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    final size = MediaQuery.of(context).size;
+
+    // Guard against hot-reload before initState completes
+    if (!_isInitialized) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF6A1FDB),
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+      );
+    }
 
     ref.listen(authControllerProvider, (previous, next) {
       if (next.status == AuthStatus.error &&
@@ -80,215 +140,367 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     });
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF7C4DFF), // vibrant purple
-              Color(0xFF9C6FFF), // mid lavender
-              Color(0xFF64B5F6), // soft blue
-            ],
-            stops: [0.0, 0.55, 1.0],
+      body: Stack(
+        children: [
+          // ── Background gradient ──────────────────────────────────────────
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF6A1FDB),
+                  Color(0xFF8C52FF),
+                  Color(0xFF7B9EFF),
+                ],
+                stops: [0.0, 0.55, 1.0],
+              ),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              child: FadeTransition(
-                opacity: _fadeAnim,
-                child: SlideTransition(
-                  position: _slideAnim,
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // ── Logo ────────────────────────────────────────────
-                        Container(
-                          width: 88,
-                          height: 88,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.35),
-                              width: 2,
+
+          // ── Decorative floating orbs ─────────────────────────────────────
+          Positioned(
+            top: -60, right: -50,
+            child: _Orb(size: 220, color: Colors.white.withValues(alpha: 0.07)),
+          ),
+          Positioned(
+            top: size.height * 0.28, left: -80,
+            child: _Orb(size: 200, color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          Positioned(
+            bottom: -40, right: -30,
+            child: _Orb(size: 180, color: const Color(0xFF64B5F6).withValues(alpha: 0.18)),
+          ),
+          Positioned(
+            bottom: size.height * 0.2, left: size.width * 0.6,
+            child: _Orb(size: 100, color: Colors.white.withValues(alpha: 0.06)),
+          ),
+          // Small sparkle dots
+          ..._sparkles(size),
+
+          // ── Main content ─────────────────────────────────────────────────
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                child: FadeTransition(
+                  opacity: _fadeAnim,
+                  child: SlideTransition(
+                    position: _slideAnim,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // ── Pulsing logo ───────────────────────────────────
+                          AnimatedBuilder(
+                            animation: _pulseAnim,
+                            builder: (_, child) => Transform.scale(
+                              scale: _pulseAnim.value,
+                              child: child,
                             ),
-                            boxShadow: const [NeuroShadows.adolescentGlow],
-                          ),
-                          child: const Icon(
-                            Icons.self_improvement_rounded,
-                            size: 44,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-
-                        // ── Brand ────────────────────────────────────────────
-                        const Text(
-                          'NEURONET',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: 5,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Your Emotional Support Space',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white.withValues(alpha: 0.8),
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                        const SizedBox(height: 40),
-
-                        // ── Glassmorphic Card ────────────────────────────────
-                        Container(
-                          padding: const EdgeInsets.all(28),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.92),
-                            borderRadius: BorderRadius.circular(28),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              width: 1.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF7C4DFF).withValues(alpha: 0.2),
-                                blurRadius: 30,
-                                offset: const Offset(0, 12),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Text(
-                                'Welcome back 👋',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF2D1B6B),
+                            child: Container(
+                              width: 90,
+                              height: 90,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.4),
+                                  width: 2,
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              const Text(
-                                'Sign in to continue your journey',
-                                style: TextStyle(fontSize: 13, color: Color(0xFF7B7B9D)),
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Email Field
-                              _PurpleTextField(
-                                controller: _emailController,
-                                focusNode: _emailFocus,
-                                label: 'Email address',
-                                icon: Icons.email_outlined,
-                                keyboardType: TextInputType.emailAddress,
-                                textInputAction: TextInputAction.next,
-                                validator: (v) {
-                                  if (v == null || v.isEmpty) return 'Please enter your email';
-                                  if (!v.contains('@')) return 'Please enter a valid email';
-                                  return null;
-                                },
-                                onFieldSubmitted: (_) =>
-                                    FocusScope.of(context).requestFocus(_passwordFocus),
-                              ),
-                              const SizedBox(height: 14),
-
-                              // Password Field
-                              _PurpleTextField(
-                                controller: _passwordController,
-                                focusNode: _passwordFocus,
-                                label: 'Password',
-                                icon: Icons.lock_outline_rounded,
-                                obscureText: _obscurePassword,
-                                textInputAction: TextInputAction.done,
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_off_outlined
-                                        : Icons.visibility_outlined,
-                                    color: const Color(0xFF7C4DFF),
-                                    size: 20,
-                                  ),
-                                  onPressed: () =>
-                                      setState(() => _obscurePassword = !_obscurePassword),
-                                ),
-                                validator: (v) {
-                                  if (v == null || v.isEmpty) return 'Please enter your password';
-                                  if (v.length < 6) return 'Password must be at least 6 characters';
-                                  return null;
-                                },
-                                onFieldSubmitted: (_) => _handleLogin(),
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Login Button
-                              _GradientButton(
-                                onPressed: authState.status == AuthStatus.loading
-                                    ? null
-                                    : _handleLogin,
-                                isLoading: authState.status == AuthStatus.loading,
-                                label: 'Sign In',
-                              ),
-                              const SizedBox(height: 18),
-
-                              // Activation link
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'New here? ',
-                                    style: TextStyle(color: Color(0xFF7B7B9D), fontSize: 13),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => context.push(AdolescentRoutes.activate),
-                                    child: const Text(
-                                      'Activate Account',
-                                      style: TextStyle(
-                                        color: Color(0xFF7C4DFF),
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                      ),
-                                    ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white.withValues(alpha: 0.25),
+                                    blurRadius: 24,
+                                    spreadRadius: 2,
                                   ),
                                 ],
                               ),
+                              child: const Icon(
+                                Icons.self_improvement_rounded,
+                                size: 44,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // ── Brand name ─────────────────────────────────────
+                          ShaderMask(
+                            shaderCallback: (bounds) =>
+                                const LinearGradient(
+                                  colors: [Colors.white, Color(0xFFD4B8FF)],
+                                ).createShader(bounds),
+                            child: const Text(
+                              'NEURONET',
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: 6,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // ── Rotating tagline ───────────────────────────────
+                          FadeTransition(
+                            opacity: _taglineFade,
+                            child: Text(
+                              _taglines[_taglineIndex],
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white.withValues(alpha: 0.85),
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 36),
+
+                          // ── Card ───────────────────────────────────────────
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(26, 28, 26, 24),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.93),
+                              borderRadius: BorderRadius.circular(28),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF6A1FDB).withValues(alpha: 0.25),
+                                  blurRadius: 40,
+                                  offset: const Offset(0, 16),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Card header
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        gradient: NeuroGradients.adolescent,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: const Icon(Icons.lock_open_rounded,
+                                          color: Colors.white, size: 18),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Welcome back 👋',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w800,
+                                              color: Color(0xFF2D1B6B),
+                                            )),
+                                        Text('Sign in to continue',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Color(0xFF9E9EB8),
+                                            )),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                const SizedBox(height: 22),
+
+                                // Email field
+                                _PurpleTextField(
+                                  controller: _emailController,
+                                  focusNode: _emailFocus,
+                                  label: 'Email address',
+                                  icon: Icons.alternate_email_rounded,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return 'Please enter your email';
+                                    if (!v.contains('@')) return 'Enter a valid email';
+                                    return null;
+                                  },
+                                  onFieldSubmitted: (_) =>
+                                      FocusScope.of(context).requestFocus(_passwordFocus),
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Password field
+                                _PurpleTextField(
+                                  controller: _passwordController,
+                                  focusNode: _passwordFocus,
+                                  label: 'Password',
+                                  icon: Icons.lock_outline_rounded,
+                                  obscureText: _obscurePassword,
+                                  textInputAction: TextInputAction.done,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      color: const Color(0xFF8C52FF),
+                                      size: 20,
+                                    ),
+                                    onPressed: () => setState(
+                                        () => _obscurePassword = !_obscurePassword),
+                                  ),
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return 'Please enter your password';
+                                    if (v.length < 6) return 'At least 6 characters';
+                                    return null;
+                                  },
+                                  onFieldSubmitted: (_) => _handleLogin(),
+                                ),
+
+                                // Forgot password row
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: null, // TODO: add forgot password
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.only(top: 4, bottom: 0),
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: const Text(
+                                      'Forgot password?',
+                                      style: TextStyle(
+                                        color: Color(0xFF8C52FF),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Sign in button
+                                _GradientButton(
+                                  onPressed: authState.status == AuthStatus.loading
+                                      ? null
+                                      : _handleLogin,
+                                  isLoading: authState.status == AuthStatus.loading,
+                                  label: 'Sign In',
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Divider
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        child: Divider(
+                                            color: const Color(0xFFDDD5FF),
+                                            thickness: 1)),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 10),
+                                      child: Text('New to NeuroNet?',
+                                          style: TextStyle(
+                                              fontSize: 11, color: Color(0xFF9E9EB8))),
+                                    ),
+                                    Expanded(
+                                        child: Divider(
+                                            color: const Color(0xFFDDD5FF),
+                                            thickness: 1)),
+                                  ],
+                                ),
+                                const SizedBox(height: 14),
+
+                                // Activate account
+                                OutlinedButton(
+                                  onPressed: () => context.push(AdolescentRoutes.activate),
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(
+                                        color: Color(0xFF8C52FF), width: 1.5),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14)),
+                                    padding: const EdgeInsets.symmetric(vertical: 13),
+                                  ),
+                                  child: const Text(
+                                    'Activate My Account',
+                                    style: TextStyle(
+                                      color: Color(0xFF7C4DFF),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Footer
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.shield_outlined,
+                                  size: 13,
+                                  color: Colors.white.withValues(alpha: 0.7)),
+                              const SizedBox(width: 5),
+                              Text(
+                                'Your data is private and encrypted',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                  fontSize: 11.5,
+                                ),
+                              ),
                             ],
                           ),
-                        ),
-
-                        const SizedBox(height: 28),
-
-                        // Footer note
-                        Text(
-                          '🔒  Your data is private and encrypted',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
+    );
+  }
+
+  // Generate tiny sparkle dot decorations
+  List<Widget> _sparkles(Size size) {
+    final rng = math.Random(42);
+    return List.generate(8, (i) {
+      final x = rng.nextDouble() * size.width;
+      final y = rng.nextDouble() * size.height * 0.5;
+      final s = rng.nextDouble() * 4 + 2;
+      return Positioned(
+        left: x, top: y,
+        child: Container(
+          width: s, height: s,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.4),
+            shape: BoxShape.circle,
+          ),
+        ),
+      );
+    });
+  }
+}
+
+// ─── Decorative Orb Background Widget ────────────────────────────────────────
+class _Orb extends StatelessWidget {
+  const _Orb({required this.size, required this.color});
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
     );
   }
 }
 
-// ─── Reusable Purple-styled TextField ─────────────────────────────────────────
+// ─── Purple-styled TextField ──────────────────────────────────────────────────
 class _PurpleTextField extends StatelessWidget {
   const _PurpleTextField({
     required this.controller,
@@ -328,38 +540,43 @@ class _PurpleTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(fontSize: 13, color: Color(0xFF9E9EB8)),
-        prefixIcon: Icon(icon, size: 20, color: const Color(0xFF7C4DFF)),
+        prefixIcon: Icon(icon, size: 20, color: const Color(0xFF8C52FF)),
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: const Color(0xFFF5F3FF),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFDDD5FF), width: 1.2),
+          borderSide:
+              const BorderSide(color: Color(0xFFDDD5FF), width: 1.2),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF7C4DFF), width: 1.8),
+          borderSide:
+              const BorderSide(color: Color(0xFF8C52FF), width: 1.8),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFFF5252), width: 1.2),
+          borderSide:
+              const BorderSide(color: Color(0xFFFF5252), width: 1.2),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFFF5252), width: 1.8),
+          borderSide:
+              const BorderSide(color: Color(0xFFFF5252), width: 1.8),
         ),
       ),
     );
   }
 }
 
-// ─── Gradient Login Button ─────────────────────────────────────────────────────
-class _GradientButton extends StatelessWidget {
+// ─── Gradient Login Button ────────────────────────────────────────────────────
+class _GradientButton extends StatefulWidget {
   const _GradientButton({
     required this.label,
     this.onPressed,
@@ -371,46 +588,68 @@ class _GradientButton extends StatelessWidget {
   final bool isLoading;
 
   @override
+  State<_GradientButton> createState() => _GradientButtonState();
+}
+
+class _GradientButtonState extends State<_GradientButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
+    final enabled = widget.onPressed != null;
     return GestureDetector(
-      onTap: onPressed,
-      child: AnimatedOpacity(
-        opacity: onPressed == null ? 0.7 : 1.0,
-        duration: const Duration(milliseconds: 200),
-        child: Container(
-          height: 52,
-          decoration: BoxDecoration(
-            gradient: onPressed == null
-                ? const LinearGradient(colors: [Color(0xFFBDBDBD), Color(0xFFBDBDBD)])
-                : const LinearGradient(
-                    colors: [Color(0xFF7C4DFF), Color(0xFFB47CFF)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: onPressed == null
-                ? []
-                : const [NeuroShadows.adolescentGlow],
-          ),
-          child: Center(
-            child: isLoading
-                ? const SizedBox(
-                    height: 22,
-                    width: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: Colors.white,
+      onTap: widget.onPressed,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: AnimatedOpacity(
+          opacity: enabled ? 1.0 : 0.65,
+          duration: const Duration(milliseconds: 200),
+          child: Container(
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: enabled
+                  ? const LinearGradient(
+                      colors: [Color(0xFF6A1FDB), Color(0xFF8C52FF), Color(0xFFB47CFF)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    )
+                  : const LinearGradient(
+                      colors: [Color(0xFFBDBDBD), Color(0xFFBDBDBD)]),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: enabled
+                  ? const [NeuroShadows.adolescentGlow]
+                  : [],
+            ),
+            child: Center(
+              child: widget.isLoading
+                  ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2.5, color: Colors.white),
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          widget.label,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.arrow_forward_rounded,
+                            color: Colors.white, size: 18),
+                      ],
                     ),
-                  )
-                : Text(
-                    label,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
+            ),
           ),
         ),
       ),
