@@ -1,9 +1,10 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:guardian_app/config/router/app_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
-import '../../providers/auth_provider.dart';
+import 'package:guardian_app/features/auth/providers/auth_provider.dart';
+import 'package:guardian_app/config/router/app_router.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -12,29 +13,77 @@ class SignUpScreen extends ConsumerStatefulWidget {
   ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends ConsumerState<SignUpScreen> {
+class _SignUpScreenState extends ConsumerState<SignUpScreen>
+    with TickerProviderStateMixin {
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  
+  final _fullNameFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _passwordFocus = FocusNode();
+  final _confirmPasswordFocus = FocusNode();
+  
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isInitialized = false;
+
+  // Entrance animation
+  late AnimationController _enterCtrl;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
+
+  // Logo pulse ring
+  late AnimationController _pulseCtrl;
+  late Animation<double> _pulseAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _initAnimations();
+  }
+
+  void _initAnimations() {
+    // Entrance
+    _enterCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 900));
+    _fadeAnim = CurvedAnimation(parent: _enterCtrl, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _enterCtrl, curve: Curves.easeOut));
+    _enterCtrl.forward();
+
+    // Pulse ring (slower for signup)
+    _pulseCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 2200))
+      ..repeat(reverse: true);
+    _pulseAnim = Tween<double>(begin: 0.9, end: 1.05)
+        .animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
+    
+    _isInitialized = true;
+  }
 
   @override
   void dispose() {
+    _enterCtrl.dispose();
+    _pulseCtrl.dispose();
     _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _fullNameFocus.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
+    _confirmPasswordFocus.dispose();
     super.dispose();
   }
 
   void _handleSignUp() {
     if (_formKey.currentState!.validate()) {
       ref.read(authControllerProvider.notifier).signUp(
-            fullName: _fullNameController.text,
-            email: _emailController.text,
+            fullName: _fullNameController.text.trim(),
+            email: _emailController.text.trim(),
             password: _passwordController.text,
           );
     }
@@ -44,14 +93,24 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
 
-    // Listen for error or success state
+    if (!_isInitialized) {
+      return Scaffold(
+        backgroundColor: NeuroColors.guardianPrimary,
+        body: const Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+      );
+    }
+
+    // Existing signup logic: Listen for state changes
     ref.listen(authControllerProvider, (previous, next) {
       if (next.status == AuthStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage ?? 'An error occurred during signup'),
-            backgroundColor: theme.colorScheme.error,
+            backgroundColor: NeuroColors.error,
           ),
         );
       } else if (previous?.status == AuthStatus.loading && next.status == AuthStatus.unauthenticated) {
@@ -60,6 +119,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           const SnackBar(
             content: Text('Registration successful! Please login.'),
             backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
           ),
         );
         context.go(GuardianRoutes.login);
@@ -67,170 +127,343 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-      ),
-      extendBodyBehindAppBar: true,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              theme.colorScheme.primary.withValues(alpha: 0.1),
-              Colors.white,
-            ],
+      body: Stack(
+        children: [
+          // ── Background gradient ──────────────────────────────────────────
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  NeuroColors.guardianPrimary,
+                  NeuroColors.guardianPrimaryLight,
+                  Color(0xFFFFB2C1), 
+                ],
+                stops: [0.0, 0.45, 1.0],
+              ),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Heading
-                    Text(
-                      'Create Guardian Account',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Start monitoring and supporting your child\'s well-being.',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 40),
 
-                    // Full Name
-                    TextFormField(
-                      controller: _fullNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Full Name',
-                        prefixIcon: Icon(Icons.person_outline),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter your full name';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
+          // ── Decorative floating orbs ─────────────────────────────────────
+          Positioned(
+            top: -40, left: -60,
+            child: _Orb(size: 240, color: Colors.white.withValues(alpha: 0.08)),
+          ),
+          Positioned(
+            top: size.height * 0.4, right: -100,
+            child: _Orb(size: 260, color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          Positioned(
+            bottom: -50, left: size.width * 0.1,
+            child: _Orb(size: 200, color: NeuroColors.guardianPrimaryLight.withValues(alpha: 0.15)),
+          ),
+          ..._sparkles(size),
 
-                    // Email Field
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Guardian Email',
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter your email';
-                        if (!value.contains('@')) return 'Please enter a valid email';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Password Field
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                            color: theme.primaryColor,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter your password';
-                        if (value.length < 6) return 'Password must be at least 6 characters';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Confirm Password Field
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      obscureText: _obscureConfirmPassword,
-                      decoration: InputDecoration(
-                        labelText: 'Confirm Password',
-                        prefixIcon: const Icon(Icons.lock_reset),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
-                            color: theme.primaryColor,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureConfirmPassword = !_obscureConfirmPassword;
-                            });
-                          },
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please confirm your password';
-                        if (value != _passwordController.text) return 'Passwords do not match';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 32),
-
-                    // SignUp Button
-                    NeuroButton(
-                      onPressed: _handleSignUp,
-                      label: 'Sign Up',
-                      isLoading: authState.status == AuthStatus.loading,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // To Login
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Already have an account?',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                        TextButton(
-                          onPressed: () => context.go(GuardianRoutes.login),
-                          child: Text(
-                            'Login',
-                            style: TextStyle(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.bold,
+          // ── Main Content ─────────────────────────────────────────────────
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                child: FadeTransition(
+                  opacity: _fadeAnim,
+                  child: SlideTransition(
+                    position: _slideAnim,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          // ── Pulsing Brand Icon ────────────────────────────────
+                          AnimatedBuilder(
+                            animation: _pulseAnim,
+                            builder: (_, child) => Transform.scale(
+                              scale: _pulseAnim.value,
+                              child: child,
+                            ),
+                            child: Container(
+                              width: 80, height: 80,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 2),
+                              ),
+                              child: const Icon(Icons.shield_rounded, size: 38, color: Colors.white),
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 24),
+
+                          // ── Card ───────────────────────────────────────────
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(26, 32, 26, 28),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.94),
+                              borderRadius: BorderRadius.circular(32),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: NeuroColors.guardianPrimary.withValues(alpha: 0.2),
+                                  blurRadius: 40,
+                                  offset: const Offset(0, 16),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Text('Create Account',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF4A0E1C),
+                                      letterSpacing: -0.5,
+                                    )),
+                                const SizedBox(height: 8),
+                                const Text('Empower your parenting journey',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Color(0xFF8A6E75),
+                                    )),
+                                const SizedBox(height: 32),
+
+                                // Full Name
+                                _GuardianTextField(
+                                  controller: _fullNameController,
+                                  focusNode: _fullNameFocus,
+                                  label: 'Full Name',
+                                  icon: Icons.person_outline_rounded,
+                                  textInputAction: TextInputAction.next,
+                                  validator: (v) => (v == null || v.isEmpty) ? 'Enter your full name' : null,
+                                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Email
+                                _GuardianTextField(
+                                  controller: _emailController,
+                                  focusNode: _emailFocus,
+                                  label: 'Guardian Email',
+                                  icon: Icons.alternate_email_rounded,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return 'Enter your email';
+                                    if (!v.contains('@')) return 'Invalid email';
+                                    return null;
+                                  },
+                                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Password
+                                _GuardianTextField(
+                                  controller: _passwordController,
+                                  focusNode: _passwordFocus,
+                                  label: 'Create Password',
+                                  icon: Icons.lock_outline_rounded,
+                                  obscureText: _obscurePassword,
+                                  textInputAction: TextInputAction.next,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                      color: NeuroColors.guardianPrimary,
+                                      size: 20,
+                                    ),
+                                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                  ),
+                                  validator: (v) => (v == null || v.length < 6) ? 'Min 6 characters' : null,
+                                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_confirmPasswordFocus),
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Confirm Password
+                                _GuardianTextField(
+                                  controller: _confirmPasswordController,
+                                  focusNode: _confirmPasswordFocus,
+                                  label: 'Confirm Password',
+                                  icon: Icons.lock_reset_rounded,
+                                  obscureText: _obscureConfirmPassword,
+                                  textInputAction: TextInputAction.done,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                      color: NeuroColors.guardianPrimary,
+                                      size: 20,
+                                    ),
+                                    onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                                  ),
+                                  validator: (v) => (v != _passwordController.text) ? 'Passwords do not match' : null,
+                                  onFieldSubmitted: (_) => _handleSignUp(),
+                                ),
+                                const SizedBox(height: 24),
+
+                                // Sign Up button
+                                _GradientButton(
+                                  onPressed: authState.status == AuthStatus.loading ? null : _handleSignUp,
+                                  isLoading: authState.status == AuthStatus.loading,
+                                  label: 'Sign Up Now',
+                                ),
+                                const SizedBox(height: 24),
+
+                                // Back to login
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text('Already a Guardian?',
+                                        style: TextStyle(fontSize: 13, color: Color(0xFF8A6E75))),
+                                    TextButton(
+                                      onPressed: () => context.go(GuardianRoutes.login),
+                                      child: const Text('Login',
+                                          style: TextStyle(
+                                            color: NeuroColors.guardianPrimary,
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 13,
+                                          )),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _sparkles(Size size) {
+    final rng = math.Random(123);
+    return List.generate(6, (i) {
+      final x = rng.nextDouble() * size.width;
+      final y = rng.nextDouble() * size.height * 0.7;
+      final s = rng.nextDouble() * 4 + 2;
+      return Positioned(
+        left: x, top: y,
+        child: Container(
+          width: s, height: s,
+          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.3), shape: BoxShape.circle),
+        ),
+      );
+    });
+  }
+}
+
+// ─── Shared Components (Replicated from Login for visual consistency) ────────
+
+class _Orb extends StatelessWidget {
+  const _Orb({required this.size, required this.color});
+  final double size;
+  final Color color;
+  @override
+  Widget build(BuildContext context) => Container(
+      width: size, height: size,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+    );
+}
+
+class _GuardianTextField extends StatelessWidget {
+  const _GuardianTextField({
+    required this.controller,
+    required this.focusNode,
+    required this.label,
+    required this.icon,
+    this.obscureText = false,
+    this.keyboardType,
+    this.textInputAction,
+    this.suffixIcon,
+    this.validator,
+    this.onFieldSubmitted,
+  });
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String label;
+  final IconData icon;
+  final bool obscureText;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final Widget? suffixIcon;
+  final String? Function(String?)? validator;
+  final void Function(String)? onFieldSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      focusNode: focusNode,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      onFieldSubmitted: onFieldSubmitted,
+      validator: validator,
+      style: const TextStyle(fontSize: 14, color: Color(0xFF4A0E1C)),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(fontSize: 13, color: Color(0xFF8A6E75)),
+        prefixIcon: Icon(icon, size: 20, color: NeuroColors.guardianPrimary),
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: const Color(0xFFFFF7F8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFF0DCE0), width: 1.2)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: NeuroColors.guardianPrimary, width: 1.8)),
+        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: NeuroColors.error, width: 1.2)),
+        focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: NeuroColors.error, width: 1.8)),
+      ),
+    );
+  }
+}
+
+class _GradientButton extends StatefulWidget {
+  const _GradientButton({required this.label, this.onPressed, this.isLoading = false});
+  final String label;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  @override
+  State<_GradientButton> createState() => _GradientButtonState();
+}
+
+class _GradientButtonState extends State<_GradientButton> {
+  bool _pressed = false;
+  @override
+  Widget build(BuildContext context) {
+    final enabled = widget.onPressed != null;
+    return GestureDetector(
+      onTap: widget.onPressed,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: AnimatedOpacity(
+          opacity: enabled ? 1.0 : 0.65,
+          duration: const Duration(milliseconds: 200),
+          child: Container(
+            height: 54,
+            decoration: BoxDecoration(
+              gradient: enabled ? NeuroGradients.guardian : const LinearGradient(colors: [Color(0xFFBDBDBD), Color(0xFFBDBDBD)]),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: enabled ? [BoxShadow(color: NeuroColors.guardianPrimary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))] : [],
+            ),
+            child: Center(
+              child: widget.isLoading
+                  ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(widget.label, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.2)),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
+                      ],
+                    ),
             ),
           ),
         ),
