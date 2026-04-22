@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 class NeuroColors {
   const NeuroColors._();
 
-  // ─── Adolescent Theme (Green) ───
-  static const Color adolescentPrimary = Color(0xFF2E7D32);
-  static const Color adolescentPrimaryLight = Color(0xFF60AD5E);
-  static const Color adolescentPrimaryDark = Color(0xFF005005);
-  static const Color adolescentSurface = Color(0xFFF1F8E9);
+  // ─── Adolescent Theme (Purple / Lavender) ───
+  static const Color adolescentPrimary = Color(0xFF7C4DFF);
+  static const Color adolescentPrimaryLight = Color(0xFFB47CFF);
+  static const Color adolescentPrimaryDark = Color(0xFF5E35B1);
+  static const Color adolescentSecondary = Color(0xFF64B5F6);
+  static const Color adolescentSurface = Color(0xFFF5F3FF);
+  static const Color adolescentSurfaceVariant = Color(0xFFEDE7FF);
   static const Color adolescentOnPrimary = Colors.white;
 
   // ─── Guardian Theme (Pink) ───
@@ -100,17 +102,37 @@ class NeuroShadows {
     blurRadius: 24,
     offset: Offset(0, 12),
   );
+  // Purple glow for adolescent primary elements
+  static const BoxShadow adolescentGlow = BoxShadow(
+    color: Color(0x557C4DFF),
+    blurRadius: 16,
+    offset: Offset(0, 6),
+  );
 }
 
 /// Gradient definitions — per PRD institutional green/pink palette.
 class NeuroGradients {
   const NeuroGradients._();
 
-  // Adolescent gradient — fresh, calming green
+  // Adolescent gradient — vibrant purple to lavender
   static const LinearGradient adolescent = LinearGradient(
-    colors: [Color(0xFF2E7D32), Color(0xFF4CAF50)],
+    colors: [Color(0xFF7C4DFF), Color(0xFFB47CFF)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
+  );
+
+  // Adolescent hero — purple to soft blue
+  static const LinearGradient adolescentHero = LinearGradient(
+    colors: [Color(0xFF7C4DFF), Color(0xFF64B5F6)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Adolescent card — white to light purple tint
+  static const LinearGradient adolescentCard = LinearGradient(
+    colors: [Colors.white, Color(0xFFF5F3FF)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
   );
 
   // Guardian gradient — warm, supportive pink
