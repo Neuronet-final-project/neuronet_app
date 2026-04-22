@@ -181,8 +181,7 @@ class _HeroAppBar extends ConsumerWidget {
             ),
           ),
         ),
-      ),
-      title: const Text('NeuroNet',
+        title: const Text('NeuroNet',
           style: TextStyle(
               color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18)),
       actions: [

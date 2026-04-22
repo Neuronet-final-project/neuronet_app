@@ -116,8 +116,6 @@ class _DetailContent extends StatelessWidget {
                     ],
                   ),
                 ),
-              ),
-            ),
           ),
         ),
         SliverToBoxAdapter(

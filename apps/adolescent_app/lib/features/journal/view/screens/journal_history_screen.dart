@@ -76,12 +76,12 @@ class _JournalContent extends ConsumerWidget {
   }
 }
 
-class _JournalHeader extends StatelessWidget {
+class _JournalHeader extends ConsumerWidget {
   const _JournalHeader({required this.entriesCount});
   final int entriesCount;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final topPadding = MediaQuery.of(context).padding.top;
     return SliverAppBar(
       expandedHeight: 280,
@@ -138,11 +138,11 @@ class _JournalHeader extends StatelessWidget {
                 const Spacer(),
                 Row(
                   children: [
-                     Expanded(child: _StatCard(label: 'Entries', value: '$entriesCount', icon: Icons.book_outlined)),
-                     const SizedBox(width: 12),
-                     const Expanded(child: _StatCard(label: 'Streak', value: '5 days', icon: Icons.bolt_outlined)),
-                     const SizedBox(width: 12),
-                     const Expanded(child: _StatCard(label: 'This week', value: '+3', icon: Icons.favorite_outline)),
+                    Expanded(child: _StatCard(label: 'Entries', value: '$entriesCount', icon: Icons.book_outlined)),
+                    const SizedBox(width: 12),
+                    const Expanded(child: _StatCard(label: 'Streak', value: '5 days', icon: Icons.bolt_outlined)),
+                    const SizedBox(width: 12),
+                    const Expanded(child: _StatCard(label: 'This week', value: '+3', icon: Icons.favorite_outline)),
                   ],
                 ),
               ],
