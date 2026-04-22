@@ -323,7 +323,9 @@ class _MoodSelector extends StatelessWidget {
                           width: 2,
                         ),
                       ),
-                      child: Text(_getMoodEmoji(mood), style: const TextStyle(fontSize: 28)),
+                      child: mood == MoodType.hopeful
+                          ? const _PremiumRainbowIcon()
+                          : Text(_getMoodEmoji(mood), style: const TextStyle(fontSize: 28)),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -353,5 +355,65 @@ class _MoodSelector extends StatelessWidget {
       case MoodType.anxious: return '😰';
       default: return '😐';
     }
+  }
+}
+
+class _PremiumRainbowIcon extends StatefulWidget {
+  const _PremiumRainbowIcon();
+
+  @override
+  State<_PremiumRainbowIcon> createState() => _PremiumRainbowIconState();
+}
+
+class _PremiumRainbowIconState extends State<_PremiumRainbowIcon> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return ShaderMask(
+          shaderCallback: (Rect bounds) {
+            return SweepGradient(
+              center: Alignment.center,
+              startAngle: 0.0,
+              endAngle: 3.14 * 2,
+              colors: const [
+                Colors.red,
+                Colors.orange,
+                Colors.yellow,
+                Colors.green,
+                Colors.blue,
+                Colors.indigo,
+                Colors.purple,
+                Colors.red,
+              ],
+              transform: GradientRotation(_controller.value * 3.14 * 2),
+            ).createShader(bounds);
+          },
+          child: const Icon(
+            Icons.looks_rounded,
+            size: 32,
+            color: Colors.white,
+          ),
+        );
+      },
+    );
   }
 }
