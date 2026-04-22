@@ -324,7 +324,11 @@ class _MoodSelector extends StatelessWidget {
                         ),
                       ),
                       child: mood == MoodType.hopeful
-                          ? const _PremiumRainbowIcon()
+                          ? const SizedBox(
+                              width: 32,
+                              height: 32,
+                              child: _PremiumRainbowIcon(),
+                            )
                           : Text(_getMoodEmoji(mood), style: const TextStyle(fontSize: 28)),
                     ),
                     const SizedBox(height: 8),

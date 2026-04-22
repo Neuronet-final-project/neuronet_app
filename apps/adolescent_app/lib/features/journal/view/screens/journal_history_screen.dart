@@ -82,6 +82,7 @@ class _JournalHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
     return SliverAppBar(
       expandedHeight: 280,
       pinned: true,
@@ -97,56 +98,54 @@ class _JournalHeader extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
           ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'My Journal',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w900,
-                            ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(24, topPadding + 24, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'My Journal',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w900,
                           ),
-                          Text(
-                            'A safe space for your thoughts',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.sync_rounded, color: Colors.white),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.2),
                         ),
+                        Text(
+                          'A safe space for your thoughts',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      onPressed: () => ref.read(journalControllerProvider.notifier).refresh(),
+                      icon: const Icon(Icons.sync_rounded, color: Colors.white),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.2),
                       ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                       Expanded(child: _StatCard(label: 'Entries', value: '$entriesCount', icon: Icons.book_outlined)),
-                       const SizedBox(width: 12),
-                       const Expanded(child: _StatCard(label: 'Streak', value: '5 days', icon: Icons.bolt_outlined)),
-                       const SizedBox(width: 12),
-                       const Expanded(child: _StatCard(label: 'This week', value: '+3', icon: Icons.favorite_outline)),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                     Expanded(child: _StatCard(label: 'Entries', value: '$entriesCount', icon: Icons.book_outlined)),
+                     const SizedBox(width: 12),
+                     const Expanded(child: _StatCard(label: 'Streak', value: '5 days', icon: Icons.bolt_outlined)),
+                     const SizedBox(width: 12),
+                     const Expanded(child: _StatCard(label: 'This week', value: '+3', icon: Icons.favorite_outline)),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
@@ -192,17 +191,21 @@ class _StatCard extends StatelessWidget {
 class _FilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-      child: Row(
-        children: [
-          _FilterChip(label: 'All', isSelected: true),
-          _FilterChip(label: 'This Week'),
-          _FilterChip(label: 'Happy'),
-          _FilterChip(label: 'Calm'),
-          _FilterChip(label: 'Anxious'),
-        ],
+    return SizedBox(
+      height: 90,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _FilterChip(label: 'All', isSelected: true),
+            _FilterChip(label: 'This Week'),
+            _FilterChip(label: 'Happy'),
+            _FilterChip(label: 'Calm'),
+            _FilterChip(label: 'Anxious'),
+          ],
+        ),
       ),
     );
   }
@@ -245,6 +248,7 @@ class _EntryCard extends StatelessWidget {
       onTap: () => context.push('${AdolescentRoutes.journal}/${entry.id}'),
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
+        constraints: const BoxConstraints(minHeight: 120),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -256,29 +260,31 @@ class _EntryCard extends StatelessWidget {
             ),
           ],
         ),
-        child: IntrinsicHeight(
-          child: Row(
-            children: [
-              Container(
-                width: 6,
-                decoration: BoxDecoration(
-                  color: moodColor,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    bottomLeft: Radius.circular(24),
-                  ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 6,
+              decoration: BoxDecoration(
+                color: moodColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  bottomLeft: Radius.circular(24),
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(6),
@@ -289,73 +295,77 @@ class _EntryCard extends StatelessWidget {
                                 child: Text(_getMoodEmoji(entry.mood), style: const TextStyle(fontSize: 20)),
                               ),
                               const SizedBox(width: 12),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    entry.title ?? 'Untitled Entry',
-                                    style: const TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w900,
-                                      color: Color(0xFF1E293B),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      entry.title ?? 'Untitled Entry',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFF1E293B),
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    DateFormat('MMM d · h:mm a').format(entry.createdAt),
-                                    style: const TextStyle(color: Colors.black38, fontSize: 13),
-                                  ),
-                                ],
+                                    Text(
+                                      DateFormat('MMM d · h:mm a').format(entry.createdAt),
+                                      style: const TextStyle(color: Colors.black38, fontSize: 13),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                          const Icon(Icons.chevron_right_rounded, color: Color(0xFF7C4DFF)),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        entry.content,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.black.withOpacity(0.6),
-                          height: 1.5,
-                          fontSize: 14,
                         ),
+                        const Icon(Icons.chevron_right_rounded, color: Color(0xFF7C4DFF)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      entry.content,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.black.withOpacity(0.6),
+                        height: 1.5,
+                        fontSize: 14,
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: moodColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              entry.mood?.name.toUpperCase() ?? 'NEUTRAL',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
-                                color: moodColor,
-                                letterSpacing: 1,
-                              ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: moodColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            entry.mood?.name.toUpperCase() ?? 'NEUTRAL',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: moodColor,
+                              letterSpacing: 1,
                             ),
                           ),
-                          const Spacer(),
-                          const Icon(Icons.lock_outline_rounded, size: 14, color: Color(0xFF7C4DFF)),
-                          const SizedBox(width: 4),
-                          const Text(
-                            'Encrypted',
-                            style: TextStyle(color: Color(0xFF7C4DFF), fontSize: 10, fontWeight: FontWeight.w700),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.lock_outline_rounded, size: 14, color: Color(0xFF7C4DFF)),
+                        const SizedBox(width: 4),
+                        const Text(
+                          'Encrypted',
+                          style: TextStyle(color: Color(0xFF7C4DFF), fontSize: 10, fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -111,13 +111,12 @@ class _HeroAppBar extends ConsumerWidget {
               Positioned(bottom: 10, left: -20,
                 child: _Orb(size: 100, color: Color(0xFF64B5F6).withValues(alpha: 0.15))),
               // Content
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 12, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -178,12 +177,11 @@ class _HeroAppBar extends ConsumerWidget {
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-      // Collapsed app bar title
       title: const Text('NeuroNet',
           style: TextStyle(
               color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18)),

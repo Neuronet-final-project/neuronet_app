@@ -75,11 +75,10 @@ class _DetailContent extends StatelessWidget {
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(32, 60, 32, 0),
-                  child: Row(
-                    children: [
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(32, MediaQuery.of(context).padding.top + 60, 32, 0),
+                child: Row(
+                  children: [
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
