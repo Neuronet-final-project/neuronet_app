@@ -248,7 +248,6 @@ class _EntryCard extends StatelessWidget {
       onTap: () => context.push('${AdolescentRoutes.journal}/${entry.id}'),
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
-        constraints: const BoxConstraints(minHeight: 120),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -260,112 +259,107 @@ class _EntryCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              width: 6,
-              decoration: BoxDecoration(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 6,
+                height: 140, // Height will be constrained by content mostly
                 color: moodColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  bottomLeft: Radius.circular(24),
-                ),
               ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: moodColor.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(10),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: moodColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(_getMoodEmoji(entry.mood), style: const TextStyle(fontSize: 20)),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  entry.title ?? 'Untitled Entry',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF1E293B),
+                                  ),
                                 ),
-                                child: Text(_getMoodEmoji(entry.mood), style: const TextStyle(fontSize: 20)),
+                                Text(
+                                  DateFormat('MMM d · h:mm a').format(entry.createdAt),
+                                  style: const TextStyle(color: Colors.black38, fontSize: 13),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.chevron_right_rounded, color: Color(0xFF7C4DFF), size: 20),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        entry.content,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.black.withOpacity(0.6),
+                          height: 1.5,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              entry.mood?.name.toUpperCase() ?? 'NEUTRAL',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.black38,
+                                letterSpacing: 1,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      entry.title ?? 'Untitled Entry',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w900,
-                                        color: Color(0xFF1E293B),
-                                      ),
-                                    ),
-                                    Text(
-                                      DateFormat('MMM d · h:mm a').format(entry.createdAt),
-                                      style: const TextStyle(color: Colors.black38, fontSize: 13),
-                                    ),
-                                  ],
-                                ),
+                            ),
+                          ),
+                          const Row(
+                            children: [
+                               Icon(Icons.lock_outline_rounded, size: 14, color: Color(0xFF7C4DFF)),
+                               SizedBox(width: 4),
+                               Text(
+                                'Encrypted',
+                                style: TextStyle(color: Color(0xFF7C4DFF), fontSize: 10, fontWeight: FontWeight.w700),
                               ),
                             ],
                           ),
-                        ),
-                        const Icon(Icons.chevron_right_rounded, color: Color(0xFF7C4DFF)),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      entry.content,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.black.withOpacity(0.6),
-                        height: 1.5,
-                        fontSize: 14,
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: moodColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            entry.mood?.name.toUpperCase() ?? 'NEUTRAL',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              color: moodColor,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        const Icon(Icons.lock_outline_rounded, size: 14, color: Color(0xFF7C4DFF)),
-                        const SizedBox(width: 4),
-                        const Text(
-                          'Encrypted',
-                          style: TextStyle(color: Color(0xFF7C4DFF), fontSize: 10, fontWeight: FontWeight.w700),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

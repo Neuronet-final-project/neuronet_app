@@ -36,7 +36,10 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
 
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please write something first')),
+        const SnackBar(
+          content: Text('Please write something first'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       return;
     }
@@ -52,17 +55,23 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Journal entry saved!')),
+          const SnackBar(
+            content: Text('Journal entry saved!'),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _isSaving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save entry: $e')),
+          SnackBar(
+            content: Text('Failed to save: ${e.toString().replaceAll('Exception: ', '')}'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
     }
   }
 

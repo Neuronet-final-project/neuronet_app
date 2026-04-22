@@ -44,7 +44,7 @@ class JournalController extends _$JournalController {
     final service = ref.read(journalServiceProvider);
 
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final result = await AsyncValue.guard(() async {
       final request = CreateJournalRequest(
         title: title,
         content: content,
@@ -54,14 +54,19 @@ class JournalController extends _$JournalController {
 
       final createResult = await service.createJournal(request);
       if (createResult.isFailure) {
-        return JournalState(entries: state.value?.entries ?? [], error: createResult.failure.message);
+        throw Exception(createResult.failure.message);
       }
 
       final getResult = await service.getMyJournals();
       return getResult.when(
         success: (value) => JournalState(entries: value, isLoading: false),
-        failure: (f) => JournalState(entries: state.value?.entries ?? [], error: f.message),
+        failure: (f) => throw Exception(f.message),
       );
     });
+
+    state = result;
+    if (result.hasError) {
+      throw result.error!;
+    }
   }
 }
