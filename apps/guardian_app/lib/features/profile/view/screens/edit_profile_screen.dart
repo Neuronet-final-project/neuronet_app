@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:guardian_app/features/profile/providers/profile_provider.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
-import 'package:guardian_app/config/theme/guardian_theme.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -99,13 +99,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 _PersonalInfoCard(
                   nameController: _nameController,
                   email: profileState.value?.user?.email ?? '',
-                ),
+                ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.05),
                 const SizedBox(height: 16),
                 _SecurityCard(
                   passwordController: _passwordController,
                   obscurePassword: _obscurePassword,
                   onToggleVisibility: () => setState(() => _obscurePassword = !_obscurePassword),
-                ),
+                ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.05),
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
@@ -113,7 +113,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     onPressed: _handleUpdate,
                     label: 'Update Profile',
                     isLoading: isLoading,
-                  ),
+                  ).animate().fadeIn(delay: 200.ms, duration: 400.ms).scale(begin: const Offset(0.98, 0.98)),
                 ),
                 const SizedBox(height: 48),
               ]),

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/consent_provider.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:collection/collection.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
+import 'dart:ui';
 
 class ConsentScreen extends ConsumerWidget {
   const ConsentScreen({super.key});
@@ -65,19 +68,26 @@ class ConsentScreen extends ConsumerWidget {
               }
 
               return SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    _buildHeroSection(context),
-                    ...grouped.entries.map(
-                      (entry) => _buildAdolescentGroup(
-                        context,
-                        ref,
-                        entry.key,
-                        entry.value,
+                child: RepaintBoundary(
+                  child: Column(
+                    children: [
+                      _buildHeroSection(context)
+                          .animate()
+                          .fadeIn(duration: 600.ms)
+                          .scale(begin: const Offset(0.95, 0.95), curve: Curves.easeOutBack),
+                      ...grouped.entries.mapIndexed(
+                        (index, entry) => _buildAdolescentGroup(
+                          context,
+                          ref,
+                          entry.key,
+                          entry.value,
+                        ).animate(delay: (200 * (index + 1)).ms)
+                          .fadeIn(duration: 500.ms)
+                          .slideY(begin: 0.1, curve: Curves.easeOutQuad),
                       ),
-                    ),
-                    const SizedBox(height: 32),
-                  ],
+                      const SizedBox(height: 32),
+                    ],
+                  ),
                 ),
               );
             },

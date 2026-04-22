@@ -134,7 +134,7 @@ class CallController extends _$CallController {
 
   void _startIncomingCallPolling() {
     _incomingCallPollTimer?.cancel();
-    _incomingCallPollTimer = Timer.periodic(const Duration(seconds: 2), (
+    _incomingCallPollTimer = Timer.periodic(const Duration(seconds: 10), (
       _,
     ) async {
       if (!ref.mounted) return;

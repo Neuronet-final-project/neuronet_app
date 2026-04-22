@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
@@ -205,21 +206,20 @@ class _NeuroIncomingCallScreenState extends ConsumerState<NeuroIncomingCallScree
     if (email == null) return 'Unknown Caller';
     return email.split('@').first[0].toUpperCase() + email.split('@').first.substring(1);
   }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final callType = widget.incomingCall?.callType ?? CallType.voice;
 
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+          gradient: RadialGradient(
+            center: Alignment.topCenter,
+            radius: 1.5,
             colors: [
-              widget.accentColor.withValues(alpha: 0.9),
-              theme.scaffoldBackgroundColor,
+              const Color(0xFF1E1B4B).withValues(alpha: 0.6), // Secondary Navy
+              Colors.black,
             ],
           ),
         ),
@@ -229,68 +229,84 @@ class _NeuroIncomingCallScreenState extends ConsumerState<NeuroIncomingCallScree
             children: [
               // Top: Caller info
               Padding(
-                padding: const EdgeInsets.only(top: 80.0),
+                padding: const EdgeInsets.only(top: 100.0),
                 child: Column(
                   children: [
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: widget.accentColor.withValues(alpha: 0.3),
-                            blurRadius: 20,
-                            spreadRadius: 5,
+                    ClipOval(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.05),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.1),
+                              width: 1,
+                            ),
                           ),
-                        ],
-                      ),
-                      child: Icon(
-                        callType == CallType.voice
-                            ? Icons.phone_android
-                            : Icons.videocam,
-                        size: 48,
-                        color: widget.accentColor,
+                          child: Icon(
+                            callType == CallType.voice
+                                ? Icons.phone_in_talk_rounded
+                                : Icons.videocam_rounded,
+                            size: 48,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
                     Text(
                       _callerName,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w800,
                         color: Colors.white,
+                        letterSpacing: -0.5,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      callType.label,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: Colors.white70,
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE11D48).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFE11D48).withValues(alpha: 0.3)),
+                      ),
+                      child: Text(
+                        callType.label.toUpperCase(),
+                        style: const TextStyle(
+                          color: Color(0xFFE11D48),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.5,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    if (_isRinging) _RingingIndicator(),
+                    const SizedBox(height: 48),
+                    if (_isRinging) const _RingingIndicator(),
                   ],
                 ),
               ),
 
               // Bottom: Accept/Decline buttons
               Padding(
-                padding: const EdgeInsets.only(bottom: 60.0),
+                padding: const EdgeInsets.only(bottom: 80.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _CallActionButton(
-                      icon: Icons.call_end,
+                      icon: Icons.call_end_rounded,
                       label: 'Decline',
-                      backgroundColor: Colors.red,
+                      backgroundColor: const Color(0xFFE11D48),
                       onPressed: _declineCall,
                     ),
                     _CallActionButton(
-                      icon: Icons.call,
+                      icon: Icons.call_rounded,
                       label: 'Accept',
-                      backgroundColor: Colors.green,
+                      backgroundColor: const Color(0xFF22C55E),
                       onPressed: _acceptCall,
                     ),
                   ],
@@ -362,8 +378,7 @@ class _RingingIndicatorState extends State<_RingingIndicator>
   }
 }
 
-/// Circular action button for accept/decline.
-class _CallActionButton extends StatelessWidget {
+class _CallActionButton extends StatefulWidget {
   final IconData icon;
   final String label;
   final Color backgroundColor;
@@ -377,20 +392,52 @@ class _CallActionButton extends StatelessWidget {
   });
 
   @override
+  State<_CallActionButton> createState() => _CallActionButtonState();
+}
+
+class _CallActionButtonState extends State<_CallActionButton> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FloatingActionButton(
-          heroTag: label,
-          backgroundColor: backgroundColor,
-          onPressed: onPressed,
-          child: Icon(icon, color: Colors.white, size: 32),
+        GestureDetector(
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapCancel: () => setState(() => _isPressed = false),
+          onTap: widget.onPressed,
+          child: AnimatedScale(
+            scale: _isPressed ? 0.9 : 1.0,
+            duration: const Duration(milliseconds: 100),
+            child: Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: widget.backgroundColor,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.backgroundColor.withValues(alpha: 0.4),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Icon(widget.icon, color: Colors.white, size: 32),
+            ),
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Text(
-          label,
-          style: const TextStyle(color: Colors.white70, fontSize: 14),
+          widget.label,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
         ),
       ],
     );

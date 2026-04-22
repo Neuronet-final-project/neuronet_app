@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -51,26 +52,54 @@ class NeuroChatBubble extends StatefulWidget {
   State<NeuroChatBubble> createState() => _NeuroChatBubbleState();
 }
 
-class _NeuroChatBubbleState extends State<NeuroChatBubble> {
+class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderStateMixin {
   final VoiceRecorderService _player = VoiceRecorderService();
   bool _isPlaying = false;
+  late AnimationController _entranceController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.2),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutQuart,
+    ));
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeIn,
+    );
+
+    _entranceController.forward();
+  }
 
   @override
   void dispose() {
     _player.stopPlayback();
     _player.dispose();
+    _entranceController.dispose();
     super.dispose();
   }
 
   Future<void> _togglePlayback(String? url) async {
     if (_isPlaying) {
       await _player.stopPlayback();
-      setState(() => _isPlaying = false);
+      if (mounted) setState(() => _isPlaying = false);
     } else {
       if (url != null) {
-        setState(() => _isPlaying = true);
+        if (mounted) setState(() => _isPlaying = true);
         await _player.playAudio(url);
-        setState(() => _isPlaying = false);
+        if (mounted) setState(() => _isPlaying = false);
       }
     }
   }
@@ -83,33 +112,48 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> {
 
     final isVoice = widget.messageType == MessageContentType.audio;
 
-    return Semantics(
-      label: isVoice
-          ? '$label sent a voice message. Sent at $formattedTime'
-          : widget.messageType == MessageContentType.image
-              ? '$label sent an image. Sent at $formattedTime'
-              : '$label said: ${widget.messageContent}. Sent at $formattedTime',
-      child: Align(
-        alignment: widget.isUser ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * widget.maxWidthFactor,
-          ),
-          decoration: BoxDecoration(
-            color: widget.isUser ? accentColor : NeuroColors.surface,
-            borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(16),
-              topRight: const Radius.circular(16),
-              bottomLeft: Radius.circular(widget.isUser ? 16 : 4),
-              bottomRight: Radius.circular(widget.isUser ? 4 : 16),
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Semantics(
+          label: isVoice
+              ? '$label sent a voice message. Sent at $formattedTime'
+              : widget.messageType == MessageContentType.image
+                  ? '$label sent an image. Sent at $formattedTime'
+                  : '$label said: ${widget.messageContent}. Sent at $formattedTime',
+          child: Align(
+            alignment: widget.isUser ? Alignment.centerRight : Alignment.centerLeft,
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * widget.maxWidthFactor,
+                ),
+                decoration: BoxDecoration(
+                  color: widget.isUser ? accentColor : NeuroColors.surface,
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(20),
+                    topRight: const Radius.circular(20),
+                    bottomLeft: Radius.circular(widget.isUser ? 20 : 4),
+                    bottomRight: Radius.circular(widget.isUser ? 4 : 20),
+                  ),
+                  boxShadow: [
+                    if (!widget.isUser)
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                  ],
+                ),
+                child: _buildBubbleContent(context, accentColor, formattedTime),
+              ),
             ),
-            boxShadow: [
-              if (!widget.isUser) NeuroShadows.sm,
-            ],
           ),
-          child: _buildBubbleContent(context, accentColor, formattedTime),
         ),
       ),
     );
@@ -155,21 +199,15 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> {
               ),
             ),
             const SizedBox(width: 12),
-            // Waveform visualization (simplified)
+            // Waveform visualization (CustomPaint upgrade)
             Expanded(
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: List.generate(
-                  12,
-                  (index) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                    width: 3,
-                    height: 12 + (index % 3) * 6.0,
-                    decoration: BoxDecoration(
-                      color: (widget.isUser ? Colors.white : accentColor)
-                          .withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(1.5),
-                    ),
+              child: SizedBox(
+                height: 32,
+                child: CustomPaint(
+                  painter: _WaveformPainter(
+                    color: (widget.isUser ? Colors.white : accentColor)
+                        .withValues(alpha: 0.8),
+                    isPlaying: _isPlaying,
                   ),
                 ),
               ),
@@ -239,12 +277,7 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> {
               borderRadius: BorderRadius.circular(12),
               child: CachedNetworkImage(
                 imageUrl: imageUrl,
-                placeholder: (context, url) => Container(
-                  height: 200,
-                  width: double.infinity,
-                  color: Colors.grey.shade200,
-                  child: const Center(child: CircularProgressIndicator()),
-                ),
+                placeholder: (context, url) => const _ShimmerLoader(height: 200),
                 errorWidget: (context, url, error) => Container(
                   height: 200,
                   width: double.infinity,
@@ -437,6 +470,100 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _WaveformPainter extends CustomPainter {
+  final Color color;
+  final bool isPlaying;
+
+  _WaveformPainter({required this.color, required this.isPlaying});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+
+    final random = Random(42); // Seed for consistent waveform
+    const int bars = 20;
+    final spacing = size.width / bars;
+
+    for (int i = 0; i < bars; i++) {
+      final x = spacing * i + spacing / 2;
+      double barHeight = (random.nextDouble() * 0.6 + 0.2) * size.height;
+      
+      // If playing, add a slight pulse/variation (simulated)
+      if (isPlaying) {
+        barHeight *= (0.8 + 0.4 * sin(DateTime.now().millisecondsSinceEpoch / 200 + i));
+      }
+
+      canvas.drawLine(
+        Offset(x, size.height / 2 - barHeight / 2),
+        Offset(x, size.height / 2 + barHeight / 2),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => isPlaying;
+}
+
+class _ShimmerLoader extends StatefulWidget {
+  final double height;
+  const _ShimmerLoader({required this.height});
+
+  @override
+  State<_ShimmerLoader> createState() => _ShimmerLoaderState();
+}
+
+class _ShimmerLoaderState extends State<_ShimmerLoader> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          height: widget.height,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.grey[300]!,
+                Colors.grey[100]!,
+                Colors.grey[300]!,
+              ],
+              stops: [
+                _controller.value - 0.3,
+                _controller.value,
+                _controller.value + 0.3,
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

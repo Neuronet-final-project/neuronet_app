@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:guardian_app/config/router/app_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:guardian_app/features/auth/providers/auth_provider.dart';
@@ -99,7 +100,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildContent(BuildContext context, WidgetRef ref, User user) {
     return Column(
       children: [
-        _ProfileHeader(user: user),
+        _ProfileHeader(user: user).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
         const SizedBox(height: 16),
         
         _SettingSection(
@@ -124,7 +125,7 @@ class ProfileScreen extends ConsumerWidget {
               showDivider: false,
             ),
           ],
-        ),
+        ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.05),
         
         const SizedBox(height: 16),
         
@@ -146,7 +147,7 @@ class ProfileScreen extends ConsumerWidget {
               showDivider: false,
             ),
           ],
-        ),
+        ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(begin: 0.05),
         
         const SizedBox(height: 16),
 
@@ -161,7 +162,7 @@ class ProfileScreen extends ConsumerWidget {
               onTap: () => context.push(GuardianRoutes.consent),
             ),
           ],
-        ),
+        ).animate().fadeIn(delay: 300.ms, duration: 400.ms).slideY(begin: 0.05),
         
         const SizedBox(height: 16),
         
@@ -238,7 +239,8 @@ class _ProfileHeader extends StatelessWidget {
               ],
             ),
             child: const Icon(Icons.person_rounded, size: 40, color: Colors.white),
-          ),
+          ).animate(onPlay: (controller) => controller.repeat())
+           .shimmer(delay: 3.seconds, duration: 1500.ms, color: Colors.white.withValues(alpha: 0.2)),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
@@ -311,7 +313,7 @@ class _SettingSection extends StatelessWidget {
   }
 }
 
-class _SettingTile extends StatelessWidget {
+class _SettingTile extends StatefulWidget {
   const _SettingTile({
     required this.label,
     required this.value,
@@ -327,55 +329,69 @@ class _SettingTile extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
+  State<_SettingTile> createState() => _SettingTileState();
+}
+
+class _SettingTileState extends State<_SettingTile> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: NeuroColors.guardianPrimary.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(12),
+        GestureDetector(
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapCancel: () => setState(() => _isPressed = false),
+          onTap: widget.onTap,
+          child: AnimatedScale(
+            scale: _isPressed ? 0.98 : 1.0,
+            duration: const Duration(milliseconds: 100),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: NeuroColors.guardianPrimary.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(widget.icon, color: NeuroColors.guardianPrimary, size: 20),
                   ),
-                  child: Icon(icon, color: NeuroColors.guardianPrimary, size: 20),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: NeuroColors.onSurfaceVariant,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.label,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: NeuroColors.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        value,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: NeuroColors.onSurface,
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.value,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: NeuroColors.onSurface,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                if (onTap != null)
-                  const Icon(Icons.chevron_right_rounded, color: NeuroColors.onSurfaceVariant, size: 20),
-              ],
+                  if (widget.onTap != null)
+                    const Icon(Icons.chevron_right_rounded, color: NeuroColors.onSurfaceVariant, size: 20),
+                ],
+              ),
             ),
           ),
         ),
-        if (showDivider)
+        if (widget.showDivider)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Divider(height: 1, thickness: 1, color: const Color(0xFFF3F4F6)),

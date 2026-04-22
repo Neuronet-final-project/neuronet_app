@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
@@ -87,23 +88,37 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildHeroHeader(alert),
+                        _buildHeroHeader(alert)
+                            .animate()
+                            .fadeIn(duration: 600.ms)
+                            .slideY(begin: 0.1, duration: 600.ms, curve: Curves.easeOut),
                         const SizedBox(height: 12),
                         
                         if (alert.aiSummary.isNotEmpty) ...[
-                          _buildAiInsightCard(alert),
+                          _buildAiInsightCard(alert)
+                              .animate(delay: 150.ms)
+                              .fadeIn()
+                              .slideY(begin: 0.1),
                           const SizedBox(height: 12),
                         ],
                         
                         if (alert.detectedEmotions.isNotEmpty) ...[
-                          _buildEmotionsCard(alert),
+                          _buildEmotionsCard(alert)
+                              .animate(delay: 300.ms)
+                              .fadeIn()
+                              .slideY(begin: 0.1),
                           const SizedBox(height: 12),
                         ],
                         
-                        _buildTriggerDetailsCard(alert),
+                        _buildTriggerDetailsCard(alert)
+                            .animate(delay: 450.ms)
+                            .fadeIn()
+                            .slideY(begin: 0.1),
                         const SizedBox(height: 32),
                         
-                        _buildResolutionSection(),
+                        _buildResolutionSection()
+                            .animate(delay: 600.ms)
+                            .fadeIn(),
                         const SizedBox(height: 32),
                         
                         Padding(
@@ -113,7 +128,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                             label: 'Mark as Resolved',
                             borderRadius: 16,
                           ),
-                        ),
+                        ).animate(delay: 750.ms).fadeIn().scale(begin: const Offset(0.9, 0.9)),
                       ],
                     ),
                   ),
@@ -128,6 +143,8 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
   }
 
   Widget _buildHeroHeader(Alert alert) {
+    final isHighSeverity = alert.severityLevel.toLowerCase().contains('high');
+
     return GuardianBentoCard(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       padding: const EdgeInsets.all(24),
@@ -140,19 +157,28 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: isHighSeverity 
+                      ? Colors.white 
+                      : Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   alert.severityLevel.toUpperCase(),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: isHighSeverity 
+                        ? NeuroColors.alertHigh 
+                        : Colors.white,
                     fontWeight: FontWeight.w900,
                     fontSize: 10,
                     letterSpacing: 1,
                   ),
                 ),
-              ),
+              ).animate(
+                target: isHighSeverity ? 1 : 0,
+                onPlay: (controller) => isHighSeverity ? controller.repeat(reverse: true) : null,
+              )
+              .shimmer(duration: 1200.ms, color: Colors.white.withValues(alpha: 0.5))
+              .scale(begin: const Offset(1, 1), end: const Offset(1.05, 1.05)),
               const Spacer(),
               Text(
                 '${alert.createdAt.day}/${alert.createdAt.month}/${alert.createdAt.year}',

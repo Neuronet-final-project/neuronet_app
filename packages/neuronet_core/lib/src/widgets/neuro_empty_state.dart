@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class NeuroEmptyState extends StatelessWidget {
   final String title;
@@ -57,7 +58,19 @@ class NeuroEmptyState extends StatelessWidget {
               size: isMini ? 32 : 48,
               color: accentColor,
             ),
-          ),
+          )
+              .animate(onPlay: (controller) => controller.repeat(reverse: true))
+              .scale(
+                begin: const Offset(1, 1),
+                end: const Offset(1.1, 1.1),
+                duration: 2000.ms,
+                curve: Curves.easeInOut,
+              )
+              .shimmer(
+                delay: 1000.ms,
+                duration: 2000.ms,
+                color: Colors.white.withValues(alpha: 0.2),
+              ),
           SizedBox(height: isMini ? 16 : 24),
           Text(
             title,

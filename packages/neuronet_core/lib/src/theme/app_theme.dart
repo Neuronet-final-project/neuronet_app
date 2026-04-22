@@ -317,6 +317,23 @@ class NeuroTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: primary,
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return TextStyle(color: primary, fontWeight: FontWeight.bold, fontSize: 12);
+          }
+          return const TextStyle(color: NeuroColors.onSurfaceVariant, fontWeight: FontWeight.w500, fontSize: 12);
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: Colors.white, size: 24);
+          }
+          return const IconThemeData(color: NeuroColors.onSurfaceVariant, size: 24);
+        }),
+      ),
     );
   }
 }

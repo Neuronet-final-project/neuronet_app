@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../dashboard/providers/dashboard_provider.dart';
 import '../../../ui/bento_card.dart';
 
@@ -101,7 +102,12 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final alert = filteredAlerts[index];
-                      return _AlertCard(alert: alert);
+                      return _AlertCard(alert: alert)
+                          .animate(
+                            delay: (100 * index).ms,
+                          )
+                          .fadeIn(duration: 400.ms)
+                          .slideY(begin: 0.1, duration: 400.ms, curve: Curves.easeOutQuad);
                     },
                     childCount: filteredAlerts.length,
                   ),
@@ -192,12 +198,14 @@ class _AlertCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _getSeverityColor(alert.severityLevel);
+    final isHighSeverity = alert.severityLevel.toLowerCase().contains('high');
 
-    return GuardianBentoCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      onTap: () => context.push('/alert-details/${alert.alertId}'),
-      padding: const EdgeInsets.all(18),
-      child: Column(
+    return RepaintBoundary(
+      child: GuardianBentoCard(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        onTap: () => context.push('/alert-details/${alert.alertId}'),
+        padding: const EdgeInsets.all(18),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -308,8 +316,42 @@ class _AlertCard extends StatelessWidget {
             ),
           ],
         ],
+      ).animate(onPlay: (c) => c.repeat())
+       .custom(
+         duration: 10.seconds,
+         builder: (context, value, child) {
+           if (!isHighSeverity) return child;
+           
+           // Create a 1s pulse within a 10s cycle
+           double intensity = 0;
+           if (value < 0.1) {
+             double t = value / 0.1;
+             intensity = t < 0.5 ? t * 2 : (1 - t) * 2;
+             // Apply smooth curve to intensity
+             intensity = Curves.easeInOut.transform(intensity);
+           }
+           
+           return Container(
+             decoration: BoxDecoration(
+               borderRadius: BorderRadius.circular(24),
+               boxShadow: [
+                 BoxShadow(
+                   color: color.withValues(alpha: 0.15 * intensity),
+                   blurRadius: 12 * intensity,
+                   spreadRadius: 2 * intensity,
+                 ),
+               ],
+             ),
+             child: child,
+           );
+         },
+       ),
       ),
-    );
+    ).animate(autoPlay: false).scale(
+          begin: const Offset(1.0, 1.0),
+          end: const Offset(0.98, 0.98),
+          duration: 100.ms,
+        );
   }
 
   Color _getSeverityColor(String severity) {

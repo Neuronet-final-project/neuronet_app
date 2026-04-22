@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:collection/collection.dart';
 import 'package:guardian_app/config/router/app_router.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
@@ -63,7 +64,9 @@ class AdolescentDetailScreen extends ConsumerWidget {
               }
 
               return SliverToBoxAdapter(
-                child: _buildContent(context, ref, state),
+                child: RepaintBoundary(
+                  child: _buildContent(context, ref, state),
+                ),
               );
             },
             loading: () => const SliverFillRemaining(
@@ -89,86 +92,90 @@ class AdolescentDetailScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeroProfile(context, profile),
+        _buildHeroProfile(context, profile)
+            .animate()
+            .fadeIn(duration: 600.ms)
+            .slideY(begin: 0.1, curve: Curves.easeOutQuad),
         const SizedBox(height: 24),
         
-        _buildSectionTitle('Intervention Hub'),
-        _buildActionGrid(context, profile),
+        _buildSectionTitle('Intervention Hub')
+            .animate()
+            .fadeIn(delay: 200.ms),
+        _buildActionGrid(context, profile)
+            .animate()
+            .fadeIn(delay: 300.ms)
+            .slideY(begin: 0.2, curve: Curves.easeOutQuad),
         const SizedBox(height: 32),
 
-        _buildSectionTitle('Registration Details'),
-        GuardianBentoCard(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              _buildDetailRow('Full Name', profile.fullName),
-              const Divider(height: 24, thickness: 0.5),
-              _buildDetailRow('Email', profile.email),
-              const Divider(height: 24, thickness: 0.5),
-              _buildDetailRow(
-                'Relationship',
-                profile.relationship?.name.toUpperCase() ?? 'N/A',
-              ),
-              const Divider(height: 24, thickness: 0.5),
-              _buildDetailRow(
-                'Account Status',
-                profile.accountStatus?.name.toUpperCase() ?? 'ACTIVE',
-              ),
-              const Divider(height: 24, thickness: 0.5),
-              _buildDetailRow(
-                'Linked Since',
-                profile.createdAt?.toIso8601String().split('T')[0] ?? 'N/A',
-              ),
-            ],
+        _buildSectionTitle('Registration Details')
+            .animate()
+            .fadeIn(delay: 400.ms),
+        _buildSectionCard([
+          _buildDetailRow('Full Name', profile.fullName),
+          const Divider(height: 24, thickness: 0.5),
+          _buildDetailRow('Email', profile.email),
+          const Divider(height: 24, thickness: 0.5),
+          _buildDetailRow(
+            'Relationship',
+            profile.relationship?.name.toUpperCase() ?? 'N/A',
           ),
-        ),
+          const Divider(height: 24, thickness: 0.5),
+          _buildDetailRow(
+            'Account Status',
+            profile.accountStatus?.name.toUpperCase() ?? 'ACTIVE',
+          ),
+          const Divider(height: 24, thickness: 0.5),
+          _buildDetailRow(
+            'Linked Since',
+            profile.createdAt?.toIso8601String().split('T')[0] ?? 'N/A',
+          ),
+        ]).animate()
+          .fadeIn(delay: 500.ms)
+          .slideY(begin: 0.2, curve: Curves.easeOutQuad),
         const SizedBox(height: 32),
 
-        _buildSectionTitle('Active Permissions'),
-        GuardianBentoCard(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              if (consents.isEmpty)
-                const NeuroEmptyState(
-                  isMini: true,
-                  title: 'No Consents Found',
-                  message: 'No consents record found for this account.',
-                  icon: Icons.assignment_late_outlined,
-                  color: NeuroColors.guardianPrimary,
-                )
-              else
-                ...consents.mapIndexed(
-                  (index, c) => Column(
-                    children: [
-                      if (index > 0) const Divider(height: 24, thickness: 0.5),
-                      _buildConsentEntry(
-                        c.consentType.label,
-                        c.consentStatus == ConsentStatus.granted,
-                      ),
-                    ],
+        _buildSectionTitle('Active Permissions')
+            .animate()
+            .fadeIn(delay: 600.ms),
+        _buildSectionCard([
+          if (consents.isEmpty)
+            const NeuroEmptyState(
+              isMini: true,
+              title: 'No Consents Found',
+              message: 'No consents record found for this account.',
+              icon: Icons.assignment_late_outlined,
+              color: NeuroColors.guardianPrimary,
+            )
+          else
+            ...consents.mapIndexed(
+              (index, c) => Column(
+                children: [
+                  if (index > 0) const Divider(height: 24, thickness: 0.5),
+                  _buildConsentEntry(
+                    c.consentType.label,
+                    c.consentStatus == ConsentStatus.granted,
                   ),
-                ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton.icon(
-                  onPressed: () => context.push(GuardianRoutes.consent),
-                  icon: const Icon(Icons.settings_outlined, size: 18),
-                  label: const Text('Manage All Consents'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: NeuroColors.guardianPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    backgroundColor: NeuroColors.guardianPrimary.withValues(alpha: 0.05),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
+                ],
               ),
-            ],
+            ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton.icon(
+              onPressed: () => context.go(GuardianRoutes.consent),
+              icon: const Icon(Icons.settings_outlined, size: 18),
+              label: const Text('Manage All Consents'),
+              style: TextButton.styleFrom(
+                foregroundColor: NeuroColors.guardianPrimary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                backgroundColor: NeuroColors.guardianPrimary.withValues(alpha: 0.05),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
           ),
-        ),
+        ]).animate()
+          .fadeIn(delay: 700.ms)
+          .slideY(begin: 0.2, curve: Curves.easeOutQuad),
         
         const SizedBox(height: 48),
         Padding(
@@ -187,9 +194,17 @@ class AdolescentDetailScreen extends ConsumerWidget {
               ),
             ),
           ),
-        ),
+        ).animate(delay: 800.ms).fadeIn(),
         const SizedBox(height: 40),
       ],
+    );
+  }
+
+  Widget _buildSectionCard(List<Widget> children) {
+    return GuardianBentoCard(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
+      child: Column(children: children),
     );
   }
 
@@ -212,7 +227,8 @@ class AdolescentDetailScreen extends ConsumerWidget {
               Icons.person_rounded,
               size: 40,
               color: Colors.white,
-            ),
+            ).animate(onPlay: (c) => c.repeat())
+             .shimmer(delay: 5.seconds, duration: 2.seconds, color: Colors.white.withAlpha(80)),
           ),
           const SizedBox(width: 24),
           Expanded(
@@ -337,7 +353,11 @@ class AdolescentDetailScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ).animate(autoPlay: false).scale(
+          begin: const Offset(1.0, 1.0),
+          end: const Offset(0.97, 0.97),
+          duration: 100.ms,
+        );
   }
 
   Widget _buildSectionTitle(String title) {

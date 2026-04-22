@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:go_router/go_router.dart';
@@ -248,170 +249,196 @@ class DashboardScreen extends ConsumerWidget {
   ) {
     return Column(
       children: [
+        // 1. Hero Card (Greeting + Stats)
         GuardianBentoCard(
-          margin: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+          margin: const EdgeInsets.fromLTRB(16, 20, 16, 20),
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
           gradient: GuardianStyles.primaryGradient,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Good Morning,',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
-                      ),
-                      Consumer(
-                        builder: (context, ref, child) {
-                          final profileAsync = ref.watch(
-                            guardianProfileControllerProvider,
-                          );
-                          final name = profileAsync.maybeWhen(
-                            data: (state) =>
-                                state.user?.fullName.split(' ')[0] ??
-                                'Guardian',
-                            orElse: () => 'Guardian',
-                          );
-                          return Text(
-                            name,
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  CircleAvatar(
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+              _buildGreeting(context).animate().fadeIn(duration: 400.ms).slideX(begin: -0.1),
               const SizedBox(height: 32),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildQuickStat(
-                      context: context,
-                      label: 'Adolescents',
-                      value: data.totalAdolescentsLinked.toString(),
-                      color: Colors.white,
-                    ),
-                    _buildQuickStat(
-                      context: context,
-                      label: 'Total Journals',
-                      value: data.totalJournalCount.toString(),
-                      color: Colors.white,
-                    ),
-                    _buildQuickStat(
-                      context: context,
-                      label: 'Alerts',
-                      value: data.unviewedAlertsCount.toString(),
-                      color: data.unviewedAlertsCount > 0
-                          ? Colors.orangeAccent
-                          : Colors.white,
-                    ),
-                  ],
-                ),
-              ),
+              _buildSummaryPill(context, data).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.95, 0.95)),
             ],
           ),
         ),
+        
+        // 2. Mood Overview Card
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: GuardianBentoCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Mood Overview',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                if (data.moodDistribution.isEmpty)
-                  const NeuroEmptyState(
-                    isMini: true,
-                    title: 'No Mood Data',
-                    message: 'No recorded entries yet.',
-                    icon: Icons.analytics_outlined,
-                  )
-                else
-                  ...data.moodDistribution.entries.map((entry) {
-                    final mood = entry.key;
-                    final count = entry.value;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 12,
-                            height: 12,
-                            decoration: const BoxDecoration(
-                              color: NeuroColors.guardianPrimary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            mood,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const Spacer(),
-                          Text(
-                            '$count entries',
-                            style: const TextStyle(
-                              color: NeuroColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-              ],
-            ),
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: _buildMoodCard(context, data)
+              .animate()
+              .fadeIn(delay: 400.ms)
+              .slideY(begin: 0.1),
         ),
       ],
+    );
+  }
+
+  Widget _buildGreeting(BuildContext context) {
+    return Row(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Good Morning,',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.9),
+                  ),
+            ),
+            Consumer(
+              builder: (context, ref, child) {
+                final profileAsync = ref.watch(guardianProfileControllerProvider);
+                final name = profileAsync.maybeWhen(
+                  data: (state) => state.user?.fullName.split(' ')[0] ?? 'Guardian',
+                  orElse: () => 'Guardian',
+                );
+                return Text(
+                  name,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                      ),
+                );
+              },
+            ),
+          ],
+        ),
+        const Spacer(),
+        CircleAvatar(
+          backgroundColor: Colors.white.withValues(alpha: 0.2),
+          child: const Icon(Icons.person, color: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryPill(BuildContext context, GuardianDashboardData data) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildQuickStat(
+            context: context,
+            label: 'Adolescents',
+            value: data.totalAdolescentsLinked,
+            color: Colors.white,
+          ),
+          _buildQuickStat(
+            context: context,
+            label: 'Total Journals',
+            value: data.totalJournalCount,
+            color: Colors.white,
+          ),
+          _buildQuickStat(
+            context: context,
+            label: 'Alerts',
+            value: data.unviewedAlertsCount,
+            color: data.unviewedAlertsCount > 0 ? Colors.orangeAccent : Colors.white,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMoodCard(BuildContext context, GuardianDashboardData data) {
+    return GuardianBentoCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Mood Overview',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: NeuroColors.guardianPrimaryDark,
+                ),
+          ),
+          const SizedBox(height: 16),
+          if (data.moodDistribution.isEmpty)
+            const NeuroEmptyState(
+              isMini: true,
+              title: 'No Mood Data',
+              message: 'No recorded entries yet.',
+              icon: Icons.analytics_outlined,
+            )
+          else
+            ...data.moodDistribution.entries.map((entry) {
+              final mood = entry.key;
+              final count = entry.value;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: NeuroColors.guardianPrimary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      mood,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: NeuroColors.onSurface,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '$count entries',
+                      style: const TextStyle(
+                        color: NeuroColors.onSurfaceVariant,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
     );
   }
 
   Widget _buildQuickStat({
     required BuildContext context,
     required String label,
-    required String value,
+    required int value,
     required Color color,
   }) {
     return Column(
       children: [
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w800,
-              ),
+        TweenAnimationBuilder<int>(
+          tween: IntTween(begin: 0, end: value),
+          duration: const Duration(milliseconds: 1500),
+          curve: Curves.easeOutExpo,
+          builder: (context, val, child) {
+            return Text(
+              val.toString(),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w800,
+                  ),
+            );
+          },
         ),
+        const SizedBox(height: 4),
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: color.withValues(alpha: 0.8),
                 letterSpacing: 0.5,
+                fontSize: 10,
               ),
         ),
       ],
