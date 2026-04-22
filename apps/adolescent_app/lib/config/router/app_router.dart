@@ -25,6 +25,8 @@ import 'package:adolescent_app/features/educational/view/screens/educational_pag
 import 'package:adolescent_app/features/educational/view/screens/recommendations_screen.dart';
 import 'package:adolescent_app/features/auth/view/screens/splash_screen.dart';
 import 'package:adolescent_app/features/onboarding/view/screens/onboarding_screen.dart';
+import 'package:adolescent_app/features/activities/view/screens/activities_screen.dart';
+import 'package:adolescent_app/features/activities/view/screens/breathing_exercise_screen.dart';
 import 'package:neuronet_core/neuronet_core.dart'; // For Alert and EducationalPage types in routing extra
 
 /// Route names for the Adolescent app.
@@ -48,6 +50,8 @@ class AdolescentRoutes {
   static const String alerts = '/alerts';
   static const String learn = '/learn';
   static const String recommendations = '/recommendations';
+  static const String activities = '/activities';
+  static const String breathingExercise = '/breathing-exercise';
 }
 
 // Global ChangeNotifier for auth state changes.
@@ -257,6 +261,14 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AdolescentRoutes.recommendations,
         builder: (context, state) => const RecommendationsScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.activities,
+        builder: (context, state) => const ActivitiesScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.breathingExercise,
+        builder: (context, state) => const BreathingExerciseScreen(),
       ),
     ],
   );
