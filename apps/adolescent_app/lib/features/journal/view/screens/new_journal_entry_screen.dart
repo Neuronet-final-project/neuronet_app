@@ -16,6 +16,13 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
   MoodType? _selectedMood;
   bool _isSaving = false;
 
+  final List<String> _sparks = [
+    'What made me smile today?',
+    "One thing I'm grateful for",
+    'A small victory I had',
+    'How I handled a challenge',
+  ];
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -40,7 +47,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
       await ref.read(journalControllerProvider.notifier).addEntry(
         content,
         title: title.isEmpty ? null : title,
-        mood: _selectedMood,
+        mood: _selectedMood ?? MoodType.neutral,
       );
       if (mounted) {
         Navigator.of(context).pop();
@@ -61,36 +68,40 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(journalControllerProvider);
-    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: NeuroColors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Write Your Thoughts'),
-        backgroundColor: NeuroColors.background,
-        foregroundColor: NeuroColors.onSurface,
+        backgroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close_rounded, color: Color(0xFF1E293B)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'New Entry',
+          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w900),
+        ),
         actions: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ElevatedButton(
               onPressed: _isSaving ? null : _handleSave,
               style: ElevatedButton.styleFrom(
-                backgroundColor: NeuroColors.adolescentPrimary,
-                foregroundColor: NeuroColors.adolescentOnPrimary,
-                minimumSize: const Size(110, 44),
+                backgroundColor: const Color(0xFFB388FF).withOpacity(0.4),
+                foregroundColor: const Color(0xFF7C4DFF),
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(NeuroRadius.lg),
-                ),
               ),
               child: _isSaving
-                  ? const SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: NeuroColors.adolescentOnPrimary),
-                    )
-                  : const Text('Save'),
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Row(
+                      children: [
+                        Icon(Icons.check_rounded, size: 18),
+                        SizedBox(width: 8),
+                        Text('Save', style: TextStyle(fontWeight: FontWeight.w900)),
+                      ],
+                    ),
             ),
           ),
         ],
@@ -98,169 +109,249 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    controller: _titleController,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          color: NeuroColors.onSurface.withValues(alpha: 0.5),
-                        ),
-                    decoration: const InputDecoration(
-                      hintText: 'Entry Title (Optional)',
-                      border: InputBorder.none,
-                      filled: false,
-                      contentPadding: EdgeInsets.zero,
+            child: ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.bolt_rounded, color: Color(0xFF7C4DFF), size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'NEED A SPARK?',
+                      style: TextStyle(
+                        color: Color(0xFF7C4DFF),
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                        letterSpacing: 1,
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _sparks.map((spark) => _SparkChip(
+                      label: spark,
+                      onTap: () {
+                        setState(() {
+                          _contentController.text = '$spark\n\n';
+                        });
+                      },
+                    )).toList(),
                   ),
-                  const Divider(height: 32),
-                  TextField(
-                    controller: _contentController,
-                    maxLines: null,
-                    minLines: 10,
-                    maxLength: 5000,
-                    autofocus: true,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFFF1F5F9)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF7C4DFF),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      TextField(
+                        controller: _titleController,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF1E293B),
+                        ),
+                        decoration: const InputDecoration(
+                          hintText: 'Give it a title (optional)',
+                          hintStyle: TextStyle(color: Color(0xFFCBD5E1)),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                      const Divider(height: 32, color: Color(0xFFF1F5F9)),
+                      TextField(
+                        controller: _contentController,
+                        maxLines: null,
+                        minLines: 8,
+                        style: const TextStyle(
+                          fontSize: 16,
                           height: 1.6,
-                          fontSize: 18,
+                          color: Color(0xFF475569),
                         ),
-                    decoration: const InputDecoration(
-                      hintText: "What's on your mind?",
-                      border: InputBorder.none,
-                      filled: false,
-                      contentPadding: EdgeInsets.zero,
-                      counterText: '', // Hide default counter
-                    ),
-                    onChanged: (_) => setState(() {}),
+                        decoration: const InputDecoration(
+                          hintText: "What's on your mind today?\nNo rules — just write.",
+                          hintStyle: TextStyle(color: Color(0xFF94A3B8)),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: NeuroColors.moodSad.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(NeuroRadius.md),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.privacy_tip_outlined, size: 20, color: NeuroColors.moodSad),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Your entries are private. Analyzed trends are shared with your counselor to help them support you.',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: NeuroColors.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      ],
+                ),
+              ],
+            ),
+          ),
+          _MoodSelector(
+            selectedMood: _selectedMood,
+            charCount: _contentController.text.length,
+            onMoodSelected: (mood) => setState(() => _selectedMood = mood),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SparkChip extends StatelessWidget {
+  const _SparkChip({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFF7C4DFF).withOpacity(0.2)),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(color: Color(0xFF7C4DFF), fontWeight: FontWeight.w600, fontSize: 13),
+        ),
+      ),
+    );
+  }
+}
+
+class _MoodSelector extends StatelessWidget {
+  const _MoodSelector({
+    required this.selectedMood,
+    required this.onMoodSelected,
+    required this.charCount,
+  });
+
+  final MoodType? selectedMood;
+  final Function(MoodType) onMoodSelected;
+  final int charCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final moods = [
+      MoodType.happy,
+      MoodType.calm,
+      MoodType.hopeful,
+      MoodType.excited,
+      MoodType.anxious,
+    ];
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(24, 20, 24, MediaQuery.of(context).padding.bottom + 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.sentiment_satisfied_rounded, color: Color(0xFF7C4DFF), size: 18),
+                  SizedBox(width: 8),
+                  Text(
+                    'HOW ARE YOU FEELING?',
+                    style: TextStyle(
+                      color: Color(0xFF7C4DFF),
+                      fontWeight: FontWeight.w900,
+                      fontSize: 11,
+                      letterSpacing: 1,
                     ),
                   ),
                 ],
               ),
-            ),
+              Text(
+                '$charCount / 5000',
+                style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
-          _buildBottomToolbar(),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: moods.map((mood) {
+              final isSelected = selectedMood == mood;
+              return GestureDetector(
+                onTap: () => onMoodSelected(mood),
+                child: Column(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFF7C4DFF).withOpacity(0.1) : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isSelected ? const Color(0xFF7C4DFF) : const Color(0xFFF1F5F9),
+                          width: 2,
+                        ),
+                      ),
+                      child: Text(_getMoodEmoji(mood), style: const TextStyle(fontSize: 28)),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      mood.name.substring(0, 1).toUpperCase() + mood.name.substring(1),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
+                        color: isSelected ? const Color(0xFF7C4DFF) : const Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBottomToolbar() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        12,
-        24,
-        MediaQuery.of(context).padding.bottom + 12,
-      ),
-      decoration: BoxDecoration(
-        color: NeuroColors.background,
-        border: Border(top: BorderSide(color: NeuroColors.outline)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'How are you feeling?',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: NeuroColors.onSurfaceVariant,
-                ),
-              ),
-              Text(
-                '${_contentController.text.length} / 5000',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: _contentController.text.length > 4500
-                      ? NeuroColors.error
-                      : NeuroColors.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 64,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: MoodType.values.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 14),
-              itemBuilder: (context, index) {
-                final mood = MoodType.values[index];
-                final isSelected = _selectedMood == mood;
-                
-                return Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => setState(() => _selectedMood = isSelected ? null : mood),
-                    borderRadius: BorderRadius.circular(NeuroRadius.lg),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeOut,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: isSelected ? NeuroColors.adolescentPrimary : NeuroColors.surface,
-                        borderRadius: BorderRadius.circular(NeuroRadius.lg),
-                        border: Border.all(
-                          color: isSelected ? NeuroColors.adolescentPrimary : NeuroColors.outline,
-                        ),
-                      ),
-                      child: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeOut,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                          color: isSelected ? NeuroColors.adolescentOnPrimary : NeuroColors.onSurface,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(mood.emoji, style: const TextStyle(fontSize: 22)),
-                            const SizedBox(width: 12),
-                            Text(
-                              mood.label,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
+  String _getMoodEmoji(MoodType mood) {
+    switch (mood) {
+      case MoodType.happy: return '😊';
+      case MoodType.calm: return '🍃';
+      case MoodType.hopeful: return '🌈';
+      case MoodType.excited: return '✨';
+      case MoodType.anxious: return '😰';
+      default: return '😐';
+    }
   }
 }
