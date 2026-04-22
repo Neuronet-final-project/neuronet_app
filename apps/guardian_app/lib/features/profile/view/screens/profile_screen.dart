@@ -456,34 +456,15 @@ class _SignOutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GuardianBentoCard(
-      padding: EdgeInsets.zero,
-      gradient: const LinearGradient(
-        colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      child: InkWell(
-        onTap: onSignOut,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.logout_rounded, color: Colors.white, size: 22),
-              const SizedBox(width: 12),
-              const Text(
-                'SIGN OUT',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  letterSpacing: 1.5,
-                ),
-              ),
-            ],
-          ),
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: NeuroButton(
+        onPressed: onSignOut,
+        label: 'SIGN OUT',
+        backgroundColor: const Color(0xFFEF4444),
+        icon: Icons.logout_rounded,
+        borderRadius: 20,
+        padding: const EdgeInsets.symmetric(vertical: 20),
       ),
     );
   }

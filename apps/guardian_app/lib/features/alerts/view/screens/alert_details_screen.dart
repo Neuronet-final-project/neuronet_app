@@ -108,22 +108,10 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                         
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () => _resolveAlert(alert),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 18),
-                                backgroundColor: NeuroColors.guardianPrimary,
-                                foregroundColor: Colors.white,
-                                textStyle: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              ),
-                              child: const Text('Mark as Resolved'),
-                            ),
+                          child: NeuroButton(
+                            onPressed: () => _resolveAlert(alert),
+                            label: 'Mark as Resolved',
+                            borderRadius: 16,
                           ),
                         ),
                       ],

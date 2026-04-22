@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'neuro_button.dart';
 import '../theme/app_theme.dart';
 
 /// A premium error widget used across the NeuroNet ecosystem.
@@ -69,16 +70,12 @@ class NeuroErrorWidget extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 32),
-              SizedBox(
+              NeuroButton(
+                onPressed: onRetry,
+                icon: Icons.refresh_rounded,
+                label: 'Try Again',
                 width: 200,
-                child: ElevatedButton.icon(
-                  onPressed: onRetry,
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Try Again'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
+                height: 48,
               ),
             ],
           ],

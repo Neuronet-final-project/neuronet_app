@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:guardian_app/config/router/app_router.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/auth_provider.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -200,23 +201,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     const SizedBox(height: 32),
 
                     // SignUp Button
-                    ElevatedButton(
-                      onPressed: authState.status == AuthStatus.loading
-                          ? null
-                          : _handleSignUp,
-                      child: authState.status == AuthStatus.loading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text(
-                              'Sign Up',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
+                    NeuroButton(
+                      onPressed: _handleSignUp,
+                      label: 'Sign Up',
+                      isLoading: authState.status == AuthStatus.loading,
                     ),
                     const SizedBox(height: 24),
 

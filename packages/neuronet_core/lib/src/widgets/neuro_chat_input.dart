@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'neuro_shimmer.dart';
 import '../theme/app_theme.dart';
 import '../services/voice_recorder_service.dart';
 
@@ -290,186 +292,253 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
 
     return SafeArea(
       top: false,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        decoration: BoxDecoration(
-          color: NeuroColors.surface,
-          boxShadow: [NeuroShadows.sm],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.0, 0.2),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
+            );
+          },
+          child: _isRecording
+              ? _buildRecordingUI(color)
+              : _isUploading
+                  ? _buildUploadingUI(color)
+                  : _buildNormalUI(color, showVoiceButton, showAttachButton),
         ),
-        child: _isRecording
-            ? _buildRecordingUI(color)
-            : _isUploading
-                ? _buildUploadingUI(color)
-                : _buildNormalUI(color, showVoiceButton, showAttachButton),
       ),
     );
   }
 
   Widget _buildNormalUI(Color color, bool showVoiceButton, bool showAttachButton) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        if (showAttachButton) ...[
-          Container(
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              onPressed: widget.isEnabled ? _showAttachmentOptions : null,
-              icon: const Icon(Icons.attach_file_rounded, size: 20),
-              color: color,
-              padding: const EdgeInsets.all(10),
-              constraints: const BoxConstraints(
-                minWidth: 44,
-                minHeight: 44,
+    return Container(
+      constraints: const BoxConstraints(minHeight: 56),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: Container(
+              key: const ValueKey('chat_input_textfield_container'),
+              decoration: BoxDecoration(
+                color: NeuroColors.background,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.grey.withOpacity(0.15)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (showAttachButton)
+                    IconButton(
+                      onPressed: widget.isEnabled ? _showAttachmentOptions : null,
+                      icon: Icon(Icons.add_circle_outline_rounded, size: 26, color: Colors.grey.shade400),
+                      splashRadius: 20,
+                      padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
+                      constraints: const BoxConstraints(),
+                    ),
+                  Expanded(
+                    child: TextField(
+                      controller: widget.controller,
+                      decoration: InputDecoration(
+                        hintText: widget.hintText,
+                        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 16),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.fromLTRB(
+                          showAttachButton ? 8 : 20,
+                          14,
+                          16,
+                          14,
+                        ),
+                      ),
+                      maxLines: 5,
+                      minLines: 1,
+                      textCapitalization: TextCapitalization.sentences,
+                      enabled: widget.isEnabled,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: widget.controller,
+            builder: (context, value, _) {
+              final hasText = value.text.trim().isNotEmpty;
+              final icon = hasText ? Icons.send_rounded : (showVoiceButton ? Icons.mic_rounded : Icons.send_rounded);
+              
+              Widget sendButton = AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                decoration: BoxDecoration(
+                  color: widget.isEnabled ? color : color.withValues(alpha: 0.4),
+                  shape: BoxShape.circle,
+                  boxShadow: widget.isEnabled && hasText ? [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ] : null,
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: widget.isEnabled
+                        ? (hasText ? widget.onSend : (showVoiceButton ? _toggleRecording : null))
+                        : null,
+                    child: Center(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        transitionBuilder: (child, animation) => ScaleTransition(
+                          scale: animation,
+                          child: FadeTransition(opacity: animation, child: child),
+                        ),
+                        child: Icon(
+                          icon,
+                          key: ValueKey<IconData>(icon),
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+
+              if (widget.isEnabled && hasText) {
+                sendButton = NeuroShimmer.glint(
+                  opacity: 0.25,
+                  child: sendButton,
+                );
+              }
+
+              return SizedBox(
+                width: 48,
+                height: 48,
+                child: sendButton,
+              );
+            },
+          ),
         ],
-        if (showVoiceButton) ...[
-          Container(
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              onPressed: widget.isEnabled ? _toggleRecording : null,
-              icon: const Icon(Icons.mic, size: 20),
-              color: color,
-              padding: const EdgeInsets.all(10),
-              constraints: const BoxConstraints(
-                minWidth: 44,
-                minHeight: 44,
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-        ],
-        Expanded(
-          child: TextField(
-            controller: widget.controller,
-            decoration: InputDecoration(
-              hintText: widget.hintText,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(NeuroRadius.xl),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: NeuroColors.background,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
-              ),
-            ),
-            maxLines: null,
-            textCapitalization: TextCapitalization.sentences,
-            enabled: widget.isEnabled,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: widget.isEnabled ? color : color.withValues(alpha: 0.4),
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            onPressed: widget.isEnabled ? widget.onSend : null,
-            icon: const Icon(Icons.send, size: 20),
-            color: Colors.white,
-            padding: const EdgeInsets.all(10),
-            constraints: const BoxConstraints(
-              minWidth: 48,
-              minHeight: 48,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildUploadingUI(Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.5,
-            color: color,
+    return Container(
+      constraints: const BoxConstraints(minHeight: 56),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+      decoration: BoxDecoration(
+        color: NeuroColors.background,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.withOpacity(0.15)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: color,
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          'Uploading media...',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: color,
-            fontWeight: FontWeight.w500,
+          const SizedBox(width: 16),
+          Text(
+            'Preparing media...',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildRecordingUI(Color color) {
-    return Row(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.red.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            onPressed: _cancelRecording,
-            icon: const Icon(Icons.delete, size: 20),
-            color: Colors.red,
-            padding: const EdgeInsets.all(10),
-            constraints: const BoxConstraints(
-              minWidth: 48,
-              minHeight: 48,
+    return Container(
+      constraints: const BoxConstraints(minHeight: 56),
+      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
             ),
-            tooltip: 'Cancel recording',
+            child: IconButton(
+              onPressed: _cancelRecording,
+              icon: const Icon(Icons.close_rounded, size: 22),
+              color: const Color(0xFFE11D48),
+              padding: const EdgeInsets.all(10),
+              constraints: const BoxConstraints(),
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Container(
-          width: 12,
-          height: 12,
-          decoration: const BoxDecoration(
-            color: Colors.red,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            VoiceRecorderService.formatDuration(_recordingDuration),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.bold,
+          const SizedBox(width: 16),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 1000),
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: (sin(value * 2 * pi)).abs(),
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE11D48),
+                    shape: BoxShape.circle,
+                  ),
                 ),
+              );
+            },
+            onEnd: () {
+              if (mounted) setState(() {}); // Loop pulse
+            },
           ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            onPressed: _toggleRecording,
-            icon: const Icon(Icons.send, size: 20),
-            color: Colors.white,
-            padding: const EdgeInsets.all(10),
-            constraints: const BoxConstraints(
-              minWidth: 48,
-              minHeight: 48,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              VoiceRecorderService.formatDuration(_recordingDuration),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
             ),
-            tooltip: 'Send voice message',
           ),
-        ),
-      ],
+          IconButton(
+            onPressed: _toggleRecording,
+            icon: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.send_rounded, size: 22, color: Colors.white),
+            ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ],
+      ),
     );
   }
 }

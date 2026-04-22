@@ -109,25 +109,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : _handleUpdate,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: NeuroColors.guardianPrimary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      elevation: 0,
-                    ),
-                    child: isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : const Text(
-                            'Update Profile',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                          ),
+                  child: NeuroButton(
+                    onPressed: _handleUpdate,
+                    label: 'Update Profile',
+                    isLoading: isLoading,
                   ),
                 ),
                 const SizedBox(height: 48),

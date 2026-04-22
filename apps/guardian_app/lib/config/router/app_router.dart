@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 
 // Feature screens
@@ -277,28 +278,23 @@ class GuardianShell extends StatelessWidget {
         },
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
+            icon: FaIcon(FontAwesomeIcons.gaugeHigh, size: 20),
             label: 'Dashboard',
           ),
           NavigationDestination(
-            icon: Icon(Icons.notifications_outlined),
-            selectedIcon: Icon(Icons.notifications),
+            icon: FaIcon(FontAwesomeIcons.bell, size: 20),
             label: 'Alerts',
           ),
           NavigationDestination(
-            icon: Icon(Icons.chat_bubble_outline),
-            selectedIcon: Icon(Icons.chat_bubble),
+            icon: FaIcon(FontAwesomeIcons.userGroup, size: 20),
             label: 'Adolescents',
           ),
           NavigationDestination(
-            icon: Icon(Icons.security_outlined),
-            selectedIcon: Icon(Icons.security),
+            icon: FaIcon(FontAwesomeIcons.shieldHalved, size: 20),
             label: 'Privacy',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
+            icon: FaIcon(FontAwesomeIcons.solidUser, size: 20),
             label: 'Profile',
           ),
         ],

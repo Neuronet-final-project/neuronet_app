@@ -135,9 +135,9 @@ class NeuroGradients {
     end: Alignment.bottomCenter,
   );
 
-  // Guardian gradient — warm, supportive pink
+  // Guardian gradient — warm, supportive pink (Matches Dashboard Hero)
   static const LinearGradient guardian = LinearGradient(
-    colors: [Color(0xFFAD1457), Color(0xFFE91E63)],
+    colors: [Color(0xFFAD1457), Color(0xFFD81B60)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

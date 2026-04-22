@@ -57,9 +57,10 @@ class AdolescentListScreen extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
+                    NeuroButton(
                       onPressed: () => ref.invalidate(linkedAdolescentsProvider),
-                      child: const Text('Retry'),
+                      label: 'Retry',
+                      width: 120,
                     ),
                   ],
                 ),

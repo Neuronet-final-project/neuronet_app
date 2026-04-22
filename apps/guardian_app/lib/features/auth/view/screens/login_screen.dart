@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:guardian_app/config/router/app_router.dart';
 import 'package:guardian_app/features/auth/providers/auth_provider.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -155,23 +156,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 12),
 
                     // Login Button
-                    ElevatedButton(
-                      onPressed: authState.status == AuthStatus.loading 
-                        ? null 
-                        : _handleLogin,
-                      child: authState.status == AuthStatus.loading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Login',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
+                    NeuroButton(
+                      onPressed: _handleLogin,
+                      label: 'Login',
+                      isLoading: authState.status == AuthStatus.loading,
                     ),
                     const SizedBox(height: 24),
                     

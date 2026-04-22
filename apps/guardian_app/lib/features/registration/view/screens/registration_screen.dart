@@ -91,33 +91,12 @@ class _SubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: state.isLoading ? null : controller.submit,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: NeuroColors.guardianPrimary,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 4,
-        shadowColor: NeuroColors.guardianPrimary.withValues(alpha: 0.3),
-      ),
-      child: state.isLoading
-          ? const SizedBox(
-              height: 24,
-              width: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                color: Colors.white,
-              ),
-            )
-          : const Text(
-              'Complete Registration',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-              ),
-            ),
+    return NeuroButton(
+      onPressed: controller.submit,
+      label: 'Complete Registration',
+      isLoading: state.isLoading,
+      borderRadius: 20,
+      padding: const EdgeInsets.symmetric(vertical: 20),
     );
   }
 }
@@ -583,21 +562,11 @@ class _SuccessView extends StatelessWidget {
               const Spacer(),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: NeuroButton(
                   onPressed: onFinish,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: NeuroColors.guardianPrimaryDark,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Return to Dashboard',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                  ),
+                  label: 'Return to Dashboard',
+                  backgroundColor: NeuroColors.guardianPrimaryDark,
+                  borderRadius: 20,
                 ),
               ),
             ],
