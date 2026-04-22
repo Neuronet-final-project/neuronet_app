@@ -11,6 +11,7 @@ import '../../features/alerts/view/screens/alerts_screen.dart';
 import '../../features/alerts/view/screens/alert_details_screen.dart';
 import '../../features/counselor_msg/view/screens/counselor_msg_screen.dart';
 import '../../features/profile/view/screens/profile_screen.dart';
+import '../../features/profile/view/screens/edit_profile_screen.dart';
 import '../../features/auth/view/screens/login_screen.dart';
 import '../../features/auth/view/screens/sign_up_screen.dart';
 import '../../features/auth/view/screens/activation_screen.dart';
@@ -42,6 +43,7 @@ class GuardianRoutes {
   static const String alerts = '/alerts';
   static const String counselorMsg = '/counselor-messages';
   static const String profile = '/profile';
+  static const String editProfile = '/profile/edit';
   static const String alertDetails = '/alert-details/:alertId';
   static const String adolescentDetails = '/adolescent/:adolescentId';
   static const String adolescentChat = '/adolescent/:adolescentId/chat';
@@ -203,6 +205,10 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: GuardianRoutes.pendingAdolescents,
         builder: (context, state) => const PendingAdolescentsScreen(),
+      ),
+      GoRoute(
+        path: GuardianRoutes.editProfile,
+        builder: (context, state) => const EditProfileScreen(),
       ),
     GoRoute(
         path: GuardianRoutes.alertDetails,

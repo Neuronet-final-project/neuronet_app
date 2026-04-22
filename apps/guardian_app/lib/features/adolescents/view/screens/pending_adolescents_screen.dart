@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:guardian_app/features/ui/bento_card.dart';
+import 'package:guardian_app/config/theme/guardian_theme.dart';
 import '../../providers/adolescent_provider.dart';
 
 class PendingAdolescentsScreen extends ConsumerWidget {
@@ -11,134 +13,238 @@ class PendingAdolescentsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pendingAsync = ref.watch(pendingAdolescentsProvider);
-    final theme = Theme.of(context);
-
-    // Log state changes
-    ref.listen(pendingAdolescentsProvider, (previous, next) {
-      next.when(
-        data: (pending) {
-          debugPrint('[PendingScreen] UI received ${pending.length} pending adolescent(s)');
-        },
-        loading: () {
-          debugPrint('[PendingScreen] UI loading state');
-        },
-        error: (err, st) {
-          debugPrint('[PendingScreen] UI error: $err');
-        },
-      );
-    });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pending Activations'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              debugPrint('[PendingScreen] Manual refresh triggered');
-              ref.invalidate(pendingAdolescentsProvider);
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            backgroundColor: const Color(0xFFF9FAFB),
+            surfaceTintColor: const Color(0xFFF9FAFB),
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+              onPressed: () => Navigator.of(context).pop(),
+              color: NeuroColors.guardianPrimaryDark,
+            ),
+            title: const Text(
+              'Pending Activations',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: NeuroColors.guardianPrimaryDark,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, size: 20),
+                onPressed: () => ref.invalidate(pendingAdolescentsProvider),
+                color: NeuroColors.guardianPrimaryDark,
+              ),
+            ],
+          ),
+          pendingAsync.when(
+            data: (pending) {
+              if (pending.isEmpty) {
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _buildEmptyState(context),
+                );
+              }
+
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      if (index == 0) {
+                        return const Column(
+                          children: [
+                            _HeaderSection(),
+                            SizedBox(height: 16),
+                          ],
+                        );
+                      }
+                      final adolescent = pending[index - 1];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _PendingAdolescentCard(adolescent: adolescent),
+                      );
+                    },
+                    childCount: pending.length + 1,
+                  ),
+                ),
+              );
             },
-            tooltip: 'Refresh pending',
+            loading: () => const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (err, stack) => SliverFillRemaining(
+              child: _buildErrorState(context, ref, err),
+            ),
           ),
         ],
       ),
-      body: pendingAsync.when(
-        data: (pending) {
-          if (pending.isEmpty) {
-            return _buildEmptyState(context, theme);
-          }
+    );
+  }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              ref.invalidate(pendingAdolescentsProvider);
-            },
-            child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: pending.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final adolescent = pending[index];
-                return _PendingAdolescentCard(adolescent: adolescent);
-              },
+  Widget _buildHeader(BuildContext context) {
+    return const _HeaderSection();
+  }
+
+  Widget _buildErrorState(BuildContext context, WidgetRef ref, Object err) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline_rounded, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            const Text(
+              'Unable to Load Pending Activations',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: NeuroColors.guardianPrimaryDark,
+              ),
+              textAlign: TextAlign.center,
             ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
-                const SizedBox(height: 16),
-                Text(
-                  'Unable to Load Pending Adolescents',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$err',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    ref.invalidate(pendingAdolescentsProvider);
-                  },
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
-                ),
-              ],
+            const SizedBox(height: 8),
+            Text(
+              '$err',
+              style: const TextStyle(color: NeuroColors.onSurfaceVariant),
+              textAlign: TextAlign.center,
             ),
-          ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => ref.invalidate(pendingAdolescentsProvider),
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Retry'),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, ThemeData theme) {
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.person_add_outlined,
-              size: 80,
-              color: theme.colorScheme.primary.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No Pending Activations',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface,
+            GuardianBentoCard(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.person_add_outlined,
+                      size: 64,
+                      color: NeuroColors.guardianPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'No Pending Activations',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: NeuroColors.guardianPrimaryDark,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'All adolescents you\'ve added have been activated or there are no pending activations currently.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: NeuroColors.onSurfaceVariant,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => context.push('/register-adolescent'),
+                      icon: const Icon(Icons.person_add_rounded),
+                      label: const Text('Register New Adolescent'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: NeuroColors.guardianPrimary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'All adolescents you\'ve added have been activated or there are no pending activations.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () => context.push('/register-adolescent'),
-              icon: const Icon(Icons.person_add),
-              label: const Text('Add New Adolescent'),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _HeaderSection extends StatelessWidget {
+  const _HeaderSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return GuardianBentoCard(
+      padding: const EdgeInsets.all(20),
+      gradient: GuardianStyles.primaryGradient,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.pending_actions_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Waiting for Connection',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Ensure your adolescent enters the activation code on their device to establish the encrypted emotional health monitoring link.',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.9),
+              fontSize: 13,
+              height: 1.5,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -151,149 +257,176 @@ class _PendingAdolescentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final createdDate = adolescent.createdAt != null
-        ? DateFormat('MMM d, yyyy • h:mm a').format(adolescent.createdAt!)
+        ? DateFormat('MMM d, yyyy').format(adolescent.createdAt!)
         : 'Unknown date';
     
-    // Determine status badge text and color based on account status
     final status = adolescent.accountStatus;
-    String badgeText;
-    Color badgeColor;
-    Color badgeTextColor;
-    
+    final isPending = status == AccountStatus.pendingActivation;
+
+    return GuardianBentoCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.person_outline_rounded,
+                  color: NeuroColors.guardianPrimary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      adolescent.fullName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: NeuroColors.guardianPrimaryDark,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      adolescent.email,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: NeuroColors.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              _buildStatusBadge(status),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              _buildInfoTag(
+                icon: Icons.calendar_today_rounded,
+                label: 'Added $createdDate',
+              ),
+              const SizedBox(width: 12),
+              if (adolescent.relationship != null)
+                _buildInfoTag(
+                  icon: Icons.family_restroom_rounded,
+                  label: adolescent.relationship!.name.toUpperCase(),
+                ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _showActivationInfo(context, status),
+              icon: Icon(
+                isPending ? Icons.qr_code_scanner_rounded : Icons.info_outline_rounded,
+                size: 18,
+              ),
+              label: Text(
+                isPending ? 'View Activation Info' : 'Account Details',
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: NeuroColors.guardianPrimary,
+                side: BorderSide(
+                  color: NeuroColors.guardianPrimary.withValues(alpha: 0.3),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(AccountStatus? status) {
+    final isPending = status == AccountStatus.pendingActivation;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: isPending
+            ? const Color(0xFFFFF7ED)
+            : const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isPending
+              ? const Color(0xFFFFEDD5)
+              : const Color(0xFFE5E7EB),
+        ),
+      ),
+      child: Text(
+        isPending ? 'PENDING' : status?.name.toUpperCase() ?? 'UNKNOWN',
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.5,
+          color: isPending
+              ? const Color(0xFF9A3412)
+              : NeuroColors.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoTag({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: NeuroColors.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: NeuroColors.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showActivationInfo(BuildContext context, AccountStatus? status) {
+    String message = 'This account is active.';
     if (status == AccountStatus.pendingActivation) {
-      badgeText = 'Pending';
-      badgeColor = theme.colorScheme.tertiaryContainer;
-      badgeTextColor = theme.colorScheme.onTertiaryContainer;
+      message = 'Activation code was shared during registration. Ensure the adolescent enters it on their device.';
     } else if (status == AccountStatus.inactive) {
-      badgeText = 'Inactive';
-      badgeColor = theme.colorScheme.errorContainer;
-      badgeTextColor = theme.colorScheme.onErrorContainer;
-    } else {
-      badgeText = status?.name.toUpperCase() ?? 'Unknown';
-      badgeColor = theme.colorScheme.surfaceContainerHighest;
-      badgeTextColor = theme.colorScheme.onSurfaceVariant;
+      message = 'This account is inactive. Profile editing is disabled.';
     }
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: theme.colorScheme.secondaryContainer,
-                  child: Icon(Icons.person_outline, color: theme.colorScheme.onSecondaryContainer),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        adolescent.fullName,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        adolescent.email,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: badgeColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    badgeText,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: badgeTextColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Icon(Icons.calendar_today, size: 14, color: theme.colorScheme.onSurfaceVariant),
-                const SizedBox(width: 6),
-                Text(
-                  'Added: $createdDate',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const Spacer(),
-                if (adolescent.relationship != null) ...[
-                  Icon(Icons.family_restroom, size: 14, color: theme.colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 6),
-                  Text(
-                    adolescent.relationship!.name.toUpperCase(),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      if (status == AccountStatus.pendingActivation) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Activation code was shared during registration.'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      } else if (status == AccountStatus.inactive) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('This account is inactive. Contact support to reactivate.'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.help_outline, size: 18),
-                    label: Text(
-                      status == AccountStatus.inactive ? 'Reactivation Info' : 'Activation Info',
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: NeuroColors.guardianPrimaryDark,
       ),
     );
   }
