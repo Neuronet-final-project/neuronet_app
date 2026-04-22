@@ -349,57 +349,144 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildMoodCard(BuildContext context, GuardianDashboardData data) {
+    final moodEntries = data.moodDistribution.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    
+    final totalEntries = moodEntries.fold<int>(0, (sum, e) => sum + e.value);
+
     return GuardianBentoCard(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Mood Overview',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: NeuroColors.guardianPrimaryDark,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Mood Overview',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      color: NeuroColors.guardianPrimaryDark,
+                      letterSpacing: -0.5,
+                    ),
+              ),
+              if (moodEntries.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _getMoodColor(moodEntries.first.key).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Dominant: ${moodEntries.first.key}',
+                    style: TextStyle(
+                      color: _getMoodColor(moodEntries.first.key),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
+            ],
           ),
-          const SizedBox(height: 16),
-          if (data.moodDistribution.isEmpty)
+          const SizedBox(height: 24),
+          if (moodEntries.isEmpty)
             const NeuroEmptyState(
               isMini: true,
-              title: 'No Mood Data',
-              message: 'No recorded entries yet.',
-              icon: Icons.analytics_outlined,
+              title: 'Awaiting Records',
+              message: 'Mood distribution will appear once entries are logged.',
+              icon: Icons.bubble_chart_outlined,
             )
           else
-            ...data.moodDistribution.entries.map((entry) {
-              final mood = entry.key;
-              final count = entry.value;
+            ...moodEntries.asMap().entries.map((entry) {
+              final index = entry.key;
+              final mood = entry.value.key;
+              final count = entry.value.value;
+              final percentage = totalEntries > 0 ? count / totalEntries : 0.0;
+              final color = _getMoodColor(mood);
+
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
+                padding: const EdgeInsets.only(bottom: 18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: NeuroColors.guardianPrimary,
-                        shape: BoxShape.circle,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          _getMoodEmoji(mood),
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          mood,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: NeuroColors.onSurface,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '$count',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            color: color,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          ' entries',
+                          style: TextStyle(
+                            color: NeuroColors.onSurfaceVariant.withValues(alpha: 0.6),
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      mood,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: NeuroColors.onSurface,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '$count entries',
-                      style: const TextStyle(
-                        color: NeuroColors.onSurfaceVariant,
-                        fontSize: 12,
-                      ),
+                    const SizedBox(height: 8),
+                    Stack(
+                      children: [
+                        Container(
+                          height: 8,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: NeuroColors.onSurfaceVariant.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        RepaintBoundary(
+                          child: FractionallySizedBox(
+                            widthFactor: percentage,
+                            child: Container(
+                              height: 8,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    color,
+                                    color.withValues(alpha: 0.7),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(4),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: color.withValues(alpha: 0.2),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                            ).animate().shimmer(
+                                  delay: (index * 150).ms + 800.ms,
+                                  duration: 1200.ms,
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                ),
+                          ).animate().scaleX(
+                                duration: 800.ms,
+                                delay: (index * 150).ms + 400.ms,
+                                curve: Curves.easeOutExpo,
+                                alignment: Alignment.centerLeft,
+                              ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -408,6 +495,34 @@ class DashboardScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Color _getMoodColor(String mood) {
+    final m = mood.toLowerCase();
+    if (m.contains('happ')) return NeuroColors.moodHappy;
+    if (m.contains('sad')) return NeuroColors.moodSad;
+    if (m.contains('anxious') || m.contains('worried')) return NeuroColors.moodAnxious;
+    if (m.contains('calm') || m.contains('peace')) return NeuroColors.moodCalm;
+    if (m.contains('stress')) return NeuroColors.moodStressed;
+    if (m.contains('excit')) return NeuroColors.moodExcited;
+    if (m.contains('tire') || m.contains('exhaust')) return NeuroColors.moodTired;
+    if (m.contains('angr') || m.contains('annoy')) return NeuroColors.moodAngry;
+    if (m.contains('hope')) return NeuroColors.moodHopeful;
+    return NeuroColors.moodNeutral;
+  }
+
+  String _getMoodEmoji(String mood) {
+    final m = mood.toLowerCase();
+    if (m.contains('happ')) return '😊';
+    if (m.contains('sad')) return '😢';
+    if (m.contains('anxious') || m.contains('worried')) return '😟';
+    if (m.contains('calm') || m.contains('peace')) return '😌';
+    if (m.contains('stress')) return '😫';
+    if (m.contains('excit')) return '🤩';
+    if (m.contains('tire') || m.contains('exhaust')) return '🥱';
+    if (m.contains('angr') || m.contains('annoy')) return '😠';
+    if (m.contains('hope')) return '✨';
+    return '😐';
   }
 
   Widget _buildQuickStat({

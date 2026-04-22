@@ -49,7 +49,8 @@ class GuardianRoutes {
   static const String alertDetails = '/alert-details/:alertId';
   static const String adolescentDetails = '/adolescent/:adolescentId';
   static const String adolescentChat = '/adolescent/:adolescentId/chat';
-  static const String adolescentRecommendations = '/adolescent/:adolescentId/recommendations';
+  static const String adolescentRecommendations =
+      '/adolescent/:adolescentId/recommendations';
   static const String educationalPage = '/learn/:slug';
 }
 
@@ -77,7 +78,8 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
 
   // Listen to onboarding status changes.
   ref.listen(onboardingStatusProvider, (_, __) {
-    _authChangeNotifier.notify(); // Force router to re-evaluate when status is loaded
+    _authChangeNotifier
+        .notify(); // Force router to re-evaluate when status is loaded
   });
 
   return GoRouter(
@@ -100,18 +102,24 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       final onboardingAsync = ref.read(onboardingStatusProvider);
       final onboardingComplete = onboardingAsync.value ?? false;
 
-      debugPrint('[Router] redirect(current: $currentLocation, auth: ${currentAuth.status}, onboarding: $onboardingComplete)');
+      debugPrint(
+        '[Router] redirect(current: $currentLocation, auth: ${currentAuth.status}, onboarding: $onboardingComplete)',
+      );
 
       // 1. True initial state (app just launched) or onboarding/auth still loading
       if (isInitial || onboardingAsync.isLoading) {
-        debugPrint('[Router] Waiting for init (isInitial: $isInitial, onboardingLoading: ${onboardingAsync.isLoading})');
+        debugPrint(
+          '[Router] Waiting for init (isInitial: $isInitial, onboardingLoading: ${onboardingAsync.isLoading})',
+        );
         return isSplash ? null : GuardianRoutes.splash;
       }
 
       // 2. Check for Onboarding (only for unauthenticated users)
       if (!isAuthenticated && !isLoading) {
         if (!onboardingComplete && !isOnboarding) {
-          debugPrint('[Router] Onboarding not complete, redirecting to /onboarding');
+          debugPrint(
+            '[Router] Onboarding not complete, redirecting to /onboarding',
+          );
           return GuardianRoutes.onboarding;
         }
       }
@@ -123,12 +131,18 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
 
       // 4. Authenticated — redirect away from auth/splash/onboarding pages
       if (isAuthenticated) {
-        if (isLoggingIn || isActivating || isSigningUp || isSplash || isOnboarding) return GuardianRoutes.home;
+        if (isLoggingIn ||
+            isActivating ||
+            isSigningUp ||
+            isSplash ||
+            isOnboarding)
+          return GuardianRoutes.home;
         return null;
       }
 
       // 5. Unauthenticated — send to login (even on error so user can retry)
-      if (isLoggingIn || isActivating || isSigningUp || isOnboarding) return null;
+      if (isLoggingIn || isActivating || isSigningUp || isOnboarding)
+        return null;
       return GuardianRoutes.login;
     },
     routes: [
@@ -202,7 +216,7 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      
+
       // Full-screen routes
       GoRoute(
         path: GuardianRoutes.registerAdolescent,
@@ -216,7 +230,7 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
         path: GuardianRoutes.editProfile,
         builder: (context, state) => const EditProfileScreen(),
       ),
-    GoRoute(
+      GoRoute(
         path: GuardianRoutes.alertDetails,
         builder: (context, state) {
           final alertId = state.pathParameters['alertId']!;
@@ -234,7 +248,8 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
         path: GuardianRoutes.adolescentChat,
         builder: (context, state) {
           final adolescentId = state.pathParameters['adolescentId']!;
-          final adolescentName = state.uri.queryParameters['name'] ?? 'Adolescent';
+          final adolescentName =
+              state.uri.queryParameters['name'] ?? 'Adolescent';
           return CounselorMsgScreen(
             adolescentId: adolescentId,
             adolescentName: adolescentName,
@@ -245,7 +260,8 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
         path: GuardianRoutes.adolescentRecommendations,
         builder: (context, state) {
           final adolescentId = state.pathParameters['adolescentId']!;
-          final adolescentName = state.uri.queryParameters['name'] ?? 'Adolescent';
+          final adolescentName =
+              state.uri.queryParameters['name'] ?? 'Adolescent';
           return GuardianRecommendationsScreen(
             adolescentId: adolescentId,
             adolescentName: adolescentName,
@@ -284,7 +300,7 @@ class GuardianShell extends StatelessWidget {
               blurRadius: 20,
               color: Colors.black.withValues(alpha: 0.05),
               offset: const Offset(0, -5),
-            )
+            ),
           ],
         ),
         child: SafeArea(
@@ -308,26 +324,14 @@ class GuardianShell extends StatelessWidget {
                 );
               },
               tabs: const [
-                GButton(
-                  icon: Icons.dashboard_rounded,
-                  text: 'Dashboard',
-                ),
+                GButton(icon: Icons.dashboard_rounded, text: 'Dashboard'),
                 GButton(
                   icon: Icons.notifications_active_rounded,
                   text: 'Alerts',
                 ),
-                GButton(
-                  icon: Icons.people_alt_rounded,
-                  text: 'Teens',
-                ),
-                GButton(
-                  icon: Icons.shield_rounded,
-                  text: 'Privacy',
-                ),
-                GButton(
-                  icon: Icons.person_rounded,
-                  text: 'Profile',
-                ),
+                GButton(icon: Icons.forum_rounded, text: 'Message'),
+                GButton(icon: Icons.shield_rounded, text: 'Privacy'),
+                GButton(icon: Icons.person_rounded, text: 'Profile'),
               ],
             ),
           ),
