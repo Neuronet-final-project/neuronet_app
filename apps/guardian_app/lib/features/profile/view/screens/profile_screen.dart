@@ -164,49 +164,63 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ).animate().fadeIn(delay: 300.ms, duration: 400.ms).slideY(begin: 0.05),
         
-        const SizedBox(height: 16),
-        
-        _SignOutCard(onSignOut: () {
-          showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text(
-                'Sign Out',
-                style: TextStyle(fontWeight: FontWeight.w900),
-              ),
-              content: const Text(
-                'Are you sure you want to sign out? You will need to log back in to monitor your adolescents\' emotional health.',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w700)),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    ref.read(authControllerProvider.notifier).logout();
-                  },
-                  child: const Text('Sign Out', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w900)),
-                ),
-              ],
-            ),
-          );
-        }),
-        
         const SizedBox(height: 32),
-        Text(
-          'NeuroNet Guardian v${AppConstants.appVersion}',
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF9CA3AF),
-            letterSpacing: 1.5,
+        
+        _SettingSection(
+          title: 'Account Actions',
+          children: [
+            _SettingTile(
+              label: 'Sign Out',
+              value: 'Exit your current session safely',
+              icon: Icons.logout_rounded,
+              showDivider: false,
+              isDestructive: true,
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text(
+                      'Sign Out',
+                      style: TextStyle(fontWeight: FontWeight.w900),
+                    ),
+                    content: const Text(
+                      'Are you sure you want to sign out? You will need to log back in to monitor your adolescents\' emotional health.',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Cancel', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w700)),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          ref.read(authControllerProvider.notifier).logout();
+                        },
+                        child: const Text('Sign Out', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w900)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ).animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.05),
+        
+        const SizedBox(height: 48),
+        Center(
+          child: Text(
+            'NeuroNet Guardian v${AppConstants.appVersion}',
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF9CA3AF),
+              letterSpacing: 1.5,
+            ),
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 48),
       ],
     );
   }
@@ -320,6 +334,7 @@ class _SettingTile extends StatefulWidget {
     required this.icon,
     required this.showDivider,
     this.onTap,
+    this.isDestructive = false,
   });
 
   final String label;
@@ -327,6 +342,7 @@ class _SettingTile extends StatefulWidget {
   final IconData icon;
   final bool showDivider;
   final VoidCallback? onTap;
+  final bool isDestructive;
 
   @override
   State<_SettingTile> createState() => _SettingTileState();
@@ -337,6 +353,14 @@ class _SettingTileState extends State<_SettingTile> {
 
   @override
   Widget build(BuildContext context) {
+    final destructiveColor = const Color(0xFFEF4444);
+    final iconBgColor = widget.isDestructive 
+        ? destructiveColor.withValues(alpha: 0.1) 
+        : NeuroColors.guardianPrimary.withValues(alpha: 0.05);
+    final iconColor = widget.isDestructive 
+        ? destructiveColor 
+        : NeuroColors.guardianPrimary;
+
     return Column(
       children: [
         GestureDetector(
@@ -354,10 +378,10 @@ class _SettingTileState extends State<_SettingTile> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: NeuroColors.guardianPrimary.withValues(alpha: 0.05),
+                      color: iconBgColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(widget.icon, color: NeuroColors.guardianPrimary, size: 20),
+                    child: Icon(widget.icon, color: iconColor, size: 20),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -366,25 +390,25 @@ class _SettingTileState extends State<_SettingTile> {
                       children: [
                         Text(
                           widget.label,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: NeuroColors.onSurfaceVariant,
+                            color: widget.isDestructive ? destructiveColor : NeuroColors.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           widget.value,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: NeuroColors.onSurface,
+                            color: widget.isDestructive ? destructiveColor.withValues(alpha: 0.8) : NeuroColors.onSurface,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  if (widget.onTap != null)
+                  if (widget.onTap != null && !widget.isDestructive)
                     const Icon(Icons.chevron_right_rounded, color: NeuroColors.onSurfaceVariant, size: 20),
                 ],
               ),
@@ -466,22 +490,3 @@ class _CustomSwitchTile extends StatelessWidget {
   }
 }
 
-class _SignOutCard extends StatelessWidget {
-  final VoidCallback onSignOut;
-  const _SignOutCard({required this.onSignOut});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: NeuroButton(
-        onPressed: onSignOut,
-        label: 'SIGN OUT',
-        backgroundColor: const Color(0xFFEF4444),
-        icon: Icons.logout_rounded,
-        borderRadius: 20,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-      ),
-    );
-  }
-}
