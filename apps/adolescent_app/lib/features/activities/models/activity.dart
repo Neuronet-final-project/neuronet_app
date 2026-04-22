@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 enum ActivityType {
   breathing,
   focus,
-  gratitude;
+  gratitude,
+  moodMatch;
 
   factory ActivityType.fromString(String value) {
+    if (value == 'mood_match') return ActivityType.moodMatch;
     return ActivityType.values.firstWhere(
       (e) => e.name == value,
       orElse: () => ActivityType.breathing,
@@ -52,6 +54,8 @@ class Activity {
         return Icons.center_focus_strong_rounded;
       case 'favorite_rounded':
         return Icons.favorite_rounded;
+      case 'games_rounded':
+        return Icons.games_rounded;
       default:
         return Icons.extension_rounded;
     }

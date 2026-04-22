@@ -25,12 +25,12 @@ final activitiesProvider = Provider<List<Activity>>((ref) {
     ),
     Activity(
       id: '3',
-      title: 'Daily Gratitude',
-      description: 'Reflect on three small wins and things you are thankful for today.',
-      type: ActivityType.gratitude,
-      durationMinutes: 2,
-      color: const Color(0xFF66BB6A),
-      icon: Icons.favorite_rounded,
+      title: 'Mood Matcher',
+      description: 'A fun pattern-matching game to sharpen your focus.',
+      type: ActivityType.moodMatch,
+      durationMinutes: 3,
+      color: const Color(0xFFFF7043),
+      icon: Icons.games_rounded,
     ),
   ];
 });

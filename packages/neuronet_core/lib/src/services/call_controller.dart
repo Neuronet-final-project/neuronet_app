@@ -495,17 +495,17 @@ class CallController extends _$CallController {
       // Only log meaningful state transitions: connected/disconnected/failed
       _peerConnection!.onConnectionState = (RTCPeerConnectionState peerState) {
         if (!ref.mounted) return;
-        final current = this.state.value;
+        final current = state.value;
         if (current == null) return;
 
-        this.state = AsyncData(current.copyWith(connectionState: peerState));
+        state = AsyncData(current.copyWith(connectionState: peerState));
 
         if (peerState == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
           debugPrint('[CallController] ✅ Peer connected');
           _startDurationTimer();
 
           // Transition to active state now that connection is established
-          this.state = AsyncData(current.copyWith(status: CallStatus.active));
+          state = AsyncData(current.copyWith(status: CallStatus.active));
 
           // Notify backend the call is fully connected.
           // This may fail with 400 if the status was already set to "active"
@@ -525,7 +525,7 @@ class CallController extends _$CallController {
           _cleanupWebRTC();
           _durationTimer?.cancel();
           if (ref.mounted) {
-            this.state = AsyncData(
+            state = AsyncData(
               CallState(
                 status: CallStatus.ended,
                 duration: current.duration,
@@ -630,17 +630,17 @@ class CallController extends _$CallController {
       // Connection state change listener
       _peerConnection!.onConnectionState = (RTCPeerConnectionState peerState) {
         if (!ref.mounted) return;
-        final current = this.state.value;
+        final current = state.value;
         if (current == null) return;
 
-        this.state = AsyncData(current.copyWith(connectionState: peerState));
+        state = AsyncData(current.copyWith(connectionState: peerState));
 
         if (peerState == RTCPeerConnectionState.RTCPeerConnectionStateConnected) {
           debugPrint('[CallController] ✅ Peer connected');
           _startDurationTimer();
 
           // Transition to active state now that connection is established
-          this.state = AsyncData(current.copyWith(status: CallStatus.active));
+          state = AsyncData(current.copyWith(status: CallStatus.active));
 
           // Notify backend the call is fully connected.
           // This may fail with 400 if the status was already set to "active"
@@ -660,7 +660,7 @@ class CallController extends _$CallController {
           _cleanupWebRTC();
           _durationTimer?.cancel();
           if (ref.mounted) {
-            this.state = AsyncData(
+            state = AsyncData(
               CallState(
                 status: CallStatus.ended,
                 duration: current.duration,

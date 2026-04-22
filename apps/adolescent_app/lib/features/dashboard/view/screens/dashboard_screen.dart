@@ -51,7 +51,7 @@ class DashboardScreen extends ConsumerWidget {
             SliverToBoxAdapter(child: _InsightsBanner(ref: ref)),
             SliverToBoxAdapter(child: _LearningCard(ref: ref)),
             const SliverToBoxAdapter(child: _PlayRelaxSection()),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            const SliverToBoxAdapter(child: SizedBox(height: 30)),
           ],
         ),
       ),
@@ -144,45 +144,7 @@ class _HeroAppBar extends ConsumerWidget {
                               ],
                             ),
                           ),
-                          // Insights button
-                          GestureDetector(
-                            onTap: () => context.push(AdolescentRoutes.alerts),
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                Container(
-                                  width: 40, height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.15),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.white.withValues(alpha: 0.3)),
-                                  ),
-                                  child: const Icon(Icons.auto_awesome_rounded,
-                                      color: Colors.white, size: 22),
-                                ),
-                                if (unread > 0)
-                                  Positioned(
-                                    right: -2, top: -2,
-                                    child: Container(
-                                      width: 18, height: 18,
-                                      decoration: BoxDecoration(
-                                          color: const Color(0xFFFF6B6B),
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: _kPurple, width: 1.5)),
-                                      child: Center(
-                                        child: Text(
-                                          unread > 9 ? '9+' : '$unread',
-                                          style: const TextStyle(
-                                              fontSize: 9, color: Colors.white,
-                                              fontWeight: FontWeight.w900),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
+                          // Removed redundant insight button from here to consolidate in actions
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -234,7 +196,7 @@ class _HeroAppBar extends ConsumerWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  const Icon(Icons.notifications_outlined,
+                  const Icon(Icons.auto_awesome_rounded,
                       color: Colors.white, size: 26),
                   if (unread > 0)
                     Positioned(

@@ -119,6 +119,10 @@ class _ActivityCardState extends State<_ActivityCard>
           onTap: () {
             if (widget.activity.type == ActivityType.breathing) {
               context.push(AdolescentRoutes.breathingExercise);
+            } else if (widget.activity.type == ActivityType.focus) {
+              context.push(AdolescentRoutes.focusGame);
+            } else if (widget.activity.type == ActivityType.moodMatch) {
+              context.push(AdolescentRoutes.moodMatcher);
             }
           },
           child: Container(
