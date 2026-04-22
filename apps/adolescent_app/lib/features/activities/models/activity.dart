@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 enum ActivityType {
   breathing,
   focus,
-  gratitude,
+  aiQuest,
   moodMatch;
 
   factory ActivityType.fromString(String value) {
     if (value == 'mood_match') return ActivityType.moodMatch;
+    if (value == 'gratitude') return ActivityType.aiQuest;
     return ActivityType.values.firstWhere(
       (e) => e.name == value,
       orElse: () => ActivityType.breathing,

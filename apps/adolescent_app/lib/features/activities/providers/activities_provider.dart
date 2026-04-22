@@ -32,5 +32,14 @@ final activitiesProvider = Provider<List<Activity>>((ref) {
       color: const Color(0xFFFF7043),
       icon: Icons.games_rounded,
     ),
+    Activity(
+      id: '4',
+      title: 'AI Reflective Quest',
+      description: 'Embark on a personal journey of self-discovery powered by AI.',
+      type: ActivityType.aiQuest, 
+      durationMinutes: 4,
+      color: const Color(0xFF6A1FDB),
+      icon: Icons.auto_awesome_rounded,
+    ),
   ];
 });

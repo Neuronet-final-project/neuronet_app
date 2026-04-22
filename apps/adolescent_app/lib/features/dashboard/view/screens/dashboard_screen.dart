@@ -51,7 +51,6 @@ class DashboardScreen extends ConsumerWidget {
             SliverToBoxAdapter(child: _InsightsBanner(ref: ref)),
             SliverToBoxAdapter(child: _LearningCard(ref: ref)),
             const SliverToBoxAdapter(child: _PlayRelaxSection()),
-            const SliverToBoxAdapter(child: SizedBox(height: 30)),
           ],
         ),
       ),

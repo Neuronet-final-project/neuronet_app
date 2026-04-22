@@ -29,6 +29,7 @@ import 'package:adolescent_app/features/activities/view/screens/activities_scree
 import 'package:adolescent_app/features/activities/view/screens/breathing_exercise_screen.dart';
 import 'package:adolescent_app/features/activities/view/screens/focus_game_screen.dart';
 import 'package:adolescent_app/features/activities/view/screens/mood_matcher_screen.dart';
+import 'package:adolescent_app/features/activities/view/screens/ai_quest_screen.dart';
 import 'package:neuronet_core/neuronet_core.dart'; // For Alert and EducationalPage types in routing extra
 
 /// Route names for the Adolescent app.
@@ -56,6 +57,7 @@ class AdolescentRoutes {
   static const String breathingExercise = '/breathing-exercise';
   static const String focusGame = '/focus-game';
   static const String moodMatcher = '/mood-matcher';
+  static const String aiQuest = '/ai-quest';
 }
 
 // Global ChangeNotifier for auth state changes.
@@ -281,6 +283,10 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AdolescentRoutes.moodMatcher,
         builder: (context, state) => const MoodMatcherScreen(),
+      ),
+      GoRoute(
+        path: '/ai-quest', // Adding the new route
+        builder: (context, state) => const AIQuestScreen(),
       ),
     ],
   );

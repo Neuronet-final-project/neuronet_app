@@ -123,6 +123,8 @@ class _ActivityCardState extends State<_ActivityCard>
               context.push(AdolescentRoutes.focusGame);
             } else if (widget.activity.type == ActivityType.moodMatch) {
               context.push(AdolescentRoutes.moodMatcher);
+            } else if (widget.activity.type == ActivityType.aiQuest) {
+              context.push(AdolescentRoutes.aiQuest);
             }
           },
           child: Container(
