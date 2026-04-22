@@ -21,7 +21,6 @@ class AdolescentListScreen extends ConsumerWidget {
             backgroundColor: const Color(0xFFF9FAFB),
             surfaceTintColor: const Color(0xFFF9FAFB),
             elevation: 0,
-            centerTitle: false,
             title: const Text(
               'Adolescent Profiles',
               style: TextStyle(

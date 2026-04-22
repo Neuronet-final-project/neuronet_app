@@ -42,7 +42,6 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                 backgroundColor: const Color(0xFFF9FAFB),
                 surfaceTintColor: const Color(0xFFF9FAFB),
                 elevation: 0,
-                centerTitle: false,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
                   onPressed: () => context.pop(),

@@ -45,7 +45,7 @@ class GuardianTheme {
         backgroundColor: backgroundColor,
         foregroundColor: NeuroColors.guardianPrimaryDark,
         elevation: 0,
-        centerTitle: false,
+        centerTitle: true,
       ),
       cardTheme: CardThemeData(
         elevation: 0,

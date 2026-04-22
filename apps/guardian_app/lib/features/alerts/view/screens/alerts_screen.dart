@@ -26,7 +26,6 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
             backgroundColor: const Color(0xFFF9FAFB),
             surfaceTintColor: const Color(0xFFF9FAFB),
             elevation: 0,
-            centerTitle: false,
             title: const Text(
               'Security Alerts',
               style: TextStyle(
