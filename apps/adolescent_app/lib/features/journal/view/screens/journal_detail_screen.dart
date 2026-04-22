@@ -106,16 +106,44 @@ class _DetailContent extends StatelessWidget {
                               const Icon(Icons.access_time_filled_rounded, color: Colors.white70, size: 14),
                               const SizedBox(width: 4),
                               Text(
-                                DateFormat('h:mm a').format(entry.createdAt),
-                                style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                        ],
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
                       ),
-                    ],
-                  ),
+                      child: Text(_getMoodEmoji(entry.mood), style: const TextStyle(fontSize: 48)),
+                    ),
+                    const SizedBox(width: 24),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          DateFormat('EEEE').format(entry.createdAt).toUpperCase(),
+                          style: const TextStyle(color: Colors.white60, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2),
+                        ),
+                        Text(
+                          DateFormat('MMMM d, y').format(entry.createdAt),
+                          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900),
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.access_time_filled_rounded, color: Colors.white70, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              DateFormat('h:mm a').format(entry.createdAt),
+                              style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
+              ),
+            ),
           ),
         ),
         SliverToBoxAdapter(
