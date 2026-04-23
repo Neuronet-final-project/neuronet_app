@@ -12,6 +12,8 @@ import 'package:adolescent_app/features/channels/view/screens/channels_screen.da
 import 'package:adolescent_app/features/channels/view/screens/channel_detail_screen.dart';
 import 'package:adolescent_app/features/counselor_chat/view/screens/counselor_chat_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/new_journal_entry_screen.dart';
+import 'package:adolescent_app/features/journal/view/screens/journal_search_screen.dart';
+import 'package:adolescent_app/features/journal/providers/journal_provider.dart';
 import 'package:adolescent_app/features/auth/view/screens/login_screen.dart';
 import 'package:adolescent_app/features/auth/view/screens/activation_screen.dart';
 import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
@@ -50,7 +52,6 @@ class AdolescentRoutes {
   static const String counselorChat = '/counselor-chat';
   static const String profile = '/profile';
   static const String consentStatus = '/consent-status';
-  static const String alerts = '/alerts';
   static const String learn = '/learn';
   static const String recommendations = '/recommendations';
   static const String activities = '/activities';
@@ -58,6 +59,8 @@ class AdolescentRoutes {
   static const String focusGame = '/focus-game';
   static const String moodMatcher = '/mood-matcher';
   static const String aiQuest = '/ai-quest';
+  static const String alerts = '/alerts';
+  static const String searchJournal = '/journal/search';
 }
 
 // Global ChangeNotifier for auth state changes.
@@ -229,6 +232,23 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return JournalDetailScreen(entryId: id);
+        },
+      ),
+      GoRoute(
+        path: AdolescentRoutes.searchJournal,
+        builder: (context, state) {
+          final journalState = ref.watch(journalControllerProvider);
+          final extra = state.extra;
+          DateTime? initialDate;
+          if (extra is DateTime) initialDate = extra;
+
+          return journalState.maybeWhen(
+            data: (s) => JournalSearchScreen(
+              entries: s.entries,
+              initialDate: initialDate,
+            ),
+            orElse: () => const JournalSearchScreen(),
+          );
         },
       ),
       GoRoute(

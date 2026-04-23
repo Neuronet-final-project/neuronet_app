@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
@@ -54,12 +55,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
       );
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Journal entry saved!'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        // Success feedback usually handled by navigation or a toast
       }
     } catch (e) {
       if (mounted) {
@@ -78,134 +74,100 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: Color(0xFF1E293B)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'New Entry',
-          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.w900),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: ElevatedButton(
-              onPressed: _isSaving ? null : _handleSave,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB388FF).withOpacity(0.4),
-                foregroundColor: const Color(0xFF7C4DFF),
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-              ),
-              child: _isSaving
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Row(
-                      children: [
-                        Icon(Icons.check_rounded, size: 18),
-                        SizedBox(width: 8),
-                        Text('Save', style: TextStyle(fontWeight: FontWeight.w900)),
-                      ],
-                    ),
+      backgroundColor: NeuroColors.paper,
+      body: Stack(
+        children: [
+          // Subtle Paper Grain Texture
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.03,
+              child: CustomPaint(painter: _PaperGrainPainter()),
             ),
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(24),
+          SafeArea(
+            child: Column(
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.bolt_rounded, color: Color(0xFF7C4DFF), size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'NEED A SPARK?',
-                      style: TextStyle(
-                        color: Color(0xFF7C4DFF),
-                        fontWeight: FontWeight.w900,
-                        fontSize: 12,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
+                // 1. Editorial Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
-                    children: _sparks.map((spark) => _SparkChip(
-                      label: spark,
-                      onTap: () {
-                        setState(() {
-                          _contentController.text = '$spark\n\n';
-                        });
-                      },
-                    )).toList(),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFFF1F5F9)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.02),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, color: NeuroColors.ink),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      const Text(
+                        'COMPOSE',
+                        style: TextStyle(
+                          color: NeuroColors.ink,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: _isSaving ? null : _handleSave,
+                        style: TextButton.styleFrom(
+                          foregroundColor: NeuroColors.adolescentPrimary,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                        ),
+                        child: _isSaving
+                            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                            : const Text(
+                                'Save',
+                                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+                              ),
                       ),
                     ],
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+
+                // 2. Mood Selector Strip (Top Alignment)
+                _TopMoodSelector(
+                  selectedMood: _selectedMood,
+                  onMoodSelected: (mood) => setState(() => _selectedMood = mood),
+                ),
+
+                const Divider(height: 1, color: NeuroColors.hairline),
+
+                // 3. Main Composition Area
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.all(24),
                     children: [
-                      Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF7C4DFF),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
+                      _SparkStrip(
+                        sparks: _sparks,
+                        onSelect: (spark) => setState(() => _contentController.text = '$spark\n\n'),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 32),
                       TextField(
                         controller: _titleController,
                         style: const TextStyle(
-                          fontSize: 22,
+                          fontSize: 28,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF1E293B),
+                          color: NeuroColors.ink,
+                          letterSpacing: -0.5,
                         ),
                         decoration: const InputDecoration(
-                          hintText: 'Give it a title (optional)',
-                          hintStyle: TextStyle(color: Color(0xFFCBD5E1)),
+                          hintText: 'Untitled entry',
+                          hintStyle: TextStyle(color: NeuroColors.inkSoft),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
                         ),
                       ),
-                      const Divider(height: 32, color: Color(0xFFF1F5F9)),
+                      const SizedBox(height: 8),
                       TextField(
                         controller: _contentController,
                         maxLines: null,
-                        minLines: 8,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
                           height: 1.6,
-                          color: Color(0xFF475569),
+                          color: NeuroColors.inkSoft,
                         ),
                         decoration: const InputDecoration(
-                          hintText: "What's on your mind today?\nNo rules — just write.",
-                          hintStyle: TextStyle(color: Color(0xFF94A3B8)),
+                          hintText: 'Start writing...',
+                          hintStyle: TextStyle(color: NeuroColors.inkMuted),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
                         ),
                         onChanged: (_) => setState(() {}),
                       ),
@@ -215,146 +177,108 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
               ],
             ),
           ),
-          _MoodSelector(
-            selectedMood: _selectedMood,
-            charCount: _contentController.text.length,
-            onMoodSelected: (mood) => setState(() => _selectedMood = mood),
-          ),
         ],
       ),
     );
   }
 }
 
-class _SparkChip extends StatelessWidget {
-  const _SparkChip({required this.label, required this.onTap});
-  final String label;
-  final VoidCallback onTap;
+class _SparkStrip extends StatelessWidget {
+  const _SparkStrip({required this.sparks, required this.onSelect});
+  final List<String> sparks;
+  final Function(String) onSelect;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFF7C4DFF).withOpacity(0.2)),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(color: Color(0xFF7C4DFF), fontWeight: FontWeight.w600, fontSize: 13),
-        ),
-      ),
-    );
-  }
-}
-
-class _MoodSelector extends StatelessWidget {
-  const _MoodSelector({
-    required this.selectedMood,
-    required this.onMoodSelected,
-    required this.charCount,
-  });
-
-  final MoodType? selectedMood;
-  final Function(MoodType) onMoodSelected;
-  final int charCount;
-
-  @override
-  Widget build(BuildContext context) {
-    final moods = [
-      MoodType.happy,
-      MoodType.calm,
-      MoodType.hopeful,
-      MoodType.excited,
-      MoodType.anxious,
-    ];
-
-    return Container(
-      padding: EdgeInsets.fromLTRB(24, 20, 24, MediaQuery.of(context).padding.bottom + 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'NEED A SPARK?',
+          style: TextStyle(
+            color: NeuroColors.adolescentPrimary,
+            fontWeight: FontWeight.w900,
+            fontSize: 10,
+            letterSpacing: 1.6,
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Row(
-                children: [
-                  Icon(Icons.sentiment_satisfied_rounded, color: Color(0xFF7C4DFF), size: 18),
-                  SizedBox(width: 8),
-                  Text(
-                    'HOW ARE YOU FEELING?',
-                    style: TextStyle(
-                      color: Color(0xFF7C4DFF),
-                      fontWeight: FontWeight.w900,
-                      fontSize: 11,
-                      letterSpacing: 1,
+        ),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: sparks.map((spark) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: GestureDetector(
+                  onTap: () => onSelect(spark),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: NeuroColors.hairline),
+                    ),
+                    child: Text(
+                      spark,
+                      style: const TextStyle(
+                        color: NeuroColors.inkSoft,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ],
-              ),
-              Text(
-                '$charCount / 5000',
-                style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: moods.map((mood) {
-              final isSelected = selectedMood == mood;
-              return GestureDetector(
-                onTap: () => onMoodSelected(mood),
-                child: Column(
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF7C4DFF).withOpacity(0.1) : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isSelected ? const Color(0xFF7C4DFF) : const Color(0xFFF1F5F9),
-                          width: 2,
-                        ),
-                      ),
-                      child: mood == MoodType.hopeful
-                          ? const SizedBox(
-                              width: 32,
-                              height: 32,
-                              child: _PremiumRainbowIcon(),
-                            )
-                          : Text(_getMoodEmoji(mood), style: const TextStyle(fontSize: 28)),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      mood.name.substring(0, 1).toUpperCase() + mood.name.substring(1),
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                        color: isSelected ? const Color(0xFF7C4DFF) : const Color(0xFF94A3B8),
-                      ),
-                    ),
-                  ],
                 ),
               );
             }).toList(),
           ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+class _TopMoodSelector extends StatelessWidget {
+  const _TopMoodSelector({required this.selectedMood, required this.onMoodSelected});
+  final MoodType? selectedMood;
+  final Function(MoodType) onMoodSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 80,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          children: MoodType.values.map((mood) {
+            final isSelected = selectedMood == mood;
+            return Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => onMoodSelected(mood),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isSelected ? NeuroColors.ink : Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected ? NeuroColors.ink : NeuroColors.hairline,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      _getMoodEmoji(mood),
+                      style: const TextStyle(fontSize: 24),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -366,67 +290,30 @@ class _MoodSelector extends StatelessWidget {
       case MoodType.hopeful: return '🌈';
       case MoodType.excited: return '✨';
       case MoodType.anxious: return '😰';
+      case MoodType.sad: return '😢';
+      case MoodType.stressed: return '😫';
+      case MoodType.angry: return '😠';
+      case MoodType.tired: return '😴';
       default: return '😐';
     }
   }
 }
 
-class _PremiumRainbowIcon extends StatefulWidget {
-  const _PremiumRainbowIcon();
-
+class _PaperGrainPainter extends CustomPainter {
   @override
-  State<_PremiumRainbowIcon> createState() => _PremiumRainbowIconState();
-}
-
-class _PremiumRainbowIconState extends State<_PremiumRainbowIcon> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat();
+  void paint(Canvas canvas, Size size) {
+    if (size.width <= 0 || size.height <= 0) return;
+    final paint = Paint()..color = NeuroColors.ink;
+    final random = math.Random(42);
+    for (var i = 0; i < 2000; i++) {
+       canvas.drawCircle(
+         Offset(random.nextDouble() * size.width, random.nextDouble() * size.height),
+         0.5,
+         paint,
+       );
+    }
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return ShaderMask(
-          shaderCallback: (Rect bounds) {
-            return SweepGradient(
-              center: Alignment.center,
-              startAngle: 0.0,
-              endAngle: 3.14 * 2,
-              colors: const [
-                Colors.red,
-                Colors.orange,
-                Colors.yellow,
-                Colors.green,
-                Colors.blue,
-                Colors.indigo,
-                Colors.purple,
-                Colors.red,
-              ],
-              transform: GradientRotation(_controller.value * 3.14 * 2),
-            ).createShader(bounds);
-          },
-          child: const Icon(
-            Icons.looks_rounded,
-            size: 32,
-            color: Colors.white,
-          ),
-        );
-      },
-    );
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
