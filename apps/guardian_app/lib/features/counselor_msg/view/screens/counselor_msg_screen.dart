@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/counselor_chat_provider.dart';
+import '../../../ui/bento_card.dart';
 
 class CounselorMsgScreen extends ConsumerStatefulWidget {
   final String adolescentId;
@@ -100,20 +101,72 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
     return name[0].toUpperCase() + name.substring(1);
   }
 
+  Widget _buildChatView(CounselorChatState state, String counselorName, bool showActiveCall, bool showIncomingCall) {
+    if (state.isNoCounselor) {
+      return _NoCounselorView(adolescentName: widget.adolescentName);
+    }
+
+    if (state.error != null && state.messages.isEmpty) {
+      return Center(child: Text(state.error!));
+    }
+
+    // Auto-scroll when new messages arrive
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+
+    return Column(
+      children: [
+        Expanded(
+          child: state.messages.isEmpty
+              ? const _EmptyChatView()
+              : ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                  itemCount: state.messages.length,
+                  itemBuilder: (context, index) {
+                    final message = state.messages[index];
+                    final isMe = message.senderRole == 'guardian';
+
+                    return NeuroChatBubble(
+                      messageContent: message.content,
+                      timestamp: message.createdAt,
+                      isUser: isMe,
+                      senderLabel: isMe ? 'You' : counselorName,
+                      userColor: NeuroColors.guardianPrimary,
+                      messageType: message.messageType,
+                      attachmentUrl: message.attachmentUrl,
+                    );
+                  },
+                ),
+        ),
+        if (state.error != null)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              state.error!,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+        _ChatInputSection(
+          controller: _messageController,
+          onSend: (content) {
+            ref.read(counselorChatControllerProvider(widget.adolescentId).notifier).sendMessage(content);
+            _messageController.clear();
+          },
+          onSendVoice: _sendVoiceMessage,
+          onSendMedia: _sendMediaMessage,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatAsync = ref.watch(counselorChatControllerProvider(widget.adolescentId));
     final callState = ref.watch(callControllerProvider);
     final counselorEmail = chatAsync.value?.counselorEmail;
-    final counselorName = counselorEmail != null
-        ? _emailToDisplayName(counselorEmail)
-        : 'Counselor';
+    final counselorName = counselorEmail != null ? _emailToDisplayName(counselorEmail) : 'Counselor';
 
-    // Determine if we should show a call overlay
-    final showIncomingCall =
-        callState.value?.status == CallStatus.ringing &&
-        callState.value?.currentCall != null;
-    // Show active call for: answered, active, OR initiated (caller waiting)
+    final showIncomingCall = callState.value?.status == CallStatus.ringing && callState.value?.currentCall != null;
     final showActiveCall = callState.value != null &&
         callState.value!.currentCall != null &&
         (callState.value!.status == CallStatus.active ||
@@ -121,106 +174,69 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
             callState.value!.status == CallStatus.initiated);
 
     return Scaffold(
-      appBar: (showActiveCall || showIncomingCall) ? null : AppBar(
-        title: Column(
-          children: [
-            Text(counselorName),
-            Text(
-              'Regarding: ${widget.adolescentName}',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Colors.white70,
-                fontSize: 11,
+      backgroundColor: const Color(0xFFF9FAFB),
+      appBar: (showActiveCall || showIncomingCall)
+          ? null
+          : AppBar(
+              backgroundColor: const Color(0xFFF9FAFB),
+              surfaceTintColor: const Color(0xFFF9FAFB),
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: true,
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: NeuroColors.guardianPrimary.withOpacity(0.1),
+                    child: const Icon(Icons.psychology_rounded, size: 18, color: NeuroColors.guardianPrimary),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        counselorName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: NeuroColors.guardianPrimaryDark,
+                          letterSpacing: -0.4,
+                        ),
+                      ),
+                      Text(
+                        'Regarding: ${widget.adolescentName}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: NeuroColors.onSurface.withOpacity(0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
+              actions: [
+                _ActionButton(icon: Icons.phone_rounded, onTap: _startVoiceCall),
+                const SizedBox(width: 8),
+                _ActionButton(icon: Icons.videocam_rounded, onTap: _startVideoCall),
+                const SizedBox(width: 16),
+              ],
             ),
-          ],
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.phone),
-            onPressed: _startVoiceCall,
-            tooltip: 'Voice call',
-          ),
-          IconButton(
-            icon: const Icon(Icons.videocam),
-            onPressed: _startVideoCall,
-            tooltip: 'Video call',
-          ),
-        ],
-      ),
       body: Stack(
         children: [
           chatAsync.when(
-            data: (state) {
-              if (state.isNoCounselor) {
-                return _NoCounselorView(adolescentName: widget.adolescentName);
-              }
-
-              if (state.error != null && state.messages.isEmpty) {
-                return Center(child: Text(state.error!));
-              }
-
-              // Auto-scroll when new messages arrive
-              WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-
-              return Column(
-                children: [
-                  Expanded(
-                    child: state.messages.isEmpty
-                        ? const _EmptyChatView()
-                        : ListView.builder(
-                            controller: _scrollController,
-                            padding: const EdgeInsets.all(16.0),
-                            itemCount: state.messages.length,
-                            itemBuilder: (context, index) {
-                              final message = state.messages[index];
-                              final isMe = message.senderRole == 'guardian';
-
-                              return NeuroChatBubble(
-                                messageContent: message.content,
-                                timestamp: message.createdAt,
-                                isUser: isMe,
-                                senderLabel: isMe ? 'You' : counselorName,
-                                userColor: NeuroColors.guardianPrimary,
-                                messageType: message.messageType,
-                                attachmentUrl: message.attachmentUrl,
-                              );
-                            },
-                          ),
-                  ),
-                  if (state.error != null)
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        state.error!,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
-                      ),
-                    ),
-                  _ChatInputSection(
-                    controller: _messageController,
-                    onSend: (content) {
-                      ref
-                          .read(counselorChatControllerProvider(widget.adolescentId).notifier)
-                          .sendMessage(content);
-                      _messageController.clear();
-                    },
-                    onSendVoice: _sendVoiceMessage,
-                    onSendMedia: _sendMediaMessage,
-                  ),
-                ],
-              );
-            },
+            data: (state) => _buildChatView(state, counselorName, showActiveCall, showIncomingCall),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, st) => Center(child: Text('Error: $e')),
           ),
-          // Incoming call overlay (rendered inline — no navigator conflicts)
           if (showIncomingCall)
             NeuroIncomingCallScreen(
               incomingCall: callState.value!.currentCall,
               accentColor: NeuroColors.guardianPrimary,
               onDismissed: () {},
             ),
-          // Active call overlay (rendered inline — no navigator conflicts)
           if (showActiveCall && callState.value != null)
             NeuroActiveCallScreen(
               call: callState.value!.currentCall!,
@@ -271,31 +287,87 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
   }
 }
 
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _ActionButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Material(
+        color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: NeuroColors.guardianPrimary.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Icon(icon, size: 20, color: NeuroColors.guardianPrimary),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _NoCounselorView extends StatelessWidget {
   final String adolescentName;
   const _NoCounselorView({required this.adolescentName});
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.person_off_outlined, size: 80, color: Colors.grey),
-            const SizedBox(height: 24),
-            Text(
-              'No Counselor Assigned',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'An assigned counselor is required to start a conversation. Please wait for the school administration to assign a professional to $adolescentName.',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.grey),
-            ),
-          ],
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Center(
+        child: GuardianBentoCard(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person_off_rounded,
+                  size: 48,
+                  color: NeuroColors.guardianPrimary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'No Counselor Assigned',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: NeuroColors.guardianPrimaryDark,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'An assigned counselor is required to start a conversation. Please wait for the school administration to assign a professional to $adolescentName.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: NeuroColors.onSurface.withValues(alpha: 0.6),
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -311,11 +383,26 @@ class _EmptyChatView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          const Text(
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: NeuroColors.onSurface.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.chat_bubble_outline_rounded,
+              size: 40,
+              color: NeuroColors.onSurface.withValues(alpha: 0.2),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
             'Start a conversation with the counselor',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: NeuroColors.onSurface.withValues(alpha: 0.4),
+            ),
           ),
         ],
       ),
@@ -338,17 +425,29 @@ class _ChatInputSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return NeuroChatInput(
-      controller: controller,
-      onSend: () {
-        if (controller.text.isNotEmpty) {
-          onSend(controller.text);
-        }
-      },
-      accentColor: theme.primaryColor,
-      onSendVoice: onSendVoice,
-      onSendMedia: onSendMedia,
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: NeuroChatInput(
+        controller: controller,
+        onSend: () {
+          if (controller.text.trim().isNotEmpty) {
+            onSend(controller.text.trim());
+          }
+        },
+        accentColor: NeuroColors.guardianPrimary,
+        onSendVoice: onSendVoice,
+        onSendMedia: onSendMedia,
+      ),
     );
   }
 }

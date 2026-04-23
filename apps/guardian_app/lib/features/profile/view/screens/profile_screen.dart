@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:guardian_app/config/router/app_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:guardian_app/features/auth/providers/auth_provider.dart';
 import 'package:guardian_app/features/profile/providers/profile_provider.dart';
+import 'package:guardian_app/features/ui/bento_card.dart';
+import 'package:guardian_app/config/theme/guardian_theme.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -14,130 +17,80 @@ class ProfileScreen extends ConsumerWidget {
     final profileState = ref.watch(guardianProfileControllerProvider);
 
     return Scaffold(
-      backgroundColor: NeuroColors.background,
-      appBar: AppBar(
-        title: const Text(
-          'My Profile',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            automaticallyImplyLeading: false,
+            backgroundColor: const Color(0xFFF9FAFB),
+            title: const Text(
+              'My Profile',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: NeuroColors.guardianPrimaryDark,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit_note_rounded, size: 24),
+                onPressed: () => context.push(GuardianRoutes.editProfile),
+                color: NeuroColors.guardianPrimaryDark,
+              ),
+              const SizedBox(width: 8),
+            ],
           ),
-        ),
-        centerTitle: true,
-        backgroundColor: NeuroColors.guardianPrimary,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Colors.white),
-            onPressed: () => _showEditDialog(context, ref, profileState.value?.user),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: profileState.when(
-        data: (state) {
-          if (state.isLoading && state.user == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          profileState.when(
+            data: (state) {
+              if (state.isLoading && state.user == null) {
+                return const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
 
-          if (state.error != null && state.user == null) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: NeuroErrorWidget(
-                  message: state.error!,
-                  onRetry: () => ref.read(guardianProfileControllerProvider.notifier).refresh(),
+              if (state.error != null && state.user == null) {
+                return SliverFillRemaining(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: NeuroErrorWidget(
+                        message: state.error!,
+                        onRetry: () => ref.read(guardianProfileControllerProvider.notifier).refresh(),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              final user = state.user;
+              if (user == null) {
+                return const SliverFillRemaining(
+                  child: Center(
+                    child: Text('No user profile found.'),
+                  ),
+                );
+              }
+
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    _buildContent(context, ref, user),
+                  ]),
+                ),
+              );
+            },
+            loading: () => const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (err, stack) => SliverFillRemaining(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
                 ),
               ),
-            );
-          }
-
-          final user = state.user;
-          if (user == null) {
-            return Center(
-              child: NeuroErrorWidget(
-                message: 'No user profile found.',
-                onRetry: () => ref.read(guardianProfileControllerProvider.notifier).refresh(),
-              ),
-            );
-          }
-
-          return _buildContent(context, ref, user);
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: NeuroErrorWidget(
-              message: 'Error: $err',
-              onRetry: () => ref.read(guardianProfileControllerProvider.notifier).refresh(),
             ),
-          ),
-        ),
-      ),
-    );
-   }
-
-  void _showEditDialog(BuildContext context, WidgetRef ref, User? user) {
-    if (user == null) return;
-
-    final nameController = TextEditingController(text: user.fullName);
-    final passwordController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Edit Profile'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Full Name'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'New Password (optional)',
-                helperText: 'Leave empty to keep current password',
-              ),
-              obscureText: true,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final result = await ref
-                  .read(guardianProfileControllerProvider.notifier)
-                  .updateProfile(
-                    fullName: nameController.text.isNotEmpty
-                        ? nameController.text
-                        : null,
-                    password: passwordController.text.isNotEmpty
-                        ? passwordController.text
-                        : null,
-                  );
-
-              if (ctx.mounted) {
-                Navigator.pop(ctx);
-                if (result.isSuccess) {
-                  NeuroToast.show(context, 'Profile updated successfully',
-                      type: NeuroToastType.success);
-                } else {
-                  NeuroToast.show(
-                      context, 'Update failed: ${result.failure.message}',
-                      type: NeuroToastType.error);
-                }
-              }
-            },
-            child: const Text('Save'),
           ),
         ],
       ),
@@ -145,111 +98,116 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildContent(BuildContext context, WidgetRef ref, User user) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-      child: Column(
-        children: [
-          _ProfileHeader(user: user),
-          const SizedBox(height: 48),
-          
-          _SettingSection(
-            title: 'Account Information',
-            children: [
-              _SettingTile(
-                label: 'Full Name',
-                value: user.fullName,
-                icon: Icons.person_rounded,
-                showDivider: true,
-              ),
-              _SettingTile(
-                label: 'Email',
-                value: user.email,
-                icon: Icons.alternate_email_rounded,
-                showDivider: true,
-              ),
-              _SettingTile(
-                label: 'Role',
-                value: user.role == UserRole.guardian ? 'Guardian' : user.role.name.toUpperCase(),
-                icon: Icons.verified_user,
-                showDivider: false,
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 32),
-          
-          _SettingSection(
-            title: 'Notification Settings',
-            children: [
-              _CustomSwitchTile(
-                title: 'Alert Notifications',
-                subtitle: 'Get notified when patterns are detected',
-                value: true,
-                onChanged: (val) {},
-                showDivider: true,
-              ),
-              _CustomSwitchTile(
-                title: 'Counselor Messages',
-                subtitle: 'Push notifications for new messages',
-                value: true,
-                onChanged: (val) {},
-                showDivider: false,
-              ),
-            ],
-          ),
-          
-          _SettingSection(
-            title: 'Privacy & Permissions',
-            children: [
-              _SettingTile(
-                label: 'Consent Management',
-                value: 'Manage access to adolescent data',
-                icon: Icons.verified_user_outlined,
-                showDivider: false,
-                onTap: () => context.push(GuardianRoutes.consent),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 48),
-          
-          ElevatedButton(
-            onPressed: () => ref.read(authControllerProvider.notifier).logout(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: NeuroColors.alertHigh.withValues(alpha: 0.1),
-              foregroundColor: NeuroColors.alertHigh,
-              elevation: 0,
-              minimumSize: const Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
+    return Column(
+      children: [
+        _ProfileHeader(user: user).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
+        const SizedBox(height: 16),
+        
+        _SettingSection(
+          title: 'Account Information',
+          children: [
+            _SettingTile(
+              label: 'Full Name',
+              value: user.fullName,
+              icon: Icons.person_rounded,
+              showDivider: true,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.logout_rounded, size: 22),
-                SizedBox(width: 8),
-                Text(
-                  'Sign Out',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+            _SettingTile(
+              label: 'Email',
+              value: user.email,
+              icon: Icons.alternate_email_rounded,
+              showDivider: true,
+            ),
+            _SettingTile(
+              label: 'Role',
+              value: user.role == UserRole.guardian ? 'Guardian' : user.role.name.toUpperCase(),
+              icon: Icons.verified_user_rounded,
+              showDivider: false,
+            ),
+          ],
+        ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.05),
+        
+        const SizedBox(height: 16),
+        
+        _SettingSection(
+          title: 'Notification Settings',
+          children: [
+            _CustomSwitchTile(
+              title: 'Alert Notifications',
+              subtitle: 'Get notified when patterns are detected',
+              value: true,
+              onChanged: (val) {},
+              showDivider: true,
+            ),
+            _CustomSwitchTile(
+              title: 'Counselor Messages',
+              subtitle: 'Push notifications for new messages',
+              value: true,
+              onChanged: (val) {},
+              showDivider: false,
+            ),
+          ],
+        ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(begin: 0.05),
+        
+        const SizedBox(height: 16),
+
+        _SettingSection(
+          title: 'Privacy & Permissions',
+          children: [
+            _SettingTile(
+              label: 'Consent Management',
+              value: 'Manage access to adolescent data',
+              icon: Icons.verified_user_outlined,
+              showDivider: false,
+              onTap: () => context.push(GuardianRoutes.consent),
+            ),
+          ],
+        ).animate().fadeIn(delay: 300.ms, duration: 400.ms).slideY(begin: 0.05),
+        
+        const SizedBox(height: 16),
+        
+        _SignOutCard(onSignOut: () {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text(
+                'Sign Out',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+              content: const Text(
+                'Are you sure you want to sign out? You will need to log back in to monitor your adolescents\' emotional health.',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancel', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w700)),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    ref.read(authControllerProvider.notifier).logout();
+                  },
+                  child: const Text('Sign Out', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w900)),
                 ),
               ],
             ),
+          );
+        }),
+        
+        const SizedBox(height: 32),
+        Text(
+          'NeuroNet Guardian v${AppConstants.appVersion}',
+          style: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF9CA3AF),
+            letterSpacing: 1.5,
           ),
-          
-          const SizedBox(height: 32),
-          Text(
-            'NeuroNet Guardian v${AppConstants.appVersion}',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Colors.grey[400],
-              letterSpacing: 1,
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 32),
+      ],
     );
   }
 }
@@ -260,51 +218,65 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 120,
-          height: 120,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
-            border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.2), width: 4),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
-                blurRadius: 24,
-                spreadRadius: 8,
-              ),
-            ],
-          ),
-          child: Icon(Icons.person_rounded, size: 60, color: Theme.of(context).primaryColor),
-        ),
-        const SizedBox(height: 24),
-        Text(
-          user.fullName,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: NeuroColors.onSurface,
-            letterSpacing: -0.5,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            'Account Status: ${user.accountStatus.name.toUpperCase()}',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: Theme.of(context).primaryColor,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.5,
+    return GuardianBentoCard(
+      padding: const EdgeInsets.all(24),
+      gradient: GuardianStyles.primaryGradient,
+      child: Row(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.2),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Icon(Icons.person_rounded, size: 40, color: Colors.white),
+          ).animate(onPlay: (controller) => controller.repeat())
+           .shimmer(delay: 3.seconds, duration: 1500.ms, color: Colors.white.withValues(alpha: 0.2)),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.fullName,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    user.accountStatus.name.toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -321,24 +293,19 @@ class _SettingSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 8, bottom: 16),
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            title,
+            title.toUpperCase(),
             style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: NeuroColors.onSurface,
-              letterSpacing: 0.5,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: NeuroColors.onSurfaceVariant,
+              letterSpacing: 1,
             ),
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: NeuroColors.surface,
-            borderRadius: BorderRadius.circular(NeuroRadius.xl),
-            boxShadow: [NeuroShadows.sm],
-            border: Border.all(color: NeuroColors.outline.withValues(alpha: 0.3)),
-          ),
+        GuardianBentoCard(
+          padding: EdgeInsets.zero,
           child: Column(children: children),
         ),
       ],
@@ -346,7 +313,7 @@ class _SettingSection extends StatelessWidget {
   }
 }
 
-class _SettingTile extends StatelessWidget {
+class _SettingTile extends StatefulWidget {
   const _SettingTile({
     required this.label,
     required this.value,
@@ -362,56 +329,73 @@ class _SettingTile extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
+  State<_SettingTile> createState() => _SettingTileState();
+}
+
+class _SettingTileState extends State<_SettingTile> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(NeuroRadius.xl),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(16),
+        GestureDetector(
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapCancel: () => setState(() => _isPressed = false),
+          onTap: widget.onTap,
+          child: AnimatedScale(
+            scale: _isPressed ? 0.98 : 1.0,
+            duration: const Duration(milliseconds: 100),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: NeuroColors.guardianPrimary.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(widget.icon, color: NeuroColors.guardianPrimary, size: 20),
                   ),
-                  child: Icon(icon, color: Theme.of(context).primaryColor, size: 24),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: NeuroColors.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.label,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: NeuroColors.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        value,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: NeuroColors.onSurface,
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.value,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: NeuroColors.onSurface,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                if (onTap != null)
-                  const Icon(Icons.chevron_right, color: NeuroColors.onSurfaceVariant),
-              ],
+                  if (widget.onTap != null)
+                    const Icon(Icons.chevron_right_rounded, color: NeuroColors.onSurfaceVariant, size: 20),
+                ],
+              ),
             ),
           ),
         ),
-        if (showDivider)
-          Divider(height: 1, thickness: 1, color: NeuroColors.outline.withValues(alpha: 0.3), indent: 76, endIndent: 20),
+        if (widget.showDivider)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(height: 1, thickness: 1, color: const Color(0xFFF3F4F6)),
+          ),
       ],
     );
   }
@@ -437,7 +421,7 @@ class _CustomSwitchTile extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Expanded(
@@ -446,17 +430,19 @@ class _CustomSwitchTile extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
                         color: NeuroColors.onSurface,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: NeuroColors.onSurfaceVariant,
+                      style: const TextStyle(
+                        fontSize: 11,
                         fontWeight: FontWeight.w500,
+                        color: NeuroColors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -465,15 +451,37 @@ class _CustomSwitchTile extends StatelessWidget {
               Switch(
                 value: value,
                 onChanged: onChanged,
-                activeThumbColor: NeuroColors.surface,
-                activeTrackColor: Theme.of(context).primaryColor,
+                activeTrackColor: NeuroColors.guardianPrimary,
               ),
             ],
           ),
         ),
         if (showDivider)
-          Divider(height: 1, thickness: 1, color: NeuroColors.outline.withValues(alpha: 0.3), indent: 20, endIndent: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(height: 1, thickness: 1, color: const Color(0xFFF3F4F6)),
+          ),
       ],
+    );
+  }
+}
+
+class _SignOutCard extends StatelessWidget {
+  final VoidCallback onSignOut;
+  const _SignOutCard({required this.onSignOut});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: NeuroButton(
+        onPressed: onSignOut,
+        label: 'SIGN OUT',
+        backgroundColor: const Color(0xFFEF4444),
+        icon: Icons.logout_rounded,
+        borderRadius: 20,
+        padding: const EdgeInsets.symmetric(vertical: 20),
+      ),
     );
   }
 }

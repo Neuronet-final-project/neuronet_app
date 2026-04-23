@@ -19,10 +19,34 @@ class NeuroShimmer extends StatefulWidget {
   const NeuroShimmer({
     super.key,
     required this.child,
-    this.duration = const Duration(milliseconds: 1500),
+    this.duration = const Duration(milliseconds: 2000),
     this.baseColor,
     this.highlightColor,
+    this.colors,
+    this.stops,
+    this.enabled = true,
+    this.blendMode = BlendMode.srcATop,
   });
+
+  /// Creates a subtle glint effect typically used for premium buttons.
+  factory NeuroShimmer.glint({
+    required Widget child,
+    Duration duration = const Duration(milliseconds: 2500),
+    Color highlightColor = Colors.white,
+    double opacity = 0.2,
+  }) {
+    return NeuroShimmer(
+      duration: duration,
+      colors: [
+        highlightColor.withOpacity(0.0),
+        highlightColor.withOpacity(opacity),
+        highlightColor.withOpacity(0.0),
+      ],
+      stops: const [0.0, 0.5, 1.0],
+      blendMode: BlendMode.srcATop,
+      child: child,
+    );
+  }
 
   /// The widget to apply the shimmer effect to.
   final Widget child;
@@ -35,6 +59,18 @@ class NeuroShimmer extends StatefulWidget {
 
   /// Highlight color that sweeps across (defaults to grey[100]).
   final Color? highlightColor;
+
+  /// Custom colors for the gradient. If provided, baseColor and highlightColor are ignored.
+  final List<Color>? colors;
+
+  /// Custom stops for the gradient.
+  final List<double>? stops;
+
+  /// Whether the animation is active.
+  final bool enabled;
+
+  /// The blend mode used by the ShaderMask.
+  final BlendMode blendMode;
 
   @override
   State<NeuroShimmer> createState() => _NeuroShimmerState();
@@ -51,10 +87,25 @@ class _NeuroShimmerState extends State<NeuroShimmer>
     _controller = AnimationController(
       duration: widget.duration,
       vsync: this,
-    )..repeat();
-    _animation = Tween<double>(begin: -2.0, end: 2.0).animate(
+    );
+    
+    if (widget.enabled) {
+      _controller.repeat();
+    }
+
+    _animation = Tween<double>(begin: -1.0, end: 2.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+  }
+
+  @override
+  void didUpdateWidget(NeuroShimmer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.enabled && !oldWidget.enabled) {
+      _controller.repeat();
+    } else if (!widget.enabled && oldWidget.enabled) {
+      _controller.stop();
+    }
   }
 
   @override
@@ -65,20 +116,24 @@ class _NeuroShimmerState extends State<NeuroShimmer>
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.enabled) return widget.child;
+
     final base = widget.baseColor ?? Colors.grey[200]!;
     final highlight = widget.highlightColor ?? Colors.grey[100]!;
+    final colors = widget.colors ?? [base, highlight, base];
+    final stops = widget.stops ?? const [0.0, 0.3, 0.5];
 
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
         return ShaderMask(
-          blendMode: BlendMode.srcATop,
+          blendMode: widget.blendMode,
           shaderCallback: (bounds) {
             return LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              stops: const [0.0, 0.3, 0.5],
-              colors: [base, highlight, base],
+              stops: stops,
+              colors: colors,
               transform: _SlidingGradientTransform(slidePercent: _animation.value),
             ).createShader(bounds);
           },

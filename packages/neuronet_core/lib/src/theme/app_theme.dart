@@ -135,9 +135,9 @@ class NeuroGradients {
     end: Alignment.bottomCenter,
   );
 
-  // Guardian gradient — warm, supportive pink
+  // Guardian gradient — warm, supportive pink (Matches Dashboard Hero)
   static const LinearGradient guardian = LinearGradient(
-    colors: [Color(0xFFAD1457), Color(0xFFE91E63)],
+    colors: [Color(0xFFAD1457), Color(0xFFD81B60)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -316,6 +316,23 @@ class NeuroTheme {
         unselectedItemColor: NeuroColors.onSurfaceVariant,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: primary,
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return TextStyle(color: primary, fontWeight: FontWeight.bold, fontSize: 12);
+          }
+          return const TextStyle(color: NeuroColors.onSurfaceVariant, fontWeight: FontWeight.w500, fontSize: 12);
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: Colors.white, size: 24);
+          }
+          return const IconThemeData(color: NeuroColors.onSurfaceVariant, size: 24);
+        }),
       ),
     );
   }

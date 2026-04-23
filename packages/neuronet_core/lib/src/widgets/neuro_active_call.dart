@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +27,10 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   bool _renderersInitialized = false;
+  
+  // PiP Position State
+  Offset _pipPosition = const Offset(-1, -1); // -1 means uninitialized (default to top-right)
+  bool _isDraggingPiP = false;
 
   @override
   void initState() {
@@ -157,161 +162,205 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Top: Remote name + duration
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.6),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _remoteName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          _formattedDuration,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Connection quality indicator
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.wifi, color: Colors.white, size: 16),
-                          SizedBox(width: 4),
-                          Text(
-                            'Connected',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          ),
+              ClipRRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          const Color(0xFF0F0F23).withValues(alpha: 0.8),
+                          const Color(0xFF0F0F23).withValues(alpha: 0.4),
+                          Colors.transparent,
                         ],
                       ),
                     ),
-                  ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _remoteName,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(
+                                    blurRadius: 10,
+                                    color: Colors.black45,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _formattedDuration,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        // Connection quality indicator
+                        _ConnectionStatusPill(isActive: state.status == CallStatus.active),
+                      ],
+                    ),
+                  ),
                 ),
               ),
 
               // Bottom: Controls — large round buttons matching web pattern
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.7),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Only show controls after call is connected (not while caller is waiting)
-                    if (!_isCallerWaiting) ...[
-                      _ActiveCallControlButton(
-                        key: const ValueKey('mute_button'),
-                        icon: state.isMuted ? Icons.mic_off : Icons.mic,
-                        label: state.isMuted ? 'Unmute' : 'Mute',
-                        isActive: state.isMuted,
-                        size: 56,
-                        onPressed: () {
-                          ref.read(callControllerProvider.notifier).toggleMute();
-                        },
+              ClipRRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          const Color(0xFF0F0F23).withValues(alpha: 0.95),
+                          const Color(0xFF0F0F23).withValues(alpha: 0.6),
+                          Colors.transparent,
+                        ],
                       ),
-                      const SizedBox(width: 24),
-                      _ActiveCallControlButton(
-                        icon: state.isCameraOn ? Icons.videocam_off : Icons.videocam,
-                        label: state.isCameraOn ? 'Video Off' : 'Video On',
-                        isActive: !state.isCameraOn,
-                        size: 56,
-                        onPressed: () {
-                          ref.read(callControllerProvider.notifier).toggleCamera();
-                        },
-                      ),
-                      const SizedBox(width: 24),
-                      _ActiveCallControlButton(
-                        icon: Icons.cameraswitch,
-                        label: 'Flip Camera',
-                        size: 56,
-                        onPressed: () {
-                          ref.read(callControllerProvider.notifier).switchCamera();
-                        },
-                      ),
-                      const SizedBox(width: 24),
-                    ],
-                    _ActiveCallControlButton(
-                      key: const ValueKey('end_call_button'),
-                      icon: Icons.call_end,
-                      label: _endButtonLabel,
-                      backgroundColor: Colors.red,
-                      size: 64,
-                      onPressed: _endCall,
                     ),
-                  ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Only show controls after call is connected (not while caller is waiting)
+                        if (!_isCallerWaiting) ...[
+                          _ActiveCallControlButton(
+                            key: const ValueKey('mute_button'),
+                            icon: state.isMuted ? Icons.mic_off : Icons.mic,
+                            label: state.isMuted ? 'Unmute' : 'Mute',
+                            isActive: state.isMuted,
+                            size: 56,
+                            onPressed: () {
+                              ref.read(callControllerProvider.notifier).toggleMute();
+                            },
+                          ),
+                          const SizedBox(width: 20),
+                          _ActiveCallControlButton(
+                            icon: state.isCameraOn ? Icons.videocam_off : Icons.videocam,
+                            label: state.isCameraOn ? 'Video Off' : 'Video On',
+                            isActive: !state.isCameraOn,
+                            size: 56,
+                            onPressed: () {
+                              ref.read(callControllerProvider.notifier).toggleCamera();
+                            },
+                          ),
+                          const SizedBox(width: 20),
+                          _ActiveCallControlButton(
+                            icon: Icons.cameraswitch,
+                            label: 'Flip',
+                            size: 56,
+                            onPressed: () {
+                              ref.read(callControllerProvider.notifier).switchCamera();
+                            },
+                          ),
+                          const SizedBox(width: 32),
+                        ],
+                        _ActiveCallControlButton(
+                          key: const ValueKey('end_call_button'),
+                          icon: Icons.call_end,
+                          label: _endButtonLabel,
+                          backgroundColor: const Color(0xFFE11D48), // Premium Play Red
+                          size: 72,
+                          onPressed: _endCall,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
         ),
 
-        // Local video (picture-in-picture)
-        Positioned(
-          top: 80,
-          right: 16,
-          child: Container(
-            width: 120,
-            height: 160,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: state.localStream != null
-                ? RTCVideoView(
-                    _localRenderer,
-                    mirror: true,
-                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                  )
-                : const Center(
-                    child: Icon(Icons.videocam_off, color: Colors.white54),
+        // Local video (Picture-in-Picture with Draggable + Snap)
+        LayoutBuilder(
+          builder: (context, constraints) {
+            const pipWidth = 120.0;
+            const pipHeight = 160.0;
+            final margin = MediaQuery.of(context).padding.top + 20;
+            
+            // Initialize position if first build
+            if (_pipPosition.dx == -1) {
+              _pipPosition = Offset(constraints.maxWidth - pipWidth - 16, margin + 60);
+            }
+
+            return Positioned(
+              left: _pipPosition.dx,
+              top: _pipPosition.dy,
+              child: GestureDetector(
+                onPanStart: (_) => setState(() => _isDraggingPiP = true),
+                onPanUpdate: (details) {
+                  setState(() {
+                    _pipPosition += details.delta;
+                    // Clamp within screen boundaries
+                    _pipPosition = Offset(
+                      _pipPosition.dx.clamp(16, constraints.maxWidth - pipWidth - 16),
+                      _pipPosition.dy.clamp(margin, constraints.maxHeight - pipHeight - 100),
+                    );
+                  });
+                },
+                onPanEnd: (details) {
+                  setState(() {
+                    _isDraggingPiP = false;
+                    // Snap to nearest corner
+                    final centerX = _pipPosition.dx + pipWidth / 2;
+                    final snapX = centerX > constraints.maxWidth / 2 
+                        ? constraints.maxWidth - pipWidth - 16 
+                        : 16.0;
+                    
+                    _pipPosition = Offset(snapX, _pipPosition.dy);
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: _isDraggingPiP ? Duration.zero : const Duration(milliseconds: 300),
+                  curve: Curves.easeOutBack,
+                  width: pipWidth,
+                  height: pipHeight,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-          ),
+                  clipBehavior: Clip.hardEdge,
+                  child: state.localStream != null
+                      ? RTCVideoView(
+                          _localRenderer,
+                          mirror: true,
+                          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                        )
+                      : Container(
+                          color: const Color(0xFF0F0F23),
+                          child: const Center(
+                            child: Icon(Icons.videocam_off_rounded, color: Colors.white24, size: 32),
+                          ),
+                        ),
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -534,9 +583,7 @@ class _AudioWaveAnimationState extends State<_AudioWaveAnimation>
   }
 }
 
-/// Large circular call control button for active call screen (mute, end, video, camera).
-/// Matches the web's pattern: large button with label below.
-class _ActiveCallControlButton extends StatelessWidget {
+class _ActiveCallControlButton extends StatefulWidget {
   final IconData icon;
   final String label;
   final bool isActive;
@@ -555,51 +602,136 @@ class _ActiveCallControlButton extends StatelessWidget {
   });
 
   @override
+  State<_ActiveCallControlButton> createState() => _ActiveCallControlButtonState();
+}
+
+class _ActiveCallControlButtonState extends State<_ActiveCallControlButton> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    final bg = backgroundColor ?? (isActive ? Colors.white : Colors.white.withValues(alpha: 0.2));
-    final iconColor = backgroundColor != null ? Colors.white : (isActive ? Colors.red : Colors.white);
+    final bg = widget.backgroundColor ??
+        (widget.isActive ? Colors.white : Colors.white.withValues(alpha: 0.15));
+    final iconColor = widget.backgroundColor != null
+        ? Colors.white
+        : (widget.isActive ? const Color(0xFFE11D48) : Colors.white);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(size / 2),
-            splashColor: (backgroundColor ?? Colors.white).withValues(alpha: 0.2),
-            child: Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                color: bg,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: (backgroundColor ?? Colors.white).withValues(alpha: 0.3),
-                    blurRadius: backgroundColor != null ? 16 : 8,
-                    spreadRadius: backgroundColor != null ? 2 : 0,
+        GestureDetector(
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapCancel: () => setState(() => _isPressed = false),
+          onTap: widget.onPressed,
+          child: AnimatedScale(
+            scale: _isPressed ? 0.92 : 1.0,
+            duration: const Duration(milliseconds: 100),
+            child: ClipOval(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(
+                  width: widget.size,
+                  height: widget.size,
+                  decoration: BoxDecoration(
+                    color: bg,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
+                    boxShadow: [
+                      if (widget.isActive || widget.backgroundColor != null)
+                        BoxShadow(
+                          color: (widget.backgroundColor ?? Colors.white)
+                              .withValues(alpha: 0.3),
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                        ),
+                    ],
                   ),
-                ],
-              ),
-              child: Icon(
-                icon,
-                color: iconColor,
-                size: size * 0.45,
+                  child: Icon(
+                    widget.icon,
+                    color: iconColor,
+                    size: widget.size * 0.45,
+                  ),
+                ),
               ),
             ),
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          label,
+          widget.label,
           style: const TextStyle(
             color: Colors.white70,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.2,
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ConnectionStatusPill extends StatefulWidget {
+  final bool isActive;
+
+  const _ConnectionStatusPill({required this.isActive});
+
+  @override
+  State<_ConnectionStatusPill> createState() => _ConnectionStatusPillState();
+}
+
+class _ConnectionStatusPillState extends State<_ConnectionStatusPill>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: CurvedAnimation(
+        parent: _pulseController,
+        curve: Curves.easeInOut,
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.green.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.wifi, color: Colors.greenAccent, size: 14),
+            const SizedBox(width: 6),
+            Text(
+              widget.isActive ? 'Stable' : 'Connecting',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

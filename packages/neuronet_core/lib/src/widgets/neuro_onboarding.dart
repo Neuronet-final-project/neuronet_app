@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'neuro_button.dart';
 import '../theme/app_theme.dart';
 
 /// Data model for an individual onboarding slide.
@@ -112,7 +113,7 @@ class _NeuroOnboardingScreenState extends State<NeuroOnboardingScreen> {
                     
                     const Spacer(),
                     
-                    ElevatedButton(
+                    NeuroButton(
                       onPressed: () {
                         if (_currentPage == widget.pages.length - 1) {
                           widget.onFinish();
@@ -123,25 +124,13 @@ class _NeuroOnboardingScreenState extends State<NeuroOnboardingScreen> {
                           );
                         }
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: widget.primaryColor,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(140, 56),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(NeuroRadius.lg),
-                        ),
-                        elevation: 4,
-                        shadowColor: widget.primaryColor.withValues(alpha: 0.4),
-                      ),
-                      child: Text(
-                        _currentPage == widget.pages.length - 1 
+                      label: _currentPage == widget.pages.length - 1 
                           ? widget.finishButtonText 
                           : 'Next',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      backgroundColor: widget.primaryColor,
+                      width: 140,
+                      height: 56,
+                      borderRadius: NeuroRadius.lg,
                     ),
                   ],
                 ),

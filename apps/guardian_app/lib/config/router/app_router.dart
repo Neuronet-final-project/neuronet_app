@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 
 // Feature screens
@@ -11,6 +13,7 @@ import '../../features/alerts/view/screens/alerts_screen.dart';
 import '../../features/alerts/view/screens/alert_details_screen.dart';
 import '../../features/counselor_msg/view/screens/counselor_msg_screen.dart';
 import '../../features/profile/view/screens/profile_screen.dart';
+import '../../features/profile/view/screens/edit_profile_screen.dart';
 import '../../features/auth/view/screens/login_screen.dart';
 import '../../features/auth/view/screens/sign_up_screen.dart';
 import '../../features/auth/view/screens/activation_screen.dart';
@@ -42,10 +45,12 @@ class GuardianRoutes {
   static const String alerts = '/alerts';
   static const String counselorMsg = '/counselor-messages';
   static const String profile = '/profile';
+  static const String editProfile = '/profile/edit';
   static const String alertDetails = '/alert-details/:alertId';
   static const String adolescentDetails = '/adolescent/:adolescentId';
   static const String adolescentChat = '/adolescent/:adolescentId/chat';
-  static const String adolescentRecommendations = '/adolescent/:adolescentId/recommendations';
+  static const String adolescentRecommendations =
+      '/adolescent/:adolescentId/recommendations';
   static const String educationalPage = '/learn/:slug';
 }
 
@@ -59,6 +64,10 @@ class _GuardianAuthChangeNotifier extends ChangeNotifier {
     _state = s;
     notifyListeners();
   }
+
+  void notify() {
+    notifyListeners();
+  }
 }
 
 final guardianRouterProvider = Provider<GoRouter>((ref) {
@@ -69,7 +78,8 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
 
   // Listen to onboarding status changes.
   ref.listen(onboardingStatusProvider, (_, __) {
-    _authChangeNotifier.notifyListeners(); // Force router to re-evaluate when status is loaded
+    _authChangeNotifier
+        .notify(); // Force router to re-evaluate when status is loaded
   });
 
   return GoRouter(
@@ -92,18 +102,24 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       final onboardingAsync = ref.read(onboardingStatusProvider);
       final onboardingComplete = onboardingAsync.value ?? false;
 
-      debugPrint('[Router] redirect(current: $currentLocation, auth: ${currentAuth.status}, onboarding: $onboardingComplete)');
+      debugPrint(
+        '[Router] redirect(current: $currentLocation, auth: ${currentAuth.status}, onboarding: $onboardingComplete)',
+      );
 
       // 1. True initial state (app just launched) or onboarding/auth still loading
       if (isInitial || onboardingAsync.isLoading) {
-        debugPrint('[Router] Waiting for init (isInitial: $isInitial, onboardingLoading: ${onboardingAsync.isLoading})');
+        debugPrint(
+          '[Router] Waiting for init (isInitial: $isInitial, onboardingLoading: ${onboardingAsync.isLoading})',
+        );
         return isSplash ? null : GuardianRoutes.splash;
       }
 
       // 2. Check for Onboarding (only for unauthenticated users)
       if (!isAuthenticated && !isLoading) {
         if (!onboardingComplete && !isOnboarding) {
-          debugPrint('[Router] Onboarding not complete, redirecting to /onboarding');
+          debugPrint(
+            '[Router] Onboarding not complete, redirecting to /onboarding',
+          );
           return GuardianRoutes.onboarding;
         }
       }
@@ -115,12 +131,18 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
 
       // 4. Authenticated — redirect away from auth/splash/onboarding pages
       if (isAuthenticated) {
-        if (isLoggingIn || isActivating || isSigningUp || isSplash || isOnboarding) return GuardianRoutes.home;
+        if (isLoggingIn ||
+            isActivating ||
+            isSigningUp ||
+            isSplash ||
+            isOnboarding)
+          return GuardianRoutes.home;
         return null;
       }
 
       // 5. Unauthenticated — send to login (even on error so user can retry)
-      if (isLoggingIn || isActivating || isSigningUp || isOnboarding) return null;
+      if (isLoggingIn || isActivating || isSigningUp || isOnboarding)
+        return null;
       return GuardianRoutes.login;
     },
     routes: [
@@ -194,7 +216,7 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      
+
       // Full-screen routes
       GoRoute(
         path: GuardianRoutes.registerAdolescent,
@@ -204,7 +226,11 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
         path: GuardianRoutes.pendingAdolescents,
         builder: (context, state) => const PendingAdolescentsScreen(),
       ),
-    GoRoute(
+      GoRoute(
+        path: GuardianRoutes.editProfile,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
         path: GuardianRoutes.alertDetails,
         builder: (context, state) {
           final alertId = state.pathParameters['alertId']!;
@@ -222,7 +248,8 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
         path: GuardianRoutes.adolescentChat,
         builder: (context, state) {
           final adolescentId = state.pathParameters['adolescentId']!;
-          final adolescentName = state.uri.queryParameters['name'] ?? 'Adolescent';
+          final adolescentName =
+              state.uri.queryParameters['name'] ?? 'Adolescent';
           return CounselorMsgScreen(
             adolescentId: adolescentId,
             adolescentName: adolescentName,
@@ -233,7 +260,8 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
         path: GuardianRoutes.adolescentRecommendations,
         builder: (context, state) {
           final adolescentId = state.pathParameters['adolescentId']!;
-          final adolescentName = state.uri.queryParameters['name'] ?? 'Adolescent';
+          final adolescentName =
+              state.uri.queryParameters['name'] ?? 'Adolescent';
           return GuardianRecommendationsScreen(
             adolescentId: adolescentId,
             adolescentName: adolescentName,
@@ -259,43 +287,55 @@ class GuardianShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+
     return Scaffold(
       body: SafeArea(child: navigationShell),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: (index) {
-          navigationShell.goBranch(
-            index,
-            initialLocation: index == navigationShell.currentIndex,
-          );
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 20,
+              color: Colors.black.withValues(alpha: 0.05),
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
+            child: GNav(
+              rippleColor: primaryColor.withValues(alpha: 0.1),
+              hoverColor: primaryColor.withValues(alpha: 0.05),
+              gap: 8,
+              activeColor: Colors.white, // Active icon is now white
+              iconSize: 20,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              duration: const Duration(milliseconds: 400),
+              tabBackgroundColor: primaryColor, // Brand color for the pill
+              color: NeuroColors.onSurfaceVariant, // Unselected icon color
+              selectedIndex: navigationShell.currentIndex,
+              onTabChange: (index) {
+                navigationShell.goBranch(
+                  index,
+                  initialLocation: index == navigationShell.currentIndex,
+                );
+              },
+              tabs: const [
+                GButton(icon: Icons.dashboard_rounded, text: 'Dashboard'),
+                GButton(
+                  icon: Icons.notifications_active_rounded,
+                  text: 'Alerts',
+                ),
+                GButton(icon: Icons.forum_rounded, text: 'Message'),
+                GButton(icon: Icons.shield_rounded, text: 'Privacy'),
+                GButton(icon: Icons.person_rounded, text: 'Profile'),
+              ],
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.notifications_outlined),
-            selectedIcon: Icon(Icons.notifications),
-            label: 'Alerts',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.chat_bubble_outline),
-            selectedIcon: Icon(Icons.chat_bubble),
-            label: 'Adolescents',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.security_outlined),
-            selectedIcon: Icon(Icons.security),
-            label: 'Privacy',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+        ),
       ),
     );
   }
