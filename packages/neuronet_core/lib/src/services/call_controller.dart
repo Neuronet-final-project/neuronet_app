@@ -584,6 +584,7 @@ class CallController extends _$CallController {
         state = AsyncData(
           currentState.copyWith(
             localStream: localStream,
+            isCameraOn: callType == CallType.video,
             // Keep status as initiated/connecting until fully connected
           ),
         );
@@ -706,6 +707,7 @@ class CallController extends _$CallController {
           currentState.copyWith(
             localStream: localStream,
             status: CallStatus.answered,
+            isCameraOn: callType == CallType.video,
           ),
         );
       }
