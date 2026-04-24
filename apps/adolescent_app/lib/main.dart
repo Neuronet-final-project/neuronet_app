@@ -51,6 +51,21 @@ class AdolescentApp extends ConsumerWidget {
 
     final router = ref.watch(adolescentRouterProvider);
 
+    // Global listener: Automatically redirect user to Counselor Chat when receiving a call
+    ref.listen(callControllerProvider, (previous, next) {
+      final state = next.value;
+      if (state != null && state.status == CallStatus.ringing && state.currentCall != null) {
+        final currentCallId = state.currentCall!.id;
+        final prevCallId = previous?.value?.currentCall?.id;
+        
+        // Avoid multi-pushing by verifying this is a fresh ring notification
+        if (currentCallId != prevCallId) {
+          debugPrint('[AdolescentApp] Incoming call from \${state.currentCall!.callerEmail}, navigating to chat...');
+          router.go('/counselor-chat');
+        }
+      }
+    });
+
     return MaterialApp.router(
       title: 'NEURONET',
       debugShowCheckedModeBanner: false,

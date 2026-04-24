@@ -229,6 +229,15 @@ class CallController extends _$CallController {
           remotePeerEmail: incomingCall.callerEmail,
         ),
       );
+    } else if (result.isSuccess && result.value.isEmpty) {
+      // BUG FIX: If we are stuck in 'ringing' but the server says there are no
+      // incoming ringing calls, it means the caller hung up. We must clear the state!
+      final currentState = state.value;
+      if (currentState != null && currentState.status == CallStatus.ringing) {
+        debugPrint('[CallController] Server reported no incoming calls. Clearing ghost ringing state.');
+        _lastNotifiedCallId = null;
+        state = AsyncData(const CallState(status: CallStatus.missed));
+      }
     }
   }
 
