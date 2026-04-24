@@ -87,7 +87,7 @@ class _AIQuestScreenState extends State<AIQuestScreen> with SingleTickerProvider
                       ),
                       child: Center(
                         child: _revealed 
-                          ? const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 80)
+                          ? const Icon(Icons.lightbulb_outline_rounded, color: Colors.white, size: 80)
                           : const Text('?', style: TextStyle(color: Colors.white, fontSize: 80, fontWeight: FontWeight.w900)),
                       ),
                     ),

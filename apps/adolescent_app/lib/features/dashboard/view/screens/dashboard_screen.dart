@@ -192,7 +192,7 @@ class _HeroAppBar extends ConsumerWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  const Icon(Icons.auto_awesome_rounded,
+                  const Icon(Icons.lightbulb_outline_rounded,
                       color: Colors.white, size: 26),
                   if (unread > 0)
                     Positioned(
@@ -870,7 +870,7 @@ class _InsightsBanner extends ConsumerWidget {
                       color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.auto_awesome_rounded,
+                    child: const Icon(Icons.lightbulb_outline_rounded,
                         color: Colors.white, size: 22),
                   ),
                   const SizedBox(width: 14),

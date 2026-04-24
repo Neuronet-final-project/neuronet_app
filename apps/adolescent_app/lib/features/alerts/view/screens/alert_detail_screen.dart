@@ -141,7 +141,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.auto_awesome, size: 20, color: color),
+                            Icon(Icons.lightbulb_outline_rounded, size: 20, color: color),
                             const SizedBox(width: 8),
                             Text(
                               'What we noticed',
@@ -179,7 +179,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.auto_awesome, size: 20, color: color),
+                            Icon(Icons.lightbulb_outline_rounded, size: 20, color: color),
                             const SizedBox(width: 8),
                             Text(
                               'What we noticed',
