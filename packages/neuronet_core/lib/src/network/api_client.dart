@@ -11,8 +11,10 @@ class ApiClient {
   }) : _dio = Dio(
           BaseOptions(
             baseUrl: baseUrl ?? ApiEndpoints.baseUrl,
-            connectTimeout: const Duration(seconds: 10),
-            receiveTimeout: const Duration(seconds: 15),
+            // Mobile / cold backends (e.g. Railway) often need more than 15s for TLS + first byte.
+            connectTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 60),
+            sendTimeout: const Duration(seconds: 60),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',

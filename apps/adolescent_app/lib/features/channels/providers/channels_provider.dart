@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'dart:async';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -67,14 +68,29 @@ class ChannelsController extends _$ChannelsController {
     
     state = AsyncValue.data(currentState.copyWith(channels: updatedChannels));
 
-    try {
-      final result = await ref.read(channelServiceProvider).subscribeToChannel(channelId);
-      if (result.isFailure) {
-        // Rollback on failure
-        state = AsyncValue.data(currentState.copyWith(error: result.failure.message));
-      }
-    } catch (e) {
-      state = AsyncValue.data(currentState.copyWith(error: e.toString()));
+    final result = await ref.read(channelServiceProvider).subscribeToChannel(channelId);
+    if (result.isFailure) {
+      // For web/CORS-like network-layer failures, backend may still process the request.
+      // Keep optimistic UI and reconcile from server in background.
+      debugPrint('[ChannelsController] toggleFollow() uncertain result: ${result.failure.message}');
     }
+
+    unawaited(_reconcileChannels());
+  }
+
+  Future<void> _reconcileChannels() async {
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    final result = await ref.read(channelServiceProvider).getAllChannels();
+    if (!ref.mounted) return;
+    result.when(
+      success: (value) {
+        state = AsyncValue.data(currentState.copyWith(channels: value, error: null));
+      },
+      failure: (_) {
+        // Keep current optimistic state if reconciliation fails.
+      },
+    );
   }
 }

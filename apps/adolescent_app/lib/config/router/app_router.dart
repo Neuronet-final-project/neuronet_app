@@ -10,8 +10,11 @@ import 'package:adolescent_app/features/dashboard/view/screens/dashboard_screen.
 import 'package:adolescent_app/features/ai_chat/view/screens/ai_chat_screen.dart';
 import 'package:adolescent_app/features/channels/view/screens/channels_screen.dart';
 import 'package:adolescent_app/features/channels/view/screens/channel_detail_screen.dart';
+import 'package:adolescent_app/features/channels/view/screens/channel_post_detail_screen.dart';
 import 'package:adolescent_app/features/counselor_chat/view/screens/counselor_chat_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/new_journal_entry_screen.dart';
+import 'package:adolescent_app/features/journal/view/screens/journal_search_screen.dart';
+import 'package:adolescent_app/features/journal/providers/journal_provider.dart';
 import 'package:adolescent_app/features/auth/view/screens/login_screen.dart';
 import 'package:adolescent_app/features/auth/view/screens/activation_screen.dart';
 import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
@@ -25,6 +28,11 @@ import 'package:adolescent_app/features/educational/view/screens/educational_pag
 import 'package:adolescent_app/features/educational/view/screens/recommendations_screen.dart';
 import 'package:adolescent_app/features/auth/view/screens/splash_screen.dart';
 import 'package:adolescent_app/features/onboarding/view/screens/onboarding_screen.dart';
+import 'package:adolescent_app/features/activities/view/screens/activities_screen.dart';
+import 'package:adolescent_app/features/activities/view/screens/breathing_exercise_screen.dart';
+import 'package:adolescent_app/features/activities/view/screens/focus_game_screen.dart';
+import 'package:adolescent_app/features/activities/view/screens/mood_matcher_screen.dart';
+import 'package:adolescent_app/features/activities/view/screens/ai_quest_screen.dart';
 import 'package:neuronet_core/neuronet_core.dart'; // For Alert and EducationalPage types in routing extra
 
 /// Route names for the Adolescent app.
@@ -45,9 +53,15 @@ class AdolescentRoutes {
   static const String counselorChat = '/counselor-chat';
   static const String profile = '/profile';
   static const String consentStatus = '/consent-status';
-  static const String alerts = '/alerts';
   static const String learn = '/learn';
   static const String recommendations = '/recommendations';
+  static const String activities = '/activities';
+  static const String breathingExercise = '/breathing-exercise';
+  static const String focusGame = '/focus-game';
+  static const String moodMatcher = '/mood-matcher';
+  static const String aiQuest = '/ai-quest';
+  static const String alerts = '/alerts';
+  static const String searchJournal = '/journal/search';
 }
 
 // Global ChangeNotifier for auth state changes.
@@ -189,6 +203,25 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AdolescentRoutes.channels,
                 builder: (context, state) => const ChannelsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return ChannelDetailScreen(channelId: id);
+                    },
+                    routes: [
+                      GoRoute(
+                        path: 'posts/:postId',
+                        builder: (context, state) {
+                          final channelId = state.pathParameters['id']!;
+                          final postId = state.pathParameters['postId']!;
+                          return ChannelPostDetailScreen(channelId: channelId, postId: postId);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
@@ -215,17 +248,27 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const NewJournalEntryScreen(),
       ),
       GoRoute(
+        path: AdolescentRoutes.searchJournal,
+        builder: (context, state) {
+          final journalState = ref.watch(journalControllerProvider);
+          final extra = state.extra;
+          DateTime? initialDate;
+          if (extra is DateTime) initialDate = extra;
+
+          return journalState.maybeWhen(
+            data: (s) => JournalSearchScreen(
+              entries: s.entries,
+              initialDate: initialDate,
+            ),
+            orElse: () => const JournalSearchScreen(),
+          );
+        },
+      ),
+      GoRoute(
         path: '${AdolescentRoutes.journal}/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return JournalDetailScreen(entryId: id);
-        },
-      ),
-      GoRoute(
-        path: '${AdolescentRoutes.channels}/:id',
-        builder: (context, state) {
-          final id = state.pathParameters['id']!;
-          return ChannelDetailScreen(channelId: id);
         },
       ),
       GoRoute(
@@ -257,6 +300,26 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AdolescentRoutes.recommendations,
         builder: (context, state) => const RecommendationsScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.activities,
+        builder: (context, state) => const ActivitiesScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.breathingExercise,
+        builder: (context, state) => const BreathingExerciseScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.focusGame,
+        builder: (context, state) => const FocusGameScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.moodMatcher,
+        builder: (context, state) => const MoodMatcherScreen(),
+      ),
+      GoRoute(
+        path: '/ai-quest', // Adding the new route
+        builder: (context, state) => const AIQuestScreen(),
       ),
     ],
   );

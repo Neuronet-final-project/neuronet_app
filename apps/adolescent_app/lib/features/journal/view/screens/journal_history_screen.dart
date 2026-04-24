@@ -1,106 +1,849 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../../../config/router/app_router.dart';
 import '../../providers/journal_provider.dart';
 
-class JournalHistoryScreen extends ConsumerWidget {
+/// Premium Purple Theme Journal History
+class JournalHistoryScreen extends ConsumerStatefulWidget {
   const JournalHistoryScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<JournalHistoryScreen> createState() =>
+      _JournalHistoryScreenState();
+}
+
+class _JournalHistoryScreenState extends ConsumerState<JournalHistoryScreen> {
+  @override
+  Widget build(BuildContext context) {
     final journalAsync = ref.watch(journalControllerProvider);
 
+    ref.listen<String?>(journalBackgroundSaveErrorProvider, (previous, next) {
+      if (next == null || next.isEmpty) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        ref.read(journalBackgroundSaveErrorProvider.notifier).clear();
+      });
+    });
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Journal'),
-        actions: [
-          IconButton(
-            onPressed: () => ref.read(journalControllerProvider.notifier).refresh(),
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh journals',
+      backgroundColor: NeuroColors.adolescentSurface,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFFF3EEFF),
+                    NeuroColors.adolescentSurface,
+                    const Color(0xFFE8E0F8).withValues(alpha: 0.35),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: const [0.0, 0.45, 1.0],
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: RefreshIndicator(
+              color: NeuroColors.adolescentPrimary,
+              backgroundColor: Colors.white,
+              onRefresh: () => ref.read(journalControllerProvider.notifier).refresh(),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+            // 1. Premium Header
+            _JournalHeader(
+              onRefresh: () => ref.read(journalControllerProvider.notifier).refresh(),
+            ),
+
+            // 2. Weekly Activity Card
+            journalAsync.maybeWhen(
+              data: (state) => SliverToBoxAdapter(
+                child: _WeeklyActivityCard(entries: state.entries),
+              ),
+              orElse: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+            ),
+
+            // 3. Entries List
+            journalAsync.when(
+              data: (state) => _buildGroupedList(context, state.entries),
+              loading: () => SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (_, __) => const Padding(
+                    padding: EdgeInsets.fromLTRB(20, 0, 20, 16),
+                    child: NeuroSkeletonCard(),
+                  ),
+                  childCount: 4,
+                ),
+              ),
+              error: (err, _) => SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: NeuroErrorWidget(
+                    message: 'Error loading journals: $err',
+                    onRetry: () =>
+                        ref.read(journalControllerProvider.notifier).refresh(),
+                  ),
+                ),
+              ),
+            ),
+
+                  const SliverPadding(padding: EdgeInsets.only(bottom: 120)),
+                ],
+              ),
+            ),
           ),
         ],
       ),
-      body: journalAsync.when(
-        data: (state) => _buildBody(context, ref, state),
-        loading: () => ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: 4,
-          itemBuilder: (context, index) => const Padding(
-            padding: EdgeInsets.only(bottom: 16),
-            child: NeuroSkeletonCard(),
-          ),
-        ),
-        error: (err, stack) => Center(
-          child: NeuroErrorWidget(
-            message: 'Error loading journals: $err',
-            onRetry: () => ref.read(journalControllerProvider.notifier).refresh(),
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: _ComposeFAB(
         onPressed: () => context.push(AdolescentRoutes.newJournal),
-        child: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, WidgetRef ref, JournalState state) {
-    if (state.isLoading && state.entries.isEmpty) {
-      return ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: 4,
-        itemBuilder: (context, index) => const Padding(
-          padding: EdgeInsets.only(bottom: 16),
-          child: NeuroSkeletonCard(),
-        ),
-      );
-    }
-
-    if (state.error != null && state.entries.isEmpty) {
-      return Center(
-        child: NeuroErrorWidget(
-          message: 'Error loading journals: ${state.error}',
-          onRetry: () => ref.read(journalControllerProvider.notifier).refresh(),
-        ),
-      );
-    }
-
-    if (state.entries.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: NeuroEmptyState(
-            title: 'No entries yet',
-            message: 'Start writing to track your thoughts and daily journey.',
-            icon: Icons.edit_note_rounded,
-            color: Theme.of(context).colorScheme.primary,
-            actionLabel: 'Write First Entry',
-            onActionPressed: () => context.push(AdolescentRoutes.newJournal),
+  Widget _buildGroupedList(BuildContext context, List<JournalEntry> entries) {
+    if (entries.isEmpty) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white,
+                        NeuroColors.adolescentSurfaceVariant,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      NeuroShadows.adolescentGlow,
+                      BoxShadow(
+                        color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                        blurRadius: 32,
+                        offset: const Offset(0, 12),
+                      ),
+                    ],
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.9), width: 2),
+                  ),
+                  child: const Icon(
+                    Icons.auto_stories_rounded,
+                    size: 56,
+                    color: NeuroColors.adolescentPrimary,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                ShaderMask(
+                  blendMode: BlendMode.srcIn,
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [Color(0xFF6A1FDB), Color(0xFF9E7AFF)],
+                  ).createShader(bounds),
+                  child: const Text(
+                    'Your journal awaits',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'Capture how you feel in a private space.\nTap compose when you are ready.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF6A5C9A),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: () => ref.read(journalControllerProvider.notifier).refresh(),
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: state.entries.length,
-        itemBuilder: (context, index) {
-          final entry = state.entries[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: NeuroJournalCard(
-              entry: entry,
-              onTap: () {
-                context.push('${AdolescentRoutes.journal}/${entry.id}');
-              },
-            ),
-          );
+    // Group entries by day
+    final Map<DateTime, List<JournalEntry>> groups = {};
+    for (final entry in entries) {
+      final date = DateTime(
+        entry.createdAt.year,
+        entry.createdAt.month,
+        entry.createdAt.day,
+      );
+      groups.putIfAbsent(date, () => []).add(entry);
+    }
+
+    final sortedDates = groups.keys.toList()..sort((a, b) => b.compareTo(a));
+
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final date = sortedDates[index];
+          final dayEntries = groups[date]!;
+          return _DayGroup(date: date, entries: dayEntries);
         },
+        childCount: sortedDates.length,
+      ),
+    );
+  }
+}
+
+class _JournalHeader extends StatelessWidget {
+  const _JournalHeader({required this.onRefresh});
+  final Future<void> Function() onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final monthYear = DateFormat('MMMM yyyy').format(now);
+
+    return SliverAppBar(
+      expandedHeight: 152,
+      pinned: true,
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              right: -30,
+              top: MediaQuery.of(context).padding.top - 10,
+              child: Icon(Icons.circle, size: 120, color: NeuroColors.adolescentPrimary.withValues(alpha: 0.06)),
+            ),
+            Positioned(
+              left: -20,
+              bottom: 8,
+              child: Icon(Icons.circle, size: 80, color: const Color(0xFF9E7AFF).withValues(alpha: 0.08)),
+            ),
+            Padding(
+          padding: EdgeInsets.fromLTRB(
+            24,
+            MediaQuery.of(context).padding.top + 20,
+            24,
+            16,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  gradient: NeuroGradients.adolescent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'YOUR SECURE JOURNAL',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    monthYear,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF2C1C5F),
+                      letterSpacing: -0.8,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Row(
+            children: [
+              Hero(
+                tag: 'search_icon',
+                child: _HeaderIcon(
+                  icon: Icons.search_rounded,
+                  onTap: () => context.push(AdolescentRoutes.searchJournal),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _HeaderIcon(
+                icon: Icons.calendar_month_rounded,
+                onTap: () => _showCalendarPicker(context),
+              ),
+              const SizedBox(width: 8),
+              _HeaderIcon(
+                icon: Icons.refresh_rounded,
+                onTap: () {
+                  onRefresh();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Refreshing journal...'),
+                      behavior: SnackBarBehavior.floating,
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 16),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showCalendarPicker(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: DateTime(2020),
+      lastDate: now,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: NeuroColors.adolescentPrimary,
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF2C1C5F),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && context.mounted) {
+      context.push(AdolescentRoutes.searchJournal, extra: picked);
+    }
+  }
+}
+
+class _HeaderIcon extends StatelessWidget {
+  const _HeaderIcon({required this.icon, required this.onTap});
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: NeuroColors.adolescentPrimary.withValues(alpha: 0.15),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(icon, color: NeuroColors.adolescentPrimary, size: 22),
+      ),
+    );
+  }
+}
+
+class _WeeklyActivityCard extends StatelessWidget {
+  const _WeeklyActivityCard({required this.entries});
+  final List<JournalEntry> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final weekDays = List.generate(7, (i) => today.subtract(Duration(days: 6 - i)));
+    
+    final weekRangeStart = weekDays.first;
+    final entriesThisWeek = entries.where((e) => e.createdAt.isAfter(weekRangeStart)).toList();
+    final entriesThisWeekCount = entriesThisWeek.length;
+    
+    // Map weekday to mood color if entry exists
+    final Map<int, Color> dayEntryMap = {};
+    for (final day in weekDays) {
+      final dayEntries = entries.where((e) => 
+        e.createdAt.day == day.day && 
+        e.createdAt.month == day.month && 
+        e.createdAt.year == day.year
+      );
+      if (dayEntries.isNotEmpty) {
+        dayEntryMap[day.weekday] = _getMoodColor(dayEntries.first.mood);
+      }
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: NeuroGradients.adolescentCard,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.55), width: 1.2),
+        boxShadow: [
+          NeuroShadows.adolescentGlow,
+          BoxShadow(
+            color: NeuroColors.adolescentPrimary.withValues(alpha: 0.12),
+            blurRadius: 28,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'THIS WEEK',
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                  letterSpacing: 1.6,
+                  color: Color(0xFF6A5C9A),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '$entriesThisWeekCount MEMORIES',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 10,
+                    color: NeuroColors.adolescentPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: weekDays.map((day) {
+              final color = dayEntryMap[day.weekday];
+              final isToday = day.day == today.day && 
+                             day.month == today.month && 
+                             day.year == today.year;
+              
+              return Column(
+                children: [
+                  Text(
+                    DateFormat('E').format(day).substring(0, 1).toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: isToday ? FontWeight.w900 : FontWeight.w700,
+                      color: isToday ? NeuroColors.adolescentPrimary : const Color(0xFF8A7DAC),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: color ?? Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isToday 
+                            ? NeuroColors.adolescentPrimary 
+                            : (color == null ? const Color(0xFFE0DAF0) : color),
+                        width: isToday ? 2.5 : 1.0,
+                      ),
+                      boxShadow: color != null ? [
+                        BoxShadow(
+                          color: color.withValues(alpha: 0.4),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        )
+                      ] : null,
+                    ),
+                    child: color != null 
+                        ? const Icon(Icons.check_rounded, size: 18, color: Colors.white) 
+                        : null,
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getMoodColor(MoodType? mood) {
+    switch (mood) {
+      case MoodType.happy: return const Color(0xFFFFB74D);
+      case MoodType.calm: return const Color(0xFF81C784);
+      case MoodType.anxious: return const Color(0xFFFF7043);
+      case MoodType.sad: return const Color(0xFF64B5F6);
+      default: return NeuroColors.adolescentPrimary;
+    }
+  }
+}
+
+class _DayGroup extends StatelessWidget {
+  const _DayGroup({required this.date, required this.entries});
+  final DateTime date;
+  final List<JournalEntry> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final isToday = date.day == now.day && date.month == now.month && date.year == now.year;
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  gradient: isToday ? NeuroGradients.adolescent : null,
+                  color: isToday ? null : NeuroColors.adolescentSurfaceVariant,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isToday ? Colors.white.withValues(alpha: 0.35) : const Color(0xFFE0DAF0),
+                    width: isToday ? 1.5 : 1,
+                  ),
+                  boxShadow: isToday
+                      ? [NeuroShadows.adolescentGlow, BoxShadow(color: const Color(0xFF5A1BC7).withValues(alpha: 0.2), blurRadius: 12, offset: const Offset(0, 4))]
+                      : null,
+                ),
+                child: Center(
+                  child: Text(
+                    DateFormat('dd').format(date),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: isToday ? Colors.white : NeuroColors.adolescentPrimary,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isToday ? 'TODAY' : DateFormat('EEEE').format(date).toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF2C1C5F),
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  Text(
+                    DateFormat('MMM yyyy').format(date).toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF8A7DAC),
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...entries.map((entry) => _EntryCard(entry: entry, isPendingSync: entry.id.startsWith('pending-'))),
+          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+}
+
+class _EntryCard extends StatelessWidget {
+  const _EntryCard({required this.entry, this.isPendingSync = false});
+  final JournalEntry entry;
+  final bool isPendingSync;
+
+  Color _accent(MoodType? mood) {
+    return switch (mood) {
+      MoodType.happy => const Color(0xFFFFB74D),
+      MoodType.calm => const Color(0xFF66BB6A),
+      MoodType.anxious => const Color(0xFFFF7043),
+      MoodType.sad => const Color(0xFF42A5F5),
+      MoodType.hopeful => const Color(0xFFAB47BC),
+      MoodType.excited => const Color(0xFFEC407A),
+      MoodType.tired => const Color(0xFF7E57C2),
+      MoodType.angry => const Color(0xFFEF5350),
+      MoodType.stressed => const Color(0xFFFF8A65),
+      MoodType.neutral => NeuroColors.adolescentPrimary,
+      null => NeuroColors.adolescentPrimary,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = _accent(entry.mood);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(22),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: isPendingSync
+              ? () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Still syncing this entry to the server…'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              : () => context.push('${AdolescentRoutes.journal}/${entry.id}'),
+          borderRadius: BorderRadius.circular(22),
+          splashColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.08),
+          highlightColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.04),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              // Rounded corners require a uniform border color on BoxDecoration.
+              // Mood accent is drawn as a separate strip (see Row below).
+              border: Border.all(color: const Color(0xFFE8E0F0), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.07),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 4,
+                  child: ColoredBox(color: accent),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(22, 18, 18, 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          _MoodBadge(mood: entry.mood),
+                          if (isPendingSync) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: NeuroColors.adolescentPrimary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'SYNCING',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.6,
+                                  color: NeuroColors.adolescentPrimary,
+                                ),
+                              ),
+                            ),
+                          ],
+                          const Spacer(),
+                          const Icon(Icons.access_time_rounded, size: 12, color: Color(0xFF8A7DAC)),
+                          const SizedBox(width: 4),
+                          Text(
+                            DateFormat('h:mm a').format(entry.createdAt),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF8A7DAC),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      if (entry.title != null) ...[
+                        Text(
+                          entry.title!,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF2C1C5F),
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                      ],
+                      Text(
+                        entry.content,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          height: 1.5,
+                          color: Color(0xFF53477D),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MoodBadge extends StatelessWidget {
+  const _MoodBadge({required this.mood});
+  final MoodType? mood;
+
+  @override
+  Widget build(BuildContext context) {
+    if (mood == null) return const SizedBox.shrink();
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: _getMoodColor(mood).withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(_getMoodEmoji(mood), style: const TextStyle(fontSize: 12)),
+          const SizedBox(width: 4),
+          Text(
+            mood!.label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w900,
+              color: _getMoodColor(mood),
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getMoodColor(MoodType? mood) {
+    switch (mood) {
+      case MoodType.happy: return const Color(0xFFE65100);
+      case MoodType.calm: return const Color(0xFF2E7D32);
+      case MoodType.anxious: return const Color(0xFFD84315);
+      case MoodType.sad: return const Color(0xFF1565C0);
+      default: return NeuroColors.adolescentPrimaryDark;
+    }
+  }
+
+  String _getMoodEmoji(MoodType? mood) {
+    switch (mood) {
+      case MoodType.happy: return '😊';
+      case MoodType.calm: return '🍃';
+      case MoodType.anxious: return '😰';
+      case MoodType.sad: return '😢';
+      default: return '😐';
+    }
+  }
+}
+
+class _ComposeFAB extends StatelessWidget {
+  const _ComposeFAB({required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          NeuroShadows.adolescentGlow,
+          BoxShadow(
+            color: const Color(0xFF5A1BC7).withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: NeuroGradients.adolescent,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1.5),
+        ),
+        child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: const Icon(Icons.edit_document, size: 20),
+        label: const Text(
+          'Compose Entry',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          shadowColor: Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+      ),
       ),
     );
   }

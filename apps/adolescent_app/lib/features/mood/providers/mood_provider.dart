@@ -53,7 +53,10 @@ class MoodController extends _$MoodController {
         note: state.notes,
       );
 
-      await service.recordMood(request);
+      final result = await service.recordMood(request);
+      if (result.isFailure) {
+        throw Exception(result.failure.message);
+      }
 
       state = state.copyWith(
         isSubmitting: false,
@@ -77,7 +80,7 @@ abstract class MoodHistoryState with _$MoodHistoryState {
   }) = _MoodHistoryState;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class MoodHistoryController extends _$MoodHistoryController {
   @override
   FutureOr<MoodHistoryState> build() async {
@@ -91,7 +94,13 @@ class MoodHistoryController extends _$MoodHistoryController {
   }
 
   Future<void> refresh() async {
-    state = const AsyncValue.loading();
+    if (state.isLoading) return;
+    final current = state.hasValue ? state.value : null;
+    if (current != null) {
+      state = AsyncValue.data(current.copyWith(isLoading: true, error: null));
+    } else {
+      state = const AsyncValue.loading();
+    }
     state = await AsyncValue.guard(() async {
       final service = ref.read(journalServiceProvider);
       final result = await service.getMyMoods();

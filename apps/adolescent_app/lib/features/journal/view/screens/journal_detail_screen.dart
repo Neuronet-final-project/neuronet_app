@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../../../../config/router/app_router.dart';
 import '../../providers/journal_provider.dart';
 
 class JournalDetailScreen extends ConsumerWidget {
@@ -11,105 +17,770 @@ class JournalDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final journalAsync = ref.watch(journalControllerProvider);
-    final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Journal Entry'),
-      ),
+      backgroundColor: const Color(0xFFF7F4FF),
       body: journalAsync.when(
         data: (state) {
-          if (state.isLoading && state.entries.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+          JournalEntry? entry;
+          for (final e in state.entries) {
+            if (e.id == entryId) {
+              entry = e;
+              break;
+            }
           }
-
-          if (state.error != null && state.entries.isEmpty) {
-            return Center(child: Text('Error: ${state.error}'));
+          if (entry == null) {
+            return _EntryMissingBody(onBack: () => _popOrGoJournal(context));
           }
-
-          final entry = state.entries.firstWhere(
-            (e) => e.id == entryId,
-            orElse: () => throw Exception('Entry not found'),
-          );
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          return _DetailContent(entry: entry);
+        },
+        loading: () => Center(
+          child: Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFE8E0F5)),
+              boxShadow: [
+                BoxShadow(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
+                ),
+              ],
+            ),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      entry.mood?.emoji ?? '📝',
-                      style: const TextStyle(fontSize: 40),
-                    ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          entry.mood?.label ?? 'Journal',
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          entry.createdAt.toString(), // Simple format for now
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: NeuroColors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                Container(
-                  padding: const EdgeInsets.all(NeuroRadius.xl),
-                  decoration: BoxDecoration(
-                    color: NeuroColors.surface,
-                    borderRadius: BorderRadius.circular(NeuroRadius.xl),
-                    boxShadow: [NeuroShadows.md],
-                  ),
-                  child: Text(
-                    entry.content,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      height: 1.6,
-                      color: Colors.black87,
-                    ),
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF6A1FDB),
+                    strokeWidth: 3,
                   ),
                 ),
-                const SizedBox(height: 40),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: NeuroColors.adolescentSurface,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.lock_outline, size: 16, color: NeuroColors.adolescentPrimary),
-                        const SizedBox(width: 8),
-                        Text(
-                          'End-to-End Encrypted',
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: NeuroColors.adolescentPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+                SizedBox(height: 16),
+                Text(
+                  'Opening your entry…',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    color: Color(0xFF6A5C9A),
                   ),
                 ),
               ],
             ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
+          ),
+        ),
+        error: (error, stack) => _ErrorBody(
+          message: '$error',
+          onRetry: () => ref.read(journalControllerProvider.notifier).refresh(),
+        ),
       ),
     );
   }
+}
+
+void _popOrGoJournal(BuildContext context) {
+  if (context.canPop()) {
+    context.pop();
+  } else {
+    context.go(AdolescentRoutes.journal);
+  }
+}
+
+String _formatEntryForShare(JournalEntry entry) {
+  final buf = StringBuffer();
+  final date = DateFormat.yMMMMd().format(entry.createdAt);
+  final time = DateFormat.jm().format(entry.createdAt);
+  buf.writeln('$date · $time');
+  if (entry.title != null && entry.title!.trim().isNotEmpty) {
+    buf.writeln();
+    buf.writeln(entry.title!.trim());
+  }
+  buf.writeln();
+  buf.write(entry.content.trim());
+  return buf.toString();
+}
+
+Color _journalEntryMoodAccent(MoodType? mood) {
+  if (mood == null) return const Color(0xFF6A1FDB);
+  return switch (mood) {
+    MoodType.happy => const Color(0xFFFFA726),
+    MoodType.calm => const Color(0xFF43A047),
+    MoodType.anxious => const Color(0xFFFF7043),
+    MoodType.sad => const Color(0xFF42A5F5),
+    MoodType.hopeful => const Color(0xFFAB47BC),
+    MoodType.excited => const Color(0xFFEC407A),
+    MoodType.tired => const Color(0xFF7E57C2),
+    MoodType.angry => const Color(0xFFEF5350),
+    MoodType.stressed => const Color(0xFFFF8A65),
+    MoodType.neutral => const Color(0xFF6A1FDB),
+  };
+}
+
+Future<void> _journalDetailShareFromAnchor(
+  BuildContext scaffoldContext,
+  BuildContext anchorContext,
+  JournalEntry entry,
+) async {
+  final text = _formatEntryForShare(entry);
+  if (text.trim().isEmpty) return;
+
+  Rect origin;
+  final ro = anchorContext.findRenderObject();
+  if (ro is RenderBox && ro.hasSize && ro.attached) {
+    origin = ro.localToGlobal(Offset.zero) & ro.size;
+    if (origin.width < 1 || origin.height < 1) {
+      final sz = MediaQuery.sizeOf(scaffoldContext);
+      origin = Rect.fromCenter(center: Offset(sz.width / 2, sz.height / 2), width: 2, height: 2);
+    }
+  } else {
+    final sz = MediaQuery.sizeOf(scaffoldContext);
+    origin = Rect.fromCenter(center: Offset(sz.width / 2, sz.height / 2), width: 2, height: 2);
+  }
+
+  final subject = (entry.title?.trim().isNotEmpty ?? false) ? entry.title!.trim() : 'My journal entry';
+
+  try {
+    await SharePlus.instance.share(
+      ShareParams(
+        text: text,
+        subject: subject,
+        sharePositionOrigin: origin,
+      ),
+    );
+  } catch (_) {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (scaffoldContext.mounted) {
+      ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+        SnackBar(
+          content: const Text('Could not open share. Text copied to clipboard instead.'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          backgroundColor: const Color(0xFF2C1C5F),
+        ),
+      );
+    }
+  }
+}
+
+class _EntryMissingBody extends StatelessWidget {
+  const _EntryMissingBody({required this.onBack});
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            IconButton(
+              alignment: Alignment.centerLeft,
+              onPressed: onBack,
+              icon: const Icon(Icons.arrow_back_rounded),
+              style: IconButton.styleFrom(
+                foregroundColor: NeuroColors.adolescentPrimaryDark,
+                backgroundColor: Colors.white,
+              ),
+            ),
+            const Spacer(),
+            Icon(Icons.menu_book_outlined, size: 64, color: NeuroColors.adolescentPrimary.withValues(alpha: 0.45)),
+            const SizedBox(height: 20),
+            Text(
+              'Journal not found',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF2C1C5F),
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'It may have been removed or this link is outdated.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                height: 1.45,
+                color: NeuroColors.adolescentPrimaryDark.withValues(alpha: 0.75),
+              ),
+            ),
+            const Spacer(),
+            FilledButton.icon(
+              onPressed: onBack,
+              icon: const Icon(Icons.arrow_back_rounded, size: 20),
+              label: const Text('Back to journal'),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF6A1FDB),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorBody extends StatelessWidget {
+  const _ErrorBody({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.cloud_off_rounded, size: 56, color: NeuroColors.adolescentPrimary.withValues(alpha: 0.5)),
+            const SizedBox(height: 16),
+            Text(
+              'Something went wrong',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF2C1C5F),
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFF6A5C9A), fontSize: 14, height: 1.4),
+            ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: onRetry,
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF6A1FDB),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Try again'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailContent extends StatelessWidget {
+  const _DetailContent({required this.entry});
+  final JournalEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final wordCount = entry.content.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).length;
+    final readTime = wordCount == 0 ? 1 : (wordCount / 200).ceil();
+    final moodColor = _journalEntryMoodAccent(entry.mood);
+    final moodLabel = entry.mood?.label ?? 'Neutral';
+    final moodEmoji = entry.mood?.emoji ?? '😐';
+
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 248,
+          pinned: true,
+          stretch: true,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          backgroundColor: const Color(0xFF6A1FDB),
+          surfaceTintColor: Colors.transparent,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+            onPressed: () => _popOrGoJournal(context),
+            style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.18)),
+          ),
+          actions: [
+            Builder(
+              builder: (anchorContext) => IconButton(
+                icon: const Icon(Icons.ios_share_rounded, color: Colors.white),
+                tooltip: 'Share',
+                onPressed: () => _journalDetailShareFromAnchor(context, anchorContext, entry),
+                style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.18)),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.more_horiz_rounded, color: Colors.white),
+              tooltip: 'More',
+              onPressed: () => _showJournalActionsSheet(context, entry),
+              style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.18)),
+            ),
+            const SizedBox(width: 8),
+          ],
+          flexibleSpace: FlexibleSpaceBar(
+            stretchModes: const [StretchMode.zoomBackground, StretchMode.blurBackground],
+            background: Stack(
+              fit: StackFit.expand,
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFF5A1BC7),
+                        Color(0xFF6A1FDB),
+                        Color(0xFF8B6AE8),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: -24,
+                  top: 72,
+                  child: Icon(Icons.circle, size: 140, color: Colors.white.withValues(alpha: 0.06)),
+                ),
+                Positioned(
+                  left: -40,
+                  bottom: 20,
+                  child: Icon(Icons.circle, size: 100, color: Colors.white.withValues(alpha: 0.05)),
+                ),
+                Center(
+                  child: Icon(Icons.circle, size: 220, color: Colors.white.withValues(alpha: 0.04)),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24, MediaQuery.paddingOf(context).top + 52, 24, 20),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 88,
+                        height: 88,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.white.withValues(alpha: 0.35),
+                              Colors.white.withValues(alpha: 0.12),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.45), width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.12),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(moodEmoji, style: const TextStyle(fontSize: 44)),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              DateFormat('EEEE').format(entry.createdAt).toUpperCase(),
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.85),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.8,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              DateFormat.yMMMMd().format(entry.createdAt),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                                height: 1.15,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(Icons.schedule_rounded, color: Colors.white.withValues(alpha: 0.9), size: 16),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    DateFormat.jm().format(entry.createdAt),
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.92),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Transform.translate(
+            offset: const Offset(0, -18),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(color: const Color(0xFFE8E0F5)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF6A1FDB).withValues(alpha: 0.08),
+                          blurRadius: 24,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _StatColumn(
+                              icon: Icons.auto_awesome_rounded,
+                              iconColor: moodColor,
+                              value: moodLabel,
+                              caption: 'Mood',
+                            ),
+                          ),
+                          _VerticalHairline(color: NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.35)),
+                          Expanded(
+                            child: _StatColumn(
+                              icon: Icons.text_fields_rounded,
+                              iconColor: const Color(0xFF6A5C9A),
+                              value: '$wordCount',
+                              caption: 'Words',
+                            ),
+                          ),
+                          _VerticalHairline(color: NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.35)),
+                          Expanded(
+                            child: _StatColumn(
+                              icon: Icons.local_cafe_rounded,
+                              iconColor: const Color(0xFF6A5C9A),
+                              value: '$readTime min',
+                              caption: 'Read',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8F5FF),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE8E0F5)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.touch_app_outlined,
+                          size: 20,
+                          color: NeuroColors.adolescentPrimary.withValues(alpha: 0.85),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Tip: long-press your entry below to select text or copy a favorite line.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.45,
+                              fontWeight: FontWeight.w600,
+                              color: NeuroColors.adolescentPrimaryDark.withValues(alpha: 0.62),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  if (entry.title != null && entry.title!.trim().isNotEmpty) ...[
+                    Text(
+                      entry.title!.trim(),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF2C1C5F),
+                        letterSpacing: -0.6,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(color: const Color(0xFFF0EDF8)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 28,
+                          offset: const Offset(0, 14),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(26, 28, 26, 30),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF9E7AFF), Color(0xFF6A1FDB)],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 22),
+                          SelectableText(
+                            entry.content,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              height: 1.75,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF4A3F72),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFEDE8FF),
+                          NeuroColors.adolescentSurfaceVariant.withValues(alpha: 0.95),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(color: NeuroColors.adolescentPrimary.withValues(alpha: 0.12)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: const BoxDecoration(
+                              gradient: NeuroGradients.adolescent,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.shield_rounded, color: Colors.white, size: 22),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Your private space',
+                                  style: TextStyle(
+                                    color: NeuroColors.adolescentPrimaryDark,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 15,
+                                    letterSpacing: -0.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'This entry stays on your account for you. Guardians and counselors do not read your journal text.',
+                                  style: TextStyle(
+                                    color: NeuroColors.adolescentPrimaryDark.withValues(alpha: 0.78),
+                                    fontSize: 13,
+                                    height: 1.45,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VerticalHairline extends StatelessWidget {
+  const _VerticalHairline({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(width: 1, height: 44, color: color);
+  }
+}
+
+class _StatColumn extends StatelessWidget {
+  const _StatColumn({
+    required this.icon,
+    required this.iconColor,
+    required this.value,
+    required this.caption,
+  });
+  final IconData icon;
+  final Color iconColor;
+  final String value;
+  final String caption;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: iconColor, size: 20),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xFF2C1C5F),
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            caption.toUpperCase(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: NeuroColors.adolescentPrimaryDark.withValues(alpha: 0.45),
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Future<void> _showJournalActionsSheet(BuildContext context, JournalEntry entry) async {
+  await showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (ctx) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 24,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                leading: const Icon(Icons.copy_all_rounded, color: Color(0xFF6A1FDB)),
+                title: const Text('Copy entry', style: TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: const Text('Title and full text', style: TextStyle(fontSize: 12)),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await Clipboard.setData(ClipboardData(text: _formatEntryForShare(entry)));
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Copied to clipboard'),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      backgroundColor: const Color(0xFF2C1C5F),
+                    ),
+                  );
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined, color: Color(0xFF6A1FDB)),
+                title: const Text('About journal privacy', style: TextStyle(fontWeight: FontWeight.w700)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showDialog<void>(
+                    context: context,
+                    builder: (dCtx) => AlertDialog(
+                      title: const Text('Journal privacy'),
+                      content: const Text(
+                        'Your journal entries are stored securely for your account. '
+                        'The app is designed so your raw journal text is not shown to guardians or counselors. '
+                        'If you ever use optional features that analyze mood in aggregate, those are described in your consent settings.',
+                        style: TextStyle(height: 1.45),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dCtx),
+                          child: const Text('Got it'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: MediaQuery.paddingOf(ctx).bottom),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

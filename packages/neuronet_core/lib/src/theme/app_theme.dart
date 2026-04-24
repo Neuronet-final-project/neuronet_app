@@ -47,6 +47,13 @@ class NeuroColors {
   static const Color moodTired = Color(0xFF90A4AE);
   static const Color moodAngry = Color(0xFFEF5350);
   static const Color moodHopeful = Color(0xFF4FC3F7);
+
+  // ─── Editorial Palette (Premium) ───
+  static const Color paper = Color(0xFFFDFCF2); // Warm cream paper
+  static const Color ink = Color(0xFF1E293B);   // Deep black/navy ink
+  static const Color inkSoft = Color(0xFF475569);
+  static const Color inkMuted = Color(0xFF94A3B8);
+  static const Color hairline = Color(0xFFE2E8F0); // Subtle hairline dividers
 }
 
 /// Spacing tokens — multiples of 4 for consistent layout rhythm.

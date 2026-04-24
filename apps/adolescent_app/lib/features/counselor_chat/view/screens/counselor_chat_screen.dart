@@ -282,10 +282,12 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
             ),
           // Active call overlay (rendered inline — no navigator conflicts)
           if (showActiveCall && callState.value != null)
-            NeuroActiveCallScreen(
-              call: callState.value!.currentCall!,
-              remotePeerEmail: callState.value!.remotePeerEmail,
-              accentColor: theme.colorScheme.primary,
+            Positioned.fill(
+              child: NeuroActiveCallScreen(
+                call: callState.value!.currentCall!,
+                remotePeerEmail: callState.value!.remotePeerEmail,
+                accentColor: theme.colorScheme.primary,
+              ),
             ),
         ],
       ),
