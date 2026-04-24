@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import '../../../../config/router/app_router.dart';
 import '../../providers/channels_provider.dart';
 
 class ChannelDetailScreen extends ConsumerStatefulWidget {
@@ -18,6 +20,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
   final Map<String, List<ChannelInteraction>> _interactions = {};
   final Map<String, String> _commentInputs = {};
   String? _expandedPostId;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -33,6 +36,9 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
     final postsResult = await service.getChannelPosts(widget.channelId);
     if (postsResult.isSuccess) {
       _posts = postsResult.value;
+      _errorMessage = null;
+    } else {
+      _errorMessage = postsResult.failure.message;
     }
     
     setState(() => _isLoading = false);
@@ -53,6 +59,14 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
     final result = await service.reactToPost(widget.channelId, postId, emojiType);
     if (result.isSuccess) {
       await _loadInteractions(postId);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.failure.message),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   }
 
@@ -67,6 +81,14 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
         _commentInputs[postId] = '';
       });
       await _loadInteractions(postId);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.failure.message),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   }
 
@@ -99,8 +121,19 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
     );
 
     return Scaffold(
+      backgroundColor: NeuroColors.adolescentSurface,
       appBar: AppBar(
-        title: Text(channel?.channelName ?? 'Channel'),
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: const Color(0xFF6A1FDB),
+        elevation: 0,
+        title: Text(
+          channel?.channelName ?? 'Channel',
+          style: const TextStyle(
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(channel?.isFollowed == true ? Icons.check_circle : Icons.add_circle_outline),
@@ -109,50 +142,117 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                 .toggleFollow(widget.channelId),
             tooltip: channel?.isFollowed == true ? 'Following' : 'Follow',
           ),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            onPressed: _loadData,
+            tooltip: 'Refresh posts',
+          ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
+          ? const Center(child: CircularProgressIndicator(color: NeuroColors.adolescentPrimary))
+          : Stack(
+              children: [
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFF2ECFF),
+                          NeuroColors.adolescentSurface,
+                          const Color(0xFFE8DCF9).withValues(alpha: 0.4),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: const [0.0, 0.45, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+                RefreshIndicator(
               onRefresh: _loadData,
               child: CustomScrollView(
                 slivers: [
-                    if (channel != null)
-                      SliverToBoxAdapter(
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          color: NeuroColors.adolescentPrimary.withValues(alpha: 0.05),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                  SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFE4D1FF), Color(0xFFDAC0FF)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: NeuroColors.adolescentPrimary.withValues(alpha: 0.18),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.people_outline,
-                                      size: 16, color: NeuroColors.adolescentPrimary),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${channel.subscriberCount} followers',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: NeuroColors.adolescentPrimary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (channel.description != null &&
-                                  channel.description!.isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Text(
-                                  channel.description!,
-                                  style: const TextStyle(
-                                      fontSize: 14, color: NeuroColors.onSurfaceVariant),
+                              const Icon(Icons.people_alt_rounded, size: 16, color: NeuroColors.adolescentPrimary),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${channel?.subscriberCount ?? 0} followers',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: NeuroColors.adolescentPrimaryDark,
                                 ),
-                              ],
+                              ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  (channel?.channelType.name ?? 'channel').toUpperCase(),
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF6A5C9A),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
+                          if (channel?.description != null && channel!.description!.isNotEmpty) ...[
+                            const SizedBox(height: 10),
+                            Text(
+                              channel.description!,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF53477D),
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  if (_errorMessage != null && _posts.isEmpty)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: NeuroErrorWidget(
+                          message: _errorMessage!,
+                          onRetry: _loadData,
                         ),
                       ),
+                    )
+                  else
                   
                   if (_posts.isEmpty)
                     const SliverFillRemaining(
@@ -177,6 +277,8 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                 ],
               ),
             ),
+              ],
+            ),
     );
   }
 
@@ -195,12 +297,25 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
       }
     }
 
-    return Card(
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: () {
+        final safePostId = Uri.encodeComponent(post.id.replaceAll('/', ''));
+        context.push('${AdolescentRoutes.channels}/${widget.channelId}/posts/$safePostId');
+      },
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFD7C5EE)),
+        boxShadow: [
+          BoxShadow(
+            color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,10 +326,10 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: NeuroColors.adolescentPrimary,
+                  backgroundColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.25),
                   child: Text(
                     (post.counselorName ?? 'C').substring(0, 1).toUpperCase(),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: NeuroColors.adolescentPrimaryDark, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -230,7 +345,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                         children: [
                           Text(
                             post.postType.toUpperCase(),
-                            style: const TextStyle(fontSize: 10, color: NeuroColors.adolescentPrimary, fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontSize: 10, color: NeuroColors.adolescentPrimary, fontWeight: FontWeight.w900),
                           ),
                           const Text(' • ', style: TextStyle(fontSize: 10, color: Colors.grey)),
                           Text(
@@ -256,12 +371,21 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
               children: [
                 Text(
                   post.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 20,
+                    color: Color(0xFF2C1C5F),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   post.content,
-                  style: const TextStyle(fontSize: 15, height: 1.5),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    height: 1.5,
+                    color: Color(0xFF4F3F7C),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -275,18 +399,24 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                 _ReactionButton(
                   emoji: '👍',
                   count: reactionCounts['like']?.toString(),
+                  backgroundColor: const Color(0xFFFFF1D8),
+                  borderColor: const Color(0xFFFFDDA5),
                   onTap: () => _handleReaction(post.id, 'like'),
                 ),
                 const SizedBox(width: 8),
                 _ReactionButton(
                   emoji: '💜',
                   count: reactionCounts['support']?.toString(),
+                  backgroundColor: const Color(0xFFEEDBFF),
+                  borderColor: const Color(0xFFD8B5FF),
                   onTap: () => _handleReaction(post.id, 'support'),
                 ),
                 const SizedBox(width: 8),
                 _ReactionButton(
                   emoji: '✅',
                   count: reactionCounts['helpful']?.toString(),
+                  backgroundColor: const Color(0xFFE5F9E7),
+                  borderColor: const Color(0xFFBCEAC2),
                   onTap: () => _handleReaction(post.id, 'helpful'),
                 ),
                 
@@ -294,7 +424,11 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                 
                 Text(
                   '${post.reactionCount} reactions • ${post.commentCount} comments',
-                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF7B6AAB),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
@@ -414,6 +548,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
             ),
         ],
       ),
+    ),
     );
   }
 }
@@ -422,8 +557,16 @@ class _ReactionButton extends StatelessWidget {
   final String emoji;
   final String? count;
   final VoidCallback onTap;
+  final Color backgroundColor;
+  final Color borderColor;
 
-  const _ReactionButton({required this.emoji, this.count, required this.onTap});
+  const _ReactionButton({
+    required this.emoji,
+    this.count,
+    required this.onTap,
+    this.backgroundColor = const Color(0xFFF0E5FF),
+    this.borderColor = const Color(0xFFD7C3F5),
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -433,15 +576,30 @@ class _ReactionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha: 0.1),
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: borderColor.withValues(alpha: 0.28),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Text(emoji, style: const TextStyle(fontSize: 14)),
             if (count != null) ...[
               const SizedBox(width: 4),
-              Text(count!, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(
+                count!,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF523A8E),
+                ),
+              ),
             ],
           ],
         ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:intl/intl.dart';
+import '../../../../config/router/app_router.dart';
 import '../../providers/mood_provider.dart';
 
 class MoodScreen extends ConsumerWidget {
@@ -10,355 +13,635 @@ class MoodScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(moodControllerProvider);
     final notifier = ref.read(moodControllerProvider.notifier);
-    final colorScheme = Theme.of(context).colorScheme;
+    final moodHistoryAsync = ref.watch(moodHistoryControllerProvider);
 
     // Show error snackbar when error changes
     ref.listen(moodControllerProvider, (previous, next) {
       if (next.error != null && previous?.error != next.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.error!),
-            backgroundColor: colorScheme.errorContainer,
+            content: Text(next.error!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            backgroundColor: Colors.redAccent,
             behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 4),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       }
     });
 
-    final moodHistoryAsync = ref.watch(moodHistoryControllerProvider);
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mood Tracker'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              notifier.reset();
-              ref.read(moodHistoryControllerProvider.notifier).refresh();
-            },
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Reset',
-          ),
-        ],
-      ),
+      backgroundColor: NeuroColors.adolescentSurface,
       body: state.showSuccess
-          ? _buildSuccessView(context)
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'How are you feeling right now?',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary,
+          ? _buildSuccessView(context, notifier, ref)
+          : Stack(
+              children: [
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFF2ECFF),
+                          NeuroColors.adolescentSurface,
+                          const Color(0xFFE7DDFC).withValues(alpha: 0.35),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: const [0.0, 0.38, 1.0],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Select the emoji that best matches your current mood.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: NeuroColors.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildMoodGrid(context, state, notifier),
-                  const SizedBox(height: 32),
-                  if (state.selectedMood != null) ...[
-                    _buildIntensitySection(context, state, notifier),
-                    const SizedBox(height: 32),
-                    _buildNotesSection(context, state, notifier),
-                    const SizedBox(height: 40),
-                    ElevatedButton(
-                      onPressed: state.isSubmitting
-                          ? null
-                          : () => notifier.submitMood(),
-                      child: state.isSubmitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                ),
+                CustomScrollView(
+                  slivers: [
+                    _buildHeader(context, notifier, ref),
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEFE8FF),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: const Text(
+                              'YOUR DAILY CHECK-IN',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.2,
+                                color: Color(0xFF6A1FDB),
                               ),
-                            )
-                          : const Text('Save Mood Entry'),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          const Text(
+                            'How are you feeling right now?',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF2C1C5F),
+                              letterSpacing: -0.6,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Tap the emoji that best captures your current mood.',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF6A5C9A),
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          _buildMoodGrid(context, state, notifier),
+                          const SizedBox(height: 40),
+                          if (state.selectedMood != null) ...[
+                            _buildIntensitySection(context, state, notifier),
+                            const SizedBox(height: 32),
+                            _buildNotesSection(context, state, notifier),
+                            const SizedBox(height: 48),
+                            _buildSubmitButton(state, notifier),
+                            const SizedBox(height: 32),
+                          ],
+                          _buildMoodHistory(context, ref, moodHistoryAsync),
+                          const SizedBox(height: 80),
+                        ]),
+                      ),
                     ),
-                    const SizedBox(height: 20),
                   ],
-                  _buildMoodHistory(context, ref, moodHistoryAsync),
-                ],
-              ),
+                ),
+              ],
             ),
     );
   }
 
-  Widget _buildMoodHistory(
-    BuildContext context,
-    WidgetRef ref,
-    AsyncValue<MoodHistoryState> historyAsync,
-  ) {
+  Widget _buildHeader(BuildContext context, MoodController notifier, WidgetRef ref) {
+    return SliverAppBar(
+      expandedHeight: 132,
+      pinned: true,
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Stack(
+          children: [
+            Positioned(
+              top: -40,
+              right: -30,
+              child: Icon(Icons.circle, size: 140, color: const Color(0xFF9E8CD8).withValues(alpha: 0.16)),
+            ),
+            Positioned(
+              left: -28,
+              bottom: -36,
+              child: Icon(Icons.circle, size: 120, color: const Color(0xFFB388FF).withValues(alpha: 0.12)),
+            ),
+          ],
+        ),
+      ),
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF2C1C5F), size: 20),
+            onPressed: () => context.go(AdolescentRoutes.home),
+          ),
+        ),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0, top: 8.0, bottom: 8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.refresh_rounded, color: NeuroColors.adolescentPrimaryDark, size: 20),
+              onPressed: () {
+                notifier.reset();
+                ref.read(moodHistoryControllerProvider.notifier).refresh();
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMoodGrid(BuildContext context, MoodState state, MoodController notifier) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.9,
+      ),
+      itemCount: MoodType.values.length,
+      itemBuilder: (context, index) {
+        final mood = MoodType.values[index];
+        final isSelected = state.selectedMood == mood;
+        final color = _getMoodColor(mood);
+
+        return GestureDetector(
+          onTap: () => notifier.selectMood(mood),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              color: isSelected ? color : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: isSelected ? color : NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                width: 2,
+              ),
+              boxShadow: isSelected ? [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                )
+              ] : [
+                BoxShadow(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                )
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _getMoodEmoji(mood),
+                  style: TextStyle(fontSize: isSelected ? 36 : 28),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  mood.name.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                    color: isSelected ? Colors.white : const Color(0xFF8A7DAC),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildIntensitySection(BuildContext context, MoodState state, MoodController notifier) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: NeuroColors.adolescentPrimary.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Intensity',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF2C1C5F),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  gradient: NeuroGradients.adolescent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${state.intensity} / 5',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SliderTheme(
+            data: SliderThemeData(
+              activeTrackColor: NeuroColors.adolescentPrimary,
+              inactiveTrackColor: NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.3),
+              thumbColor: NeuroColors.adolescentPrimaryDark,
+              overlayColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.2),
+              trackHeight: 8,
+              tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 4),
+              activeTickMarkColor: Colors.white.withValues(alpha: 0.5),
+              inactiveTickMarkColor: NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.5),
+            ),
+            child: Slider(
+              value: state.intensity.toDouble(),
+              min: 1,
+              max: 5,
+              divisions: 4,
+              onChanged: (value) => notifier.updateIntensity(value),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Mild', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC))),
+                Text('Strong', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotesSection(BuildContext context, MoodState state, MoodController notifier) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'What\'s making you feel this way?',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF2C1C5F),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: NeuroColors.adolescentPrimary.withValues(alpha: 0.15)),
+            boxShadow: [
+              BoxShadow(
+                color: NeuroColors.adolescentPrimary.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: TextField(
+            onChanged: (value) => notifier.updateNotes(value),
+            style: const TextStyle(fontSize: 16, color: Color(0xFF53477D), fontWeight: FontWeight.w500),
+            decoration: const InputDecoration(
+              hintText: 'Add a quick note... (Optional)',
+              hintStyle: TextStyle(color: Color(0xFFB4A8D3)),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.all(20),
+            ),
+            maxLines: 4,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubmitButton(MoodState state, MoodController notifier) {
+    return Container(
+      width: double.infinity,
+      height: 60,
+      decoration: BoxDecoration(
+        gradient: NeuroGradients.adolescent,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: const [NeuroShadows.adolescentGlow],
+      ),
+      child: ElevatedButton(
+        onPressed: state.isSubmitting ? null : () => notifier.submitMood(),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        ),
+        child: state.isSubmitting
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+              )
+            : const Text(
+                'Log This Mood',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildSuccessView(BuildContext context, MoodController notifier, WidgetRef ref) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.15),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: const Icon(Icons.favorite_rounded, size: 80, color: NeuroColors.adolescentPrimary),
+          ),
+          const SizedBox(height: 48),
+          const Text(
+            'Mood Logged!',
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF2C1C5F),
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Thanks for checking in.\nTracking how you feel helps you understand yourself better.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              height: 1.5,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF6A5C9A),
+            ),
+          ),
+          const SizedBox(height: 48),
+          TextButton(
+            onPressed: () {
+              notifier.reset();
+              ref.read(moodHistoryControllerProvider.notifier).refresh();
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: NeuroColors.adolescentPrimaryDark,
+            ),
+            child: const Text('Log another mood', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMoodHistory(BuildContext context, WidgetRef ref, AsyncValue<MoodHistoryState> historyAsync) {
     return historyAsync.when(
       data: (state) {
         if (state.isLoading && state.records.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return const Center(child: CircularProgressIndicator(color: NeuroColors.adolescentPrimary));
         }
 
         if (state.error != null && state.records.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: NeuroErrorWidget(
-                message: 'Could not load history: ${state.error}',
-                onRetry: () =>
-                    ref.read(moodHistoryControllerProvider.notifier).refresh(),
-              ),
-            ),
-          );
+           return NeuroErrorWidget(
+             message: 'Could not load history: ${state.error}',
+             onRetry: () => ref.read(moodHistoryControllerProvider.notifier).refresh(),
+           );
         }
 
         final records = state.records;
         if (records.isEmpty) return const SizedBox.shrink();
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Divider(),
-            const SizedBox(height: 16),
-            Text(
-              'Recent Check-ins',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            const Divider(color: Color(0xFFE0DAF0), height: 1),
+            const SizedBox(height: 32),
+            const Text(
+              'Past Check-ins',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF2C1C5F),
+              ),
             ),
-            const SizedBox(height: 12),
-            ...records
-                .take(5)
-                .map(
-                  (r) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        Text(
-                          r.mood.emoji,
-                          style: const TextStyle(fontSize: 24),
+            const SizedBox(height: 20),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              itemCount: records.take(5).length,
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final r = records[index];
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: NeuroColors.adolescentPrimary.withValues(alpha: 0.03),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: _getMoodColor(r.mood).withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                r.mood.label,
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              if (r.note != null && r.note!.isNotEmpty)
-                                Text(
-                                  r.note!,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: NeuroColors.onSurfaceVariant,
-                                      ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                        child: Text(r.mood.emoji, style: const TextStyle(fontSize: 24)),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              _formatTimeAgo(r.createdAt),
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: NeuroColors.onSurfaceVariant,
+                            Row(
+                              children: [
+                                Text(
+                                  r.mood.label.toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w900,
+                                    color: _getMoodColor(r.mood),
+                                    letterSpacing: 1.0,
                                   ),
+                                ),
+                                if (r.intensity != null) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    width: 4, height: 4,
+                                    decoration: const BoxDecoration(color: Color(0xFF8A7DAC), shape: BoxShape.circle),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Lvl ${r.intensity}',
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC)),
+                                  ),
+                                ]
+                              ],
                             ),
-                            if (r.intensity != null)
+                            const SizedBox(height: 4),
+                            if (r.note != null && r.note!.isNotEmpty)
                               Text(
-                                'Intensity: ${r.intensity}/5',
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      color: NeuroColors.onSurfaceVariant,
-                                    ),
+                                r.note!,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF53477D),
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                            else
+                              Text(
+                                DateFormat('MMMM d, y h:mm a').format(r.createdAt),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF8A7DAC),
+                                ),
                               ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        _formatTimeAgo(r.createdAt),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFFB4A8D3),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                );
+              },
+            ),
           ],
         );
       },
-      loading: () => const Center(
-        child: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: CircularProgressIndicator(),
-        ),
-      ),
-      error: (err, stack) => Center(
-        child: NeuroErrorWidget(
-          message: 'Error: $err',
-          onRetry: () =>
-              ref.read(moodHistoryControllerProvider.notifier).refresh(),
-        ),
+      loading: () => const Center(child: CircularProgressIndicator(color: NeuroColors.adolescentPrimary)),
+      error: (err, stack) => NeuroErrorWidget(
+        message: 'Error: $err',
+        onRetry: () => ref.read(moodHistoryControllerProvider.notifier).refresh(),
       ),
     );
   }
 
   String _formatTimeAgo(DateTime dt) {
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'Just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    return '${diff.inDays}d ago';
+    if (diff.inMinutes < 1) return 'Now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    return '${diff.inDays}d';
   }
 
-  Widget _buildMoodGrid(
-    BuildContext context,
-    MoodState state,
-    MoodController notifier,
-  ) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 0.9,
-      ),
-      itemCount: MoodType.values.length,
-      itemBuilder: (context, index) {
-        final mood = MoodType.values[index];
-        return NeuroMoodIcon(
-          moodType: mood,
-          isSelected: state.selectedMood == mood,
-          onTap: () => notifier.selectMood(mood),
-        );
-      },
-    );
+  Color _getMoodColor(MoodType mood) {
+    switch (mood) {
+      case MoodType.happy: return const Color(0xFFFFA726);
+      case MoodType.calm: return const Color(0xFF66BB6A);
+      case MoodType.anxious: return const Color(0xFFFF7043);
+      case MoodType.sad: return const Color(0xFF42A5F5);
+      case MoodType.hopeful: return const Color(0xFFAB47BC);
+      case MoodType.excited: return const Color(0xFFEC407A);
+      case MoodType.tired: return const Color(0xFF7E57C2);
+      case MoodType.angry: return const Color(0xFFEF5350);
+      default: return NeuroColors.adolescentPrimary;
+    }
   }
 
-  Widget _buildIntensitySection(
-    BuildContext context,
-    MoodState state,
-    MoodController notifier,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'How intense is this feeling?',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                'Intensity: ${state.intensity}',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Slider(
-          value: state.intensity.toDouble(),
-          min: 1,
-          max: 5,
-          divisions: 4,
-          label: state.intensity.toString(),
-          onChanged: (value) => notifier.updateIntensity(value),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Mild', style: TextStyle(fontSize: 12)),
-              Text('Strong', style: TextStyle(fontSize: 12)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNotesSection(
-    BuildContext context,
-    MoodState state,
-    MoodController notifier,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Any context? (Optional)',
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          onChanged: (value) => notifier.updateNotes(value),
-          decoration: const InputDecoration(
-            hintText: 'What happened? How are you dealing with it?',
-            alignLabelWithHint: true,
-          ),
-          maxLines: 3,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSuccessView(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.check_circle_outline,
-            size: 100,
-            color: Colors.green,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Mood Saved!',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Your emotional check-in helps us understand your needs.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: NeuroColors.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
+  String _getMoodEmoji(MoodType mood) {
+    switch (mood) {
+      case MoodType.happy: return '😊';
+      case MoodType.calm: return '🍃';
+      case MoodType.hopeful: return '🌈';
+      case MoodType.excited: return '✨';
+      case MoodType.anxious: return '😰';
+      case MoodType.sad: return '😢';
+      case MoodType.stressed: return '😫';
+      case MoodType.angry: return '😠';
+      case MoodType.tired: return '😴';
+      default: return '😐';
+    }
   }
 }

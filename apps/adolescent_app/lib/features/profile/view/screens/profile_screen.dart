@@ -15,17 +15,17 @@ class ProfileScreen extends ConsumerWidget {
     final profileState = ref.watch(adolescentProfileControllerProvider);
 
     return Scaffold(
-      backgroundColor: NeuroColors.background,
+      backgroundColor: NeuroColors.adolescentSurface,
       appBar: AppBar(
         title: const Text(
           'My Profile',
           style: TextStyle(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w900,
             color: Colors.white,
           ),
         ),
         centerTitle: true,
-        backgroundColor: NeuroColors.adolescentPrimary,
+        backgroundColor: const Color(0xFF6A1FDB),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -68,7 +68,24 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildContent(BuildContext context, WidgetRef ref, ThemeData theme, User user) {
-    return SingleChildScrollView(
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFFF2ECFF),
+                  NeuroColors.adolescentSurface,
+                  const Color(0xFFE8DCF9).withValues(alpha: 0.4),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+        ),
+        SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
       child: Column(
         children: [
@@ -78,17 +95,17 @@ class ProfileScreen extends ConsumerWidget {
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: NeuroColors.adolescentSurface,
-              border: Border.all(color: NeuroColors.adolescentPrimary.withValues(alpha: 0.2), width: 4),
+              gradient: NeuroGradients.adolescentCard,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.75), width: 4),
               boxShadow: [
                 BoxShadow(
-                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.15),
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.22),
                   blurRadius: 24,
                   spreadRadius: 8,
                 ),
               ],
             ),
-            child: Icon(Icons.person_rounded, size: 60, color: NeuroColors.adolescentPrimary),
+            child: const Icon(Icons.person_rounded, size: 60, color: NeuroColors.adolescentPrimaryDark),
           ),
           const SizedBox(height: 24),
           Text(
@@ -103,7 +120,7 @@ class ProfileScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
-              color: NeuroColors.adolescentSurface,
+              color: const Color(0xFFEADBFF),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -121,10 +138,16 @@ class ProfileScreen extends ConsumerWidget {
           // Info Card
           Container(
             decoration: BoxDecoration(
-              color: NeuroColors.surface,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(NeuroRadius.xl),
-              boxShadow: [NeuroShadows.sm],
-              border: Border.all(color: NeuroColors.outline.withValues(alpha: 0.3)),
+              boxShadow: [
+                BoxShadow(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+              border: Border.all(color: const Color(0xFFE0D3F2)),
             ),
             child: Column(
               children: [
@@ -159,8 +182,13 @@ class ProfileScreen extends ConsumerWidget {
           InkWell(
             onTap: () => context.push(AdolescentRoutes.consentStatus),
             borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFE5FF),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE1D2FA)),
+              ),
               child: Row(
                 children: [
                   Icon(Icons.shield_outlined, color: NeuroColors.adolescentPrimary),
@@ -195,9 +223,9 @@ class ProfileScreen extends ConsumerWidget {
           ElevatedButton(
             onPressed: () => ref.read(authControllerProvider.notifier).logout(),
             style: ElevatedButton.styleFrom(
-              backgroundColor: NeuroColors.adolescentPrimary,
+              backgroundColor: const Color(0xFF6A1FDB),
               foregroundColor: Colors.white,
-              elevation: 0,
+              elevation: 2,
               minimumSize: const Size(double.infinity, 56),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -229,6 +257,8 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
+    ),
+      ],
     );
   }
 

@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,11 +6,7 @@ import 'package:neuronet_core/neuronet_core.dart';
 import '../../../../config/router/app_router.dart';
 import '../../providers/journal_provider.dart';
 
-/// Minimalist Journal History Redesign
-/// - Timeless, minimalist aesthetic (Editorial Paper & Ink)
-/// - Grouped by day with large date indicators
-/// - "Activity" horizontal card with mood tracking
-/// - Centered "Compose" FAB
+/// Premium Purple Theme Journal History
 class JournalHistoryScreen extends ConsumerStatefulWidget {
   const JournalHistoryScreen({super.key});
 
@@ -25,60 +20,89 @@ class _JournalHistoryScreenState extends ConsumerState<JournalHistoryScreen> {
   Widget build(BuildContext context) {
     final journalAsync = ref.watch(journalControllerProvider);
 
+    ref.listen<String?>(journalBackgroundSaveErrorProvider, (previous, next) {
+      if (next == null || next.isEmpty) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        ref.read(journalBackgroundSaveErrorProvider.notifier).clear();
+      });
+    });
+
     return Scaffold(
-      backgroundColor: NeuroColors.paper,
+      backgroundColor: NeuroColors.adolescentSurface,
       body: Stack(
         children: [
-          // Subtle Paper Grain Texture
           Positioned.fill(
-            child: Opacity(
-              opacity: 0.03,
-              child: CustomPaint(painter: _PaperGrainPainter()),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFFF3EEFF),
+                    NeuroColors.adolescentSurface,
+                    const Color(0xFFE8E0F8).withValues(alpha: 0.35),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: const [0.0, 0.45, 1.0],
+                ),
+              ),
             ),
           ),
-          RefreshIndicator(
-            color: NeuroColors.adolescentPrimary,
-            onRefresh: () => ref.read(journalControllerProvider.notifier).refresh(),
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                // 1. Minimalist Top Header
-                const _MinimalistHeader(),
+          Positioned.fill(
+            child: RefreshIndicator(
+              color: NeuroColors.adolescentPrimary,
+              backgroundColor: Colors.white,
+              onRefresh: () => ref.read(journalControllerProvider.notifier).refresh(),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+            // 1. Premium Header
+            _JournalHeader(
+              onRefresh: () => ref.read(journalControllerProvider.notifier).refresh(),
+            ),
 
-                // 2. Weekly Stats Card
-                journalAsync.maybeWhen(
-                  data: (state) => SliverToBoxAdapter(
-                    child: _WeeklyStatsCard(entries: state.entries),
+            // 2. Weekly Activity Card
+            journalAsync.maybeWhen(
+              data: (state) => SliverToBoxAdapter(
+                child: _WeeklyActivityCard(entries: state.entries),
+              ),
+              orElse: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+            ),
+
+            // 3. Entries List
+            journalAsync.when(
+              data: (state) => _buildGroupedList(context, state.entries),
+              loading: () => SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (_, __) => const Padding(
+                    padding: EdgeInsets.fromLTRB(20, 0, 20, 16),
+                    child: NeuroSkeletonCard(),
                   ),
-                  orElse: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+                  childCount: 4,
                 ),
-
-                // 3. Grouped Entry List
-                journalAsync.when(
-                  data: (state) => _buildGroupedList(context, state.entries),
-                  loading: () => SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (_, __) => const Padding(
-                        padding: EdgeInsets.fromLTRB(20, 0, 20, 16),
-                        child: NeuroSkeletonCard(),
-                      ),
-                      childCount: 4,
-                    ),
-                  ),
-                  error: (err, _) => SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: NeuroErrorWidget(
-                        message: 'Error loading journals: $err',
-                        onRetry: () =>
-                            ref.read(journalControllerProvider.notifier).refresh(),
-                      ),
-                    ),
+              ),
+              error: (err, _) => SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: NeuroErrorWidget(
+                    message: 'Error loading journals: $err',
+                    onRetry: () =>
+                        ref.read(journalControllerProvider.notifier).refresh(),
                   ),
                 ),
+              ),
+            ),
 
-                const SliverPadding(padding: EdgeInsets.only(bottom: 120)),
-              ],
+                  const SliverPadding(padding: EdgeInsets.only(bottom: 120)),
+                ],
+              ),
             ),
           ),
         ],
@@ -95,41 +119,69 @@ class _JournalHistoryScreenState extends ConsumerState<JournalHistoryScreen> {
       return SliverFillRemaining(
         hasScrollBody: false,
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(28),
-                decoration: BoxDecoration(
-                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white,
+                        NeuroColors.adolescentSurfaceVariant,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      NeuroShadows.adolescentGlow,
+                      BoxShadow(
+                        color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                        blurRadius: 32,
+                        offset: const Offset(0, 12),
+                      ),
+                    ],
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.9), width: 2),
+                  ),
+                  child: const Icon(
+                    Icons.auto_stories_rounded,
+                    size: 56,
+                    color: NeuroColors.adolescentPrimary,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.history_edu_rounded,
-                  size: 64,
-                  color: NeuroColors.adolescentPrimary,
+                const SizedBox(height: 28),
+                ShaderMask(
+                  blendMode: BlendMode.srcIn,
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [Color(0xFF6A1FDB), Color(0xFF9E7AFF)],
+                  ).createShader(bounds),
+                  child: const Text(
+                    'Your journal awaits',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'No memories yet',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: NeuroColors.ink,
+                const SizedBox(height: 14),
+                const Text(
+                  'Capture how you feel in a private space.\nTap compose when you are ready.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF6A5C9A),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Start writing your story today.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: NeuroColors.inkMuted,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
@@ -161,68 +213,118 @@ class _JournalHistoryScreenState extends ConsumerState<JournalHistoryScreen> {
   }
 }
 
-class _MinimalistHeader extends StatelessWidget {
-  const _MinimalistHeader();
+class _JournalHeader extends StatelessWidget {
+  const _JournalHeader({required this.onRefresh});
+  final Future<void> Function() onRefresh;
 
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final monthYear = DateFormat('MMMM yyyy').format(now);
 
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          MediaQuery.of(context).padding.top + 20,
-          24,
-          24,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return SliverAppBar(
+      expandedHeight: 152,
+      pinned: true,
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Stack(
+          fit: StackFit.expand,
           children: [
-            const Text(
-              'JOURNAL',
-              style: TextStyle(
-                color: NeuroColors.adolescentPrimary,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2.4,
-              ),
+            Positioned(
+              right: -30,
+              top: MediaQuery.of(context).padding.top - 10,
+              child: Icon(Icons.circle, size: 120, color: NeuroColors.adolescentPrimary.withValues(alpha: 0.06)),
             ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  monthYear,
-                  style: const TextStyle(
-                    fontSize: 32,
+            Positioned(
+              left: -20,
+              bottom: 8,
+              child: Icon(Icons.circle, size: 80, color: const Color(0xFF9E7AFF).withValues(alpha: 0.08)),
+            ),
+            Padding(
+          padding: EdgeInsets.fromLTRB(
+            24,
+            MediaQuery.of(context).padding.top + 20,
+            24,
+            16,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  gradient: NeuroGradients.adolescent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'YOUR SECURE JOURNAL',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
                     fontWeight: FontWeight.w900,
-                    color: NeuroColors.ink,
-                    letterSpacing: -0.8,
+                    letterSpacing: 2.0,
                   ),
                 ),
-                Row(
-                  children: [
-                    Hero(
-                      tag: 'search_icon',
-                      child: _RoundActionIcon(
-                        icon: Icons.search_rounded,
-                        onTap: () => context.push(AdolescentRoutes.searchJournal),
-                      ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    monthYear,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF2C1C5F),
+                      letterSpacing: -0.8,
                     ),
-                    const SizedBox(width: 12),
-                    _RoundActionIcon(
-                      icon: Icons.calendar_today_rounded,
-                      onTap: () => _showCalendarPicker(context),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
+            ],
+          ),
             ),
           ],
         ),
       ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Row(
+            children: [
+              Hero(
+                tag: 'search_icon',
+                child: _HeaderIcon(
+                  icon: Icons.search_rounded,
+                  onTap: () => context.push(AdolescentRoutes.searchJournal),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _HeaderIcon(
+                icon: Icons.calendar_month_rounded,
+                onTap: () => _showCalendarPicker(context),
+              ),
+              const SizedBox(width: 8),
+              _HeaderIcon(
+                icon: Icons.refresh_rounded,
+                onTap: () {
+                  onRefresh();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Refreshing journal...'),
+                      behavior: SnackBarBehavior.floating,
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 16),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -239,13 +341,7 @@ class _MinimalistHeader extends StatelessWidget {
             colorScheme: const ColorScheme.light(
               primary: NeuroColors.adolescentPrimary,
               onPrimary: Colors.white,
-              onSurface: NeuroColors.ink,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: NeuroColors.adolescentPrimary,
-                textStyle: const TextStyle(fontWeight: FontWeight.w900),
-              ),
+              onSurface: Color(0xFF2C1C5F),
             ),
           ),
           child: child!,
@@ -259,44 +355,37 @@ class _MinimalistHeader extends StatelessWidget {
   }
 }
 
-class _RoundActionIcon extends StatelessWidget {
-  const _RoundActionIcon({required this.icon, required this.onTap});
+class _HeaderIcon extends StatelessWidget {
+  const _HeaderIcon({required this.icon, required this.onTap});
   final IconData icon;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: NeuroColors.hairline, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        shape: const CircleBorder(),
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Icon(icon, color: NeuroColors.ink, size: 20),
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: NeuroColors.adolescentPrimary.withValues(alpha: 0.15),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
+        child: Icon(icon, color: NeuroColors.adolescentPrimary, size: 22),
       ),
     );
   }
 }
 
-class _WeeklyStatsCard extends StatelessWidget {
-  const _WeeklyStatsCard({required this.entries});
+class _WeeklyActivityCard extends StatelessWidget {
+  const _WeeklyActivityCard({required this.entries});
   final List<JournalEntry> entries;
 
   @override
@@ -318,22 +407,23 @@ class _WeeklyStatsCard extends StatelessWidget {
         e.createdAt.year == day.year
       );
       if (dayEntries.isNotEmpty) {
-        dayEntryMap[day.weekday] = _moodToColor(dayEntries.first.mood);
+        dayEntryMap[day.weekday] = _getMoodColor(dayEntries.first.mood);
       }
     }
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: NeuroColors.hairline, width: 1.5),
+        gradient: NeuroGradients.adolescentCard,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.55), width: 1.2),
         boxShadow: [
+          NeuroShadows.adolescentGlow,
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: NeuroColors.adolescentPrimary.withValues(alpha: 0.12),
+            blurRadius: 28,
+            offset: const Offset(0, 14),
           ),
         ],
       ),
@@ -343,19 +433,19 @@ class _WeeklyStatsCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'ACTIVITY',
+                'THIS WEEK',
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
-                  fontSize: 11,
+                  fontSize: 12,
                   letterSpacing: 1.6,
-                  color: NeuroColors.inkMuted,
+                  color: Color(0xFF6A5C9A),
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(999),
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '$entriesThisWeekCount MEMORIES',
@@ -382,38 +472,35 @@ class _WeeklyStatsCard extends StatelessWidget {
                   Text(
                     DateFormat('E').format(day).substring(0, 1).toUpperCase(),
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: isToday ? FontWeight.w900 : FontWeight.w700,
-                      color: isToday ? NeuroColors.ink : NeuroColors.inkMuted,
+                      color: isToday ? NeuroColors.adolescentPrimary : const Color(0xFF8A7DAC),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      if (isToday) 
-                        _PulseCircle(color: color ?? NeuroColors.adolescentPrimary),
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: color ?? Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isToday ? (color ?? NeuroColors.ink) : NeuroColors.hairline,
-                            width: isToday ? 2 : 1.5,
-                          ),
-                          boxShadow: color != null ? [
-                            BoxShadow(
-                              color: color.withValues(alpha: 0.3),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            )
-                          ] : null,
-                        ),
-                        child: color != null ? const Icon(Icons.check_rounded, size: 16, color: Colors.white) : null,
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: color ?? Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isToday 
+                            ? NeuroColors.adolescentPrimary 
+                            : (color == null ? const Color(0xFFE0DAF0) : color),
+                        width: isToday ? 2.5 : 1.0,
                       ),
-                    ],
+                      boxShadow: color != null ? [
+                        BoxShadow(
+                          color: color.withValues(alpha: 0.4),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        )
+                      ] : null,
+                    ),
+                    child: color != null 
+                        ? const Icon(Icons.check_rounded, size: 18, color: Colors.white) 
+                        : null,
                   ),
                 ],
               );
@@ -424,19 +511,14 @@ class _WeeklyStatsCard extends StatelessWidget {
     );
   }
 
-  Color _moodToColor(MoodType? mood) {
-    if (mood == null) return NeuroColors.adolescentPrimary;
-    final label = mood.label.toLowerCase();
-    if (label.contains('happy')) return NeuroColors.moodHappy;
-    if (label.contains('sad')) return NeuroColors.moodSad;
-    if (label.contains('anxious')) return NeuroColors.moodAnxious;
-    if (label.contains('calm')) return NeuroColors.moodCalm;
-    if (label.contains('stress')) return NeuroColors.moodStressed;
-    if (label.contains('excit')) return NeuroColors.moodExcited;
-    if (label.contains('tired')) return NeuroColors.moodTired;
-    if (label.contains('angry')) return NeuroColors.moodAngry;
-    if (label.contains('hope')) return NeuroColors.moodHopeful;
-    return NeuroColors.adolescentPrimary;
+  Color _getMoodColor(MoodType? mood) {
+    switch (mood) {
+      case MoodType.happy: return const Color(0xFFFFB74D);
+      case MoodType.calm: return const Color(0xFF81C784);
+      case MoodType.anxious: return const Color(0xFFFF7043);
+      case MoodType.sad: return const Color(0xFF64B5F6);
+      default: return NeuroColors.adolescentPrimary;
+    }
   }
 }
 
@@ -451,31 +533,48 @@ class _DayGroup extends StatelessWidget {
     final isToday = date.day == now.day && date.month == now.month && date.year == now.year;
     
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(
-                DateFormat('d').format(date),
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w900,
-                  color: NeuroColors.ink,
-                  height: 1,
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  gradient: isToday ? NeuroGradients.adolescent : null,
+                  color: isToday ? null : NeuroColors.adolescentSurfaceVariant,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isToday ? Colors.white.withValues(alpha: 0.35) : const Color(0xFFE0DAF0),
+                    width: isToday ? 1.5 : 1,
+                  ),
+                  boxShadow: isToday
+                      ? [NeuroShadows.adolescentGlow, BoxShadow(color: const Color(0xFF5A1BC7).withValues(alpha: 0.2), blurRadius: 12, offset: const Offset(0, 4))]
+                      : null,
+                ),
+                child: Center(
+                  child: Text(
+                    DateFormat('dd').format(date),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: isToday ? Colors.white : NeuroColors.adolescentPrimary,
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    DateFormat('EEEE').format(date).toUpperCase(),
+                    isToday ? 'TODAY' : DateFormat('EEEE').format(date).toUpperCase(),
                     style: const TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w900,
-                      color: NeuroColors.ink,
+                      color: Color(0xFF2C1C5F),
                       letterSpacing: 1.2,
                     ),
                   ),
@@ -484,34 +583,17 @@ class _DayGroup extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: NeuroColors.inkMuted,
+                      color: Color(0xFF8A7DAC),
                       letterSpacing: 1.2,
                     ),
                   ),
                 ],
               ),
-              if (isToday) ...[
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: NeuroColors.ink,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'TODAY',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
-          const SizedBox(height: 24),
-          ...entries.map((entry) => _EntryCard(entry: entry)),
+          const SizedBox(height: 16),
+          ...entries.map((entry) => _EntryCard(entry: entry, isPendingSync: entry.id.startsWith('pending-'))),
+          const SizedBox(height: 12),
         ],
       ),
     );
@@ -519,104 +601,200 @@ class _DayGroup extends StatelessWidget {
 }
 
 class _EntryCard extends StatelessWidget {
-  const _EntryCard({required this.entry});
+  const _EntryCard({required this.entry, this.isPendingSync = false});
   final JournalEntry entry;
+  final bool isPendingSync;
+
+  Color _accent(MoodType? mood) {
+    return switch (mood) {
+      MoodType.happy => const Color(0xFFFFB74D),
+      MoodType.calm => const Color(0xFF66BB6A),
+      MoodType.anxious => const Color(0xFFFF7043),
+      MoodType.sad => const Color(0xFF42A5F5),
+      MoodType.hopeful => const Color(0xFFAB47BC),
+      MoodType.excited => const Color(0xFFEC407A),
+      MoodType.tired => const Color(0xFF7E57C2),
+      MoodType.angry => const Color(0xFFEF5350),
+      MoodType.stressed => const Color(0xFFFF8A65),
+      MoodType.neutral => NeuroColors.adolescentPrimary,
+      null => NeuroColors.adolescentPrimary,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.push('${AdolescentRoutes.journal}/${entry.id}'),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: NeuroColors.hairline, width: 1.2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+    final accent = _accent(entry.mood);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(22),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: isPendingSync
+              ? () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Still syncing this entry to the server…'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              : () => context.push('${AdolescentRoutes.journal}/${entry.id}'),
+          borderRadius: BorderRadius.circular(22),
+          splashColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.08),
+          highlightColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.04),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              // Rounded corners require a uniform border color on BoxDecoration.
+              // Mood accent is drawn as a separate strip (see Row below).
+              border: Border.all(color: const Color(0xFFE8E0F0), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.07),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
               children: [
-                _MoodDot(mood: entry.mood),
-                const SizedBox(width: 8),
-                Text(
-                  DateFormat('h:mm a').format(entry.createdAt),
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: NeuroColors.inkMuted,
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 4,
+                  child: ColoredBox(color: accent),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(22, 18, 18, 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          _MoodBadge(mood: entry.mood),
+                          if (isPendingSync) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: NeuroColors.adolescentPrimary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'SYNCING',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.6,
+                                  color: NeuroColors.adolescentPrimary,
+                                ),
+                              ),
+                            ),
+                          ],
+                          const Spacer(),
+                          const Icon(Icons.access_time_rounded, size: 12, color: Color(0xFF8A7DAC)),
+                          const SizedBox(width: 4),
+                          Text(
+                            DateFormat('h:mm a').format(entry.createdAt),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF8A7DAC),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      if (entry.title != null) ...[
+                        Text(
+                          entry.title!,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF2C1C5F),
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                      ],
+                      Text(
+                        entry.content,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          height: 1.5,
+                          color: Color(0xFF53477D),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            if (entry.title != null) ...[
-              Text(
-                entry.title!,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: NeuroColors.ink,
-                  letterSpacing: -0.4,
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-            Text(
-              entry.content,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 15,
-                height: 1.5,
-                color: NeuroColors.inkSoft,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _MoodDot extends StatelessWidget {
-  const _MoodDot({required this.mood});
+class _MoodBadge extends StatelessWidget {
+  const _MoodBadge({required this.mood});
   final MoodType? mood;
 
   @override
   Widget build(BuildContext context) {
+    if (mood == null) return const SizedBox.shrink();
+    
     return Container(
-      width: 10,
-      height: 10,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: _getColor(mood),
-        shape: BoxShape.circle,
+        color: _getMoodColor(mood).withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(_getMoodEmoji(mood), style: const TextStyle(fontSize: 12)),
+          const SizedBox(width: 4),
+          Text(
+            mood!.label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w900,
+              color: _getMoodColor(mood),
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Color _getColor(MoodType? mood) {
-    if (mood == null) return NeuroColors.adolescentPrimary;
-    final label = mood.label.toLowerCase();
-    if (label.contains('happy')) return NeuroColors.moodHappy;
-    if (label.contains('sad')) return NeuroColors.moodSad;
-    if (label.contains('anxious')) return NeuroColors.moodAnxious;
-    if (label.contains('calm')) return NeuroColors.moodCalm;
-    if (label.contains('stress')) return NeuroColors.moodStressed;
-    if (label.contains('excit')) return NeuroColors.moodExcited;
-    if (label.contains('tired')) return NeuroColors.moodTired;
-    if (label.contains('angry')) return NeuroColors.moodAngry;
-    if (label.contains('hope')) return NeuroColors.moodHopeful;
-    return NeuroColors.adolescentPrimary;
+  Color _getMoodColor(MoodType? mood) {
+    switch (mood) {
+      case MoodType.happy: return const Color(0xFFE65100);
+      case MoodType.calm: return const Color(0xFF2E7D32);
+      case MoodType.anxious: return const Color(0xFFD84315);
+      case MoodType.sad: return const Color(0xFF1565C0);
+      default: return NeuroColors.adolescentPrimaryDark;
+    }
+  }
+
+  String _getMoodEmoji(MoodType? mood) {
+    switch (mood) {
+      case MoodType.happy: return '😊';
+      case MoodType.calm: return '🍃';
+      case MoodType.anxious: return '😰';
+      case MoodType.sad: return '😢';
+      default: return '😐';
+    }
   }
 }
 
@@ -627,103 +805,46 @@ class _ComposeFAB extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
+      height: 60,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
+          NeuroShadows.adolescentGlow,
           BoxShadow(
-            color: NeuroColors.ink.withValues(alpha: 0.3),
+            color: const Color(0xFF5A1BC7).withValues(alpha: 0.35),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: ElevatedButton.icon(
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: NeuroGradients.adolescent,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1.5),
+        ),
+        child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: const Icon(Icons.edit_document, size: 20),
         label: const Text(
-          'Compose',
+          'Compose Entry',
           style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
             letterSpacing: 0.5,
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: NeuroColors.ink,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 36),
+          shadowColor: Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 28),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
       ),
+      ),
     );
   }
-}
-
-class _PulseCircle extends StatefulWidget {
-  final Color color;
-  const _PulseCircle({required this.color});
-
-  @override
-  State<_PulseCircle> createState() => _PulseCircleState();
-}
-
-class _PulseCircleState extends State<_PulseCircle> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Container(
-          width: 32 + (16 * _controller.value),
-          height: 32 + (16 * _controller.value),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: widget.color.withValues(alpha: 1 - _controller.value),
-              width: 1.5,
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _PaperGrainPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = NeuroColors.ink;
-    final random = math.Random(42);
-    for (var i = 0; i < 2000; i++) {
-       canvas.drawCircle(
-         Offset(random.nextDouble() * size.width, random.nextDouble() * size.height),
-         0.5,
-         paint,
-       );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

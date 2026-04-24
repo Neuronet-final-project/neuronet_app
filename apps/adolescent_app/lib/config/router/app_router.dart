@@ -10,6 +10,7 @@ import 'package:adolescent_app/features/dashboard/view/screens/dashboard_screen.
 import 'package:adolescent_app/features/ai_chat/view/screens/ai_chat_screen.dart';
 import 'package:adolescent_app/features/channels/view/screens/channels_screen.dart';
 import 'package:adolescent_app/features/channels/view/screens/channel_detail_screen.dart';
+import 'package:adolescent_app/features/channels/view/screens/channel_post_detail_screen.dart';
 import 'package:adolescent_app/features/counselor_chat/view/screens/counselor_chat_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/new_journal_entry_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/journal_search_screen.dart';
@@ -202,6 +203,25 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AdolescentRoutes.channels,
                 builder: (context, state) => const ChannelsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return ChannelDetailScreen(channelId: id);
+                    },
+                    routes: [
+                      GoRoute(
+                        path: 'posts/:postId',
+                        builder: (context, state) {
+                          final channelId = state.pathParameters['id']!;
+                          final postId = state.pathParameters['postId']!;
+                          return ChannelPostDetailScreen(channelId: channelId, postId: postId);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
@@ -228,13 +248,6 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const NewJournalEntryScreen(),
       ),
       GoRoute(
-        path: '${AdolescentRoutes.journal}/:id',
-        builder: (context, state) {
-          final id = state.pathParameters['id']!;
-          return JournalDetailScreen(entryId: id);
-        },
-      ),
-      GoRoute(
         path: AdolescentRoutes.searchJournal,
         builder: (context, state) {
           final journalState = ref.watch(journalControllerProvider);
@@ -252,10 +265,10 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '${AdolescentRoutes.channels}/:id',
+        path: '${AdolescentRoutes.journal}/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
-          return ChannelDetailScreen(channelId: id);
+          return JournalDetailScreen(entryId: id);
         },
       ),
       GoRoute(
