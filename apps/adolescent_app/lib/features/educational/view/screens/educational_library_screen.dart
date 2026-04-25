@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/educational_provider.dart';
+import '../../providers/educational_follow_provider.dart';
+import '../widgets/page_follow_button.dart';
 
 class EducationalLibraryScreen extends ConsumerWidget {
   const EducationalLibraryScreen({super.key});
@@ -10,6 +12,7 @@ class EducationalLibraryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pagesAsync = ref.watch(educationalPagesControllerProvider);
+    final followedPagesAsync = ref.watch(educationalFollowControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -19,6 +22,11 @@ class EducationalLibraryScreen extends ConsumerWidget {
             icon: const Icon(Icons.star_outline_rounded),
             onPressed: () => context.push('/recommendations'),
             tooltip: 'My Recommendations',
+          ),
+          IconButton(
+            icon: const Icon(Icons.explore_outlined),
+            onPressed: () => context.push('/discover-pages'),
+            tooltip: 'Discover Pages',
           ),
         ],
       ),
@@ -46,13 +54,20 @@ class EducationalLibraryScreen extends ConsumerWidget {
             );
           }
 
-          // Group by category if available, otherwise just a list
+          // Get followed page slugs
+          final followedSlugs = followedPagesAsync.when(
+            data: (followState) => followState.followedPages.map((p) => p.pageSlug).toSet(),
+            loading: () => <String>{},
+            error: (_, __) => <String>{},
+          );
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: pages.length,
             itemBuilder: (context, index) {
               final page = pages[index];
-              return _PageCard(page: page);
+              final isFollowed = followedSlugs.contains(page.slug);
+              return _PageCard(page: page, isFollowed: isFollowed);
             },
           );
         },
@@ -66,13 +81,14 @@ class EducationalLibraryScreen extends ConsumerWidget {
   }
 }
 
-class _PageCard extends StatelessWidget {
-  const _PageCard({required this.page});
+class _PageCard extends ConsumerWidget {
+  const _PageCard({required this.page, required this.isFollowed});
 
   final EducationalPage page;
+  final bool isFollowed;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Card(
@@ -88,53 +104,61 @@ class _PageCard extends StatelessWidget {
         onTap: () => context.push('/learn/${page.slug}', extra: page),
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  _getCategoryIcon(page.category),
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (page.category != null)
-                      Text(
-                        page.category!.toUpperCase(),
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
+              Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      _getCategoryIcon(page.category),
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (page.category != null)
+                          Text(
+                            page.category!.toUpperCase(),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        Text(
+                          page.title,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    Text(
-                      page.title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      page.summary ?? 'Read more about ${page.title}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+                  ),
+                  CompactFollowButton(
+                    pageSlug: page.slug,
+                    isFollowed: isFollowed,
+                  ),
+                ],
               ),
-              const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+              const SizedBox(height: 12),
+              Text(
+                page.summary ?? 'Read more about ${page.title}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         ),
