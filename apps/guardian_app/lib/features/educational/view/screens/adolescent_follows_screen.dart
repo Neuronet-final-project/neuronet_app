@@ -61,7 +61,7 @@ class _AdolescentFollowsScreenState extends ConsumerState<AdolescentFollowsScree
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'Failed to load followed pages';
+          _error = 'Failed to load followed pages: $e';
           _loading = false;
         });
       }

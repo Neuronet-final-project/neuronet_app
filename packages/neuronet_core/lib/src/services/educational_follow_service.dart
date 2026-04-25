@@ -111,10 +111,26 @@ class EducationalFollowService {
     try {
       final response = await _client.get(ApiEndpoints.guardianFollowView);
       final list = response.data as List<dynamic>;
-      final followedPages = list
-          .map((json) => FollowedPageSummary.fromJson(json as Map<String, dynamic>))
-          .toList();
-      return Result.success(followedPages);
+      
+      // The backend returns a list of guardian view objects with nested followed_pages
+      // We need to flatten this to get all pages for the specific adolescent
+      List<FollowedPageSummary> allFollowedPages = [];
+      
+      for (var item in list) {
+        final guardianView = item as Map<String, dynamic>;
+        final adolescentIdFromResponse = guardianView['adolescent_id'] as String?;
+        
+        // If adolescentId is provided, filter by it; otherwise get all
+        if (adolescentId.isEmpty || adolescentIdFromResponse == adolescentId) {
+          final followedPagesData = guardianView['followed_pages'] as List<dynamic>? ?? [];
+          for (var pageData in followedPagesData) {
+            final page = FollowedPageSummary.fromJson(pageData as Map<String, dynamic>);
+            allFollowedPages.add(page);
+          }
+        }
+      }
+      
+      return Result.success(allFollowedPages);
     } catch (e) {
       debugPrint('[EducationalFollowService] getGuardianView ERROR: $e');
       return Result.failure(failureFromException(e));
