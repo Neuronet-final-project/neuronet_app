@@ -154,6 +154,10 @@ class _FollowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Debug: Check if title is empty
+    final hasTitle = follow.pageTitle.isNotEmpty;
+    final displayTitle = hasTitle ? follow.pageTitle : follow.pageSlug.replaceAll('-', ' ').toUpperCase();
+    
     return GuardianBentoCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -168,7 +172,7 @@ class _FollowCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      follow.pageTitle,
+                      displayTitle,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -177,8 +181,8 @@ class _FollowCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (follow.pageCategory != null) ...[
-                      const SizedBox(height: 6),
+                    const SizedBox(height: 6),
+                    if (follow.pageCategory != null && follow.pageCategory!.isNotEmpty)
                       Row(
                         children: [
                           Icon(
@@ -191,6 +195,45 @@ class _FollowCard extends StatelessWidget {
                             follow.pageCategory!,
                             style: const TextStyle(
                               fontSize: 12,
+                              color: NeuroColors.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.link_rounded,
+                            size: 14,
+                            color: NeuroColors.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            follow.pageSlug,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: NeuroColors.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (follow.counselorName != null && follow.counselorName!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person_outline_rounded,
+                            size: 14,
+                            color: NeuroColors.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'By ${follow.counselorName}',
+                            style: const TextStyle(
+                              fontSize: 11,
                               color: NeuroColors.onSurfaceVariant,
                               fontWeight: FontWeight.w500,
                             ),
