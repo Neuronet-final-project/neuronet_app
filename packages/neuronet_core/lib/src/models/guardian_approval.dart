@@ -58,6 +58,8 @@ abstract class GuardianApproval with _$GuardianApproval {
 
 @freezed
 abstract class ApprovalRequest with _$ApprovalRequest {
+  const ApprovalRequest._();
+  
   const factory ApprovalRequest({
     @JsonKey(name: 'adolescent_id') required String adolescentId,
     @JsonKey(name: 'counselor_email') required String counselorEmail,
@@ -73,6 +75,8 @@ abstract class ApprovalRequest with _$ApprovalRequest {
 
 @freezed
 abstract class ApprovalResponse with _$ApprovalResponse {
+  const ApprovalResponse._();
+  
   const factory ApprovalResponse({
     @JsonKey(name: 'response') required String response, // "approved" or "denied"
     @JsonKey(name: 'response_reason') String? responseReason,
