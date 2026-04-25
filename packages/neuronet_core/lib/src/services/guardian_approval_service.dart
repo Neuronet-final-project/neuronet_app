@@ -48,6 +48,23 @@ class GuardianApprovalService {
     }
   }
 
+  /// Revoke an approved request (guardian only)
+  Future<Result<Map<String, dynamic>>> revokeApproval(
+    String approvalId,
+    String? revokeReason,
+  ) async {
+    try {
+      final apiResponse = await _client.post(
+        ApiEndpoints.revokeApproval(approvalId),
+        data: {'revoke_reason': revokeReason},
+      );
+      return Result.success(apiResponse.data as Map<String, dynamic>);
+    } catch (e) {
+      debugPrint('[GuardianApprovalService] revokeApproval ERROR: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
+
   /// Get pending approval requests (guardian only)
   Future<Result<List<GuardianApproval>>> getPendingApprovals() async {
     try {

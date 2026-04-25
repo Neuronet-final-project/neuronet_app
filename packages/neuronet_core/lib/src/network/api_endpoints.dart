@@ -107,6 +107,7 @@ class ApiEndpoints {
   // Guardian Approvals (FR-34)
   static const String requestCommunicationApproval = '/guardian-approvals/request-communication';
   static String respondToApproval(String id) => '/guardian-approvals/respond/$id';
+  static String revokeApproval(String id) => '/guardian-approvals/revoke/$id';
   static const String pendingApprovals = '/guardian-approvals/pending';
   static const String approvalHistory = '/guardian-approvals/history';
   static String checkApprovalStatus(String adolescentId, String counselorEmail) => 
