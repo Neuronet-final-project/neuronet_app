@@ -184,6 +184,50 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
     }
   }
 
+  Future<void> _revoke() async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Revoke Approval'),
+        content: const Text(
+          'Are you sure you want to revoke this approval? The adolescent will no longer be able to communicate with this counselor, but can request approval again.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Revoke'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isResponding = true);
+
+    final success = await ref
+        .read(guardianApprovalControllerProvider.notifier)
+        .revokeApproval(widget.approval.approvalId, null);
+
+    if (mounted) {
+      setState(() => _isResponding = false);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Approval revoked successfully'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -357,6 +401,20 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
                     ),
                   ),
                 ],
+              ),
+            ] else if (widget.approval.status == 'approved') ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _isResponding ? null : _revoke,
+                  icon: const Icon(Icons.block),
+                  label: const Text('Revoke Approval'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.orange,
+                    side: const BorderSide(color: Colors.orange),
+                  ),
+                ),
               ),
             ],
           ],

@@ -63,6 +63,25 @@ class GuardianApprovalController extends _$GuardianApprovalController {
     );
   }
 
+  Future<bool> revokeApproval(String approvalId, String? reason) async {
+    final service = ref.read(guardianApprovalServiceProvider);
+    
+    final result = await service.revokeApproval(approvalId, reason);
+    
+    return result.when(
+      success: (_) {
+        ref.invalidateSelf();
+        return true;
+      },
+      failure: (f) {
+        state.whenData((data) {
+          state = AsyncValue.data(data.copyWith(error: f.message));
+        });
+        return false;
+      },
+    );
+  }
+
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
