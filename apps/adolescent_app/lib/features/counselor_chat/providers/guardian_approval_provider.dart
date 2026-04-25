@@ -21,26 +21,9 @@ abstract class GuardianApprovalUIState with _$GuardianApprovalUIState {
 class GuardianApprovalController extends _$GuardianApprovalController {
   @override
   FutureOr<GuardianApprovalUIState> build() async {
-    final service = ref.watch(guardianApprovalServiceProvider);
-    
-    // Load both pending and history
-    final pendingResult = await service.getPendingApprovals();
-    final historyResult = await service.getApprovalHistory();
-    
-    final pending = pendingResult.when(
-      success: (requests) => requests,
-      failure: (_) => <GuardianApproval>[],
-    );
-    
-    final history = historyResult.when(
-      success: (requests) => requests,
-      failure: (_) => <GuardianApproval>[],
-    );
-    
-    return GuardianApprovalUIState(
-      pendingRequests: pending,
-      historyRequests: history,
-    );
+    // Adolescents don't need to load pending/history lists
+    // They only need to check approval status for specific counselors
+    return const GuardianApprovalUIState();
   }
 
   /// Request approval to communicate with a counselor
@@ -106,25 +89,8 @@ class GuardianApprovalController extends _$GuardianApprovalController {
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final service = ref.read(guardianApprovalServiceProvider);
-      
-      final pendingResult = await service.getPendingApprovals();
-      final historyResult = await service.getApprovalHistory();
-      
-      final pending = pendingResult.when(
-        success: (requests) => requests,
-        failure: (_) => <GuardianApproval>[],
-      );
-      
-      final history = historyResult.when(
-        success: (requests) => requests,
-        failure: (_) => <GuardianApproval>[],
-      );
-      
-      return GuardianApprovalUIState(
-        pendingRequests: pending,
-        historyRequests: history,
-      );
+      // Adolescents don't need to refresh pending/history lists
+      return const GuardianApprovalUIState();
     });
   }
 

@@ -120,6 +120,21 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     final adolescentId = profileState.value?.user?.id;
     final counselorEmail = chatState.value?.counselorEmail;
 
+    // Check approval status
+    final approvalState = ref.watch(guardianApprovalControllerProvider);
+    final isApproved = approvalState.value?.approvalCache['$adolescentId:$counselorEmail'] ?? false;
+
+    // Initialize conversation when approved
+    ref.listen(guardianApprovalControllerProvider, (previous, next) {
+      final wasApproved = previous?.value?.approvalCache['$adolescentId:$counselorEmail'] ?? false;
+      final nowApproved = next.value?.approvalCache['$adolescentId:$counselorEmail'] ?? false;
+      
+      if (!wasApproved && nowApproved && chatState.value?.conversation == null) {
+        // Just became approved and no conversation yet - initialize it
+        ref.read(counselorChatControllerProvider.notifier).initializeConversation();
+      }
+    });
+
     // Scroll to bottom when messages are added
     ref.listen(counselorChatControllerProvider, (previous, next) {
       next.whenData((data) {
@@ -179,18 +194,20 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.phone),
-            onPressed: _startVoiceCall,
+            onPressed: isApproved ? _startVoiceCall : null,
             tooltip: 'Voice call',
           ),
           IconButton(
             icon: const Icon(Icons.videocam),
-            onPressed: _startVideoCall,
+            onPressed: isApproved ? _startVideoCall : null,
             tooltip: 'Video call',
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              ref.read(counselorChatControllerProvider.notifier).refresh();
+              if (isApproved) {
+                ref.read(counselorChatControllerProvider.notifier).refresh();
+              }
             },
             tooltip: 'Refresh messages',
           ),
@@ -205,8 +222,9 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
               
               return Column(
                 children: [
-                  // Approval status banner
-                  if (adolescentId != null && counselorEmail != null)
+                  // Approval status banner - always show if we have the required info
+                  if (adolescentId != null && adolescentId.isNotEmpty && 
+                      counselorEmail != null && counselorEmail.isNotEmpty)
                     ApprovalStatusWidget(
                       adolescentId: adolescentId,
                       counselorEmail: counselorEmail,
@@ -219,12 +237,54 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                           },
                         );
                       },
+                    )
+                  else if (adolescentId != null && adolescentId.isNotEmpty)
+                    Container(
+                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, color: theme.colorScheme.primary),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'No counselor assigned yet. Please contact your guardian or administrator.',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Container(
+                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.errorContainer.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded, color: theme.colorScheme.error),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Unable to load profile. Please try refreshing.',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   
                   // Messages list
-                  if (messages.isEmpty)
+                  if (messages.isEmpty && isApproved)
                     Expanded(child: _buildEmptyState(context, theme))
-                  else
+                  else if (messages.isNotEmpty)
                     Expanded(
                       child: ListView.builder(
                         controller: _scrollController,
@@ -245,7 +305,9 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                           );
                         },
                       ),
-                    ),
+                    )
+                  else
+                    const Expanded(child: SizedBox.shrink()),
                   _buildMessageInput(context, theme, adolescentId, counselorEmail),
                 ],
               );

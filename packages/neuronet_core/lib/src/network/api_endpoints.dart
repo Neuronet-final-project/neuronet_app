@@ -114,4 +114,7 @@ class ApiEndpoints {
 
   // Guardian overview
   static const String guardianAdolescents = '/guardians/me/adolescents';
+
+  // Counselor Assignments
+  static String adolescentCounselors(String adolescentId) => '/counselor-assignments/adolescent/$adolescentId/counselors';
 }

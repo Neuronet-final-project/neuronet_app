@@ -45,37 +45,37 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Show loading indicator while checking
     if (_isLoading) {
-      return const SizedBox.shrink();
+      return Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Checking approval status...',
+              style: theme.textTheme.bodyMedium,
+            ),
+          ],
+        ),
+      );
     }
 
     if (_isApproved == true) {
       return _ApprovedBanner(theme: theme);
     }
 
-    // Check if there's a pending request
-    final approvalState = ref.watch(guardianApprovalControllerProvider);
-    final hasPendingRequest = approvalState.value?.pendingRequests.any(
-      (req) => req.counselorEmail == widget.counselorEmail && req.status == 'pending',
-    ) ?? false;
-
-    if (hasPendingRequest) {
-      return _PendingBanner(theme: theme);
-    }
-
-    // Check if denied
-    final hasDeniedRequest = approvalState.value?.historyRequests.any(
-      (req) => req.counselorEmail == widget.counselorEmail && req.status == 'denied',
-    ) ?? false;
-
-    if (hasDeniedRequest) {
-      return _DeniedBanner(
-        onRequestApproval: widget.onRequestApproval,
-        theme: theme,
-      );
-    }
-
-    // Not requested
+    // Not approved - show request banner
     return _NotRequestedBanner(
       onRequestApproval: widget.onRequestApproval,
       theme: theme,

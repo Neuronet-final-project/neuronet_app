@@ -243,8 +243,17 @@ class _DiscoverPageCard extends ConsumerWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () {
-          // Navigate to page detail
-          context.push('/learn/${page.slug}');
+          // Convert to EducationalPage and navigate
+          final educationalPage = EducationalPage(
+            id: page.slug, // Using slug as id since we don't have the actual id
+            title: page.title,
+            slug: page.slug,
+            content: page.content,
+            summary: null,
+            category: page.category,
+            createdAt: page.updatedAt,
+          );
+          context.push('/learn/${page.slug}', extra: educationalPage);
         },
         child: Padding(
           padding: const EdgeInsets.all(16),

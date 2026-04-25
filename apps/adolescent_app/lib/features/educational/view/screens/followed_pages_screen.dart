@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/educational_follow_provider.dart';
+import '../../providers/educational_provider.dart';
 
 class FollowedPagesScreen extends ConsumerWidget {
   const FollowedPagesScreen({super.key});
@@ -74,13 +75,13 @@ class FollowedPagesScreen extends ConsumerWidget {
   }
 }
 
-class _FollowedPageCard extends StatelessWidget {
+class _FollowedPageCard extends ConsumerWidget {
   const _FollowedPageCard({required this.page});
 
   final FollowedPageSummary page;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Card(
@@ -95,8 +96,22 @@ class _FollowedPageCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          context.push('/learn/${page.pageSlug}');
+        onTap: () async {
+          // Fetch the full page data before navigating
+          try {
+            final fullPage = await ref.read(educationalPageProvider(page.pageSlug).future);
+            if (context.mounted) {
+              context.push('/learn/${page.pageSlug}', extra: fullPage);
+            }
+          } catch (e) {
+            if (context.mounted) {
+              NeuroToast.show(
+                context,
+                'Could not load page details',
+                type: NeuroToastType.error,
+              );
+            }
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(16),

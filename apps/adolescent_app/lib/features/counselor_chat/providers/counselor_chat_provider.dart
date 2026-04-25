@@ -36,6 +36,40 @@ class CounselorChatController extends _$CounselorChatController {
     debugPrint('[CounselorChat] Profile email: $myEmail');
     debugPrint('[CounselorChat] Using effective adolescent ID: $adolescentId');
 
+    // Fetch assigned counselor
+    String? counselorEmail;
+    if (adolescentId.isNotEmpty) {
+      final authService = ref.read(authServiceProvider);
+      final counselorsResult = await authService.getAssignedCounselors(adolescentId);
+      
+      counselorsResult.when(
+        success: (counselors) {
+          if (counselors.isNotEmpty) {
+            counselorEmail = counselors.first['counselor_email'] as String?;
+            debugPrint('[CounselorChat] ✓ Assigned counselor: $counselorEmail');
+          } else {
+            debugPrint('[CounselorChat] ⚠ No counselor assigned yet');
+          }
+        },
+        failure: (f) {
+          debugPrint('[CounselorChat] ✗ Failed to fetch assigned counselor: ${f.message}');
+        },
+      );
+    }
+
+    // Don't try to create conversation immediately - let the approval banner show first
+    // The conversation will be created when user has approval
+    return CounselorChatState(counselorEmail: counselorEmail);
+  }
+
+  /// Initialize conversation after approval is granted
+  Future<void> initializeConversation() async {
+    final profileState = await ref.read(adolescentProfileControllerProvider.future);
+    final user = profileState.user;
+
+    final adolescentId = user?.id ?? '';
+    final myEmail = user?.email.toLowerCase() ?? '';
+
     debugPrint('[CounselorChat] Step 1: Getting or creating conversation');
     final conversationResult = await ref
         .read(messagingServiceProvider)
@@ -46,7 +80,8 @@ class CounselorChatController extends _$CounselorChatController {
 
     if (conversationResult.isFailure) {
       debugPrint('[CounselorChat] ✗ Failed: ${conversationResult.failure.message}');
-      throw Exception(conversationResult.failure.message);
+      state = AsyncValue.error(Exception(conversationResult.failure.message), StackTrace.current);
+      return;
     }
 
     final conversation = conversationResult.value;
@@ -62,7 +97,8 @@ class CounselorChatController extends _$CounselorChatController {
 
     debugPrint('[CounselorChat] Step 2: Fetching messages');
     final messagesResult = await ref.read(messagingServiceProvider).getMessages(_conversationId!);
-    return messagesResult.when(
+    
+    messagesResult.when(
       success: (value) {
         debugPrint('[CounselorChat] ✓ ${value.length} message(s)');
         for (int i = 0; i < value.length; i++) {
@@ -70,15 +106,15 @@ class CounselorChatController extends _$CounselorChatController {
           final preview = m.content.substring(0, m.content.length.clamp(0, 60));
           debugPrint('[CounselorChat]   [$i] ${m.senderRole} | ${m.createdAt} | "$preview"');
         }
-        return CounselorChatState(
+        state = AsyncValue.data(CounselorChatState(
           conversation: conversation,
           counselorEmail: counselorEmail,
           messages: value,
-        );
+        ));
       },
       failure: (f) {
         debugPrint('[CounselorChat] ✗ Failed: ${f.message}');
-        throw Exception(f.message);
+        state = AsyncValue.error(Exception(f.message), StackTrace.current);
       },
     );
   }

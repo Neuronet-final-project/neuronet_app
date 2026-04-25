@@ -186,4 +186,20 @@ class AuthService {
       return Result.failure(failureFromException(e));
     }
   }
+
+  /// Get assigned counselors for an adolescent
+  Future<Result<List<Map<String, dynamic>>>> getAssignedCounselors(String adolescentId) async {
+    try {
+      final response = await _apiClient.get(
+        ApiEndpoints.adolescentCounselors(adolescentId),
+      );
+      final List<dynamic> data = response.data as List? ?? [];
+      final counselors = data.map((e) => e as Map<String, dynamic>).toList();
+      debugPrint('[AuthService] ✓ Found ${counselors.length} assigned counselor(s)');
+      return Result.success(counselors);
+    } catch (e) {
+      debugPrint('[AuthService] ✗ getAssignedCounselors failed: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
 }
