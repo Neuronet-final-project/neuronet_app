@@ -36,34 +36,79 @@ class CounselorChatController extends _$CounselorChatController {
     debugPrint('[CounselorChat] Profile email: $myEmail');
     debugPrint('[CounselorChat] Using effective adolescent ID: $adolescentId');
 
-    // Fetch assigned counselor
     String? counselorEmail;
+    Conversation? existingConversation;
+
+    // First, try to get existing conversation (for adolescents who were chatting before)
     if (adolescentId.isNotEmpty) {
-      final authService = ref.read(authServiceProvider);
-      final counselorsResult = await authService.getAssignedCounselors(adolescentId);
-      
-      counselorsResult.when(
-        success: (counselors) {
-          if (counselors.isNotEmpty) {
-            counselorEmail = counselors.first['counselor_email'] as String?;
-            debugPrint('[CounselorChat] ✓ Assigned counselor: $counselorEmail');
-          } else {
-            debugPrint('[CounselorChat] ⚠ No counselor assigned yet');
-          }
-        },
-        failure: (f) {
-          debugPrint('[CounselorChat] ✗ Failed to fetch assigned counselor: ${f.message}');
-        },
-      );
+      debugPrint('[CounselorChat] Step 1: Checking for existing conversation');
+      final conversationResult = await ref
+          .read(messagingServiceProvider)
+          .getOrCreateConversation(
+            type: ConversationType.counselorAdolescent,
+            adolescentId: adolescentId,
+          );
+
+      if (conversationResult.isSuccess) {
+        existingConversation = conversationResult.value;
+        _conversationId = existingConversation.id;
+        
+        // Extract counselor email from participants
+        counselorEmail = existingConversation.participants
+            .where((p) => p.toLowerCase() != myEmail)
+            .firstOrNull;
+        
+        debugPrint('[CounselorChat] ✓ Found existing conversation: ${existingConversation.id}');
+        debugPrint('[CounselorChat]   Counselor: $counselorEmail');
+        
+        // Load messages for existing conversation
+        final messagesResult = await ref.read(messagingServiceProvider).getMessages(_conversationId!);
+        
+        if (messagesResult.isSuccess) {
+          debugPrint('[CounselorChat] ✓ Loaded ${messagesResult.value.length} message(s)');
+          return CounselorChatState(
+            conversation: existingConversation,
+            counselorEmail: counselorEmail,
+            messages: messagesResult.value,
+          );
+        }
+      } else {
+        debugPrint('[CounselorChat] ⚠ No existing conversation (${conversationResult.failure.message})');
+        
+        // No existing conversation - check for counselor assignment
+        final authService = ref.read(authServiceProvider);
+        final counselorsResult = await authService.getAssignedCounselors(adolescentId);
+        
+        counselorsResult.when(
+          success: (counselors) {
+            if (counselors.isNotEmpty) {
+              counselorEmail = counselors.first['counselor_email'] as String?;
+              debugPrint('[CounselorChat] ✓ Assigned counselor: $counselorEmail');
+            } else {
+              debugPrint('[CounselorChat] ⚠ No counselor assigned yet');
+            }
+          },
+          failure: (f) {
+            debugPrint('[CounselorChat] ✗ Failed to fetch assigned counselor: ${f.message}');
+          },
+        );
+      }
     }
 
-    // Don't try to create conversation immediately - let the approval banner show first
-    // The conversation will be created when user has approval
-    return CounselorChatState(counselorEmail: counselorEmail);
+    return CounselorChatState(
+      conversation: existingConversation,
+      counselorEmail: counselorEmail,
+    );
   }
 
   /// Initialize conversation after approval is granted
   Future<void> initializeConversation() async {
+    // If conversation already exists, don't recreate it
+    if (_conversationId != null && state.value?.conversation != null) {
+      debugPrint('[CounselorChat] Conversation already initialized: $_conversationId');
+      return;
+    }
+
     final profileState = await ref.read(adolescentProfileControllerProvider.future);
     final user = profileState.user;
 
