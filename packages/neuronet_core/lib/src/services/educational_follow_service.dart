@@ -105,6 +105,21 @@ class EducationalFollowService {
       return Result.failure(failureFromException(e));
     }
   }
+
+  /// Guardian: Get pages followed by a specific adolescent
+  Future<Result<List<FollowedPageSummary>>> getGuardianView(String adolescentId) async {
+    try {
+      final response = await _client.get(ApiEndpoints.guardianFollowView);
+      final list = response.data as List<dynamic>;
+      final followedPages = list
+          .map((json) => FollowedPageSummary.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(followedPages);
+    } catch (e) {
+      debugPrint('[EducationalFollowService] getGuardianView ERROR: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
 }
 
 @riverpod
