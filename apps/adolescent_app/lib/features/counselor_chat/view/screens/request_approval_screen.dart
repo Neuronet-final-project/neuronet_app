@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/guardian_approval_provider.dart';
+import '../../../auth/providers/auth_provider.dart';
 
 class RequestApprovalScreen extends ConsumerStatefulWidget {
   const RequestApprovalScreen({

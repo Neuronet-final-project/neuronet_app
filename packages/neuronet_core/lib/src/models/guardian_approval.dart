@@ -64,6 +64,8 @@ abstract class ApprovalRequest with _$ApprovalRequest {
     @JsonKey(name: 'request_reason') required String requestReason,
   }) = _ApprovalRequest;
 
+  const ApprovalRequest._();
+
   Map<String, dynamic> toJson() => {
     'adolescent_id': adolescentId,
     'counselor_email': counselorEmail,
@@ -77,6 +79,8 @@ abstract class ApprovalResponse with _$ApprovalResponse {
     @JsonKey(name: 'response') required String response, // "approved" or "denied"
     @JsonKey(name: 'response_reason') String? responseReason,
   }) = _ApprovalResponse;
+
+  const ApprovalResponse._();
 
   Map<String, dynamic> toJson() => {
     'response': response,
