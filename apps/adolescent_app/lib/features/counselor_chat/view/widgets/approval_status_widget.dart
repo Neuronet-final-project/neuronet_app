@@ -30,6 +30,22 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
   void initState() {
     super.initState();
     _checkApproval();
+    // Poll for approval status changes every 5 seconds
+    _startPolling();
+  }
+
+  void _startPolling() {
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        _checkApproval();
+        _startPolling();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> _checkApproval() async {
@@ -52,6 +68,15 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
           _isLoading = false;
           _retryCount = 0;
         });
+
+        // Update the provider cache so the chat screen knows about the approval
+        final cacheKey = '${widget.adolescentId}:${widget.counselorEmail}';
+        ref.read(guardianApprovalControllerProvider.notifier).state = 
+          ref.read(guardianApprovalControllerProvider).whenData((data) {
+            return data.copyWith(
+              approvalCache: {...data.approvalCache, cacheKey: isApproved},
+            );
+          });
       } else {
         // If API call fails, retry up to 3 times with exponential backoff
         if (_retryCount < _maxRetries) {
