@@ -80,16 +80,16 @@ class _PageFollowButtonState extends ConsumerState<PageFollowButton>
       if (mounted) {
         NeuroToast.show(
           context,
-          message: _isFollowed ? 'Page followed!' : 'Page unfollowed',
-          type: _isFollowed ? ToastType.success : ToastType.info,
+          _isFollowed ? 'Page followed!' : 'Page unfollowed',
+          type: _isFollowed ? NeuroToastType.success : NeuroToastType.info,
         );
       }
     } else if (mounted) {
       setState(() => _isLoading = false);
       NeuroToast.show(
         context,
-        message: 'Failed to ${_isFollowed ? 'unfollow' : 'follow'} page',
-        type: ToastType.error,
+        'Failed to ${_isFollowed ? 'unfollow' : 'follow'} page',
+        type: NeuroToastType.error,
       );
     }
   }
