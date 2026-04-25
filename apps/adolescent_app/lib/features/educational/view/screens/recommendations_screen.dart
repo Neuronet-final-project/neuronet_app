@@ -160,7 +160,7 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
   }
 
   Widget _buildRegularRecommendations(
-    AsyncValue<RecommendationsState> recommendationsAsync,
+    AsyncValue<EducationalState> recommendationsAsync,
     ThemeData theme,
   ) {
     return recommendationsAsync.when(
