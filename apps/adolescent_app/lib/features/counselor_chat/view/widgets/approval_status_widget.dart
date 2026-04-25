@@ -246,6 +246,75 @@ class _ApprovedBanner extends StatelessWidget {
   }
 }
 
+class _RevokedBanner extends StatelessWidget {
+  const _RevokedBanner({
+    required this.onRequestApproval,
+    required this.theme,
+  });
+
+  final VoidCallback onRequestApproval;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.orange.withValues(alpha: 0.3),
+          width: 2,
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.block_rounded,
+                color: Colors.orange,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Approval Revoked',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange.shade700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Your guardian has revoked approval for this counselor. You can request approval again to continue chatting.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: Colors.orange.shade900,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: onRequestApproval,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Request Approval Again'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _DeniedBanner extends StatelessWidget {
   const _DeniedBanner({
     required this.onRequestApproval,
