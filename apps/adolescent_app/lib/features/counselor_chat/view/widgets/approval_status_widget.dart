@@ -23,6 +23,8 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
   bool? _isApproved;
   String? _status; // 'pending', 'approved', 'denied', 'revoked', 'expired', null
   bool _isLoading = true;
+  int _retryCount = 0;
+  static const int _maxRetries = 3;
 
   @override
   void initState() {
@@ -48,13 +50,25 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
           _isApproved = isApproved;
           _status = statusValue;
           _isLoading = false;
+          _retryCount = 0;
         });
       } else {
-        setState(() {
-          _isApproved = false;
-          _status = null;
-          _isLoading = false;
-        });
+        // If API call fails, retry up to 3 times with exponential backoff
+        if (_retryCount < _maxRetries) {
+          _retryCount++;
+          final delayMs = 1000 * _retryCount; // 1s, 2s, 3s
+          await Future.delayed(Duration(milliseconds: delayMs));
+          if (mounted) {
+            _checkApproval();
+          }
+        } else {
+          // After max retries, assume no approval (show request button)
+          setState(() {
+            _isApproved = false;
+            _status = null;
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -80,9 +94,19 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
             const SizedBox(width: 12),
-            Text(
-              'Checking approval status...',
-              style: theme.textTheme.bodyMedium,
+            Expanded(
+              child: Text(
+                'Checking approval status...',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                setState(() => _isLoading = true);
+                _checkApproval();
+              },
+              tooltip: 'Retry',
             ),
           ],
         ),
