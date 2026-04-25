@@ -49,12 +49,25 @@ class EducationalService {
       final response = await _client.get(
         ApiEndpoints.educationalRecommendations(adolescentId),
       );
-      final list = response.data as List<dynamic>;
+      final mapData = response.data as Map<String, dynamic>;
+      final list = mapData['recommendations'] as List<dynamic>? ?? [];
       final recs = list
-          .map((json) => Recommendation.fromJson(json as Map<String, dynamic>))
+          .map((json) {
+            final pageMap = json as Map<String, dynamic>;
+            final id = pageMap['_id'] ?? pageMap['id'] ?? 'none';
+            return Recommendation(
+              id: id as String,
+              adolescentId: adolescentId,
+              page: EducationalPage.fromJson(pageMap),
+              reason: 'Recommended based on your recent check-ins',
+              createdAt: DateTime.now(),
+            );
+          })
           .toList();
       return Result.success(recs);
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('[EducationalService] getRecommendations ERROR: $e');
+      debugPrint('[EducationalService] Stack: $st');
       return Result.failure(failureFromException(e));
     }
   }

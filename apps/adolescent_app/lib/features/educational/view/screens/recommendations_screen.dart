@@ -105,7 +105,7 @@ class _RecommendationCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  Icon(Icons.auto_awesome, color: theme.colorScheme.primary, size: 20),
+                  Icon(Icons.lightbulb_outline_rounded, color: theme.colorScheme.primary, size: 20),
                 ],
               ),
               const SizedBox(height: 16),
