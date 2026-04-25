@@ -252,10 +252,10 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AdolescentRoutes.requestApproval,
         builder: (context, state) {
-          final extra = state.extra as Map<String, String>;
+          final extra = state.extra as Map<String, dynamic>;
           return RequestApprovalScreen(
-            counselorEmail: extra['email']!,
-            counselorName: extra['name']!,
+            counselorEmail: extra['email'] as String? ?? '',
+            counselorName: extra['name'] as String? ?? '',
           );
         },
       ),

@@ -58,8 +58,6 @@ abstract class GuardianApproval with _$GuardianApproval {
 
 @freezed
 abstract class ApprovalRequest with _$ApprovalRequest {
-  const ApprovalRequest._();
-  
   const factory ApprovalRequest({
     @JsonKey(name: 'adolescent_id') required String adolescentId,
     @JsonKey(name: 'counselor_email') required String counselorEmail,
@@ -77,8 +75,6 @@ abstract class ApprovalRequest with _$ApprovalRequest {
 
 @freezed
 abstract class ApprovalResponse with _$ApprovalResponse {
-  const ApprovalResponse._();
-  
   const factory ApprovalResponse({
     @JsonKey(name: 'response') required String response, // "approved" or "denied"
     @JsonKey(name: 'response_reason') String? responseReason,
@@ -127,6 +123,7 @@ abstract class ApprovalStatus with _$ApprovalStatus {
     @JsonKey(name: 'adolescent_id') required String adolescentId,
     @JsonKey(name: 'counselor_email') required String counselorEmail,
     @JsonKey(name: 'is_approved') required bool isApproved,
+    @JsonKey(name: 'status') String? status, // 'pending', 'approved', 'denied', 'revoked'
   }) = _ApprovalStatus;
 
   factory ApprovalStatus.fromJson(Map<String, dynamic> json) {
@@ -134,6 +131,7 @@ abstract class ApprovalStatus with _$ApprovalStatus {
       adolescentId: json['adolescent_id'] as String? ?? '',
       counselorEmail: json['counselor_email'] as String? ?? '',
       isApproved: json['is_approved'] as bool? ?? false,
+      status: json['status'] as String?,
     );
   }
 }

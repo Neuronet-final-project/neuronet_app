@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/guardian_approval_provider.dart';
 
 class ApprovalStatusWidget extends ConsumerStatefulWidget {
@@ -20,6 +21,7 @@ class ApprovalStatusWidget extends ConsumerStatefulWidget {
 
 class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
   bool? _isApproved;
+  String? _status; // 'pending', 'approved', 'denied', 'revoked', 'expired', null
   bool _isLoading = true;
 
   @override
@@ -29,15 +31,31 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
   }
 
   Future<void> _checkApproval() async {
-    final isApproved = await ref
-        .read(guardianApprovalControllerProvider.notifier)
-        .checkApproval(widget.adolescentId, widget.counselorEmail);
+    // Check approval status which includes pending state
+    final service = ref.read(guardianApprovalServiceProvider);
+    final statusResult = await service.checkApprovalStatus(
+      widget.adolescentId,
+      widget.counselorEmail,
+    );
     
     if (mounted) {
-      setState(() {
-        _isApproved = isApproved;
-        _isLoading = false;
-      });
+      if (statusResult.isSuccess) {
+        final status = statusResult.value;
+        final isApproved = status.isApproved;
+        final statusValue = status.status;
+        
+        setState(() {
+          _isApproved = isApproved;
+          _status = statusValue;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isApproved = false;
+          _status = null;
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -71,26 +89,87 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
       );
     }
 
-    if (_isApproved == true) {
+    // Show approved banner
+    if (_isApproved == true && _status == 'approved') {
       return _ApprovedBanner(theme: theme);
     }
 
-    // Not approved - show request banner
+    // Show pending banner - no request button
+    if (_status == 'pending') {
+      return _PendingBanner(theme: theme);
+    }
+
+    // Show denied banner
+    if (_status == 'denied') {
+      return _DeniedBanner(
+        onRequestApproval: widget.onRequestApproval,
+        theme: theme,
+      );
+    }
+
+    // Show revoked banner
+    if (_status == 'revoked') {
+      return _RevokedBanner(
+        onRequestApproval: widget.onRequestApproval,
+        theme: theme,
+      );
+    }
+
+    // Not approved and not pending - show request banner
     return _NotRequestedBanner(
       onRequestApproval: widget.onRequestApproval,
       theme: theme,
+      adolescentId: widget.adolescentId,
+      counselorEmail: widget.counselorEmail,
     );
   }
 }
 
-class _NotRequestedBanner extends StatelessWidget {
+class _NotRequestedBanner extends ConsumerStatefulWidget {
   const _NotRequestedBanner({
+    super.key,
     required this.onRequestApproval,
     required this.theme,
+    required this.adolescentId,
+    required this.counselorEmail,
   });
 
   final VoidCallback onRequestApproval;
   final ThemeData theme;
+  final String adolescentId;
+  final String counselorEmail;
+
+  @override
+  ConsumerState<_NotRequestedBanner> createState() => _NotRequestedBannerState();
+}
+
+class _NotRequestedBannerState extends ConsumerState<_NotRequestedBanner> {
+  bool _isChecking = false;
+
+  Future<void> _handleRequestApproval() async {
+    setState(() => _isChecking = true);
+    
+    // Check if there's already a pending request
+    final service = ref.read(guardianApprovalServiceProvider);
+    final statusResult = await service.checkApprovalStatus(
+      widget.adolescentId,
+      widget.counselorEmail,
+    );
+    
+    if (mounted) {
+      setState(() => _isChecking = false);
+      
+      if (statusResult.isSuccess) {
+        final status = statusResult.value;
+        // If there's a pending request, the status might indicate it
+        // For now, just proceed to the request screen
+        widget.onRequestApproval();
+      } else {
+        // Error checking status, proceed anyway
+        widget.onRequestApproval();
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,10 +177,10 @@ class _NotRequestedBanner extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer.withValues(alpha: 0.3),
+        color: widget.theme.colorScheme.errorContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha: 0.3),
+          color: widget.theme.colorScheme.error.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -111,16 +190,16 @@ class _NotRequestedBanner extends StatelessWidget {
             children: [
               Icon(
                 Icons.lock_outline_rounded,
-                color: theme.colorScheme.error,
+                color: widget.theme.colorScheme.error,
                 size: 28,
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Approval Required',
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: widget.theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.error,
+                    color: widget.theme.colorScheme.error,
                   ),
                 ),
               ),
@@ -130,20 +209,22 @@ class _NotRequestedBanner extends StatelessWidget {
           Text(
             'You need guardian approval to communicate with this counselor. '
             'Request approval to start chatting.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onErrorContainer,
+            style: widget.theme.textTheme.bodyMedium?.copyWith(
+              color: widget.theme.colorScheme.onErrorContainer,
             ),
           ),
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: onRequestApproval,
-              icon: const Icon(Icons.send_rounded),
-              label: const Text('Request Approval'),
+              onPressed: _isChecking ? null : _handleRequestApproval,
+              icon: _isChecking 
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.send_rounded),
+              label: Text(_isChecking ? 'Checking...' : 'Request Approval'),
               style: FilledButton.styleFrom(
-                backgroundColor: theme.colorScheme.error,
-                foregroundColor: theme.colorScheme.onError,
+                backgroundColor: widget.theme.colorScheme.error,
+                foregroundColor: widget.theme.colorScheme.onError,
               ),
             ),
           ),
