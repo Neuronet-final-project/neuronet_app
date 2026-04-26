@@ -14,36 +14,8 @@ class AdolescentAlertsScreen extends ConsumerStatefulWidget {
 class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen> {
   bool _showHistory = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // Mark alerts as viewed when screen opens
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _markAlertsAsViewed();
-    });
-  }
-
-  Future<void> _markAlertsAsViewed() async {
-    final alertsState = ref.read(adolescentAlertsControllerProvider).value;
-    if (alertsState == null || alertsState.alerts.isEmpty) {
-      print('[Insights] No alerts to mark as viewed');
-      return;
-    }
-
-    // Check if there are any unviewed alerts
-    final unviewedAlerts = alertsState.alerts.where((a) => !a.viewedStatus).toList();
-    print('[Insights] Found ${unviewedAlerts.length} unviewed alerts out of ${alertsState.alerts.length} total');
-    
-    if (unviewedAlerts.isEmpty) {
-      print('[Insights] All alerts already viewed');
-      return;
-    }
-
-    print('[Insights] Marking ${unviewedAlerts.length} alerts as viewed...');
-    // Call the mark viewed method
-    await ref.read(adolescentAlertsControllerProvider.notifier).markAllAsViewed();
-    print('[Insights] Alerts marked as viewed successfully');
-  }
+  // Removed auto-mark as viewed on screen open
+  // Insights will only be marked as viewed when individually clicked
 
   @override
   Widget build(BuildContext context) {
@@ -225,14 +197,14 @@ class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen>
   }
 }
 
-class _InsightCard extends StatelessWidget {
+class _InsightCard extends ConsumerWidget {
   const _InsightCard({required this.alert, this.isHistory = false});
 
   final Alert alert;
   final bool isHistory;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     
     // Determine if this insight is unread
@@ -283,7 +255,20 @@ class _InsightCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
-          onTap: () => context.push('/alerts/${alert.alertId}'),
+          onTap: () async {
+            // Mark this specific insight as viewed when clicked
+            if (isUnread) {
+              print('[Insights] Marking insight ${alert.alertId} as viewed');
+              final alertService = ref.read(alertServiceProvider);
+              await alertService.markViewed(alert.alertId);
+              // Refresh the alerts list to update the UI
+              ref.read(adolescentAlertsControllerProvider.notifier).refresh();
+            }
+            // Navigate to detail screen
+            if (context.mounted) {
+              context.push('/alerts/${alert.alertId}');
+            }
+          },
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
