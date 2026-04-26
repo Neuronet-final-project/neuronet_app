@@ -25,6 +25,8 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
   bool _isLoading = true;
   int _retryCount = 0;
   static const int _maxRetries = 3;
+  bool? _triggeredByAlert;
+  Map<String, dynamic>? _alertContext;
 
   @override
   void initState() {
@@ -62,21 +64,43 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
         final isApproved = status.isApproved;
         final statusValue = status.status;
         
+        // If pending, try to fetch alert context
+        bool? triggeredByAlert;
+        Map<String, dynamic>? alertContext;
+        
+        if (statusValue == 'pending') {
+          // Try to get alert context from the approval
+          try {
+            // We would need the approval_id to fetch context
+            // For now, we'll assume it might be alert-triggered if status is pending
+            triggeredByAlert = null; // Will be determined by backend response
+          } catch (e) {
+            debugPrint('Error fetching alert context: $e');
+          }
+        }
+        
         setState(() {
           _isApproved = isApproved;
           _status = statusValue;
           _isLoading = false;
           _retryCount = 0;
+          _triggeredByAlert = triggeredByAlert;
+          _alertContext = alertContext;
         });
 
         // Update the provider cache so the chat screen knows about the approval
         final cacheKey = '${widget.adolescentId}:${widget.counselorEmail}';
-        ref.read(guardianApprovalControllerProvider.notifier).state = 
-          ref.read(guardianApprovalControllerProvider).whenData((data) {
-            return data.copyWith(
-              approvalCache: {...data.approvalCache, cacheKey: isApproved},
-            );
-          });
+        final controller = ref.read(guardianApprovalControllerProvider.notifier);
+        
+        // Get current state and update cache
+        final currentState = ref.read(guardianApprovalControllerProvider).value;
+        if (currentState != null) {
+          controller.state = AsyncValue.data(
+            currentState.copyWith(
+              approvalCache: {...currentState.approvalCache, cacheKey: isApproved},
+            ),
+          );
+        }
       } else {
         // If API call fails, retry up to 3 times with exponential backoff
         if (_retryCount < _maxRetries) {
@@ -145,7 +169,11 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
 
     // Show pending banner - no request button
     if (_status == 'pending') {
-      return _PendingBanner(theme: theme);
+      return _PendingBanner(
+        theme: theme,
+        triggeredByAlert: _triggeredByAlert ?? false,
+        alertContext: _alertContext,
+      );
     }
 
     // Show denied banner
@@ -284,12 +312,21 @@ class _NotRequestedBannerState extends ConsumerState<_NotRequestedBanner> {
 }
 
 class _PendingBanner extends StatelessWidget {
-  const _PendingBanner({required this.theme});
+  const _PendingBanner({
+    required this.theme,
+    this.triggeredByAlert = false,
+    this.alertContext,
+  });
 
   final ThemeData theme;
+  final bool triggeredByAlert;
+  final Map<String, dynamic>? alertContext;
 
   @override
   Widget build(BuildContext context) {
+    final riskLevel = alertContext?['risk_level'] as String? ?? 'unknown';
+    final riskScore = alertContext?['risk_score'] as num? ?? 0;
+    
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -301,38 +338,112 @@ class _PendingBanner extends StatelessWidget {
           width: 2,
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.hourglass_empty_rounded,
-            color: theme.colorScheme.tertiary,
-            size: 28,
+          Row(
+            children: [
+              Icon(
+                triggeredByAlert ? Icons.warning_amber_rounded : Icons.hourglass_empty_rounded,
+                color: theme.colorScheme.tertiary,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Approval Pending',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.tertiary,
+                      ),
+                    ),
+                    if (triggeredByAlert)
+                      Text(
+                        'Alert-triggered request',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.tertiary,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Approval Pending',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.tertiary,
+          const SizedBox(height: 12),
+          if (triggeredByAlert && alertContext != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'AI Alert Details',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Your guardian is reviewing your request. You\'ll be notified once they respond.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onTertiaryContainer,
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        'Risk Level: ',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: _getRiskColor(riskLevel).withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          riskLevel.toUpperCase(),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: _getRiskColor(riskLevel),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    'Risk Score: ${riskScore.toStringAsFixed(1)}%',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            )
+          else
+            Text(
+              'Your guardian is reviewing your request. You\'ll be notified once they respond.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onTertiaryContainer,
+              ),
             ),
-          ),
         ],
       ),
     );
+  }
+
+  Color _getRiskColor(String riskLevel) {
+    switch (riskLevel.toLowerCase()) {
+      case 'high':
+        return Colors.red;
+      case 'medium':
+        return Colors.orange;
+      case 'low':
+        return Colors.yellow;
+      default:
+        return Colors.grey;
+    }
   }
 }
 
