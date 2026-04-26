@@ -4,22 +4,36 @@ import 'package:neuronet_core/neuronet_core.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/alerts_provider.dart';
 
-class AdolescentAlertsScreen extends ConsumerWidget {
+class AdolescentAlertsScreen extends ConsumerStatefulWidget {
   const AdolescentAlertsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdolescentAlertsScreen> createState() => _AdolescentAlertsScreenState();
+}
+
+class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen> {
+  bool _showHistory = false;
+
+  // Removed auto-mark as viewed on screen open
+  // Insights will only be marked as viewed when individually clicked
+
+  @override
+  Widget build(BuildContext context) {
     final alertsAsync = ref.watch(adolescentAlertsControllerProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F3FF),
       appBar: AppBar(
-        title: const Text('My Insights'),
+        title: const Text('My Insights', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: const Color(0xFF7C4DFF),
+        foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             onPressed: () => ref.read(adolescentAlertsControllerProvider.notifier).refresh(),
-            tooltip: 'Refresh alerts',
+            tooltip: 'Refresh insights',
           ),
         ],
       ),
@@ -36,28 +50,141 @@ class AdolescentAlertsScreen extends ConsumerWidget {
           if (alerts.isEmpty) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: NeuroEmptyState(
-                  title: 'No new insights yet!',
-                  message: 'Keep journaling to see patterns and insights appear here.',
-                  icon: Icons.bubble_chart_outlined,
-                  color: theme.colorScheme.primary,
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEDE7FF),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.insights_rounded,
+                        size: 64,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'No insights yet!',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF2D1B6B),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Keep journaling and tracking your moods.\nWe\'ll share helpful patterns here.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: const Color(0xFF9E9EB8),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: alerts.length,
-            itemBuilder: (context, index) {
-              final alert = alerts[index];
-              return _InsightCard(alert: alert);
-            },
+          // Sort alerts by date (newest first)
+          final sortedAlerts = [...alerts]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          
+          // Separate recent (last 7 days) and history
+          final now = DateTime.now();
+          final sevenDaysAgo = now.subtract(const Duration(days: 7));
+          final recentAlerts = sortedAlerts.where((a) => a.createdAt.isAfter(sevenDaysAgo)).toList();
+          final historyAlerts = sortedAlerts.where((a) => !a.createdAt.isAfter(sevenDaysAgo)).toList();
+
+          return RefreshIndicator(
+            onRefresh: () => ref.read(adolescentAlertsControllerProvider.notifier).refresh(),
+            color: const Color(0xFF7C4DFF),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                // Recent Insights Section
+                if (recentAlerts.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF7C4DFF), Color(0xFFB47CFF)],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'RECENT',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${recentAlerts.length} new ${recentAlerts.length == 1 ? 'insight' : 'insights'}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF9E9EB8),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ...recentAlerts.map((alert) => _InsightCard(alert: alert)),
+                ],
+
+                // History Section
+                if (historyAlerts.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  GestureDetector(
+                    onTap: () => setState(() => _showHistory = !_showHistory),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE4DAF5)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.history_rounded, color: Color(0xFF7C4DFF), size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Insights History (${historyAlerts.length})',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF2D1B6B),
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            _showHistory ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                            color: const Color(0xFF7C4DFF),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (_showHistory) ...[
+                    const SizedBox(height: 16),
+                    ...historyAlerts.map((alert) => _InsightCard(alert: alert, isHistory: true)),
+                  ],
+                ],
+              ],
+            ),
           );
         },
         loading: () => ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.all(16),
           itemCount: 4,
           itemBuilder: (context, index) => const NeuroSkeletonCard(),
         ),
@@ -70,137 +197,203 @@ class AdolescentAlertsScreen extends ConsumerWidget {
   }
 }
 
-class _InsightCard extends StatelessWidget {
-  const _InsightCard({required this.alert});
+class _InsightCard extends ConsumerWidget {
+  const _InsightCard({required this.alert, this.isHistory = false});
 
   final Alert alert;
+  final bool isHistory;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    
+    // Determine if this insight is unread
+    final isUnread = !alert.viewedStatus;
     
     // Non-alarming severity colors/labels for teens
     final color = switch (alert.severityLevel.toLowerCase()) {
-      'high' => NeuroColors.alertMedium.withValues(alpha: 0.8), // Avoid red for teens
-      'medium' => NeuroColors.alertLow,
-      _ => NeuroColors.alertLow.withValues(alpha: 0.6),
+      'high' => const Color(0xFFFF7043), // Soft orange instead of red
+      'medium' => const Color(0xFFFFB74D), // Amber
+      _ => const Color(0xFF64B5F6), // Light blue
     };
 
     // Friendly emotion labels for teens
     final friendlyEmotions = alert.detectedEmotions.take(3).map(_getFriendlyEmotion).toList();
 
-    return Card(
-      elevation: 0,
-      color: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: BorderSide(
-          color: color.withValues(alpha: 0.3),
-          width: 2,
-        ),
-      ),
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      child: InkWell(
+      decoration: BoxDecoration(
+        // Unread: red/pink gradient background, Read: white background
+        gradient: isUnread
+            ? const LinearGradient(
+                colors: [Color(0xFFFFE5E5), Color(0xFFFFF0F0)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: isUnread ? null : Colors.white,
         borderRadius: BorderRadius.circular(24),
-        onTap: () => context.push('/alerts/${alert.alertId}'),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _getFriendlyType(alert.alertType),
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: color,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    _formatDate(alert.createdAt),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                alert.aiSummary.isNotEmpty
-                    ? _makeTeenFriendly(alert.aiSummary)
-                    : 'A new pattern noticed',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (alert.aiSummary.isEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  alert.triggerDescription,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-
-              // Friendly emotion chips for teens
-              if (friendlyEmotions.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: friendlyEmotions.map((emotion) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        emotion,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w600,
+        border: Border.all(
+          color: isUnread 
+              ? const Color(0xFFFF6B6B).withValues(alpha: 0.4)
+              : (isHistory ? const Color(0xFFE4DAF5) : color.withValues(alpha: 0.3)),
+          width: isUnread ? 2.5 : (isHistory ? 1 : 2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isUnread
+                ? const Color(0xFFFF6B6B).withValues(alpha: 0.15)
+                : (isHistory 
+                    ? Colors.black.withValues(alpha: 0.03)
+                    : color.withValues(alpha: 0.08)),
+            blurRadius: isUnread ? 16 : (isHistory ? 4 : 12),
+            offset: Offset(0, isUnread ? 6 : (isHistory ? 2 : 4)),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () async {
+            // Mark this specific insight as viewed when clicked
+            if (isUnread) {
+              print('[Insights] Marking insight ${alert.alertId} as viewed');
+              final alertService = ref.read(alertServiceProvider);
+              await alertService.markViewed(alert.alertId);
+              // Refresh the alerts list to update the UI
+              ref.read(adolescentAlertsControllerProvider.notifier).refresh();
+            }
+            // Navigate to detail screen
+            if (context.mounted) {
+              context.push('/alerts/${alert.alertId}');
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    // Unread indicator badge
+                    if (isUnread)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF6B6B),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Text(
+                          'NEW',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.8,
+                          ),
                         ),
                       ),
-                    );
-                  }).toList(),
-                ),
-              ],
-
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'View Details',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        _getFriendlyType(alert.alertType),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: color,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
                     ),
+                    const Spacer(),
+                    Text(
+                      _formatDate(alert.createdAt),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isUnread ? const Color(0xFF9E4A4A) : const Color(0xFF9E9EB8),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  alert.aiSummary.isNotEmpty
+                      ? _makeTeenFriendly(alert.aiSummary)
+                      : alert.triggerDescription,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: isUnread ? const Color(0xFF5A1B1B) : const Color(0xFF2D1B6B),
+                    height: 1.4,
                   ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 16,
-                    color: theme.colorScheme.primary,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                // Friendly emotion chips for teens
+                if (friendlyEmotions.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: friendlyEmotions.map((emotion) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isUnread 
+                              ? const Color(0xFFFFD6D6)
+                              : const Color(0xFFF3EEFF),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isUnread 
+                                ? const Color(0xFFFFB3B3)
+                                : const Color(0xFFE4DAF5),
+                          ),
+                        ),
+                        child: Text(
+                          emotion,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isUnread 
+                                ? const Color(0xFFD32F2F)
+                                : const Color(0xFF7C4DFF),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ],
-              ),
-            ],
+
+                const SizedBox(height: 14),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'View Details',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isUnread ? const Color(0xFFFF6B6B) : color,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 16,
+                      color: isUnread ? const Color(0xFFFF6B6B) : color,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

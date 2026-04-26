@@ -12,6 +12,7 @@ import 'package:adolescent_app/features/channels/view/screens/channels_screen.da
 import 'package:adolescent_app/features/channels/view/screens/channel_detail_screen.dart';
 import 'package:adolescent_app/features/channels/view/screens/channel_post_detail_screen.dart';
 import 'package:adolescent_app/features/counselor_chat/view/screens/counselor_chat_screen.dart';
+import 'package:adolescent_app/features/counselor_chat/view/screens/request_approval_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/new_journal_entry_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/journal_search_screen.dart';
 import 'package:adolescent_app/features/journal/providers/journal_provider.dart';
@@ -26,6 +27,8 @@ import 'package:adolescent_app/features/alerts/view/screens/alert_detail_screen.
 import 'package:adolescent_app/features/educational/view/screens/educational_library_screen.dart';
 import 'package:adolescent_app/features/educational/view/screens/educational_page_detail_screen.dart';
 import 'package:adolescent_app/features/educational/view/screens/recommendations_screen.dart';
+import 'package:adolescent_app/features/educational/view/screens/discover_pages_screen.dart';
+import 'package:adolescent_app/features/educational/view/screens/followed_pages_screen.dart';
 import 'package:adolescent_app/features/auth/view/screens/splash_screen.dart';
 import 'package:adolescent_app/features/onboarding/view/screens/onboarding_screen.dart';
 import 'package:adolescent_app/features/activities/view/screens/activities_screen.dart';
@@ -51,9 +54,12 @@ class AdolescentRoutes {
   static const String dashboard = '/dashboard';
   static const String channels = '/channels';
   static const String counselorChat = '/counselor-chat';
+  static const String requestApproval = '/request-approval';
   static const String profile = '/profile';
   static const String consentStatus = '/consent-status';
   static const String learn = '/learn';
+  static const String discoverPages = '/discover-pages';
+  static const String followedPages = '/followed-pages';
   static const String recommendations = '/recommendations';
   static const String activities = '/activities';
   static const String breathingExercise = '/breathing-exercise';
@@ -244,6 +250,16 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const CounselorChatScreen(),
       ),
       GoRoute(
+        path: AdolescentRoutes.requestApproval,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return RequestApprovalScreen(
+            counselorEmail: extra['email'] as String? ?? '',
+            counselorName: extra['name'] as String? ?? '',
+          );
+        },
+      ),
+      GoRoute(
         path: AdolescentRoutes.newJournal,
         builder: (context, state) => const NewJournalEntryScreen(),
       ),
@@ -296,6 +312,14 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
           final page = state.extra as EducationalPage;
           return EducationalPageDetailScreen(page: page);
         },
+      ),
+      GoRoute(
+        path: AdolescentRoutes.discoverPages,
+        builder: (context, state) => const DiscoverPagesScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.followedPages,
+        builder: (context, state) => const FollowedPagesScreen(),
       ),
       GoRoute(
         path: AdolescentRoutes.recommendations,

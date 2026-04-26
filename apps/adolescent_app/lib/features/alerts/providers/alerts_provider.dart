@@ -56,4 +56,18 @@ class AdolescentAlertsController extends _$AdolescentAlertsController {
       );
     });
   }
+
+  Future<void> markAllAsViewed() async {
+    final profileState = await ref.read(adolescentProfileControllerProvider.future);
+    final alertService = ref.read(alertServiceProvider);
+
+    final id = profileState.user?.id ?? '';
+    if (id.isEmpty || id == 'fallback') return;
+
+    // Call the backend to mark alerts as viewed
+    await alertService.markAlertsAsViewed(id);
+
+    // Refresh to get updated viewed status
+    await refresh();
+  }
 }

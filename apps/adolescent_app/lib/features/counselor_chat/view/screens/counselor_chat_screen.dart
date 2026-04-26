@@ -1,8 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/counselor_chat_provider.dart';
+import '../../providers/guardian_approval_provider.dart';
+import '../widgets/approval_status_widget.dart';
+import '../../../profile/providers/profile_provider.dart';
 
 class CounselorChatScreen extends ConsumerStatefulWidget {
   const CounselorChatScreen({super.key});
@@ -109,7 +113,27 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
   Widget build(BuildContext context) {
     final chatState = ref.watch(counselorChatControllerProvider);
     final callState = ref.watch(callControllerProvider);
+    final profileState = ref.watch(adolescentProfileControllerProvider);
     final theme = Theme.of(context);
+
+    // Get user info for approval checks
+    final adolescentId = profileState.value?.user?.id;
+    final counselorEmail = chatState.value?.counselorEmail;
+
+    // Check approval status
+    final approvalState = ref.watch(guardianApprovalControllerProvider);
+    final isApproved = approvalState.value?.approvalCache['$adolescentId:$counselorEmail'] ?? false;
+
+    // Initialize conversation when approved
+    ref.listen(guardianApprovalControllerProvider, (previous, next) {
+      final wasApproved = previous?.value?.approvalCache['$adolescentId:$counselorEmail'] ?? false;
+      final nowApproved = next.value?.approvalCache['$adolescentId:$counselorEmail'] ?? false;
+      
+      if (!wasApproved && nowApproved && chatState.value?.conversation == null) {
+        // Just became approved and no conversation yet - initialize it
+        ref.read(counselorChatControllerProvider.notifier).initializeConversation();
+      }
+    });
 
     // Scroll to bottom when messages are added
     ref.listen(counselorChatControllerProvider, (previous, next) {
@@ -133,7 +157,6 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     });
 
     // Extract counselor info from state for the AppBar
-    final counselorEmail = chatState.value?.counselorEmail;
     final appBarTitle = counselorEmail != null
         ? _emailToDisplayName(counselorEmail)
         : 'Counselor Chat';
@@ -171,18 +194,20 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.phone),
-            onPressed: _startVoiceCall,
+            onPressed: isApproved ? _startVoiceCall : null,
             tooltip: 'Voice call',
           ),
           IconButton(
             icon: const Icon(Icons.videocam),
-            onPressed: _startVideoCall,
+            onPressed: isApproved ? _startVideoCall : null,
             tooltip: 'Video call',
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              ref.read(counselorChatControllerProvider.notifier).refresh();
+              if (isApproved) {
+                ref.read(counselorChatControllerProvider.notifier).refresh();
+              }
             },
             tooltip: 'Refresh messages',
           ),
@@ -194,34 +219,96 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
           chatState.when(
             data: (data) {
               final messages = data.messages;
-              if (messages.isEmpty) {
-                return _buildEmptyState(context, theme);
-              }
-
+              
               return Column(
                 children: [
-                  Expanded(
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        final message = messages[index];
-                        final isUser = message.senderRole == 'adolescent';
-
-                        return NeuroChatBubble(
-                          messageContent: message.content,
-                          timestamp: message.createdAt,
-                          isUser: isUser,
-                          senderLabel: isUser ? 'You' : appBarTitle,
-                          userColor: theme.colorScheme.primary,
-                          messageType: message.messageType,
-                          attachmentUrl: message.attachmentUrl,
+                  // Approval status banner - always show if we have the required info
+                  if (adolescentId != null && adolescentId.isNotEmpty && 
+                      counselorEmail != null && counselorEmail.isNotEmpty)
+                    ApprovalStatusWidget(
+                      adolescentId: adolescentId,
+                      counselorEmail: counselorEmail,
+                      onRequestApproval: () {
+                        context.push(
+                          '/request-approval',
+                          extra: {
+                            'email': counselorEmail,
+                            'name': appBarTitle,
+                          },
                         );
                       },
+                    )
+                  else if (adolescentId != null && adolescentId.isNotEmpty)
+                    Container(
+                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, color: theme.colorScheme.primary),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'No counselor assigned yet. Please contact your guardian or administrator.',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Container(
+                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.errorContainer.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded, color: theme.colorScheme.error),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Unable to load profile. Please try refreshing.',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  _buildMessageInput(context, theme),
+                  
+                  // Messages list
+                  if (messages.isEmpty && isApproved)
+                    Expanded(child: _buildEmptyState(context, theme))
+                  else if (messages.isNotEmpty)
+                    Expanded(
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(16),
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          final message = messages[index];
+                          final isUser = message.senderRole == 'adolescent';
+
+                          return NeuroChatBubble(
+                            messageContent: message.content,
+                            timestamp: message.createdAt,
+                            isUser: isUser,
+                            senderLabel: isUser ? 'You' : appBarTitle,
+                            userColor: theme.colorScheme.primary,
+                            messageType: message.messageType,
+                            attachmentUrl: message.attachmentUrl,
+                          );
+                        },
+                      ),
+                    )
+                  else
+                    const Expanded(child: SizedBox.shrink()),
+                  _buildMessageInput(context, theme, adolescentId, counselorEmail),
                 ],
               );
             },
@@ -358,7 +445,40 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     );
   }
 
-  Widget _buildMessageInput(BuildContext context, ThemeData theme) {
+  Widget _buildMessageInput(BuildContext context, ThemeData theme, String? adolescentId, String? counselorEmail) {
+    // Check if approved before allowing input
+    if (adolescentId != null && counselorEmail != null) {
+      final approvalState = ref.watch(guardianApprovalControllerProvider);
+      final isApproved = approvalState.value?.approvalCache['$adolescentId:$counselorEmail'] ?? false;
+      
+      if (!isApproved) {
+        // Show disabled input
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest,
+            border: Border(
+              top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.lock_outline, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Guardian approval required to send messages',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+    
     return NeuroChatInput(
       controller: _messageController,
       onSend: _sendMessage,

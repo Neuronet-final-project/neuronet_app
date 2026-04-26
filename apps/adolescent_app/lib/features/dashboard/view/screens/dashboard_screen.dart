@@ -29,11 +29,36 @@ const _cardColors = [
 ];
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Refresh dashboard when app comes back to foreground
+      ref.invalidate(adolescentDashboardControllerProvider);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _kSurface,
       body: RefreshIndicator(
@@ -83,7 +108,12 @@ class _HeroAppBar extends ConsumerWidget {
       orElse: () => 'there',
     );
     final unread = alertsAsync.maybeWhen(
-      data: (s) => s.alerts.where((a) => !a.viewedStatus).length,
+      data: (s) {
+        final count = s.alerts.where((a) => !a.viewedStatus).length;
+        // Debug: Print unread count
+        print('[Dashboard] Unread insights count: $count / ${s.alerts.length} total');
+        return count;
+      },
       orElse: () => 0,
     );
 
@@ -192,23 +222,44 @@ class _HeroAppBar extends ConsumerWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  const Icon(Icons.lightbulb_outline_rounded,
-                      color: Colors.white, size: 26),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.lightbulb_outline_rounded,
+                        color: Colors.white, size: 24),
+                  ),
                   if (unread > 0)
                     Positioned(
-                      right: -4, top: -4,
+                      right: -2, top: -2,
                       child: Container(
-                        width: 18, height: 18,
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(
+                          minWidth: 20,
+                          minHeight: 20,
+                        ),
                         decoration: BoxDecoration(
-                            color: const Color(0xFFFF6B6B),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFF6B6B), Color(0xFFFF4757)],
+                            ),
                             shape: BoxShape.circle,
-                            border: Border.all(color: _kPurple, width: 2)),
+                            border: Border.all(color: _kPurple, width: 2.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFF6B6B).withValues(alpha: 0.5),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]),
                         child: Center(
                           child: Text(
                             unread > 9 ? '9+' : '$unread',
                             style: const TextStyle(
-                                fontSize: 9, color: Colors.white,
-                                fontWeight: FontWeight.w900),
+                                fontSize: 10, color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                height: 1.0),
                           ),
                         ),
                       ),
@@ -465,8 +516,8 @@ class _StatsRow extends ConsumerWidget {
     return dashAsync.maybeWhen(
       data: (state) {
         final data = state.data;
-        final journals = data?.recentJournals.length ?? 0;
-        final moods = data?.moodDistribution.length ?? 0;
+        final journals = data?.totalJournals ?? 0;
+        final moods = data?.totalMoods ?? 0;
         final recs = data?.educationalRecommendations.length ?? 0;
 
         return Padding(
