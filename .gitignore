@@ -72,3 +72,13 @@ coverage/
 # Pubspec lock
 # Documentation
 /docs/
+
+# Kiro AI files
+.kiro/
+
+# Documentation files
+*.md
+!README.md
+
+# Text files
+*.txt
