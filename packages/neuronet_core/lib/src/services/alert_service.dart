@@ -51,6 +51,16 @@ class AlertService {
     }
   }
 
+  /// Marks all alerts for an adolescent as viewed.
+  Future<Result<void>> markAlertsAsViewed(String adolescentId) async {
+    try {
+      await _client.post(ApiEndpoints.markAlertsViewed(adolescentId));
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
   /// Resolves an alert.
   Future<Result<Alert>> resolveAlert(String alertId, {String? notes}) async {
     try {

@@ -42,6 +42,7 @@ class ApiEndpoints {
   static String alertSummary(String id) => '/alerts/adolescent/$id/summary';
   static String resolveAlert(String id) => '/alerts/resolve/$id';
   static String markViewed(String id) => '/alerts/mark-viewed/$id';
+  static String markAlertsViewed(String adolescentId) => '/alerts/mark-viewed/$adolescentId';
 
   // Consents
   static String consentByEmail(String email) => '/consents/$email';
