@@ -29,11 +29,36 @@ const _cardColors = [
 ];
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Refresh dashboard when app comes back to foreground
+      ref.invalidate(adolescentDashboardControllerProvider);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _kSurface,
       body: RefreshIndicator(
@@ -465,8 +490,8 @@ class _StatsRow extends ConsumerWidget {
     return dashAsync.maybeWhen(
       data: (state) {
         final data = state.data;
-        final journals = data?.recentJournals.length ?? 0;
-        final moods = data?.moodDistribution.length ?? 0;
+        final journals = data?.totalJournals ?? 0;
+        final moods = data?.totalMoods ?? 0;
         final recs = data?.educationalRecommendations.length ?? 0;
 
         return Padding(
