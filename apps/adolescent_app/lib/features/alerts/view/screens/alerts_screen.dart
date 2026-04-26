@@ -25,14 +25,24 @@ class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen>
 
   Future<void> _markAlertsAsViewed() async {
     final alertsState = ref.read(adolescentAlertsControllerProvider).value;
-    if (alertsState == null || alertsState.alerts.isEmpty) return;
+    if (alertsState == null || alertsState.alerts.isEmpty) {
+      print('[Insights] No alerts to mark as viewed');
+      return;
+    }
 
     // Check if there are any unviewed alerts
-    final hasUnviewed = alertsState.alerts.any((a) => !a.viewedStatus);
-    if (!hasUnviewed) return;
+    final unviewedAlerts = alertsState.alerts.where((a) => !a.viewedStatus).toList();
+    print('[Insights] Found ${unviewedAlerts.length} unviewed alerts out of ${alertsState.alerts.length} total');
+    
+    if (unviewedAlerts.isEmpty) {
+      print('[Insights] All alerts already viewed');
+      return;
+    }
 
+    print('[Insights] Marking ${unviewedAlerts.length} alerts as viewed...');
     // Call the mark viewed method
     await ref.read(adolescentAlertsControllerProvider.notifier).markAllAsViewed();
+    print('[Insights] Alerts marked as viewed successfully');
   }
 
   @override
@@ -225,6 +235,9 @@ class _InsightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
+    // Determine if this insight is unread
+    final isUnread = !alert.viewedStatus;
+    
     // Non-alarming severity colors/labels for teens
     final color = switch (alert.severityLevel.toLowerCase()) {
       'high' => const Color(0xFFFF7043), // Soft orange instead of red
@@ -238,19 +251,31 @@ class _InsightCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // Unread: red/pink gradient background, Read: white background
+        gradient: isUnread
+            ? const LinearGradient(
+                colors: [Color(0xFFFFE5E5), Color(0xFFFFF0F0)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: isUnread ? null : Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isHistory ? const Color(0xFFE4DAF5) : color.withValues(alpha: 0.3),
-          width: isHistory ? 1 : 2,
+          color: isUnread 
+              ? const Color(0xFFFF6B6B).withValues(alpha: 0.4)
+              : (isHistory ? const Color(0xFFE4DAF5) : color.withValues(alpha: 0.3)),
+          width: isUnread ? 2.5 : (isHistory ? 1 : 2),
         ),
         boxShadow: [
           BoxShadow(
-            color: isHistory 
-                ? Colors.black.withValues(alpha: 0.03)
-                : color.withValues(alpha: 0.08),
-            blurRadius: isHistory ? 4 : 12,
-            offset: Offset(0, isHistory ? 2 : 4),
+            color: isUnread
+                ? const Color(0xFFFF6B6B).withValues(alpha: 0.15)
+                : (isHistory 
+                    ? Colors.black.withValues(alpha: 0.03)
+                    : color.withValues(alpha: 0.08)),
+            blurRadius: isUnread ? 16 : (isHistory ? 4 : 12),
+            offset: Offset(0, isUnread ? 6 : (isHistory ? 2 : 4)),
           ),
         ],
       ),
@@ -266,6 +291,25 @@ class _InsightCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
+                    // Unread indicator badge
+                    if (isUnread)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF6B6B),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Text(
+                          'NEW',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
@@ -285,9 +329,9 @@ class _InsightCard extends StatelessWidget {
                     const Spacer(),
                     Text(
                       _formatDate(alert.createdAt),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF9E9EB8),
+                        color: isUnread ? const Color(0xFF9E4A4A) : const Color(0xFF9E9EB8),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -298,10 +342,10 @@ class _InsightCard extends StatelessWidget {
                   alert.aiSummary.isNotEmpty
                       ? _makeTeenFriendly(alert.aiSummary)
                       : alert.triggerDescription,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF2D1B6B),
+                    color: isUnread ? const Color(0xFF5A1B1B) : const Color(0xFF2D1B6B),
                     height: 1.4,
                   ),
                   maxLines: 3,
@@ -318,15 +362,23 @@ class _InsightCard extends StatelessWidget {
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF3EEFF),
+                          color: isUnread 
+                              ? const Color(0xFFFFD6D6)
+                              : const Color(0xFFF3EEFF),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE4DAF5)),
+                          border: Border.all(
+                            color: isUnread 
+                                ? const Color(0xFFFFB3B3)
+                                : const Color(0xFFE4DAF5),
+                          ),
                         ),
                         child: Text(
                           emotion,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF7C4DFF),
+                            color: isUnread 
+                                ? const Color(0xFFD32F2F)
+                                : const Color(0xFF7C4DFF),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -343,7 +395,7 @@ class _InsightCard extends StatelessWidget {
                       'View Details',
                       style: TextStyle(
                         fontSize: 13,
-                        color: color,
+                        color: isUnread ? const Color(0xFFFF6B6B) : color,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -351,7 +403,7 @@ class _InsightCard extends StatelessWidget {
                     Icon(
                       Icons.arrow_forward_rounded,
                       size: 16,
-                      color: color,
+                      color: isUnread ? const Color(0xFFFF6B6B) : color,
                     ),
                   ],
                 ),
