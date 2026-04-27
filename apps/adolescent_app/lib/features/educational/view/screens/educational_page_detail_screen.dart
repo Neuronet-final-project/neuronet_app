@@ -236,57 +236,6 @@ class EducationalPageDetailScreen extends ConsumerWidget {
 
                 const SizedBox(height: 24),
 
-                // Summary Section (if available)
-                if (page.summary != null && page.summary!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.auto_awesome,
-                                size: 20,
-                                color: theme.colorScheme.primary,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Summary',
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.colorScheme.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            page.summary!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              height: 1.6,
-                              color: theme.colorScheme.onSurface,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                if (page.summary != null && page.summary!.isNotEmpty)
-                  const SizedBox(height: 24),
-
                 // Main Content
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
