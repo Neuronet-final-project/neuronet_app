@@ -10,6 +10,19 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
 
   final EducationalPage page;
 
+  Color _getDifficultyColor(String difficulty) {
+    switch (difficulty.toLowerCase()) {
+      case 'beginner':
+        return Colors.green;
+      case 'intermediate':
+        return Colors.orange;
+      case 'advanced':
+        return Colors.red;
+      default:
+        return NeuroColors.guardianPrimary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,6 +42,19 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Featured Image (if available)
+            if (page.featuredImageUrl != null && page.featuredImageUrl!.isNotEmpty)
+              Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(page.featuredImageUrl!),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(32),
@@ -41,21 +67,45 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      page.category?.toUpperCase() ?? 'LEARN',
-                      style: TextStyle(
-                        color: NeuroColors.guardianPrimary,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                        fontSize: 12,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          page.category?.toUpperCase() ?? 'LEARN',
+                          style: TextStyle(
+                            color: NeuroColors.guardianPrimary,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
-                    ),
+                      if (page.difficultyLevel != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: _getDifficultyColor(page.difficultyLevel!),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            page.difficultyLevel!.toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -79,9 +129,144 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ],
+                  
+                  // Meta info
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (page.estimatedReadTime > 0) ...[
+                        const Icon(
+                          Icons.schedule_outlined,
+                          size: 16,
+                          color: NeuroColors.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${page.estimatedReadTime} min read',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: NeuroColors.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                      ],
+                      const Icon(
+                        Icons.visibility_outlined,
+                        size: 16,
+                        color: NeuroColors.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${page.viewCount} views',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: NeuroColors.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Icon(
+                        Icons.people_outline,
+                        size: 16,
+                        color: NeuroColors.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${page.followCount} followers',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: NeuroColors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  // Tags
+                  if (page.tags.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: page.tags.map((tag) => Chip(
+                        label: Text(
+                          tag,
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                        backgroundColor: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      )).toList(),
+                    ),
+                  ],
                 ],
               ),
             ),
+            
+            // Author Info
+            if (page.authorName != null) ...[
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: NeuroColors.guardianPrimary.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: NeuroColors.guardianPrimary,
+                        child: Text(
+                          page.authorName![0].toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              page.authorName!,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            if (page.authorCredentials != null)
+                              Text(
+                                page.authorCredentials!,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: NeuroColors.onSurfaceVariant,
+                                ),
+                              ),
+                            if (page.authorBio != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                page.authorBio!,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: NeuroColors.onSurfaceVariant,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             Padding(
               padding: const EdgeInsets.all(24),
               child: MarkdownBody(
