@@ -76,29 +76,29 @@ class _JournalHistoryScreenState extends ConsumerState<JournalHistoryScreen> {
               orElse: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
             ),
 
-            // 3. Entries List
-            journalAsync.when(
-              data: (state) => _buildGroupedList(context, state.entries),
-              loading: () => SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (_, __) => const Padding(
-                    padding: EdgeInsets.fromLTRB(20, 0, 20, 16),
-                    child: NeuroSkeletonCard(),
-                  ),
-                  childCount: 4,
-                ),
-              ),
-              error: (err, _) => SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: NeuroErrorWidget(
-                    message: 'Error loading journals: $err',
-                    onRetry: () =>
-                        ref.read(journalControllerProvider.notifier).refresh(),
-                  ),
-                ),
-              ),
-            ),
+             // 3. Entries List
+             journalAsync.when(
+               data: (state) => _buildGroupedList(context, state.entries),
+               loading: () => SliverList(
+                 delegate: SliverChildBuilderDelegate(
+                   (_, __) => const Padding(
+                     padding: EdgeInsets.fromLTRB(20, 0, 20, 16),
+                     child: _JournalEntrySkeleton(),
+                   ),
+                   childCount: 4,
+                 ),
+               ),
+               error: (err, _) => SliverToBoxAdapter(
+                 child: Padding(
+                   padding: const EdgeInsets.all(24),
+                   child: NeuroErrorWidget(
+                     message: 'Error loading journals: $err',
+                     onRetry: () =>
+                         ref.read(journalControllerProvider.notifier).refresh(),
+                   ),
+                 ),
+               ),
+             ),
 
                   const SliverPadding(padding: EdgeInsets.only(bottom: 120)),
                 ],
@@ -839,11 +839,138 @@ class _ComposeFAB extends StatelessWidget {
           foregroundColor: Colors.white,
           shadowColor: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 28),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
+           shape: RoundedRectangleBorder(
+             borderRadius: BorderRadius.circular(30),
+           ),
+         ),
+       ),
+       ),
+     );
+   }
+ }
+
+// ── Journal Entry Skeleton ─────────────────────────────────────────────────────
+class _JournalEntrySkeleton extends StatelessWidget {
+  const _JournalEntrySkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(22),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(22, 18, 18, 18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: const Color(0xFFE8E0F0), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: NeuroColors.adolescentPrimary.withValues(alpha: 0.07),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
-      ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left accent strip placeholder
+            NeuroShimmer(
+              child: Container(
+                width: 4,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Date badge placeholder
+            NeuroShimmer(
+              child: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top row: mood badge + time
+                  Row(
+                    children: [
+                      // Mood badge placeholder
+                      NeuroShimmer(
+                        child: Container(
+                          width: 50,
+                          height: 18,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      // Time placeholder
+                      NeuroShimmer(
+                        child: Container(
+                          width: 50,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  // Title placeholder
+                  NeuroShimmer(
+                    child: Container(
+                      width: double.infinity,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  // Content placeholder (two lines)
+                  NeuroShimmer(
+                    child: Container(
+                      width: double.infinity,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  NeuroShimmer(
+                    child: Container(
+                      width: 180,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

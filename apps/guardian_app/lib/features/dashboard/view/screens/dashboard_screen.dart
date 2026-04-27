@@ -738,53 +738,83 @@ class _QuickActionCard extends StatelessWidget {
     }
   }
 
- class NeuroSkeletonHeroCard extends StatelessWidget {
-   const NeuroSkeletonHeroCard({super.key});
+  class NeuroSkeletonHeroCard extends StatelessWidget {
+    const NeuroSkeletonHeroCard({super.key});
 
-   @override
-   Widget build(BuildContext context) {
-     return GuardianBentoCard(
-       margin: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-       gradient: GuardianStyles.primaryGradient,
-       child: Column(
-         crossAxisAlignment: CrossAxisAlignment.start,
-         children: [
-           Row(
-             children: [
-               Column(
-                 crossAxisAlignment: CrossAxisAlignment.start,
-                 children: [
-                   const _SkeletonBox(width: 100, height: 12),
-                   const SizedBox(height: 6),
-                   const _SkeletonBox(width: 140, height: 22),
-                 ],
-               ),
-               const Spacer(),
-               const _SkeletonCircle(radius: 18, color: Colors.white24),
-             ],
-           ),
-           const SizedBox(height: 28),
-           Row(
-             mainAxisAlignment: MainAxisAlignment.spaceAround,
-             children: List.generate(3, (_) => 
-               NeuroShimmer(
-                 child: Container(
-                   width: 70,
-                   height: 52,
-                   decoration: BoxDecoration(
-                     color: Colors.white.withValues(alpha: 0.15),
-                     borderRadius: BorderRadius.circular(16),
-                   ),
-                 ),
-               ),
-             ),
-           ),
-         ],
-       ),
-     );
-   }
- }
+    @override
+    Widget build(BuildContext context) {
+      return GuardianBentoCard(
+        margin: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+        gradient: GuardianStyles.primaryGradient,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Greeting text placeholder — white rounded box
+                    NeuroShimmer(
+                      child: Container(
+                        width: 100,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    // Title placeholder — white rounded box
+                    NeuroShimmer(
+                      child: Container(
+                        width: 140,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                // Notification/avatar placeholder — white circle
+                NeuroShimmer(
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 28),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(3, (_) => 
+                NeuroShimmer(
+                  child: Container(
+                    width: 70,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
  class NeuroSkeletonTrendCard extends StatelessWidget {
    const NeuroSkeletonTrendCard({super.key});

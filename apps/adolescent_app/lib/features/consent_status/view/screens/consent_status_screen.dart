@@ -6,36 +6,36 @@ import '../../providers/consent_status_provider.dart';
 class ConsentStatusScreen extends ConsumerWidget {
   const ConsentStatusScreen({super.key});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final consentAsync = ref.watch(adolescentConsentControllerProvider);
+   @override
+   Widget build(BuildContext context, WidgetRef ref) {
+     final consentAsync = ref.watch(adolescentConsentControllerProvider);
 
-    return Scaffold(
-      backgroundColor: NeuroColors.background,
-      appBar: AppBar(
-        title: Text(
-          'Privacy Hub',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: NeuroColors.onSurface,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: NeuroColors.onSurface,
-        iconTheme: const IconThemeData(color: NeuroColors.onSurface),
-      ),
-      body: consentAsync.when(
-        data: (state) => _buildContent(context, state),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => NeuroErrorWidget(
-          message: 'Could not load privacy settings.',
-          onRetry: () => ref.refresh(adolescentConsentControllerProvider),
-        ),
-      ),
-    );
-  }
+     return Scaffold(
+       backgroundColor: NeuroColors.background,
+       appBar: AppBar(
+         title: Text(
+           'Privacy Hub',
+           style: TextStyle(
+             fontWeight: FontWeight.w700,
+             color: NeuroColors.onSurface,
+           ),
+         ),
+         centerTitle: true,
+         backgroundColor: Colors.transparent,
+         elevation: 0,
+         foregroundColor: NeuroColors.onSurface,
+         iconTheme: const IconThemeData(color: NeuroColors.onSurface),
+       ),
+       body: consentAsync.when(
+         data: (state) => _buildContent(context, state),
+         loading: () => const _ConsentStatusSkeletonLoading(),
+         error: (err, stack) => NeuroErrorWidget(
+           message: 'Could not load privacy settings.',
+           onRetry: () => ref.refresh(adolescentConsentControllerProvider),
+         ),
+       ),
+     );
+   }
 
   Widget _buildContent(BuildContext context, ConsentStatusState state) {
     return SingleChildScrollView(
@@ -278,7 +278,271 @@ class ConsentStatusScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEducationItem(BuildContext context, String text) {
+   Widget _buildEducationItem(BuildContext context, String text) {
+     return Padding(
+       padding: const EdgeInsets.only(bottom: 12),
+       child: Row(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           const Text('• ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+           Expanded(
+             child: Text(
+               text,
+               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: NeuroColors.onSurfaceVariant),
+             ),
+           ),
+         ],
+       ),
+     );
+   }
+ }
+
+ // --- Skeleton Loading Widgets ------------------------------------------------
+
+const _kSkeletonGrey = Color(0xFFE5E7EB);
+
+class _ConsentStatusSkeletonLoading extends StatelessWidget {
+  const _ConsentStatusSkeletonLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _ConsentStatusSkeletonHero(),
+          const SizedBox(height: 32),
+          Text(
+            'Core Transparency',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          const _ConsentStatusSkeletonCard(),
+          const SizedBox(height: 24),
+          Text(
+            'Sharing & Visibility',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          const _ConsentStatusSkeletonCard(),
+          const SizedBox(height: 16),
+          const _ConsentStatusSkeletonCard(isDisabled: true),
+          const SizedBox(height: 24),
+          Text(
+            'Interaction Controls',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          const _ConsentStatusSkeletonCard(),
+          const SizedBox(height: 32),
+          const _ConsentStatusSkeletonEducation(),
+          const SizedBox(height: 48),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConsentStatusSkeletonHero extends StatelessWidget {
+  const _ConsentStatusSkeletonHero();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: NeuroColors.surface,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [NeuroShadows.lg],
+      ),
+      child: Column(
+        children: [
+          NeuroShimmer(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: _kSkeletonGrey,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.shield_rounded, size: 40, color: Colors.white),
+            ),
+          ),
+          const SizedBox(height: 16),
+          NeuroShimmer(
+            child: Container(
+              width: 220,
+              height: 24,
+              decoration: BoxDecoration(
+                color: _kSkeletonGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          NeuroShimmer(
+            child: Container(
+              width: double.infinity,
+              height: 14,
+              decoration: BoxDecoration(
+                color: _kSkeletonGrey.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConsentStatusSkeletonCard extends StatelessWidget {
+  final bool isDisabled;
+  const _ConsentStatusSkeletonCard({this.isDisabled = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: NeuroColors.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: _kSkeletonGrey.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              NeuroShimmer(
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: _kSkeletonGrey,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: NeuroShimmer(
+                  child: Container(
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: _kSkeletonGrey,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              NeuroShimmer(
+                child: Container(
+                  width: 64,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: _kSkeletonGrey,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          NeuroShimmer(
+            child: Container(
+              width: double.infinity,
+              height: 12,
+              decoration: BoxDecoration(
+                color: _kSkeletonGrey.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          if (isDisabled) ...[
+            const SizedBox(height: 12),
+            NeuroShimmer(
+              child: Container(
+                width: 180,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: _kSkeletonGrey,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ConsentStatusSkeletonEducation extends StatelessWidget {
+  const _ConsentStatusSkeletonEducation();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            NeuroColors.adolescentPrimary.withValues(alpha: 0.05),
+            NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(28),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              NeuroShimmer(
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: _kSkeletonGrey,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              NeuroShimmer(
+                child: Container(
+                  width: 200,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: _kSkeletonGrey,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const _ConsentStatusSkeletonEducationItem(),
+          const _ConsentStatusSkeletonEducationItem(),
+          const _ConsentStatusSkeletonEducationItem(),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConsentStatusSkeletonEducationItem extends StatelessWidget {
+  const _ConsentStatusSkeletonEducationItem();
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -286,9 +550,14 @@ class ConsentStatusScreen extends ConsumerWidget {
         children: [
           const Text('• ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: NeuroColors.onSurfaceVariant),
+            child: NeuroShimmer(
+              child: Container(
+                height: 12,
+                decoration: BoxDecoration(
+                  color: _kSkeletonGrey,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
             ),
           ),
         ],

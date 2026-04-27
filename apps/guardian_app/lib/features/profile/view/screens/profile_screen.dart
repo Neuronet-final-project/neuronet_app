@@ -56,7 +56,9 @@ class ProfileScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(24.0),
                       child: NeuroErrorWidget(
                         message: state.error!,
-                        onRetry: () => ref.read(guardianProfileControllerProvider.notifier).refresh(),
+                        onRetry: () => ref
+                            .read(guardianProfileControllerProvider.notifier)
+                            .refresh(),
                       ),
                     ),
                   ),
@@ -66,14 +68,15 @@ class ProfileScreen extends ConsumerWidget {
               final user = state.user;
               if (user == null) {
                 return const SliverFillRemaining(
-                  child: Center(
-                    child: Text('No user profile found.'),
-                  ),
+                  child: Center(child: Text('No user profile found.')),
                 );
               }
 
               return SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     _buildContent(context, ref, user),
@@ -86,9 +89,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             error: (err, stack) => SliverFillRemaining(
               child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                ),
+                child: Padding(padding: const EdgeInsets.all(24.0)),
               ),
             ),
           ),
@@ -100,9 +101,11 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildContent(BuildContext context, WidgetRef ref, User user) {
     return Column(
       children: [
-        _ProfileHeader(user: user).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
+        _ProfileHeader(
+          user: user,
+        ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
         const SizedBox(height: 16),
-        
+
         _SettingSection(
           title: 'Account Information',
           children: [
@@ -120,15 +123,17 @@ class ProfileScreen extends ConsumerWidget {
             ),
             _SettingTile(
               label: 'Role',
-              value: user.role == UserRole.guardian ? 'Guardian' : user.role.name.toUpperCase(),
+              value: user.role == UserRole.guardian
+                  ? 'Guardian'
+                  : user.role.name.toUpperCase(),
               icon: Icons.verified_user_rounded,
               showDivider: false,
             ),
           ],
         ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.05),
-        
+
         const SizedBox(height: 16),
-        
+
         _SettingSection(
           title: 'Notification Settings',
           children: [
@@ -148,66 +153,76 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ],
         ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(begin: 0.05),
-        
-        const SizedBox(height: 16),
 
-        _SettingSection(
-          title: 'Privacy & Permissions',
-          children: [
-            _SettingTile(
-              label: 'Consent Management',
-              value: 'Manage access to adolescent data',
-              icon: Icons.verified_user_outlined,
-              showDivider: false,
-              onTap: () => context.push(GuardianRoutes.consent),
-            ),
-          ],
-        ).animate().fadeIn(delay: 300.ms, duration: 400.ms).slideY(begin: 0.05),
-        
         const SizedBox(height: 32),
-        
-        _SettingSection(
-          title: 'Account Actions',
-          children: [
-            _SettingTile(
-              label: 'Sign Out',
-              value: 'Exit your current session safely',
-              icon: Icons.logout_rounded,
-              showDivider: false,
-              isDestructive: true,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text(
-                      'Sign Out',
-                      style: TextStyle(fontWeight: FontWeight.w900),
-                    ),
-                    content: const Text(
-                      'Are you sure you want to sign out? You will need to log back in to monitor your adolescents\' emotional health.',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                    ),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text('Cancel', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w700)),
+
+        // Sign Out button — matches adolescent style
+        ElevatedButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text(
+                  'Sign Out',
+                  style: TextStyle(fontWeight: FontWeight.w900),
+                ),
+                content: const Text(
+                  'Are you sure you want to sign out?',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w700,
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          ref.read(authControllerProvider.notifier).logout();
-                        },
-                        child: const Text('Sign Out', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w900)),
-                      ),
-                    ],
+                    ),
                   ),
-                );
-              },
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ref.read(authControllerProvider.notifier).logout();
+                    },
+                    child: const Text(
+                      'Sign Out',
+                      style: TextStyle(
+                        color: Color(0xFFEF4444),
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: NeuroColors.guardianPrimary,
+            foregroundColor: Colors.white,
+            elevation: 2,
+            minimumSize: const Size(double.infinity, 56),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-          ],
-        ).animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.05),
-        
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.logout_rounded, size: 22),
+              SizedBox(width: 8),
+              Text(
+                'Sign Out',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+        ),
+
         const SizedBox(height: 48),
         Center(
           child: Text(
@@ -238,23 +253,35 @@ class _ProfileHeader extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.2),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.2),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.4),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: const Icon(Icons.person_rounded, size: 40, color: Colors.white),
-          ).animate(onPlay: (controller) => controller.repeat())
-           .shimmer(delay: 3.seconds, duration: 1500.ms, color: Colors.white.withValues(alpha: 0.2)),
+                child: const Icon(
+                  Icons.person_rounded,
+                  size: 40,
+                  color: Colors.white,
+                ),
+              )
+              .animate(onPlay: (controller) => controller.repeat())
+              .shimmer(
+                delay: 3.seconds,
+                duration: 1500.ms,
+                color: Colors.white.withValues(alpha: 0.2),
+              ),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
@@ -271,7 +298,10 @@ class _ProfileHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
@@ -354,11 +384,11 @@ class _SettingTileState extends State<_SettingTile> {
   @override
   Widget build(BuildContext context) {
     final destructiveColor = const Color(0xFFEF4444);
-    final iconBgColor = widget.isDestructive 
-        ? destructiveColor.withValues(alpha: 0.1) 
+    final iconBgColor = widget.isDestructive
+        ? destructiveColor.withValues(alpha: 0.1)
         : NeuroColors.guardianPrimary.withValues(alpha: 0.05);
-    final iconColor = widget.isDestructive 
-        ? destructiveColor 
+    final iconColor = widget.isDestructive
+        ? destructiveColor
         : NeuroColors.guardianPrimary;
 
     return Column(
@@ -393,7 +423,9 @@ class _SettingTileState extends State<_SettingTile> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: widget.isDestructive ? destructiveColor : NeuroColors.onSurfaceVariant,
+                            color: widget.isDestructive
+                                ? destructiveColor
+                                : NeuroColors.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -402,14 +434,20 @@ class _SettingTileState extends State<_SettingTile> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: widget.isDestructive ? destructiveColor.withValues(alpha: 0.8) : NeuroColors.onSurface,
+                            color: widget.isDestructive
+                                ? destructiveColor.withValues(alpha: 0.8)
+                                : NeuroColors.onSurface,
                           ),
                         ),
                       ],
                     ),
                   ),
                   if (widget.onTap != null && !widget.isDestructive)
-                    const Icon(Icons.chevron_right_rounded, color: NeuroColors.onSurfaceVariant, size: 20),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: NeuroColors.onSurfaceVariant,
+                      size: 20,
+                    ),
                 ],
               ),
             ),
@@ -418,7 +456,11 @@ class _SettingTileState extends State<_SettingTile> {
         if (widget.showDivider)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Divider(height: 1, thickness: 1, color: const Color(0xFFF3F4F6)),
+            child: Divider(
+              height: 1,
+              thickness: 1,
+              color: const Color(0xFFF3F4F6),
+            ),
           ),
       ],
     );
@@ -483,10 +525,13 @@ class _CustomSwitchTile extends StatelessWidget {
         if (showDivider)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Divider(height: 1, thickness: 1, color: const Color(0xFFF3F4F6)),
+            child: Divider(
+              height: 1,
+              thickness: 1,
+              color: const Color(0xFFF3F4F6),
+            ),
           ),
       ],
     );
   }
 }
-

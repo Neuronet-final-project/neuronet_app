@@ -1380,32 +1380,77 @@ class _HeroAppBarSkeleton extends StatelessWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 40, 20, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const _SkeletonBox(width: 100, height: 12),
-                    const _SkeletonCircle(radius: 16),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _SkeletonBox(width: 100, height: 12),
-                    SizedBox(height: 8),
-                    _SkeletonBox(width: 160, height: 36),
-                    SizedBox(height: 16),
-                    _SkeletonBox(width: 200, height: 16),
-                  ],
-                ),
-              ),
-            ],
+             children: [
+               Padding(
+                 padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 40, 20, 0),
+                 child: Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                   children: [
+                     NeuroShimmer(
+                       child: Container(
+                         width: 100,
+                         height: 24,
+                         decoration: BoxDecoration(
+                           color: Colors.white,
+                           borderRadius: BorderRadius.circular(20),
+                         ),
+                       ),
+                     ),
+                     NeuroShimmer(
+                       child: Container(
+                         width: 32,
+                         height: 32,
+                         decoration: BoxDecoration(
+                           color: Colors.white,
+                           shape: BoxShape.circle,
+                         ),
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
+               const Spacer(),
+               Padding(
+                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                 child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     NeuroShimmer(
+                       child: Container(
+                         width: 100,
+                         height: 14,
+                         decoration: BoxDecoration(
+                           color: Colors.white,
+                           borderRadius: BorderRadius.circular(6),
+                         ),
+                       ),
+                     ),
+                     const SizedBox(height: 8),
+                     NeuroShimmer(
+                       child: Container(
+                         width: 160,
+                         height: 36,
+                         decoration: BoxDecoration(
+                           color: Colors.white,
+                           borderRadius: BorderRadius.circular(12),
+                         ),
+                       ),
+                     ),
+                     const SizedBox(height: 16),
+                     NeuroShimmer(
+                       child: Container(
+                         width: 200,
+                         height: 16,
+                         decoration: BoxDecoration(
+                           color: Colors.white,
+                           borderRadius: BorderRadius.circular(6),
+                         ),
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
+             ],
           ),
         ),
       ),
