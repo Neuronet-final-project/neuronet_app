@@ -13,6 +13,19 @@ class EducationalPageDetailScreen extends ConsumerWidget {
 
   final EducationalPage page;
 
+  Color _getDifficultyColor(String difficulty, ThemeData theme) {
+    switch (difficulty.toLowerCase()) {
+      case 'beginner':
+        return Colors.green;
+      case 'intermediate':
+        return Colors.orange;
+      case 'advanced':
+        return Colors.red;
+      default:
+        return theme.colorScheme.primary;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
@@ -20,9 +33,9 @@ class EducationalPageDetailScreen extends ConsumerWidget {
 
     // Check if page is followed
     final isFollowed = followController.when(
-      data: (state) => state.followStatusCache[page.slug] ?? false,
-      loading: () => false,
-      error: (_, __) => false,
+      data: (state) => state.followStatusCache[page.slug] ?? page.isFollowing,
+      loading: () => page.isFollowing,
+      error: (_, __) => page.isFollowing,
     );
 
     return Scaffold(
@@ -43,6 +56,19 @@ class EducationalPageDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Featured Image (if available)
+            if (page.featuredImageUrl != null && page.featuredImageUrl!.isNotEmpty)
+              Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(page.featuredImageUrl!),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            
             // Hero-like header
             Container(
               width: double.infinity,
@@ -56,20 +82,43 @@ class EducationalPageDetailScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      page.category?.toUpperCase() ?? 'LEARN',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          page.category?.toUpperCase() ?? 'LEARN',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
                       ),
-                    ),
+                      if (page.difficultyLevel != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: _getDifficultyColor(page.difficultyLevel!, theme),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            page.difficultyLevel!.toUpperCase(),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -91,9 +140,137 @@ class EducationalPageDetailScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
+                  
+                  // Meta info
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (page.estimatedReadTime > 0) ...[
+                        Icon(
+                          Icons.schedule_outlined,
+                          size: 16,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${page.estimatedReadTime} min read',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                      ],
+                      Icon(
+                        Icons.visibility_outlined,
+                        size: 16,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${page.viewCount} views',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Icon(
+                        Icons.people_outline,
+                        size: 16,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${page.followCount} followers',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  // Tags
+                  if (page.tags.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: page.tags.map((tag) => Chip(
+                        label: Text(
+                          tag,
+                          style: theme.textTheme.labelSmall,
+                        ),
+                        backgroundColor: theme.colorScheme.secondaryContainer,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      )).toList(),
+                    ),
+                  ],
                 ],
               ),
             ),
+            
+            // Author Info
+            if (page.authorName != null) ...[
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: theme.colorScheme.primary,
+                        child: Text(
+                          page.authorName![0].toUpperCase(),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              page.authorName!,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (page.authorCredentials != null)
+                              Text(
+                                page.authorCredentials!,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            if (page.authorBio != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                page.authorBio!,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             
             Padding(
               padding: const EdgeInsets.all(24),

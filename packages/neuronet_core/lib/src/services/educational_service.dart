@@ -41,6 +41,35 @@ class EducationalService {
     }
   }
 
+  /// Discovers educational pages with optional filters.
+  Future<Result<List<EducationalPage>>> discoverPages({
+    String? category,
+    String? search,
+    String? difficulty,
+    String? sortBy,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{};
+      if (category != null) queryParams['category'] = category;
+      if (search != null) queryParams['search'] = search;
+      if (difficulty != null) queryParams['difficulty'] = difficulty;
+      if (sortBy != null) queryParams['sort_by'] = sortBy;
+
+      final response = await _client.get(
+        ApiEndpoints.discoverEducationalPagesNew,
+        queryParameters: queryParams,
+      );
+      final list = response.data as List<dynamic>;
+      final pages = list
+          .map((json) => EducationalPage.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(pages);
+    } catch (e) {
+      debugPrint('[EducationalService] discoverPages ERROR: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
+
   /// Gets personalized recommendations for an adolescent.
   Future<Result<List<Recommendation>>> getRecommendations(
     String adolescentId,

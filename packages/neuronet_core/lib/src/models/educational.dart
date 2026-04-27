@@ -11,6 +11,17 @@ abstract class EducationalPage with _$EducationalPage {
     @JsonKey(name: 'content') required String content,
     @JsonKey(name: 'summary') String? summary,
     @JsonKey(name: 'category') String? category,
+    @JsonKey(name: 'tags') @Default([]) List<String> tags,
+    @JsonKey(name: 'difficulty_level') String? difficultyLevel,
+    @JsonKey(name: 'author_name') String? authorName,
+    @JsonKey(name: 'author_bio') String? authorBio,
+    @JsonKey(name: 'author_credentials') String? authorCredentials,
+    @JsonKey(name: 'featured_image_url') String? featuredImageUrl,
+    @JsonKey(name: 'estimated_read_time') @Default(0) int estimatedReadTime,
+    @JsonKey(name: 'view_count') @Default(0) int viewCount,
+    @JsonKey(name: 'follow_count') @Default(0) int followCount,
+    @JsonKey(name: 'engagement_score') @Default(0.0) double engagementScore,
+    @JsonKey(name: 'is_following') @Default(false) bool isFollowing,
     @JsonKey(name: 'created_at') required DateTime createdAt,
   }) = _EducationalPage;
 
@@ -24,6 +35,10 @@ abstract class EducationalPage with _$EducationalPage {
         ? DateTime.parse(createdAtStr as String) 
         : DateTime.now();
 
+    // Parse tags
+    final tagsList = json['tags'] as List<dynamic>?;
+    final tags = tagsList?.map((e) => e.toString()).toList() ?? <String>[];
+
     return EducationalPage(
       id: id as String,
       title: json['title'] as String? ?? 'Untitled',
@@ -31,6 +46,17 @@ abstract class EducationalPage with _$EducationalPage {
       content: json['content'] as String? ?? '',
       summary: json['summary'] as String?,
       category: json['category'] as String?,
+      tags: tags,
+      difficultyLevel: json['difficulty_level'] as String?,
+      authorName: json['author_name'] as String?,
+      authorBio: json['author_bio'] as String?,
+      authorCredentials: json['author_credentials'] as String?,
+      featuredImageUrl: json['featured_image_url'] as String?,
+      estimatedReadTime: json['estimated_read_time'] as int? ?? 0,
+      viewCount: json['view_count'] as int? ?? 0,
+      followCount: json['follow_count'] as int? ?? 0,
+      engagementScore: (json['engagement_score'] as num?)?.toDouble() ?? 0.0,
+      isFollowing: json['is_following'] as bool? ?? false,
       createdAt: createdAt,
     );
   }

@@ -245,12 +245,23 @@ class _DiscoverPageCard extends ConsumerWidget {
         onTap: () {
           // Convert to EducationalPage and navigate
           final educationalPage = EducationalPage(
-            id: page.slug, // Using slug as id since we don't have the actual id
+            id: page.slug,
             title: page.title,
             slug: page.slug,
             content: page.content,
             summary: null,
             category: page.category,
+            tags: [],
+            difficultyLevel: null,
+            authorName: page.counselorName,
+            authorBio: null,
+            authorCredentials: null,
+            featuredImageUrl: null,
+            estimatedReadTime: 0,
+            viewCount: 0,
+            followCount: page.followCount,
+            engagementScore: 0.0,
+            isFollowing: page.isFollowed,
             createdAt: page.updatedAt,
           );
           context.push('/learn/${page.slug}', extra: educationalPage);
@@ -303,37 +314,46 @@ class _DiscoverPageCard extends ConsumerWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 12),
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
                 children: [
-                  if (page.counselorName != null) ...[
-                    Icon(
-                      Icons.person_outline,
-                      size: 16,
-                      color: theme.colorScheme.onSurfaceVariant,
+                  if (page.counselorName != null)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.person_outline,
+                          size: 16,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          page.counselorName!,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      page.counselorName!,
-                      style: theme.textTheme.labelSmall?.copyWith(
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.people_outline,
+                        size: 16,
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                  ],
-                  Icon(
-                    Icons.people_outline,
-                    size: 16,
-                    color: theme.colorScheme.onSurfaceVariant,
+                      const SizedBox(width: 4),
+                      Text(
+                        '${page.followCount} ${page.followCount == 1 ? 'follower' : 'followers'}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${page.followCount} ${page.followCount == 1 ? 'follower' : 'followers'}',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  if (page.popularityScore > 10) ...[
-                    const SizedBox(width: 8),
+                  if (page.popularityScore > 10)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
@@ -359,7 +379,6 @@ class _DiscoverPageCard extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  ],
                 ],
               ),
             ],
