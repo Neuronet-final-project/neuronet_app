@@ -41,7 +41,8 @@ class ApiEndpoints {
   static String alertsByAdolescent(String id) => '/alerts/adolescent/$id';
   static String alertSummary(String id) => '/alerts/adolescent/$id/summary';
   static String resolveAlert(String id) => '/alerts/resolve/$id';
-  static String markViewed(String id) => '/alerts/mark-viewed/$id';
+  static String markViewed(String id) => '/alerts/mark-viewed/single/$id';
+  static String markAlertsViewed(String adolescentId) => '/alerts/mark-viewed/$adolescentId';
 
   // Consents
   static String consentByEmail(String email) => '/consents/$email';
@@ -90,6 +91,32 @@ class ApiEndpoints {
   static String educationalRecommendations(String id) => '/educational/recommendations/adolescent/$id';
   static String guardianEducationalRecommendations(String id) => '/educational/recommendations/guardian/$id';
 
+  // Educational Page Following (FR-14 & FR-15)
+  static String followEducationalPage(String slug) => '/educational-follows/follow/$slug';
+  static String unfollowEducationalPage(String slug) => '/educational-follows/unfollow/$slug';
+  static const String myFollowedPages = '/educational-follows/my-followed-pages';
+  static const String guardianFollowView = '/educational-follows/guardian-view';
+  static const String discoverEducationalPages = '/educational-follows/discover';
+  static String pageFollowCount(String slug) => '/educational-follows/page/$slug/follow-count';
+  static String isPageFollowed(String slug) => '/educational-follows/page/$slug/is-followed';
+
+  // AI Recommendations (FR-31)
+  static const String analyzeAndRecommend = '/ai-recommendations/analyze-and-recommend';
+  static const String myAIRecommendations = '/ai-recommendations/my-recommendations';
+  static String markRecommendationViewed(String id) => '/ai-recommendations/mark-viewed/$id';
+
+  // Guardian Approvals (FR-34)
+  static const String requestCommunicationApproval = '/guardian-approvals/request-communication';
+  static String respondToApproval(String id) => '/guardian-approvals/respond/$id';
+  static String revokeApproval(String id) => '/guardian-approvals/revoke/$id';
+  static const String pendingApprovals = '/guardian-approvals/pending';
+  static const String approvalHistory = '/guardian-approvals/history';
+  static String checkApprovalStatus(String adolescentId, String counselorEmail) => 
+      '/guardian-approvals/check-approval/$adolescentId/$counselorEmail';
+
   // Guardian overview
   static const String guardianAdolescents = '/guardians/me/adolescents';
+
+  // Counselor Assignments
+  static String adolescentCounselors(String adolescentId) => '/counselor-assignments/adolescent/$adolescentId/counselors';
 }

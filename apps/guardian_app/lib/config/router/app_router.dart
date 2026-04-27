@@ -24,6 +24,8 @@ import '../../features/adolescents/view/screens/adolescent_detail_screen.dart';
 import '../../features/adolescents/view/screens/pending_adolescents_screen.dart';
 import '../../features/educational/view/screens/recommendations_screen.dart';
 import '../../features/educational/view/screens/educational_page_detail_screen.dart';
+import '../../features/approvals/view/screens/approvals_screen.dart';
+import '../../features/educational/view/screens/adolescent_follows_screen.dart';
 
 // Auth Provider
 import '../../features/auth/providers/auth_provider.dart';
@@ -52,6 +54,8 @@ class GuardianRoutes {
   static const String adolescentRecommendations =
       '/adolescent/:adolescentId/recommendations';
   static const String educationalPage = '/learn/:slug';
+  static const String approvals = '/approvals';
+  static const String adolescentFollows = '/adolescent/:adolescentId/follows';
 }
 
 // Global ChangeNotifier for auth state changes.
@@ -273,6 +277,22 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final page = state.extra as EducationalPage;
           return GuardianEducationalPageDetailScreen(page: page);
+        },
+      ),
+      GoRoute(
+        path: GuardianRoutes.approvals,
+        builder: (context, state) => const ApprovalsScreen(),
+      ),
+      GoRoute(
+        path: GuardianRoutes.adolescentFollows,
+        builder: (context, state) {
+          final adolescentId = state.pathParameters['adolescentId']!;
+          final adolescentName =
+              state.uri.queryParameters['name'] ?? 'Adolescent';
+          return AdolescentFollowsScreen(
+            adolescentId: adolescentId,
+            adolescentName: adolescentName,
+          );
         },
       ),
     ],

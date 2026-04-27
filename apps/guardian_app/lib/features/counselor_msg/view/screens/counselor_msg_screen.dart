@@ -256,11 +256,11 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
               data: (consentState) {
                 final isGranted = isConsentGranted;
                 return Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 12.0),
                   child: NeuroCard(
                     color: isGranted
-                        ? NeuroColors.alertLow.withValues(alpha: 0.1)
-                        : NeuroColors.alertMedium.withValues(alpha: 0.1),
+                        ? NeuroColors.alertLow.withValues(alpha: 0.15)
+                        : NeuroColors.alertMedium.withValues(alpha: 0.15),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -275,20 +275,18 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                               : NeuroColors.alertMedium,
                         ),
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            isGranted
-                                ? 'Chat enabled - Adolescent consent on file'
-                                : 'Chat disabled - Adolescent consent required',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: isGranted
-                                  ? NeuroColors.alertLow
-                                  : NeuroColors.alertMedium,
-                            ),
+                      Expanded(
+                        child: Text(
+                          isGranted
+                              ? 'Chat enabled - Adolescent consent on file'
+                              : 'Chat disabled - Adolescent consent required',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: NeuroColors.onSurface,
                           ),
                         ),
+                      ),
                       ],
                     ),
                   ),

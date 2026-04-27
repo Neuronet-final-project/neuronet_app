@@ -25,6 +25,9 @@ export 'src/services/onboarding_service.dart';
 export 'src/services/voice_recorder_service.dart';
 export 'src/services/call_service.dart';
 export 'src/services/call_controller.dart';
+export 'src/services/educational_follow_service.dart';
+export 'src/services/ai_recommendation_service.dart';
+export 'src/services/guardian_approval_service.dart';
 
 // Network
 export 'src/network/api_endpoints.dart';

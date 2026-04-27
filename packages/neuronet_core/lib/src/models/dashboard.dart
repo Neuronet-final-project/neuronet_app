@@ -127,7 +127,9 @@ abstract class RecentJournal with _$RecentJournal {
 abstract class DashboardData with _$DashboardData {
   const factory DashboardData({
     @JsonKey(name: 'recent_journals') required List<RecentJournal> recentJournals,
+    @JsonKey(name: 'total_journals') @Default(0) int totalJournals,
     @JsonKey(name: 'mood_distribution', fromJson: _moodDistributionFromJson, toJson: _moodDistributionToJson) @Default({}) Map<String, int> moodDistribution,
+    @JsonKey(name: 'total_moods') @Default(0) int totalMoods,
     @JsonKey(name: 'educational_recommendations') @Default([]) List<Map<String, dynamic>> educationalRecommendations,
     @JsonKey(name: 'generated_at') DateTime? generatedAt,
   }) = _DashboardData;

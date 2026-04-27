@@ -144,6 +144,12 @@ class DashboardScreen extends ConsumerWidget {
                         );
                       },
                     ),
+                    _QuickActionCard(
+                      title: 'Counselor Approvals',
+                      subtitle: 'Manage counselor communication requests',
+                      icon: Icons.verified_user_outlined,
+                      onTap: () => context.push('/approvals'),
+                    ),
                   ],
                 ),
               ),

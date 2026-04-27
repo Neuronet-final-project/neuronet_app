@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import '../../providers/educational_follow_provider.dart';
+import '../widgets/page_follow_button.dart';
 
-class EducationalPageDetailScreen extends StatelessWidget {
+class EducationalPageDetailScreen extends ConsumerWidget {
   const EducationalPageDetailScreen({
     super.key,
     required this.page,
@@ -11,13 +14,30 @@ class EducationalPageDetailScreen extends StatelessWidget {
   final EducationalPage page;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final followController = ref.watch(educationalFollowControllerProvider);
+
+    // Check if page is followed
+    final isFollowed = followController.when(
+      data: (state) => state.followStatusCache[page.slug] ?? false,
+      loading: () => false,
+      error: (_, __) => false,
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: Text(page.title),
         elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: PageFollowButton(
+              pageSlug: page.slug,
+              isFollowed: isFollowed,
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(

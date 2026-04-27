@@ -283,36 +283,61 @@ class AdolescentDetailScreen extends ConsumerWidget {
   Widget _buildActionGrid(BuildContext context, AdolescentResponse profile) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: _buildActionTile(
-              onTap: () {
-                final id = profile.effectiveId;
-                context.push(
-                  '/adolescent/$id/chat?name=${Uri.encodeComponent(profile.fullName)}',
-                );
-              },
-              icon: Icons.chat_bubble_outline_rounded,
-              label: 'Counselor',
-              subtitle: 'Send message',
-              color: NeuroColors.guardianPrimary,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionTile(
+                  onTap: () {
+                    final id = profile.effectiveId;
+                    context.push(
+                      '/adolescent/$id/chat?name=${Uri.encodeComponent(profile.fullName)}',
+                    );
+                  },
+                  icon: Icons.chat_bubble_outline_rounded,
+                  label: 'Counselor',
+                  subtitle: 'Send message',
+                  color: NeuroColors.guardianPrimary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionTile(
+                  onTap: () {
+                    final id = profile.effectiveId;
+                    context.push(
+                      '/adolescent/$id/recommendations?name=${Uri.encodeComponent(profile.fullName)}',
+                    );
+                  },
+                  icon: Icons.auto_awesome_outlined,
+                  label: 'AI Guide',
+                  subtitle: 'View tips',
+                  color: const Color(0xFF8B5CF6),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildActionTile(
-              onTap: () {
-                final id = profile.effectiveId;
-                context.push(
-                  '/adolescent/$id/recommendations?name=${Uri.encodeComponent(profile.fullName)}',
-                );
-              },
-              icon: Icons.auto_awesome_outlined,
-              label: 'AI Guide',
-              subtitle: 'View tips',
-              color: const Color(0xFF8B5CF6),
-            ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionTile(
+                  onTap: () {
+                    final id = profile.effectiveId;
+                    context.push(
+                      '/adolescent/$id/follows?name=${Uri.encodeComponent(profile.fullName)}',
+                    );
+                  },
+                  icon: Icons.library_books_outlined,
+                  label: 'Follows',
+                  subtitle: 'Educational pages',
+                  color: const Color(0xFF10B981),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(child: SizedBox()),
+            ],
           ),
         ],
       ),
