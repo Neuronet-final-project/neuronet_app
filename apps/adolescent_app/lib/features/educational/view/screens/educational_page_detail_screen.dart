@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
-import '../../providers/educational_follow_provider.dart';
-import '../widgets/page_follow_button.dart';
 
 class EducationalPageDetailScreen extends ConsumerWidget {
   const EducationalPageDetailScreen({
@@ -29,28 +27,11 @@ class EducationalPageDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final followController = ref.watch(educationalFollowControllerProvider);
-
-    // Check if page is followed
-    final isFollowed = followController.when(
-      data: (state) => state.followStatusCache[page.slug] ?? page.isFollowing,
-      loading: () => page.isFollowing,
-      error: (_, __) => page.isFollowing,
-    );
 
     return Scaffold(
       appBar: AppBar(
         title: Text(page.title),
         elevation: 0,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: PageFollowButton(
-              pageSlug: page.slug,
-              isFollowed: isFollowed,
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -205,6 +186,35 @@ class EducationalPageDetailScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       )).toList(),
+                    ),
+                  ],
+                  
+                  // Category info message
+                  if (page.category != null) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 16,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Part of ${page.category} topic',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ],

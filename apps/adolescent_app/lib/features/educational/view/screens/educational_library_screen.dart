@@ -2,93 +2,447 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/educational_provider.dart';
-import '../../providers/educational_follow_provider.dart';
-import '../widgets/page_follow_button.dart';
 
-class EducationalLibraryScreen extends ConsumerWidget {
+class EducationalLibraryScreen extends ConsumerStatefulWidget {
   const EducationalLibraryScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pagesAsync = ref.watch(educationalPagesControllerProvider);
-    final followedPagesAsync = ref.watch(educationalFollowControllerProvider);
+  ConsumerState<EducationalLibraryScreen> createState() => _EducationalLibraryScreenState();
+}
+
+class _EducationalLibraryScreenState extends ConsumerState<EducationalLibraryScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  bool _isLoadingCategories = false;
+  bool _isLoadingFeed = false;
+  List<Category> _categories = [];
+  List<EducationalPage> _feedArticles = [];
+  String? _categoriesError;
+  String? _feedError;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _loadCategories();
+    _loadFeed();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadCategories() async {
+    setState(() {
+      _isLoadingCategories = true;
+      _categoriesError = null;
+    });
+
+    final service = ref.read(educationalServiceProvider);
+    final result = await service.getAvailableCategories();
+
+    result.when(
+      success: (categories) {
+        if (mounted) {
+          setState(() {
+            _categories = categories;
+            _isLoadingCategories = false;
+          });
+        }
+      },
+      failure: (failure) {
+        if (mounted) {
+          setState(() {
+            _categoriesError = failure.message;
+            _isLoadingCategories = false;
+          });
+        }
+      },
+    );
+  }
+
+  Future<void> _loadFeed() async {
+    setState(() {
+      _isLoadingFeed = true;
+      _feedError = null;
+    });
+
+    final service = ref.read(educationalServiceProvider);
+    final result = await service.getMyFeed();
+
+    result.when(
+      success: (articles) {
+        if (mounted) {
+          setState(() {
+            _feedArticles = articles;
+            _isLoadingFeed = false;
+          });
+        }
+      },
+      failure: (failure) {
+        if (mounted) {
+          setState(() {
+            _feedError = failure.message;
+            _isLoadingFeed = false;
+          });
+        }
+      },
+    );
+  }
+
+  Future<void> _toggleCategoryFollow(Category category) async {
+    final followService = ref.read(educationalFollowServiceProvider);
+    
+    if (category.isFollowed) {
+      final result = await followService.unfollowCategory(category.value);
+      result.when(
+        success: (_) {
+          _loadCategories();
+          _loadFeed();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Unfollowed ${category.label}')),
+            );
+          }
+        },
+        failure: (failure) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: ${failure.message}')),
+            );
+          }
+        },
+      );
+    } else {
+      final result = await followService.followCategory(category.value);
+      result.when(
+        success: (_) {
+          _loadCategories();
+          _loadFeed();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Following ${category.label}')),
+            );
+          }
+        },
+        failure: (failure) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: ${failure.message}')),
+            );
+          }
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Learner\'s Nook'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.star_outline_rounded),
-            onPressed: () => context.push('/recommendations'),
-            tooltip: 'My Recommendations',
-          ),
-          IconButton(
-            icon: const Icon(Icons.explore_outlined),
-            onPressed: () => context.push('/discover-pages'),
-            tooltip: 'Discover Pages',
-          ),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Browse Topics', icon: Icon(Icons.explore_outlined)),
+            Tab(text: 'My Feed', icon: Icon(Icons.article_outlined)),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildBrowseTopicsTab(theme),
+          _buildMyFeedTab(theme),
         ],
       ),
-      body: pagesAsync.when(
-        data: (state) {
-          if (state.error != null) {
-            return NeuroErrorWidget(
-              message: state.error!,
-              onRetry: () => ref.read(educationalPagesControllerProvider.notifier).refresh(),
-            );
-          }
+    );
+  }
 
-          final pages = state.pages;
-          if (pages.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: NeuroEmptyState(
-                  title: 'Library is empty',
-                  message: 'No articles in the nook just yet. Check back soon for new content!',
-                  icon: Icons.library_books_outlined,
-                  color: NeuroColors.onSurfaceVariant,
-                ),
-              ),
-            );
-          }
+  Widget _buildBrowseTopicsTab(ThemeData theme) {
+    if (_isLoadingCategories) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-          // Get followed page slugs
-          final followedSlugs = followedPagesAsync.when(
-            data: (followState) => followState.followedPages.map((p) => p.pageSlug).toSet(),
-            loading: () => <String>{},
-            error: (_, __) => <String>{},
-          );
+    if (_categoriesError != null) {
+      return NeuroErrorWidget(
+        message: _categoriesError!,
+        onRetry: _loadCategories,
+      );
+    }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: pages.length,
-            itemBuilder: (context, index) {
-              final page = pages[index];
-              final isFollowed = followedSlugs.contains(page.slug);
-              return _PageCard(page: page, isFollowed: isFollowed);
-            },
+    if (_categories.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: NeuroEmptyState(
+            title: 'No topics available',
+            message: 'Check back soon for new topics!',
+            icon: Icons.category_outlined,
+            color: NeuroColors.onSurfaceVariant,
+          ),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadCategories,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _categories.length,
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          return _CategoryCard(
+            category: category,
+            onToggleFollow: () => _toggleCategoryFollow(category),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => NeuroErrorWidget(
-          message: 'Could not load library.',
-          onRetry: () => ref.read(educationalPagesControllerProvider.notifier).refresh(),
+      ),
+    );
+  }
+
+  Widget _buildMyFeedTab(ThemeData theme) {
+    if (_isLoadingFeed) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_feedError != null) {
+      return NeuroErrorWidget(
+        message: _feedError!,
+        onRetry: _loadFeed,
+      );
+    }
+
+    if (_feedArticles.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: NeuroEmptyState(
+            title: 'Your feed is empty',
+            message: 'Follow some topics to see articles here!',
+            icon: Icons.article_outlined,
+            color: NeuroColors.onSurfaceVariant,
+          ),
         ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadFeed,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _feedArticles.length,
+        itemBuilder: (context, index) {
+          final article = _feedArticles[index];
+          return _ArticleCard(article: article);
+        },
       ),
     );
   }
 }
 
-class _PageCard extends ConsumerWidget {
-  const _PageCard({required this.page, required this.isFollowed});
+class _CategoryCard extends StatelessWidget {
+  const _CategoryCard({
+    required this.category,
+    required this.onToggleFollow,
+  });
 
-  final EducationalPage page;
-  final bool isFollowed;
+  final Category category;
+  final VoidCallback onToggleFollow;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final gradient = _getCategoryGradient(category.value);
+
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(
+          color: category.isFollowed
+              ? theme.colorScheme.primary
+              : theme.colorScheme.outline.withValues(alpha: 0.1),
+          width: category.isFollowed ? 2 : 1,
+        ),
+      ),
+      margin: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onToggleFollow,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              // Category icon with gradient
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  gradient: gradient,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  _getCategoryIcon(category.value),
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      category.label,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      category.description,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.article_outlined,
+                          size: 14,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${category.articleCount} articles',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Icon(
+                          Icons.people_outline,
+                          size: 14,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${category.followerCount} followers',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Follow button
+              FilledButton.icon(
+                onPressed: onToggleFollow,
+                icon: Icon(
+                  category.isFollowed ? Icons.check : Icons.add,
+                  size: 18,
+                ),
+                label: Text(category.isFollowed ? 'Following' : 'Follow'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: category.isFollowed
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.primaryContainer,
+                  foregroundColor: category.isFollowed
+                      ? theme.colorScheme.onPrimary
+                      : theme.colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  LinearGradient _getCategoryGradient(String value) {
+    switch (value.toLowerCase()) {
+      case 'anxiety':
+        return const LinearGradient(
+          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+        );
+      case 'depression':
+        return const LinearGradient(
+          colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
+        );
+      case 'stress':
+        return const LinearGradient(
+          colors: [Color(0xFFEC4899), Color(0xFFF43F5E)],
+        );
+      case 'self-care':
+        return const LinearGradient(
+          colors: [Color(0xFF10B981), Color(0xFF059669)],
+        );
+      case 'relationships':
+        return const LinearGradient(
+          colors: [Color(0xFFF59E0B), Color(0xFFEF4444)],
+        );
+      case 'coping':
+        return const LinearGradient(
+          colors: [Color(0xFF8B5CF6), Color(0xFFEC4899)],
+        );
+      case 'mindfulness':
+        return const LinearGradient(
+          colors: [Color(0xFF06B6D4), Color(0xFF0891B2)],
+        );
+      case 'wellness':
+        return const LinearGradient(
+          colors: [Color(0xFF84CC16), Color(0xFF22C55E)],
+        );
+      default:
+        return const LinearGradient(
+          colors: [Color(0xFF6B7280), Color(0xFF4B5563)],
+        );
+    }
+  }
+
+  IconData _getCategoryIcon(String value) {
+    switch (value.toLowerCase()) {
+      case 'anxiety':
+        return Icons.psychology_outlined;
+      case 'depression':
+        return Icons.sentiment_dissatisfied_outlined;
+      case 'stress':
+        return Icons.waves_rounded;
+      case 'self-care':
+        return Icons.self_improvement_outlined;
+      case 'relationships':
+        return Icons.people_outline_rounded;
+      case 'coping':
+        return Icons.healing_outlined;
+      case 'mindfulness':
+        return Icons.spa_outlined;
+      case 'wellness':
+        return Icons.favorite_outline;
+      default:
+        return Icons.category_outlined;
+    }
+  }
+}
+
+class _ArticleCard extends StatelessWidget {
+  const _ArticleCard({required this.article});
+
+  final EducationalPage article;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Card(
@@ -101,7 +455,7 @@ class _PageCard extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: () => context.push('/learn/${page.slug}', extra: page),
+        onTap: () => context.push('/learn/${article.slug}', extra: article),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -110,11 +464,11 @@ class _PageCard extends ConsumerWidget {
               Row(
                 children: [
                   // Featured image or icon
-                  if (page.featuredImageUrl != null && page.featuredImageUrl!.isNotEmpty)
+                  if (article.featuredImageUrl != null && article.featuredImageUrl!.isNotEmpty)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: Image.network(
-                        page.featuredImageUrl!,
+                        article.featuredImageUrl!,
                         width: 60,
                         height: 60,
                         fit: BoxFit.cover,
@@ -126,7 +480,7 @@ class _PageCard extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Icon(
-                            _getCategoryIcon(page.category),
+                            _getCategoryIcon(article.category),
                             color: theme.colorScheme.primary,
                           ),
                         ),
@@ -141,7 +495,7 @@ class _PageCard extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Icon(
-                        _getCategoryIcon(page.category),
+                        _getCategoryIcon(article.category),
                         color: theme.colorScheme.primary,
                       ),
                     ),
@@ -150,40 +504,18 @@ class _PageCard extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            if (page.category != null)
-                              Text(
-                                page.category!.toUpperCase(),
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            if (page.difficultyLevel != null) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: _getDifficultyColor(page.difficultyLevel!),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  page.difficultyLevel!.toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
+                        if (article.category != null)
+                          Text(
+                            article.category!.toUpperCase(),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
                         const SizedBox(height: 4),
                         Text(
-                          page.title,
+                          article.title,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -193,15 +525,11 @@ class _PageCard extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  CompactFollowButton(
-                    pageSlug: page.slug,
-                    isFollowed: isFollowed,
-                  ),
                 ],
               ),
               const SizedBox(height: 12),
               Text(
-                page.summary ?? 'Read more about ${page.title}',
+                article.summary ?? 'Read more about ${article.title}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -210,13 +538,13 @@ class _PageCard extends ConsumerWidget {
               ),
               
               // Meta info
-              if (page.estimatedReadTime > 0 || page.viewCount > 0 || page.followCount > 0) ...[
+              if (article.estimatedReadTime > 0 || article.viewCount > 0) ...[
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 12,
                   runSpacing: 4,
                   children: [
-                    if (page.estimatedReadTime > 0)
+                    if (article.estimatedReadTime > 0)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -227,14 +555,14 @@ class _PageCard extends ConsumerWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${page.estimatedReadTime} min',
+                            '${article.estimatedReadTime} min',
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
                       ),
-                    if (page.viewCount > 0)
+                    if (article.viewCount > 0)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -245,25 +573,7 @@ class _PageCard extends ConsumerWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${page.viewCount}',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    if (page.followCount > 0)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.people_outline,
-                            size: 14,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${page.followCount}',
+                            '${article.viewCount}',
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
@@ -273,28 +583,6 @@ class _PageCard extends ConsumerWidget {
                   ],
                 ),
               ],
-              
-              // Tags
-              if (page.tags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: page.tags.take(3).map((tag) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      tag,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  )).toList(),
-                ),
-              ],
             ],
           ),
         ),
@@ -302,25 +590,16 @@ class _PageCard extends ConsumerWidget {
     );
   }
 
-  Color _getDifficultyColor(String difficulty) {
-    switch (difficulty.toLowerCase()) {
-      case 'beginner':
-        return Colors.green;
-      case 'intermediate':
-        return Colors.orange;
-      case 'advanced':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
   IconData _getCategoryIcon(String? category) {
     switch (category?.toLowerCase()) {
-      case 'mood': return Icons.face_retouching_natural_rounded;
+      case 'anxiety': return Icons.psychology_outlined;
+      case 'depression': return Icons.sentiment_dissatisfied_outlined;
       case 'stress': return Icons.waves_rounded;
-      case 'sleep': return Icons.nights_stay_rounded;
+      case 'self-care': return Icons.self_improvement_outlined;
       case 'relationships': return Icons.people_outline_rounded;
+      case 'coping': return Icons.healing_outlined;
+      case 'mindfulness': return Icons.spa_outlined;
+      case 'wellness': return Icons.favorite_outline;
       default: return Icons.chrome_reader_mode_outlined;
     }
   }
