@@ -91,8 +91,17 @@ class ConsentScreen extends ConsumerWidget {
                 ),
               );
             },
-            loading: () => const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
+            loading: () => SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  const _ConsentSkeletonHero(),
+                  const SizedBox(height: 16),
+                  const _ConsentSkeletonAdolescentGroup(),
+                  const _ConsentSkeletonAdolescentGroup(),
+                  const _ConsentSkeletonAdolescentGroup(),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
             error: (err, stack) => SliverFillRemaining(
               child: _buildErrorState(ref, 'Failed to load settings'),
@@ -423,3 +432,235 @@ class ConsentScreen extends ConsumerWidget {
   }
 }
 
+
+// --- Skeleton Loading Widgets ------------------------------------------------
+
+const _kSkeletonGrey = Color(0xFFE5E7EB);
+
+class _ConsentSkeletonHero extends StatelessWidget {
+  const _ConsentSkeletonHero();
+
+  @override
+  Widget build(BuildContext context) {
+    return GuardianBentoCard(
+      margin: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+      gradient: GuardianStyles.primaryGradient,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              NeuroShimmer(
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    NeuroShimmer(
+                      child: Container(
+                        width: 140,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    NeuroShimmer(
+                      child: Container(
+                        width: 280,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConsentSkeletonAdolescentGroup extends StatelessWidget {
+  const _ConsentSkeletonAdolescentGroup();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 36,
+                child: Center(
+                  child: NeuroShimmer(
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: _kSkeletonGrey,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: NeuroShimmer(
+                  child: Container(
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: _kSkeletonGrey,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        GuardianBentoCard(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            children: [
+              // Section header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    NeuroShimmer(
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: _kSkeletonGrey,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          NeuroShimmer(
+                            child: Container(
+                              width: 120,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: _kSkeletonGrey,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          NeuroShimmer(
+                            child: Container(
+                              width: 180,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: _kSkeletonGrey,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Divider(height: 1, thickness: 0.5),
+              const SizedBox(height: 16),
+              // 4 toggle rows
+              const _ConsentSkeletonToggleRow(),
+              const _ConsentSkeletonToggleRow(),
+              const _ConsentSkeletonToggleRow(),
+              const _ConsentSkeletonToggleRow(),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+}
+
+class _ConsentSkeletonToggleRow extends StatelessWidget {
+  const _ConsentSkeletonToggleRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: Row(
+        children: [
+          const SizedBox(width: 36), // icon placeholder space
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                NeuroShimmer(
+                  child: Container(
+                    width: 140,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: _kSkeletonGrey,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                NeuroShimmer(
+                  child: Container(
+                    width: 200,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: _kSkeletonGrey,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          NeuroShimmer(
+            child: Container(
+              width: 44,
+              height: 24,
+              decoration: BoxDecoration(
+                color: _kSkeletonGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

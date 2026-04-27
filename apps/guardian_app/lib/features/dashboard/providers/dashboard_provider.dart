@@ -11,6 +11,7 @@ abstract class GuardianDashboardState with _$GuardianDashboardState {
     GuardianDashboardData? data,
     @Default(false) bool isLoading,
     String? error,
+    @Default('7d') String period, // Track selected period: '7d', '14d', '30d'
   }) = _GuardianDashboardState;
 }
 
@@ -28,22 +29,29 @@ class GuardianDashboardController extends _$GuardianDashboardController {
   @override
   FutureOr<GuardianDashboardState> build() async {
     final service = ref.watch(dashboardServiceProvider);
-    final result = await service.getGuardianDashboard();
+    final result = await service.getGuardianDashboard(period: '7d'); // Default to 7 days
     
     return result.when(
-      success: (data) => GuardianDashboardState(data: data, isLoading: false),
-      failure: (f) => GuardianDashboardState(isLoading: false, error: f.message),
+      success: (data) => GuardianDashboardState(data: data, isLoading: false, period: '7d'),
+      failure: (f) => GuardianDashboardState(isLoading: false, error: f.message, period: '7d'),
     );
   }
 
-  Future<void> refresh() async {
-    state = const AsyncValue.loading();
+  Future<void> refresh({String? period}) async {
+    final effectivePeriod = period ?? '7d';
+    // Immediately update period and set loading flag
+    state = AsyncValue.data(
+      (state.value ?? const GuardianDashboardState()).copyWith(
+        isLoading: true,
+        period: effectivePeriod,
+      ),
+    );
     state = await AsyncValue.guard(() async {
       final service = ref.read(dashboardServiceProvider);
-      final result = await service.getGuardianDashboard();
+      final result = await service.getGuardianDashboard(period: effectivePeriod);
       return result.when(
-        success: (data) => GuardianDashboardState(data: data, isLoading: false),
-        failure: (f) => GuardianDashboardState(isLoading: false, error: f.message),
+        success: (data) => GuardianDashboardState(data: data, isLoading: false, period: effectivePeriod),
+        failure: (f) => GuardianDashboardState(isLoading: false, error: f.message, period: effectivePeriod),
       );
     });
   }

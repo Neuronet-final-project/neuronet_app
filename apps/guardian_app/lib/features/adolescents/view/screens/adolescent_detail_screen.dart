@@ -228,7 +228,11 @@ class AdolescentDetailScreen extends ConsumerWidget {
               size: 40,
               color: Colors.white,
             ).animate(onPlay: (c) => c.repeat())
-             .shimmer(delay: 5.seconds, duration: 2.seconds, color: Colors.white.withAlpha(80)),
+             .shimmer(
+                delay: 5.seconds,
+                duration: 2.seconds,
+                color: Colors.white.withValues(alpha: 0.3),
+              ),
           ),
           const SizedBox(width: 24),
           Expanded(

@@ -30,6 +30,7 @@ class NeuroChatInput extends StatefulWidget {
     this.isEnabled = true,
     this.onSendVoice,
     this.onSendMedia,
+    this.maxLength,
   });
 
   /// Text editing controller for the input field.
@@ -54,6 +55,9 @@ class NeuroChatInput extends StatefulWidget {
   /// Optional callback to send a media file (image, video, or file).
   /// If null, the attachment button will be hidden.
   final Future<void> Function(File mediaFile, MediaAttachmentType type)? onSendMedia;
+
+  /// Optional maximum character length for the input field.
+  final int? maxLength;
 
   @override
   State<NeuroChatInput> createState() => _NeuroChatInputState();
@@ -330,7 +334,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
               decoration: BoxDecoration(
                 color: NeuroColors.background,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.grey.withOpacity(0.15)),
+                border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -362,6 +366,8 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
                       textCapitalization: TextCapitalization.sentences,
                       enabled: widget.isEnabled,
                       style: const TextStyle(fontSize: 16),
+                      maxLength: widget.maxLength,
+                      buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
                     ),
                   ),
                 ],
@@ -441,7 +447,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
       decoration: BoxDecoration(
         color: NeuroColors.background,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.withOpacity(0.15)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -472,9 +478,9 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
       constraints: const BoxConstraints(minHeight: 56),
       padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [

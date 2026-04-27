@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:neuronet_core/neuronet_core.dart';
-import 'package:guardian_app/config/theme/guardian_theme.dart';
 
 class GuardianBentoCard extends StatefulWidget {
   final Widget child;

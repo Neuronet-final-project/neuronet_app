@@ -13,26 +13,35 @@ class DashboardService {
   DashboardService(this._client);
   final ApiClient _client;
 
-  /// Fetches the dashboard data for the currently authenticated guardian.
-  Future<Result<GuardianDashboardData>> getGuardianDashboard() async {
-    try {
-      final response = await _client.get(ApiEndpoints.guardianDashboard);
-      if (response.data == null) {
-        return Result.success(GuardianDashboardData.empty());
-      }
-      if (response.data is! Map<String, dynamic>) {
-        return Result.failure(
-          const UnknownFailure(message: 'Unexpected response format'),
-        );
-      }
-      final data = GuardianDashboardData.fromJson(
-        response.data as Map<String, dynamic>,
-      );
-      return Result.success(data);
-    } catch (e) {
-      return Result.failure(failureFromException(e));
-    }
-  }
+   /// Fetches the dashboard data for the currently authenticated guardian.
+   Future<Result<GuardianDashboardData>> getGuardianDashboard({
+     String? period, // e.g., '7d', '14d', '30d'
+   }) async {
+     try {
+       final queryParams = <String, dynamic>{};
+       if (period != null) {
+         queryParams['period'] = period;
+       }
+       final response = await _client.get(
+         ApiEndpoints.guardianDashboard,
+         queryParameters: queryParams.isNotEmpty ? queryParams : null,
+       );
+       if (response.data == null) {
+         return Result.success(GuardianDashboardData.empty());
+       }
+       if (response.data is! Map<String, dynamic>) {
+         return Result.failure(
+           const UnknownFailure(message: 'Unexpected response format'),
+         );
+       }
+       final data = GuardianDashboardData.fromJson(
+         response.data as Map<String, dynamic>,
+       );
+       return Result.success(data);
+     } catch (e) {
+       return Result.failure(failureFromException(e));
+     }
+   }
 
   /// Fetches the dashboard data for the currently authenticated adolescent.
   Future<Result<DashboardData>> getAdolescentDashboard() async {

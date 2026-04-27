@@ -39,6 +39,18 @@ abstract class EmotionalTrend with _$EmotionalTrend {
       _$EmotionalTrendFromJson(json);
 }
 
+/// Helper to convert emotional_trends from JSON, handling null → []
+List<EmotionalTrend> _emotionalTrendsFromJson(dynamic json) {
+  if (json == null) return const [];
+  if (json is List) {
+    return json.map((e) => EmotionalTrend.fromJson(e as Map<String, dynamic>)).toList();
+  }
+  return const [];
+}
+
+dynamic _emotionalTrendsToJson(List<EmotionalTrend> list) =>
+    list.map((e) => e.toJson()).toList();
+
 /// One adolescent's risk entry as returned inside GuardianDashboardResponse.adolescent_risks.
 @freezed
 abstract class AdolescentRisk with _$AdolescentRisk {
@@ -85,6 +97,7 @@ abstract class GuardianDashboardData with _$GuardianDashboardData {
     @JsonKey(name: 'alert_list') @Default([]) List<AlertBrief> alertList,
     @JsonKey(name: 'unviewed_alerts_count') @Default(0) int unviewedAlertsCount,
     @JsonKey(name: 'mood_distribution', fromJson: _moodDistributionFromJson, toJson: _moodDistributionToJson) @Default({}) Map<String, int> moodDistribution,
+    @JsonKey(name: 'emotional_trends', fromJson: _emotionalTrendsFromJson, toJson: _emotionalTrendsToJson) @Default([]) List<EmotionalTrend> emotionalTrends,
     @JsonKey(name: 'generated_at') DateTime? generatedAt,
   }) = _GuardianDashboardData;
 

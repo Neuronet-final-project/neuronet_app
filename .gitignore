@@ -19,7 +19,13 @@ migrate_working_dir/
 # VS Code related
 .vscode/
 
-# Flutter/Dart
+# ─── Agent/Assistant tool directories ─────────────────────────────────────────
+# These contain tool state, logs, and temporary execution data
+.agent/
+.kilo/
+.qwen/
+
+# ─── Flutter/Dart ─────────────────────────────────────────────────────────────
 **/doc/api/
 **/ios/Flutter/
 **/ios/Runner.xcworkspace/
@@ -30,7 +36,7 @@ migrate_working_dir/
 /build/
 **/build/
 
-# Generated files
+# Generated files (Freezed, JSON serialization, mocks)
 **/*.g.dart
 **/*.freezed.dart
 **/*.mocks.dart
@@ -45,6 +51,61 @@ coverage/
 # Environment
 .env
 .env.*
+.env.local
+
+# ─── Platform specific ────────────────────────────────────────────────────────
+**/android/.gradle
+**/android/captures/
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/**/hs_err_pid*.log
+**/android/.kotlin/errors/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# Desktop & Web
+**/windows/
+**/macos/
+**/linux/
+**/web/
+
+# ─── Log files ─────────────────────────────────────────────────────────────────
+flutter_*.log
+**/*.log
+**/*_log.txt
+**/test_log.txt
+
+# ─── Tool-specific output files ───────────────────────────────────────────────
+# Stitch/agent search results, analysis outputs
+*_search.json
+*_analysis.txt
+lint_results*.txt
+core_analysis.txt
+
+# Test scripts
+test_*.ps1
+test_*.sh
+test_*.bat
+
+# ─── Documentation (auto-generated) ───────────────────────────────────────────
+# Keep docs/ but ignore generated API docs
+**/doc/api/
+# Ignore markdown lint/report outputs
+*.md.lint
+
+# ─── Pubspec lock (committed separately or via melos) ─────────────────────────
+# Uncomment if you want to ignore all pubspec.lock files
+# **/pubspec.lock
+
 
 # Platform specific
 **/android/.gradle

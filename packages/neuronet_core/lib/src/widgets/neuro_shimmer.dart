@@ -38,9 +38,9 @@ class NeuroShimmer extends StatefulWidget {
     return NeuroShimmer(
       duration: duration,
       colors: [
-        highlightColor.withOpacity(0.0),
-        highlightColor.withOpacity(opacity),
-        highlightColor.withOpacity(0.0),
+        highlightColor.withValues(alpha: 0.0),
+        highlightColor.withValues(alpha: opacity),
+        highlightColor.withValues(alpha: 0.0),
       ],
       stops: const [0.0, 0.5, 1.0],
       blendMode: BlendMode.srcATop,

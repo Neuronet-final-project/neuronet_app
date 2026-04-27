@@ -194,7 +194,11 @@ class _AdolescentCard extends StatelessWidget {
                         ],
                       ),
                     ).animate(onPlay: (controller) => controller.repeat())
-                     .shimmer(delay: 9.seconds, duration: 1.seconds, color: Colors.white.withAlpha(128)),
+                     .shimmer(
+                      delay: 9.seconds,
+                      duration: 1.seconds,
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
                   ),
               ],
             ),
@@ -257,11 +261,14 @@ class _AdolescentCard extends StatelessWidget {
                               ),
                             ),
                           ],
-                        ),
-                      ).animate(autoPlay: adolescent.accountStatus == AccountStatus.pendingActivation)
-                       .shimmer(duration: 2.seconds)
-                       .then()
-                       .shimmer(duration: 2.seconds, delay: 2.seconds),
+                        )
+                      )
+                        .animate()
+                        .shimmer(
+                          duration: 2.seconds,
+                        )
+                        .then()
+                        .shimmer(duration: 2.seconds, delay: 2.seconds),
                     ],
                   ),
                 ],

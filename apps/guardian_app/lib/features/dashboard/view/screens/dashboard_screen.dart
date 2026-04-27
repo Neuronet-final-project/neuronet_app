@@ -154,97 +154,108 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDataSlivers(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, child) {
-        final dashboardState = ref.watch(guardianDashboardControllerProvider);
+   Widget _buildDataSlivers(BuildContext context) {
+     return Consumer(
+       builder: (context, ref, child) {
+         final dashboardState = ref.watch(guardianDashboardControllerProvider);
 
-        return dashboardState.when(
-          data: (state) {
-            if (state.isLoading && state.data == null) {
-              return const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
+         return dashboardState.when(
+           data: (state) {
+             // If error with no data, show error
+             if (state.error != null && state.data == null) {
+               return SliverFillRemaining(
+                 hasScrollBody: false,
+                 child: Center(
+                   child: Padding(
+                     padding: const EdgeInsets.all(16),
+                     child: NeuroErrorWidget(
+                       message: 'Dashboard data failed to load: ${state.error}',
+                       onRetry: () => ref
+                           .read(guardianDashboardControllerProvider.notifier)
+                           .refresh(),
+                     ),
+                   ),
+                 ),
+               );
+             }
 
-            if (state.error != null && state.data == null) {
-              return SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: NeuroErrorWidget(
-                      message: 'Dashboard data failed to load: ${state.error}',
-                      onRetry: () => ref
-                          .read(guardianDashboardControllerProvider.notifier)
-                          .refresh(),
-                    ),
-                  ),
-                ),
-              );
-            }
+             final data = state.data;
+             if (data == null) {
+               return const SliverFillRemaining(
+                 hasScrollBody: false,
+                 child: Center(child: Text('No dashboard data available.')),
+               );
+             }
 
-            final data = state.data;
-            if (data == null) {
-              return const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(child: Text('No dashboard data available.')),
-              );
-            }
+             final isFallback =
+                 data.totalAdolescentsLinked == 0 &&
+                 data.moodDistribution.isEmpty;
 
-            final isFallback =
-                data.totalAdolescentsLinked == 0 &&
-                data.moodDistribution.isEmpty;
-
-            return SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  if (isFallback)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: NeuroEmptyState(
-                        isMini: true,
-                        title: 'Data Unavailable',
-                        message:
-                            'Guardian activity data is temporarily unavailable. Quick Actions are active.',
-                        icon: Icons.cloud_off,
-                        color: NeuroColors.moodAnxious,
-                      ),
-                    ),
-                  _buildSummarySection(context, data),
-                ],
-              ),
-            );
-          },
-          loading: () => const SliverFillRemaining(
-            hasScrollBody: false,
-            child: Center(child: CircularProgressIndicator()),
-          ),
-          error: (err, stack) => SliverFillRemaining(
-            hasScrollBody: false,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: NeuroErrorWidget(
-                  message: 'Dashboard data failed to load: $err',
-                  onRetry: () => ref
-                      .read(guardianDashboardControllerProvider.notifier)
-                      .refresh(),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+             return SliverToBoxAdapter(
+               child: Column(
+                 children: [
+                   if (isFallback)
+                     const Padding(
+                       padding: EdgeInsets.symmetric(
+                         horizontal: 16,
+                         vertical: 8,
+                       ),
+                       child: NeuroEmptyState(
+                         isMini: true,
+                         title: 'Data Unavailable',
+                         message:
+                             'Guardian activity data is temporarily unavailable. Quick Actions are active.',
+                         icon: Icons.cloud_off,
+                         color: NeuroColors.moodAnxious,
+                       ),
+                     ),
+                   _buildSummarySection(context, ref, data),
+                 ],
+               ),
+             );
+           },
+           loading: () => SliverToBoxAdapter(
+             child: Column(
+               children: [
+                 const NeuroSkeletonHeroCard(),
+                 Padding(
+                   padding: const EdgeInsets.symmetric(horizontal: 16),
+                   child: Column(
+                     children: [
+                       const SizedBox(height: 16),
+                       const NeuroSkeletonTrendCard(),
+                       const SizedBox(height: 16),
+                       const NeuroSkeletonInsightsCard(),
+                       const SizedBox(height: 16),
+                       const NeuroSkeletonQuickActions(count: 3),
+                     ],
+                   ),
+                 ),
+               ],
+             ),
+           ),
+           error: (err, stack) => SliverFillRemaining(
+             hasScrollBody: false,
+             child: Center(
+               child: Padding(
+                 padding: const EdgeInsets.all(16),
+                 child: NeuroErrorWidget(
+                   message: 'Dashboard data failed to load: $err',
+                   onRetry: () => ref
+                       .read(guardianDashboardControllerProvider.notifier)
+                       .refresh(),
+                 ),
+               ),
+             ),
+           ),
+         );
+       },
+     );
+   }
 
   Widget _buildSummarySection(
     BuildContext context,
+    WidgetRef ref,
     GuardianDashboardData data,
   ) {
     return Column(
@@ -264,12 +275,21 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         
-        // 2. Mood Overview Card
+        // 2. Emotional Trends Card (Replace Mood Overview)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _buildMoodCard(context, data)
+          child: _buildTrendCard(context, ref, data)
               .animate()
               .fadeIn(delay: 400.ms)
+              .slideY(begin: 0.1),
+        ),
+
+        // 3. Aggregated Insights Card (NEW)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: _buildAggregatedInsightsCard(context, ref, data)
+              .animate()
+              .fadeIn(delay: 600.ms)
               .slideY(begin: 0.1),
         ),
       ],
@@ -348,11 +368,97 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMoodCard(BuildContext context, GuardianDashboardData data) {
-    final moodEntries = data.moodDistribution.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+   Widget _buildTrendCard(BuildContext context, WidgetRef ref, GuardianDashboardData data) {
+     final trends = data.emotionalTrends;
+     final currentPeriod = ref.watch(guardianDashboardControllerProvider).value?.period ?? '7d';
+
+     return GuardianBentoCard(
+       padding: const EdgeInsets.all(24),
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           Text(
+             'Emotional Trends',
+             style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                   fontWeight: FontWeight.w900,
+                   color: NeuroColors.guardianPrimaryDark,
+                   letterSpacing: -0.5,
+                 ),
+           ),
+           const SizedBox(height: 12),
+           _buildPeriodSelector(ref, currentPeriod),
+           const SizedBox(height: 24),
+           if (trends.isEmpty)
+             const NeuroEmptyState(
+               isMini: true,
+               title: 'No Trend Data Yet',
+               message: 'Trend visualization will appear once mood entries are recorded by linked adolescents. Data typically appears within 24 hours of a journal entry.',
+               icon: Icons.show_chart,
+             )
+           else
+             SizedBox(
+               height: 220,
+               child: NeuroTrendChart(
+                 trends: trends,
+                 showDots: true,
+                 lineColor: NeuroColors.guardianPrimary,
+               ),
+             ),
+          ],
+        ),
+      );
+    }
+
+  /// Period selector widget (7d / 14d / 30d)
+  Widget _buildPeriodSelector(WidgetRef ref, String currentPeriod) {
+    return SegmentedButton<String>(
+      segments: const [
+        ButtonSegment(
+          value: '7d',
+          label: Text('7d', style: TextStyle(fontSize: 12)),
+        ),
+        ButtonSegment(
+          value: '14d',
+          label: Text('14d', style: TextStyle(fontSize: 12)),
+        ),
+        ButtonSegment(
+          value: '30d',
+          label: Text('30d', style: TextStyle(fontSize: 12)),
+        ),
+      ],
+      selected: {currentPeriod},
+      onSelectionChanged: (Set<String> newSelection) {
+        final selected = newSelection.first;
+        ref.read(guardianDashboardControllerProvider.notifier).refresh(period: selected);
+      },
+      style: ButtonStyle(
+        padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 12)),
+        visualDensity: VisualDensity.compact,
+      ),
+    );
+  }
+
+  /// Builds the Aggregated Insights card showing cross-adolescent statistics
+  Widget _buildAggregatedInsightsCard(BuildContext context, WidgetRef ref, GuardianDashboardData data) {
+    final adolescents = data.adolescentRisks;
+    final alerts = data.alertList;
+    final currentPeriod = ref.watch(guardianDashboardControllerProvider).value?.period ?? '7d';
     
-    final totalEntries = moodEntries.fold<int>(0, (sum, e) => sum + e.value);
+    // Calculate average mood sentiment from emotional trends (weighted average of sentimentScore)
+    double? averageSentiment;
+    if (data.emotionalTrends.isNotEmpty) {
+      final totalScore = data.emotionalTrends.fold<double>(0, (sum, trend) => sum + trend.sentimentScore);
+      averageSentiment = totalScore / data.emotionalTrends.length;
+    }
+
+    // Count alerts by severity
+    final lowAlerts = alerts.where((a) => a.severityLevel.toLowerCase() == 'low').length;
+    final mediumAlerts = alerts.where((a) => a.severityLevel.toLowerCase() == 'medium').length;
+    final highAlerts = alerts.where((a) => a.severityLevel.toLowerCase() == 'high').length;
+
+    // Total activity stats
+    final totalJournalCount = data.totalJournalCount;
+    final totalMoodEntries = data.moodDistribution.values.fold<int>(0, (sum, count) => sum + count);
 
     return GuardianBentoCard(
       padding: const EdgeInsets.all(24),
@@ -360,169 +466,120 @@ class DashboardScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Icon(Icons.insights, color: NeuroColors.guardianPrimary, size: 20),
+              const SizedBox(width: 8),
               Text(
-                'Mood Overview',
+                'Aggregated Insights',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w900,
                       color: NeuroColors.guardianPrimaryDark,
                       letterSpacing: -0.5,
                     ),
               ),
-              if (moodEntries.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getMoodColor(moodEntries.first.key).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    'Dominant: ${moodEntries.first.key}',
-                    style: TextStyle(
-                      color: _getMoodColor(moodEntries.first.key),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
             ],
           ),
-          const SizedBox(height: 24),
-          if (moodEntries.isEmpty)
-            const NeuroEmptyState(
-              isMini: true,
-              title: 'Awaiting Records',
-              message: 'Mood distribution will appear once entries are logged.',
-              icon: Icons.bubble_chart_outlined,
-            )
-          else
-            ...moodEntries.asMap().entries.map((entry) {
-              final index = entry.key;
-              final mood = entry.value.key;
-              final count = entry.value.value;
-              final percentage = totalEntries > 0 ? count / totalEntries : 0.0;
-              final color = _getMoodColor(mood);
+          const SizedBox(height: 20),
+          
+          // Average Sentiment (if available)
+          if (averageSentiment != null) ...[
+            _buildInsightRow(
+              context,
+              label: 'Average Mood Sentiment',
+              value: '${(averageSentiment * 100).toStringAsFixed(0)}%',
+              subtitle: 'Across all linked adolescents (last $currentPeriod)',
+              color: _getSentimentColor(averageSentiment),
+            ),
+            const SizedBox(height: 16),
+          ],
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          _getMoodEmoji(mood),
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          mood,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: NeuroColors.onSurface,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '$count',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            color: color,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          ' entries',
-                          style: TextStyle(
-                            color: NeuroColors.onSurfaceVariant.withValues(alpha: 0.6),
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Stack(
-                      children: [
-                        Container(
-                          height: 8,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: NeuroColors.onSurfaceVariant.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        RepaintBoundary(
-                          child: FractionallySizedBox(
-                            widthFactor: percentage,
-                            child: Container(
-                              height: 8,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    color,
-                                    color.withValues(alpha: 0.7),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(4),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: color.withValues(alpha: 0.2),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                            ).animate().shimmer(
-                                  delay: (index * 150).ms + 800.ms,
-                                  duration: 1200.ms,
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                ),
-                          ).animate().scaleX(
-                                duration: 800.ms,
-                                delay: (index * 150).ms + 400.ms,
-                                curve: Curves.easeOutExpo,
-                                alignment: Alignment.centerLeft,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }),
+          // Alert Summary
+          _buildInsightRow(
+            context,
+            label: 'Alerts Summary',
+            value: '${alerts.length} total',
+            subtitle: 'Low: $lowAlerts, Medium: $mediumAlerts, High: $highAlerts',
+            color: NeuroColors.alertMedium,
+          ),
+          const SizedBox(height: 16),
+
+          // Activity Stats
+          _buildInsightRow(
+            context,
+            label: 'Activity Stats',
+            value: '$totalJournalCount journals, $totalMoodEntries mood entries',
+            subtitle: '${adolescents.length} adolescent(s) linked',
+            color: NeuroColors.alertLow, // Using alertLow (green) for positive activity
+          ),
         ],
       ),
     );
   }
 
-  Color _getMoodColor(String mood) {
-    final m = mood.toLowerCase();
-    if (m.contains('happ')) return NeuroColors.moodHappy;
-    if (m.contains('sad')) return NeuroColors.moodSad;
-    if (m.contains('anxious') || m.contains('worried')) return NeuroColors.moodAnxious;
-    if (m.contains('calm') || m.contains('peace')) return NeuroColors.moodCalm;
-    if (m.contains('stress')) return NeuroColors.moodStressed;
-    if (m.contains('excit')) return NeuroColors.moodExcited;
-    if (m.contains('tire') || m.contains('exhaust')) return NeuroColors.moodTired;
-    if (m.contains('angr') || m.contains('annoy')) return NeuroColors.moodAngry;
-    if (m.contains('hope')) return NeuroColors.moodHopeful;
-    return NeuroColors.moodNeutral;
+  Widget _buildInsightRow(
+    BuildContext context, {
+    required String label,
+    required String value,
+    required String subtitle,
+    required Color color,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 4,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: NeuroColors.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: NeuroColors.onSurfaceVariant.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
-  String _getMoodEmoji(String mood) {
-    final m = mood.toLowerCase();
-    if (m.contains('happ')) return '😊';
-    if (m.contains('sad')) return '😢';
-    if (m.contains('anxious') || m.contains('worried')) return '😟';
-    if (m.contains('calm') || m.contains('peace')) return '😌';
-    if (m.contains('stress')) return '😫';
-    if (m.contains('excit')) return '🤩';
-    if (m.contains('tire') || m.contains('exhaust')) return '🥱';
-    if (m.contains('angr') || m.contains('annoy')) return '😠';
-    if (m.contains('hope')) return '✨';
-    return '😐';
+  Color _getSentimentColor(double sentiment) {
+    // sentiment is 0.0 to 1.0 (higher = more positive)
+    if (sentiment >= 0.7) return NeuroColors.moodHappy;
+    if (sentiment >= 0.5) return NeuroColors.moodCalm;
+    if (sentiment >= 0.3) return NeuroColors.moodAnxious;
+    return NeuroColors.moodSad;
   }
 
   Widget _buildQuickStat({
@@ -547,14 +604,13 @@ class DashboardScreen extends ConsumerWidget {
             );
           },
         ),
-        const SizedBox(height: 4),
         Text(
           label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: color.withValues(alpha: 0.8),
-                letterSpacing: 0.5,
-                fontSize: 10,
-              ),
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.white.withValues(alpha: 0.8),
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -630,3 +686,222 @@ class _QuickActionCard extends StatelessWidget {
     );
   }
 }
+
+// ─── Skeleton Loading Widgets ──────────────────────────────────────────────────
+
+ class _SkeletonBox extends StatelessWidget {
+   const _SkeletonBox({
+     this.width,
+     this.height,
+   });
+
+   final double? width, height;
+
+   @override
+   Widget build(BuildContext context) {
+     return NeuroShimmer(
+       child: Container(
+         width: width,
+         height: height,
+         decoration: BoxDecoration(
+           color: Colors.grey[300],
+         ),
+       ),
+     );
+   }
+ }
+
+  class _SkeletonCircle extends StatelessWidget {
+    const _SkeletonCircle({required this.radius, this.color});
+
+    final double radius;
+    final Color? color;
+
+    @override
+    Widget build(BuildContext context) {
+      return NeuroShimmer(
+        child: Container(
+          width: radius * 2,
+          height: radius * 2,
+          decoration: BoxDecoration(
+            color: color ?? Colors.grey[300],
+            shape: BoxShape.circle,
+          ),
+        ),
+      );
+    }
+  }
+
+ class NeuroSkeletonHeroCard extends StatelessWidget {
+   const NeuroSkeletonHeroCard({super.key});
+
+   @override
+   Widget build(BuildContext context) {
+     return GuardianBentoCard(
+       margin: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+       gradient: GuardianStyles.primaryGradient,
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           Row(
+             children: [
+               Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   const _SkeletonBox(width: 100, height: 12),
+                   const SizedBox(height: 6),
+                   const _SkeletonBox(width: 140, height: 22),
+                 ],
+               ),
+               const Spacer(),
+               const _SkeletonCircle(radius: 18, color: Colors.white24),
+             ],
+           ),
+           const SizedBox(height: 28),
+           Row(
+             mainAxisAlignment: MainAxisAlignment.spaceAround,
+             children: List.generate(3, (_) => 
+               NeuroShimmer(
+                 child: Container(
+                   width: 70,
+                   height: 52,
+                   decoration: BoxDecoration(
+                     color: Colors.white.withValues(alpha: 0.15),
+                     borderRadius: BorderRadius.circular(16),
+                   ),
+                 ),
+               ),
+             ),
+           ),
+         ],
+       ),
+     );
+   }
+ }
+
+ class NeuroSkeletonTrendCard extends StatelessWidget {
+   const NeuroSkeletonTrendCard({super.key});
+
+   @override
+   Widget build(BuildContext context) {
+     return GuardianBentoCard(
+       padding: const EdgeInsets.all(24),
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           const _SkeletonBox(width: 180, height: 28),
+           const SizedBox(height: 12),
+           Row(
+             children: [
+               Row(
+                 children: List.generate(3, (_) => 
+                   Container(
+                     margin: const EdgeInsets.symmetric(horizontal: 4),
+                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                     decoration: BoxDecoration(
+                       color: Colors.grey[300],
+                       borderRadius: BorderRadius.circular(8),
+                     ),
+                     child: const SizedBox(width: 36, height: 12),
+                   ),
+                 ),
+               ),
+             ],
+           ),
+           const SizedBox(height: 24),
+           const _SkeletonBox(height: 220),
+         ],
+       ),
+     );
+   }
+ }
+
+class NeuroSkeletonInsightsCard extends StatelessWidget {
+  const NeuroSkeletonInsightsCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GuardianBentoCard(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const _SkeletonBox(width: 20, height: 20),
+              const SizedBox(width: 8),
+              const _SkeletonBox(width: 180, height: 28),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ...List.generate(3, (i) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SkeletonBox(width: 4, height: 40),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _SkeletonBox(width: 180, height: 13),
+                      const SizedBox(height: 4),
+                      const _SkeletonBox(width: 120, height: 20),
+                      const SizedBox(height: 4),
+                      const _SkeletonBox(width: 200, height: 11),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+}
+
+class NeuroSkeletonQuickAction extends StatelessWidget {
+  const NeuroSkeletonQuickAction({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GuardianBentoCard(
+      padding: EdgeInsets.zero,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: const _SkeletonCircle(radius: 12, color: Colors.grey),
+        title: const _SkeletonBox(width: double.infinity, height: 16),
+        subtitle: const _SkeletonBox(width: 180, height: 12),
+        trailing: const _SkeletonBox(width: 24, height: 24),
+      ),
+    );
+  }
+}
+
+class NeuroSkeletonQuickActions extends StatelessWidget {
+  const NeuroSkeletonQuickActions({
+    super.key,
+    this.count = 3,
+  });
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: List.generate(count, (_) => 
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: NeuroSkeletonQuickAction(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

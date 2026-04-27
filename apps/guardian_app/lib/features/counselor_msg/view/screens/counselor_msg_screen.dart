@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/counselor_chat_provider.dart';
+import '../../../consent/providers/consent_provider.dart';
 import '../../../ui/bento_card.dart';
 
 class CounselorMsgScreen extends ConsumerStatefulWidget {
@@ -173,6 +174,25 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
             callState.value!.status == CallStatus.answered ||
             callState.value!.status == CallStatus.initiated);
 
+    final consentAsync = ref.watch(guardianConsentControllerProvider);
+    final counselorChatConsent = consentAsync.whenOrNull(
+      data: (consentState) => consentState.consents.firstWhere(
+        (c) => c.consentType == ConsentType.counselorChat,
+        orElse: () => Consent(
+          consentId: '',
+          adolescentId: widget.adolescentId,
+          guardianId: '',
+          consentType: ConsentType.counselorChat,
+          grantedToRole: GrantedToRole.guardian,
+          consentStatus: ConsentStatus.revoked,
+          grantedAt: DateTime.now(),
+        ),
+      ),
+    );
+
+    final isConsentGranted =
+        counselorChatConsent?.consentStatus == ConsentStatus.granted;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       appBar: (showActiveCall || showIncomingCall)
@@ -183,40 +203,44 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
               elevation: 0,
               scrolledUnderElevation: 0,
               automaticallyImplyLeading: true,
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: NeuroColors.guardianPrimary.withOpacity(0.1),
-                    child: const Icon(Icons.psychology_rounded, size: 18, color: NeuroColors.guardianPrimary),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        counselorName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: NeuroColors.guardianPrimaryDark,
-                          letterSpacing: -0.4,
-                        ),
-                      ),
-                      Text(
-                        'Regarding: ${widget.adolescentName}',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: NeuroColors.onSurface.withOpacity(0.5),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+               title: Row(
+                 mainAxisSize: MainAxisSize.min,
+                 children: [
+                   CircleAvatar(
+                     radius: 16,
+                     backgroundColor: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+                     child: const Icon(Icons.psychology_rounded, size: 18, color: NeuroColors.guardianPrimary),
+                   ),
+                   const SizedBox(width: 12),
+                   Flexible(
+                     child: Column(
+                       mainAxisSize: MainAxisSize.min,
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Text(
+                           counselorName,
+                           style: const TextStyle(
+                             fontSize: 16,
+                             fontWeight: FontWeight.w800,
+                             color: NeuroColors.guardianPrimaryDark,
+                             letterSpacing: -0.4,
+                           ),
+                           overflow: TextOverflow.ellipsis,
+                         ),
+                         Text(
+                           'Regarding: ${widget.adolescentName}',
+                           style: TextStyle(
+                             fontSize: 10,
+                             fontWeight: FontWeight.w600,
+                             color: NeuroColors.onSurface.withValues(alpha: 0.5),
+                           ),
+                           overflow: TextOverflow.ellipsis,
+                         ),
+                       ],
+                     ),
+                   ),
+                 ],
+               ),
               actions: [
                 _ActionButton(icon: Icons.phone_rounded, onTap: _startVoiceCall),
                 const SizedBox(width: 8),
@@ -224,25 +248,84 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                 const SizedBox(width: 16),
               ],
             ),
-      body: Stack(
+      body: Column(
         children: [
-          chatAsync.when(
-            data: (state) => _buildChatView(state, counselorName, showActiveCall, showIncomingCall),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, st) => Center(child: Text('Error: $e')),
+          // Consent status banner at top of body (hidden during calls)
+          if (!showActiveCall && !showIncomingCall)
+            consentAsync.when(
+              data: (consentState) {
+                final isGranted = isConsentGranted;
+                return Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: NeuroCard(
+                    color: isGranted
+                        ? NeuroColors.alertLow.withValues(alpha: 0.1)
+                        : NeuroColors.alertMedium.withValues(alpha: 0.1),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isGranted
+                              ? Icons.check_circle
+                              : Icons.warning_amber_rounded,
+                          size: 20,
+                          color: isGranted
+                              ? NeuroColors.alertLow
+                              : NeuroColors.alertMedium,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            isGranted
+                                ? 'Chat enabled - Adolescent consent on file'
+                                : 'Chat disabled - Adolescent consent required',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: isGranted
+                                  ? NeuroColors.alertLow
+                                  : NeuroColors.alertMedium,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              loading: () => const SizedBox.shrink(),
+              error: (e, st) => const SizedBox.shrink(),
+            ),
+          // Chat + call overlays
+          Expanded(
+            child: Stack(
+              children: [
+                chatAsync.when(
+                  data: (state) => _buildChatView(
+                    state,
+                    counselorName,
+                    showActiveCall,
+                    showIncomingCall,
+                  ),
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, st) => Center(child: Text('Error: $e')),
+                ),
+                if (showIncomingCall)
+                  NeuroIncomingCallScreen(
+                    incomingCall: callState.value!.currentCall,
+                    accentColor: NeuroColors.guardianPrimary,
+                    onDismissed: () {},
+                  ),
+                if (showActiveCall && callState.value != null)
+                  NeuroActiveCallScreen(
+                    call: callState.value!.currentCall!,
+                    remotePeerEmail: callState.value!.remotePeerEmail,
+                    accentColor: NeuroColors.guardianPrimary,
+                  ),
+              ],
+            ),
           ),
-          if (showIncomingCall)
-            NeuroIncomingCallScreen(
-              incomingCall: callState.value!.currentCall,
-              accentColor: NeuroColors.guardianPrimary,
-              onDismissed: () {},
-            ),
-          if (showActiveCall && callState.value != null)
-            NeuroActiveCallScreen(
-              call: callState.value!.currentCall!,
-              remotePeerEmail: callState.value!.remotePeerEmail,
-              accentColor: NeuroColors.guardianPrimary,
-            ),
         ],
       ),
     );

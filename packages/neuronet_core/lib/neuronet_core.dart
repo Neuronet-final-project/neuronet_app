@@ -20,7 +20,6 @@ export 'src/services/alert_service.dart';
 export 'src/services/educational_service.dart';
 export 'src/services/consent_service.dart';
 export 'src/services/channel_service.dart';
-export 'src/services/journal_service.dart';
 export 'src/services/messaging_service.dart';
 export 'src/services/onboarding_service.dart';
 export 'src/services/voice_recorder_service.dart';
