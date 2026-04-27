@@ -45,17 +45,17 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
           ),
           alertsAsync.when(
             data: (state) {
-              if (state.isLoading && state.alerts.isEmpty) {
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: NeuroSkeletonCard(),
-                    ),
-                    childCount: 4,
-                  ),
-                );
-              }
+               if (state.isLoading && state.alerts.isEmpty) {
+                 return SliverList(
+                   delegate: SliverChildBuilderDelegate(
+                     (context, index) => const Padding(
+                       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                       child: _AlertCardSkeleton(),
+                     ),
+                     childCount: 4,
+                   ),
+                 );
+               }
 
               if (state.error != null && state.alerts.isEmpty) {
                 return SliverFillRemaining(
@@ -117,8 +117,8 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
             loading: () => SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) => const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: NeuroSkeletonCard(),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  child: _AlertCardSkeleton(),
                 ),
                 childCount: 4,
               ),
@@ -205,147 +205,158 @@ class _AlertCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         onTap: () => context.push('/alert-details/${alert.alertId}'),
         padding: const EdgeInsets.all(18),
-        child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: color.withValues(alpha: 0.3)),
-                ),
-                child: Text(
-                  '${alert.severityLevel.toUpperCase()} RISK',
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 9,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                _formatDate(alert.createdAt),
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: NeuroColors.onSurface.withValues(alpha: 0.4),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.05),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.warning_amber_rounded, size: 20, color: color),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      alert.adolescentName,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      alert.mainConcern.isEmpty ? alert.alertType.replaceAll('_', ' ').toUpperCase() : alert.mainConcern,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: color,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-          Text(
-            alert.aiSummary.isNotEmpty ? alert.aiSummary : alert.triggerDescription,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: NeuroColors.onSurface.withValues(alpha: 0.7),
-              height: 1.4,
-            ),
-          ),
-
-          if (alert.detectedEmotions.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: alert.detectedEmotions.take(4).map((emotion) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: NeuroColors.onSurface.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    emotion,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: NeuroColors.onSurface.withValues(alpha: 0.6),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ],
-      ).animate(onPlay: (c) => c.repeat())
-       .custom(
-         duration: 10.seconds,
-         builder: (context, value, child) {
-           if (!isHighSeverity) return child;
-           
-           // Create a 1s pulse within a 10s cycle
-           double intensity = 0;
-           if (value < 0.1) {
-             double t = value / 0.1;
-             intensity = t < 0.5 ? t * 2 : (1 - t) * 2;
-             // Apply smooth curve to intensity
-             intensity = Curves.easeInOut.transform(intensity);
-           }
-           
-           return Container(
-             decoration: BoxDecoration(
-               borderRadius: BorderRadius.circular(24),
-               boxShadow: [
-                 BoxShadow(
-                   color: color.withValues(alpha: 0.15 * intensity),
-                   blurRadius: 12 * intensity,
-                   spreadRadius: 2 * intensity,
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+             // ── Header: severity badge + date ───────────────────────────────────
+             Row(
+               children: [
+                 Container(
+                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                   decoration: BoxDecoration(
+                     color: color.withValues(alpha: 0.15),
+                     borderRadius: BorderRadius.circular(10),
+                     border: Border.all(color: color.withValues(alpha: 0.4)),
+                   ),
+                   child: Text(
+                     '${alert.severityLevel.toUpperCase()} RISK',
+                     style: TextStyle(
+                       color: color,
+                       fontWeight: FontWeight.w900,
+                       fontSize: 9,
+                       letterSpacing: 1.0,
+                     ),
+                   ),
+                 ),
+                 const Spacer(),
+                 Text(
+                   _formatDate(alert.createdAt),
+                   style: TextStyle(
+                     fontSize: 11,
+                     fontWeight: FontWeight.w600,
+                     color: NeuroColors.onSurface.withValues(alpha: 0.45),
+                   ),
                  ),
                ],
              ),
-             child: child,
-           );
-         },
-       ),
+             const SizedBox(height: 16),
+             // ── Body: icon + name/concern ───────────────────────────────────────
+             Row(
+               crossAxisAlignment: CrossAxisAlignment.center,
+               children: [
+                 // Severity icon with subtle ring
+                 Container(
+                   padding: const EdgeInsets.all(10),
+                   decoration: BoxDecoration(
+                     color: color.withValues(alpha: 0.08),
+                     shape: BoxShape.circle,
+                     border: Border.all(color: color.withValues(alpha: 0.25), width: 1.5),
+                   ),
+                   child: Icon(Icons.warning_amber_rounded, size: 20, color: color),
+                 ),
+                 const SizedBox(width: 14),
+                 Expanded(
+                   child: Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Text(
+                         alert.adolescentName,
+                         style: const TextStyle(
+                           fontSize: 16,
+                           fontWeight: FontWeight.w800,
+                           color: NeuroColors.onSurface,
+                         ),
+                       ),
+                       const SizedBox(height: 4),
+                       Text(
+                         alert.mainConcern.isEmpty
+                             ? alert.alertType.replaceAll('_', ' ').toUpperCase()
+                             : alert.mainConcern,
+                         style: TextStyle(
+                           fontSize: 12,
+                           fontWeight: FontWeight.w700,
+                           color: color,
+                           letterSpacing: 0.4,
+                         ),
+                       ),
+                     ],
+                   ),
+                 ),
+               ],
+             ),
+             const SizedBox(height: 16),
+             // ── Summary ─────────────────────────────────────────────────────────
+             Text(
+               alert.aiSummary.isNotEmpty ? alert.aiSummary : alert.triggerDescription,
+               maxLines: 2,
+               overflow: TextOverflow.ellipsis,
+               style: TextStyle(
+                 fontSize: 14,
+                 fontWeight: FontWeight.w500,
+                 color: NeuroColors.onSurface.withValues(alpha: 0.75),
+                 height: 1.45,
+               ),
+             ),
+             // ── Emotion chips ───────────────────────────────────────────────────
+             if (alert.detectedEmotions.isNotEmpty) ...[
+               const SizedBox(height: 14),
+               Wrap(
+                 spacing: 8,
+                 runSpacing: 6,
+                 children: alert.detectedEmotions.take(4).map((emotion) {
+                   return Container(
+                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                     decoration: BoxDecoration(
+                       color: NeuroColors.onSurface.withValues(alpha: 0.06),
+                       borderRadius: BorderRadius.circular(10),
+                       border: Border.all(
+                         color: NeuroColors.onSurface.withValues(alpha: 0.12),
+                         width: 1,
+                       ),
+                     ),
+                     child: Text(
+                       emotion,
+                       style: TextStyle(
+                         fontSize: 11,
+                         fontWeight: FontWeight.w700,
+                         color: NeuroColors.onSurface.withValues(alpha: 0.75),
+                       ),
+                     ),
+                   );
+                 }).toList(),
+               ),
+             ],
+           ],
+         ).animate(onPlay: (c) => c.repeat())
+          .custom(
+            duration: 10.seconds,
+            builder: (context, value, child) {
+              if (!isHighSeverity) return child;
+
+              // Create a 1s pulse within a 10s cycle
+              double intensity = 0;
+              if (value < 0.1) {
+                double t = value / 0.1;
+                intensity = t < 0.5 ? t * 2 : (1 - t) * 2;
+                // Apply smooth curve to intensity
+                intensity = Curves.easeInOut.transform(intensity);
+              }
+
+              return Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.15 * intensity),
+                      blurRadius: 12 * intensity,
+                      spreadRadius: 2 * intensity,
+                    ),
+                  ],
+                ),
+                child: child,
+              );
+            },
+          ),
       ),
     ).animate(autoPlay: false).scale(
           begin: const Offset(1.0, 1.0),
@@ -361,11 +372,152 @@ class _AlertCard extends StatelessWidget {
     return NeuroColors.alertLow;
   }
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-    if (diff.inDays == 0) return 'Today';
-    if (diff.inDays == 1) return 'Yesterday';
-    return '${date.day}/${date.month}/${date.year}';
+   String _formatDate(DateTime date) {
+     final now = DateTime.now();
+     final diff = now.difference(date);
+     if (diff.inDays == 0) return 'Today';
+     if (diff.inDays == 1) return 'Yesterday';
+     return '${date.day}/${date.month}/${date.year}';
+   }
+ }
+
+// ── Alert Card Skeleton ────────────────────────────────────────────────────────
+class _AlertCardSkeleton extends StatelessWidget {
+  const _AlertCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return GuardianBentoCard(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: severity badge + date
+          Row(
+            children: [
+              NeuroShimmer(
+                child: Container(
+                  width: 75,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const Spacer(),
+              NeuroShimmer(
+                child: Container(
+                  width: 50,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Body: icon (circle with border) + name/concern
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              NeuroShimmer(
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey[400]!, width: 1.5),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    NeuroShimmer(
+                      child: Container(
+                        width: double.infinity,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    NeuroShimmer(
+                      child: Container(
+                        width: 140,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+           const SizedBox(height: 16),
+           // Summary text (can be 2 lines)
+           NeuroShimmer(
+             child: Container(
+               width: double.infinity,
+               height: 28,
+               decoration: BoxDecoration(
+                 color: Colors.grey[300],
+                 borderRadius: BorderRadius.circular(4),
+               ),
+             ),
+           ),
+           const SizedBox(height: 14),
+           // Emotion chips (Wrap like real card)
+           Wrap(
+             spacing: 8,
+             runSpacing: 6,
+             children: [
+               NeuroShimmer(
+                 child: Container(
+                   width: 60,
+                   height: 22,
+                   decoration: BoxDecoration(
+                     color: Colors.grey[300],
+                     borderRadius: BorderRadius.circular(10),
+                   ),
+                 ),
+               ),
+               NeuroShimmer(
+                 child: Container(
+                   width: 70,
+                   height: 22,
+                   decoration: BoxDecoration(
+                     color: Colors.grey[300],
+                     borderRadius: BorderRadius.circular(10),
+                   ),
+                 ),
+               ),
+               NeuroShimmer(
+                 child: Container(
+                   width: 55,
+                   height: 22,
+                   decoration: BoxDecoration(
+                     color: Colors.grey[300],
+                     borderRadius: BorderRadius.circular(10),
+                   ),
+                 ),
+               ),
+             ],
+           ),
+        ],
+      ),
+    );
   }
 }
