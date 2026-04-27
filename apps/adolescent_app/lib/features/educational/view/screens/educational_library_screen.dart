@@ -30,53 +30,57 @@ class EducationalLibraryScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: pagesAsync.when(
-        data: (state) {
-          if (state.error != null) {
-            return NeuroErrorWidget(
-              message: state.error!,
-              onRetry: () => ref.read(educationalPagesControllerProvider.notifier).refresh(),
-            );
-          }
+       body: pagesAsync.when(
+         data: (state) {
+           if (state.error != null) {
+             return NeuroErrorWidget(
+               message: state.error!,
+               onRetry: () => ref.read(educationalPagesControllerProvider.notifier).refresh(),
+             );
+           }
 
-          final pages = state.pages;
-          if (pages.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: NeuroEmptyState(
-                  title: 'Library is empty',
-                  message: 'No articles in the nook just yet. Check back soon for new content!',
-                  icon: Icons.library_books_outlined,
-                  color: NeuroColors.onSurfaceVariant,
-                ),
-              ),
-            );
-          }
+           final pages = state.pages;
+           if (pages.isEmpty) {
+             return Center(
+               child: Padding(
+                 padding: const EdgeInsets.all(16.0),
+                 child: NeuroEmptyState(
+                   title: 'Library is empty',
+                   message: 'No articles in the nook just yet. Check back soon for new content!',
+                   icon: Icons.library_books_outlined,
+                   color: NeuroColors.onSurfaceVariant,
+                 ),
+               ),
+             );
+           }
 
-          // Get followed page slugs
-          final followedSlugs = followedPagesAsync.when(
-            data: (followState) => followState.followedPages.map((p) => p.pageSlug).toSet(),
-            loading: () => <String>{},
-            error: (_, __) => <String>{},
-          );
+           // Get followed page slugs
+           final followedSlugs = followedPagesAsync.when(
+             data: (followState) => followState.followedPages.map((p) => p.pageSlug).toSet(),
+             loading: () => <String>{},
+             error: (_, __) => <String>{},
+           );
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: pages.length,
-            itemBuilder: (context, index) {
-              final page = pages[index];
-              final isFollowed = followedSlugs.contains(page.slug);
-              return _PageCard(page: page, isFollowed: isFollowed);
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => NeuroErrorWidget(
-          message: 'Could not load library.',
-          onRetry: () => ref.read(educationalPagesControllerProvider.notifier).refresh(),
-        ),
-      ),
+           return ListView.builder(
+             padding: const EdgeInsets.all(16),
+             itemCount: pages.length,
+             itemBuilder: (context, index) {
+               final page = pages[index];
+               final isFollowed = followedSlugs.contains(page.slug);
+               return _PageCard(page: page, isFollowed: isFollowed);
+             },
+           );
+         },
+         loading: () => ListView.builder(
+           padding: const EdgeInsets.all(16),
+           itemCount: 5,
+           itemBuilder: (context, index) => const _PageCardSkeleton(),
+         ),
+         error: (err, stack) => NeuroErrorWidget(
+           message: 'Could not load library.',
+           onRetry: () => ref.read(educationalPagesControllerProvider.notifier).refresh(),
+         ),
+       ),
     );
   }
 }
@@ -315,13 +319,169 @@ class _PageCard extends ConsumerWidget {
     }
   }
 
-  IconData _getCategoryIcon(String? category) {
-    switch (category?.toLowerCase()) {
-      case 'mood': return Icons.face_retouching_natural_rounded;
-      case 'stress': return Icons.waves_rounded;
-      case 'sleep': return Icons.nights_stay_rounded;
-      case 'relationships': return Icons.people_outline_rounded;
-      default: return Icons.chrome_reader_mode_outlined;
-    }
+   IconData _getCategoryIcon(String? category) {
+     switch (category?.toLowerCase()) {
+       case 'mood': return Icons.face_retouching_natural_rounded;
+       case 'stress': return Icons.waves_rounded;
+       case 'sleep': return Icons.nights_stay_rounded;
+       case 'relationships': return Icons.people_outline_rounded;
+       default: return Icons.chrome_reader_mode_outlined;
+     }
+   }
+ }
+
+// ── Skeleton Loading for Page Card ────────────────────────────────────────────
+class _PageCardSkeleton extends StatelessWidget {
+  const _PageCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      elevation: 0,
+      color: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+      ),
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Featured image/icon placeholder
+                NeuroShimmer(
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          // Category placeholder
+                          NeuroShimmer(
+                            child: Container(
+                              width: 70,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Difficulty placeholder
+                          NeuroShimmer(
+                            child: Container(
+                              width: 60,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      // Title placeholder
+                      NeuroShimmer(
+                        child: Container(
+                          width: double.infinity,
+                          height: 18,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      NeuroShimmer(
+                        child: Container(
+                          width: 180,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Follow button placeholder
+                NeuroShimmer(
+                  child: Container(
+                    width: 36,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Summary placeholder
+            NeuroShimmer(
+              child: Container(
+                width: double.infinity,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            NeuroShimmer(
+              child: Container(
+                width: 240,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Meta row placeholder
+            Row(
+              children: [
+                NeuroShimmer(child: Container(width: 60, height: 14, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)))),
+                const SizedBox(width: 12),
+                NeuroShimmer(child: Container(width: 50, height: 14, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)))),
+                const SizedBox(width: 12),
+                NeuroShimmer(child: Container(width: 50, height: 14, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4)))),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Tags placeholder
+            Row(
+              children: [
+                NeuroShimmer(child: Container(width: 50, height: 18, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(6)))),
+                const SizedBox(width: 6),
+                NeuroShimmer(child: Container(width: 60, height: 18, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(6)))),
+                const SizedBox(width: 6),
+                NeuroShimmer(child: Container(width: 40, height: 18, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(6)))),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
