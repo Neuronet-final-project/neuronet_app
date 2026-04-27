@@ -2,7 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
-import '../../providers/counselor_chat_provider.dart';
+import 'package:adolescent_app/features/counselor_chat/providers/counselor_chat_provider.dart';
+import 'package:adolescent_app/features/consent_status/providers/consent_status_provider.dart';
 
 class CounselorChatScreen extends ConsumerStatefulWidget {
   const CounselorChatScreen({super.key});
@@ -99,7 +100,6 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
   }
 
   /// Derive a display name from an email address.
-  /// "counselor2@example.com" → "Counselor2"
   static String _emailToDisplayName(String email) {
     final name = email.split('@').first;
     return name[0].toUpperCase() + name.substring(1);
@@ -109,9 +109,9 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
   Widget build(BuildContext context) {
     final chatState = ref.watch(counselorChatControllerProvider);
     final callState = ref.watch(callControllerProvider);
+    final consentAsync = ref.watch(adolescentConsentControllerProvider);
     final theme = Theme.of(context);
 
-    // Scroll to bottom when messages are added
     ref.listen(counselorChatControllerProvider, (previous, next) {
       next.whenData((data) {
         final prevCount = previous?.value?.messages.length ?? 0;
@@ -121,28 +121,15 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
       });
     });
 
-    // Mark incoming call as shown when ringing state is detected
-    ref.listen(callControllerProvider, (previous, next) {
-      final cs = next.value;
-      if (cs != null &&
-          cs.status == CallStatus.ringing &&
-          cs.currentCall != null &&
-          cs.currentCall?.id != previous?.value?.currentCall?.id) {
-        // Incoming call detected — will be shown via inline overlay
-      }
-    });
-
-    // Extract counselor info from state for the AppBar
+    final isConsentGranted = consentAsync.value?.counselorChat ?? true;
     final counselorEmail = chatState.value?.counselorEmail;
     final appBarTitle = counselorEmail != null
         ? _emailToDisplayName(counselorEmail)
         : 'Counselor Chat';
 
-    // Determine if we should show a call overlay
     final showIncomingCall =
         callState.value?.status == CallStatus.ringing &&
         callState.value?.currentCall != null;
-    // Show active call for: answered, active, OR initiated (caller waiting)
     final showActiveCall = callState.value != null &&
         callState.value!.currentCall != null &&
         (callState.value!.status == CallStatus.active ||
@@ -150,65 +137,117 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
             callState.value!.status == CallStatus.initiated);
 
     return Scaffold(
-      appBar: (showActiveCall || showIncomingCall) ? null : AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              appBarTitle,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+      appBar: (showActiveCall || showIncomingCall)
+          ? null
+          : AppBar(
+              title: Text(
+                appBarTitle,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.phone),
+                  onPressed: _startVoiceCall,
+                  tooltip: 'Voice call',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.videocam),
+                  onPressed: _startVideoCall,
+                  tooltip: 'Video call',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    ref.read(counselorChatControllerProvider.notifier).refresh();
+                  },
+                  tooltip: 'Refresh messages',
+                ),
+              ],
             ),
-            if (counselorEmail != null)
-              Text(
-                counselorEmail,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.white70,
-                  fontSize: 11,
+      body: Column(
+        children: [
+          // Consent status banner — always visible
+          if (!showActiveCall && !showIncomingCall)
+            consentAsync.when(
+              data: (consentState) {
+                final granted = consentState.counselorChat;
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 12.0),
+                  child: NeuroCard(
+                    color: granted
+                        ? NeuroColors.alertLow.withValues(alpha: 0.15)
+                        : NeuroColors.alertMedium.withValues(alpha: 0.15),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        Icon(
+                          granted ? Icons.check_circle : Icons.warning_amber_rounded,
+                          size: 20,
+                          color: granted ? NeuroColors.alertLow : NeuroColors.alertMedium,
+                        ),
+                      SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            granted
+                                ? 'Chat enabled - Your guardian has approved counselor communication'
+                                : 'Chat disabled - Counselor communication consent required',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: NeuroColors.onSurface,
+                              fontWeight: FontWeight.w700,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              loading: () => const Padding(
+                padding: EdgeInsets.all(12.0),
+                child: NeuroCard(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                       SizedBox(
+                         width: 20,
+                         height: 20,
+                         child: CircularProgressIndicator(strokeWidth: 2),
+                       ),
+                       SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Loading consent status...',
+                          style: TextStyle(
+                            color: NeuroColors.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.phone),
-            onPressed: _startVoiceCall,
-            tooltip: 'Voice call',
-          ),
-          IconButton(
-            icon: const Icon(Icons.videocam),
-            onPressed: _startVideoCall,
-            tooltip: 'Video call',
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              ref.read(counselorChatControllerProvider.notifier).refresh();
-            },
-            tooltip: 'Refresh messages',
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          // Chat content (always rendered underneath)
-          chatState.when(
-            data: (data) {
-              final messages = data.messages;
-              if (messages.isEmpty) {
-                return _buildEmptyState(context, theme);
-              }
-
-              return Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+          // Chat area
+          Expanded(
+            child: Stack(
+              children: [
+                chatState.when(
+                  data: (data) {
+                    final messages = data.messages;
+                    if (messages.isEmpty) {
+                      return _buildEmptyState(context, theme);
+                    }
+                    return ListView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.all(16),
                       itemCount: messages.length,
                       itemBuilder: (context, index) {
                         final message = messages[index];
                         final isUser = message.senderRole == 'adolescent';
-
                         return NeuroChatBubble(
                           messageContent: message.content,
                           timestamp: message.createdAt,
@@ -219,76 +258,64 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                           attachmentUrl: message.attachmentUrl,
                         );
                       },
+                    );
+                  },
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (err, stack) => Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.account_circle_outlined,
+                              size: 64, color: theme.colorScheme.error),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Unable to Start Counselor Chat',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '$err',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              ref.invalidate(counselorChatControllerProvider);
+                            },
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Retry'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  _buildMessageInput(context, theme),
-                ],
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.account_circle_outlined, size: 64, color: theme.colorScheme.error),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Unable to Start Counselor Chat',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '$err',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Tip: Try logging out and back in to refresh your profile.',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        fontStyle: FontStyle.italic,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        ref.invalidate(counselorChatControllerProvider);
-                      },
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
-                    ),
-                  ],
                 ),
-              ),
+                if (showIncomingCall)
+                  NeuroIncomingCallScreen(
+                    incomingCall: callState.value!.currentCall,
+                    accentColor: theme.colorScheme.primary,
+                    onDismissed: () {},
+                  ),
+                if (showActiveCall && callState.value != null)
+                  Positioned.fill(
+                    child: NeuroActiveCallScreen(
+                      call: callState.value!.currentCall!,
+                      remotePeerEmail: callState.value!.remotePeerEmail,
+                      accentColor: theme.colorScheme.primary,
+                    ),
+                  ),
+              ],
             ),
           ),
-          // Incoming call overlay (rendered inline — no navigator conflicts)
-          if (showIncomingCall)
-            NeuroIncomingCallScreen(
-              incomingCall: callState.value!.currentCall,
-              accentColor: theme.colorScheme.primary,
-              onDismissed: () {
-                // State change will trigger a rebuild, removing the overlay.
-              },
-            ),
-          // Active call overlay (rendered inline — no navigator conflicts)
-          if (showActiveCall && callState.value != null)
-            Positioned.fill(
-              child: NeuroActiveCallScreen(
-                call: callState.value!.currentCall!,
-                remotePeerEmail: callState.value!.remotePeerEmail,
-                accentColor: theme.colorScheme.primary,
-              ),
-            ),
+          _buildMessageInput(context, theme, isConsentGranted),
         ],
       ),
     );
@@ -358,17 +385,16 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     );
   }
 
-  Widget _buildMessageInput(BuildContext context, ThemeData theme) {
+  Widget _buildMessageInput(BuildContext context, ThemeData theme, bool isEnabled) {
     return NeuroChatInput(
       controller: _messageController,
       onSend: _sendMessage,
       accentColor: theme.colorScheme.primary,
       onSendVoice: _sendVoiceMessage,
       onSendMedia: _sendMediaMessage,
+      isEnabled: isEnabled,
     );
   }
-
-  // ─── Call Methods ────────────────────────────────────────────────────────
 
   Future<void> _startVoiceCall() async {
     final conversationId = ref.read(counselorChatControllerProvider.notifier).conversationId;
@@ -377,14 +403,11 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     final chatState = ref.read(counselorChatControllerProvider).value;
     final counselorEmail = chatState?.counselorEmail;
 
-    debugPrint('[CounselorChat] Starting voice call...');
-
     await ref.read(callControllerProvider.notifier).startCall(
           conversationId: conversationId,
           callType: CallType.voice,
           remotePeerEmail: counselorEmail,
         );
-    // Active call screen renders inline via the call controller state.
   }
 
   Future<void> _startVideoCall() async {
@@ -394,13 +417,10 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     final chatState = ref.read(counselorChatControllerProvider).value;
     final counselorEmail = chatState?.counselorEmail;
 
-    debugPrint('[CounselorChat] Starting video call...');
-
     await ref.read(callControllerProvider.notifier).startCall(
           conversationId: conversationId,
           callType: CallType.video,
           remotePeerEmail: counselorEmail,
         );
-    // Active call screen renders inline via the call controller state.
   }
 }

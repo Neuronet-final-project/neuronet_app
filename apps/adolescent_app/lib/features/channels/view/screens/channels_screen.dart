@@ -115,9 +115,19 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
               ),
             );
           },
-          loading: () => const Center(
-            child: CircularProgressIndicator(color: NeuroColors.adolescentPrimary),
-          ),
+           loading: () => ListView(
+             padding: const EdgeInsets.fromLTRB(18, 14, 18, 24),
+             children: const [
+               // Stats header skeleton
+               _ChannelsSkeletonStats(),
+               SizedBox(height: 16),
+               // Channel card skeletons
+               _ChannelSkeletonCard(),
+               _ChannelSkeletonCard(),
+               _ChannelSkeletonCard(),
+               _ChannelSkeletonCard(),
+             ],
+           ),
           error: (err, stack) => NeuroErrorWidget(
             message: 'Error loading channels: $err',
             onRetry: () => ref.read(channelsControllerProvider.notifier).refresh(),
@@ -440,6 +450,213 @@ class _MetaBadge extends StatelessWidget {
               fontSize: 11,
               fontWeight: FontWeight.w800,
               color: Color(0xFF5C4598),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- Skeleton Loading Widgets ------------------------------------------------
+
+const _kSkeletonGrey = Color(0xFFE5E7EB);
+
+class _ChannelsSkeletonStats extends StatelessWidget {
+  const _ChannelsSkeletonStats();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFEAD9FF), Color(0xFFE2CCFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.82)),
+        boxShadow: [
+          BoxShadow(
+            color: NeuroColors.adolescentPrimary.withValues(alpha: 0.14),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _SkeletonStatChip(),
+          const SizedBox(width: 8),
+          _SkeletonStatChip(),
+          const SizedBox(width: 8),
+          _SkeletonStatChip(),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonStatChip extends StatelessWidget {
+  const _SkeletonStatChip();
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          NeuroShimmer(
+            child: Container(
+              width: 40,
+              height: 24,
+              decoration: BoxDecoration(
+                color: _kSkeletonGrey,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          NeuroShimmer(
+            child: Container(
+              width: 50,
+              height: 14,
+              decoration: BoxDecoration(
+                color: _kSkeletonGrey,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChannelSkeletonCard extends StatelessWidget {
+  const _ChannelSkeletonCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFE0D3F2)),
+            boxShadow: [
+              BoxShadow(
+                color: NeuroColors.adolescentPrimary.withValues(alpha: 0.09),
+                blurRadius: 18,
+                offset: const Offset(0, 9),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              NeuroShimmer(
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: _kSkeletonGrey,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    NeuroShimmer(
+                      child: Container(
+                        width: 120,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          color: _kSkeletonGrey,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    NeuroShimmer(
+                      child: Container(
+                        width: 200,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: _kSkeletonGrey,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        _SkeletonMetaBadge(),
+                        const SizedBox(width: 6),
+                        _SkeletonMetaBadge(),
+                        const SizedBox(width: 6),
+                        _SkeletonMetaBadge(),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              NeuroShimmer(
+                child: Container(
+                  width: 70,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: _kSkeletonGrey,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SkeletonMetaBadge extends StatelessWidget {
+  const _SkeletonMetaBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: _kSkeletonGrey,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          NeuroShimmer(
+            child: Container(
+              width: 10,
+              height: 10,
+              decoration: const BoxDecoration(shape: BoxShape.circle),
+            ),
+          ),
+          const SizedBox(width: 4),
+          NeuroShimmer(
+            child: Container(
+              width: 24,
+              height: 10,
+              decoration: BoxDecoration(
+                color: _kSkeletonGrey,
+                borderRadius: BorderRadius.circular(3),
+              ),
             ),
           ),
         ],

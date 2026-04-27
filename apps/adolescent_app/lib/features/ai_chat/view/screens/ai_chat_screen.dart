@@ -74,7 +74,37 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () {
-              // Show info about AI counselor
+              showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (context) => AlertDialog(
+                  backgroundColor: NeuroColors.background,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  title: Row(
+                    children: [
+                      const Icon(Icons.psychology_rounded, color: NeuroColors.adolescentPrimary),
+                      const SizedBox(width: 12),
+                      const Text('AI Assistant Information', style: TextStyle(fontWeight: FontWeight.w800)),
+                    ],
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildInfoItem(Icons.security_rounded, 'Safety First', 'This AI is for support and reflection, not for medical diagnosis or crisis intervention.'),
+                      const SizedBox(height: 16),
+                      _buildInfoItem(Icons.privacy_tip_rounded, 'Your Data', 'Conversations are analyzed to provide support and may be reviewed by your school counselor.'),
+                      const SizedBox(height: 16),
+                      _buildInfoItem(Icons.lightbulb_rounded, 'How to Use', 'Ask about stress management, study tips, or just chat about your day.'),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Got it', style: TextStyle(fontWeight: FontWeight.bold, color: NeuroColors.adolescentPrimary)),
+                    ),
+                  ],
+                ),
+              );
             },
             tooltip: 'About AI Assistant',
           ),
@@ -119,6 +149,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           }
           return Column(
             children: [
+              _buildSafetyDisclaimer(),
               Expanded(
                 child: ListView.builder(
                   controller: _scrollController,
@@ -240,6 +271,57 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       },
       accentColor: NeuroColors.adolescentPrimary,
       isEnabled: !state.isTyping,
+      maxLength: 5000,
+    );
+  }
+
+  Widget _buildSafetyDisclaimer() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        child: NeuroCard(
+          color: NeuroColors.adolescentSurface,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.info_outline_rounded,
+              color: NeuroColors.adolescentPrimary,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'AI Assistant can support your reflection but is not a medical professional. For urgent help, please contact your counselor.',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: NeuroColors.adolescentPrimary,
+                  fontWeight: FontWeight.w600,
+                  height: 1.3,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(IconData icon, String title, String description) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: NeuroColors.onSurfaceVariant),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const SizedBox(height: 2),
+              Text(description, style: TextStyle(color: NeuroColors.onSurfaceVariant, fontSize: 12)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

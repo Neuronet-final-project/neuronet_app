@@ -13,7 +13,6 @@ import 'package:adolescent_app/features/educational/providers/educational_provid
 const _kPurple   = Color(0xFF7C4DFF);
 const _kLavender = Color(0xFFB47CFF);
 const _kDeepPurple = Color(0xFF5E35B1);
-const _kBlue     = Color(0xFF64B5F6);
 const _kSurface  = Color(0xFFF5F3FF);
 const _kSurfaceVariant = Color(0xFFEDE7FF);
 const _kBody     = Color(0xFF2D1B6B);
@@ -39,19 +38,67 @@ class DashboardScreen extends ConsumerWidget {
       body: RefreshIndicator(
         color: _kPurple,
         onRefresh: () => ref.refresh(adolescentDashboardControllerProvider.future),
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            _HeroAppBar(ref: ref),
-            const SliverToBoxAdapter(child: _DailyCheckInCard()),
-            SliverToBoxAdapter(child: _MoodCheckInRow(ref: ref)),
-            SliverToBoxAdapter(child: _StatsRow(ref: ref)),
-            SliverToBoxAdapter(child: _QuickActionGrid()),
-            SliverToBoxAdapter(child: _RecentJournals(ref: ref)),
-            SliverToBoxAdapter(child: _InsightsBanner(ref: ref)),
-            SliverToBoxAdapter(child: _LearningCard(ref: ref)),
-            const SliverToBoxAdapter(child: _PlayRelaxSection()),
-          ],
+        child: Consumer(
+          builder: (context, ref, _) {
+            final dashboardState = ref.watch(adolescentDashboardControllerProvider);
+
+            return dashboardState.when(
+              loading: () => CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: const [
+                  _HeroAppBarSkeleton(),
+                  SliverToBoxAdapter(child: _DailyCheckInCardSkeleton()),
+                  SliverToBoxAdapter(child: _MoodCheckInRowSkeleton()),
+                  SliverToBoxAdapter(child: _StatsRowSkeleton()),
+                  SliverToBoxAdapter(child: _QuickActionGridSkeleton()),
+                  SliverToBoxAdapter(child: _RecentJournalsSkeleton()),
+                  SliverToBoxAdapter(child: _InsightsBannerSkeleton()),
+                  SliverToBoxAdapter(child: _LearningCardSkeleton()),
+                  SliverToBoxAdapter(child: _PlayRelaxSectionSkeleton()),
+                ],
+              ),
+              error: (err, stack) => CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  _HeroAppBar(ref: ref),
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                            const SizedBox(height: 16),
+                            Text('Failed to load dashboard\n$err'),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () => ref.refresh(adolescentDashboardControllerProvider.future),
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              data: (_) => CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  _HeroAppBar(ref: ref),
+                  const SliverToBoxAdapter(child: _DailyCheckInCard()),
+                  SliverToBoxAdapter(child: _MoodCheckInRow(ref: ref)),
+                  SliverToBoxAdapter(child: _StatsRow(ref: ref)),
+                  SliverToBoxAdapter(child: _QuickActionGrid()),
+                  SliverToBoxAdapter(child: _RecentJournals(ref: ref)),
+                  SliverToBoxAdapter(child: _InsightsBanner(ref: ref)),
+                  SliverToBoxAdapter(child: _LearningCard(ref: ref)),
+                  const SliverToBoxAdapter(child: _PlayRelaxSection()),
+                ],
+              ),
+            );
+          },
         ),
       ),
       floatingActionButton: _SageAIButton(
@@ -485,10 +532,7 @@ class _StatsRow extends ConsumerWidget {
           ),
         );
       },
-      orElse: () => const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        child: LinearProgressIndicator(color: _kPurple, backgroundColor: _kSurfaceVariant),
-      ),
+      orElse: () => const _StatsRowSkeleton(),
     );
   }
 }
@@ -1263,6 +1307,332 @@ class _PlayRelaxSection extends StatelessWidget {
   }
 }
 
+// ─── Skeleton Loading Widgets ──────────────────────────────────────────────────
+
+class _HeroAppBarSkeleton extends StatelessWidget {
+  const _HeroAppBarSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      expandedHeight: 200,
+      pinned: true,
+      backgroundColor: _kPurple,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF6A1FDB), Color(0xFF7C4DFF), Color(0xFFB47CFF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 40, 20, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const _SkeletonBox(width: 100, height: 12),
+                    const _SkeletonCircle(radius: 16),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SkeletonBox(width: 100, height: 12),
+                    SizedBox(height: 8),
+                    _SkeletonBox(width: 160, height: 36),
+                    SizedBox(height: 16),
+                    _SkeletonBox(width: 200, height: 16),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DailyCheckInCardSkeleton extends StatelessWidget {
+  const _DailyCheckInCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: _SkeletonBox(height: 180, borderRadius: 24),
+    );
+  }
+}
+
+class _MoodCheckInRowSkeleton extends StatelessWidget {
+  const _MoodCheckInRowSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: List.generate(5, (_) => 
+          const Column(
+            children: [
+              _SkeletonCircle(radius: 28),
+              SizedBox(height: 6),
+              _SkeletonBox(width: 40, height: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatsRowSkeleton extends StatelessWidget {
+  const _StatsRowSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(child: _StatPillSkeleton()),
+          const SizedBox(width: 10),
+          Expanded(child: _StatPillSkeleton()),
+          const SizedBox(width: 10),
+          Expanded(child: _StatPillSkeleton()),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatPillSkeleton extends StatelessWidget {
+  const _StatPillSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 70,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.grey[300]!, Colors.grey[200]!],
+        ),
+        borderRadius: BorderRadius.circular(22),
+      ),
+    );
+  }
+}
+
+class _QuickActionGridSkeleton extends StatelessWidget {
+  const _QuickActionGridSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _SkeletonBox(width: 180, height: 20),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: _ActionCardSkeleton()),
+              const SizedBox(width: 12),
+              Expanded(child: _ActionCardSkeleton()),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: _ActionCardSkeleton()),
+              const SizedBox(width: 12),
+              Expanded(child: _ActionCardSkeleton()),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionCardSkeleton extends StatelessWidget {
+  const _ActionCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 140,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(20),
+      ),
+    );
+  }
+}
+
+class _RecentJournalsSkeleton extends StatelessWidget {
+  const _RecentJournalsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _SkeletonBox(width: 180, height: 20),
+          const SizedBox(height: 12),
+          ...List.generate(3, (_) => 
+            const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: _SkeletonBox(height: 80, borderRadius: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InsightsBannerSkeleton extends StatelessWidget {
+  const _InsightsBannerSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Container(
+        height: 100,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.purple[300]!, Colors.purple[400]!],
+          ),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: _SkeletonCircle(radius: 32, color: Colors.white24),
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  _SkeletonBox(width: 160, height: 18),
+                  SizedBox(height: 6),
+                  _SkeletonBox(width: 220, height: 14),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LearningCardSkeleton extends StatelessWidget {
+  const _LearningCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Container(
+        height: 180,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Center(
+          child: _SkeletonBox(width: 200, height: 20),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlayRelaxSectionSkeleton extends StatelessWidget {
+  const _PlayRelaxSectionSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Container(
+        height: 220,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.orange[300]!, Colors.orange[400]!],
+          ),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: const Center(
+          child: _SkeletonBox(width: 180, height: 24),
+        ),
+      ),
+    );
+  }
+}
+
+ class _SkeletonBox extends StatelessWidget {
+   const _SkeletonBox({
+     this.width,
+     this.height,
+     this.borderRadius = 0,
+   });
+
+   final double? width, height;
+   final double borderRadius;
+
+   @override
+   Widget build(BuildContext context) {
+     return NeuroShimmer(
+       child: Container(
+         width: width,
+         height: height,
+         decoration: BoxDecoration(
+           color: Colors.grey[300],
+           borderRadius: BorderRadius.circular(borderRadius),
+         ),
+       ),
+     );
+   }
+ }
+
+class _SkeletonCircle extends StatelessWidget {
+  const _SkeletonCircle({required this.radius, this.color});
+
+  final double radius;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: radius * 2,
+      height: radius * 2,
+      decoration: BoxDecoration(
+        color: color ?? Colors.grey[300],
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 class _Orb extends StatelessWidget {
   const _Orb({required this.size, required this.color});
@@ -1272,6 +1642,6 @@ class _Orb extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         width: size, height: size,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-      );
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+    );
 }

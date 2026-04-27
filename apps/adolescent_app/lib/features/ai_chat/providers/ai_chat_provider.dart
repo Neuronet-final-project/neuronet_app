@@ -89,6 +89,17 @@ class AiChat extends _$AiChat {
     );
   }
 
+  static const List<String> _clinicalKeywords = [
+    'suicide', 'kill myself', 'self-harm', 'harm', 'depression',
+    'anxiety', 'clinical', 'help me', 'crisis', 'emergency',
+    'hurt myself', 'end my life', 'depressed'
+  ];
+
+  bool _containsClinicalKeywords(String content) {
+    final lowerContent = content.toLowerCase();
+    return _clinicalKeywords.any((keyword) => lowerContent.contains(keyword));
+  }
+
   Future<void> sendMessage(String content) async {
     if (content.trim().isEmpty) return;
 
@@ -132,6 +143,28 @@ class AiChat extends _$AiChat {
         error: null,
       ),
     );
+
+    // Clinical keyword check
+    if (_containsClinicalKeywords(content)) {
+      await Future.delayed(const Duration(milliseconds: 800)); // Simulate thinking
+      
+      final safetyMessage = ChatMessage(
+        messageId: 'safety-${DateTime.now().millisecondsSinceEpoch}',
+        senderId: 'ai-safety',
+        receiverId: userId,
+        messageContent: "I'm an AI and can't help with clinical crises or medical issues. If you're feeling overwhelmed or need urgent support, please talk to your counselor immediately or contact emergency services.",
+        timestamp: DateTime.now(),
+        messageType: MessageType.aiChat,
+      );
+
+      state = AsyncData(
+        state.value!.copyWith(
+          messages: [...state.value!.messages, safetyMessage],
+          isTyping: false,
+        ),
+      );
+      return;
+    }
 
     // Send to backend — returns user message + AI response for this exchange
     // We keep all previous messages and append the AI response
