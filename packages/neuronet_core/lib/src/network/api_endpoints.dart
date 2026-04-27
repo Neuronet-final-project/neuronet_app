@@ -101,6 +101,14 @@ class ApiEndpoints {
   static String pageFollowCount(String slug) => '/educational-follows/page/$slug/follow-count';
   static String isPageFollowed(String slug) => '/educational-follows/page/$slug/is-followed';
 
+  // Category Following
+  static String followCategory(String category) => '/category-follows/follow/$category';
+  static String unfollowCategory(String category) => '/category-follows/unfollow/$category';
+  static const String myFollowedCategories = '/category-follows/my-followed-categories';
+  static const String myFeed = '/category-follows/my-feed';
+  static String isCategoryFollowed(String category) => '/category-follows/is-followed/$category';
+  static const String availableCategories = '/category-follows/available-categories';
+
   // AI Recommendations (FR-31)
   static const String analyzeAndRecommend = '/ai-recommendations/analyze-and-recommend';
   static const String myAIRecommendations = '/ai-recommendations/my-recommendations';

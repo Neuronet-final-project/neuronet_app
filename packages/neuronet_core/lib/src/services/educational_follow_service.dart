@@ -136,6 +136,64 @@ class EducationalFollowService {
       return Result.failure(failureFromException(e));
     }
   }
+
+  // ========== Category Following Methods ==========
+
+  /// Follow a category by its value (e.g., "anxiety", "depression")
+  Future<Result<CategoryFollow>> followCategory(String category) async {
+    try {
+      final response = await _client.post(
+        ApiEndpoints.followCategory(category),
+        data: {},
+      );
+      final follow = CategoryFollow.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+      return Result.success(follow);
+    } catch (e) {
+      debugPrint('[EducationalFollowService] followCategory ERROR: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Unfollow a category by its value
+  Future<Result<void>> unfollowCategory(String category) async {
+    try {
+      await _client.delete(ApiEndpoints.unfollowCategory(category));
+      return const Result.success(null);
+    } catch (e) {
+      debugPrint('[EducationalFollowService] unfollowCategory ERROR: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Get all categories followed by the current adolescent
+  Future<Result<List<CategoryFollow>>> getFollowedCategories() async {
+    try {
+      final response = await _client.get(ApiEndpoints.myFollowedCategories);
+      final list = response.data as List<dynamic>;
+      final followedCategories = list
+          .map((json) => CategoryFollow.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(followedCategories);
+    } catch (e) {
+      debugPrint('[EducationalFollowService] getFollowedCategories ERROR: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Check if a specific category is followed by the current adolescent
+  Future<Result<bool>> isCategoryFollowed(String category) async {
+    try {
+      final response = await _client.get(ApiEndpoints.isCategoryFollowed(category));
+      final data = response.data as Map<String, dynamic>;
+      final isFollowed = data['is_followed'] as bool? ?? false;
+      return Result.success(isFollowed);
+    } catch (e) {
+      debugPrint('[EducationalFollowService] isCategoryFollowed ERROR: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
 }
 
 @riverpod

@@ -88,3 +88,26 @@ abstract class Recommendation with _$Recommendation {
     );
   }
 }
+
+@freezed
+abstract class Category with _$Category {
+  const factory Category({
+    @JsonKey(name: 'value') required String value,
+    @JsonKey(name: 'label') required String label,
+    @JsonKey(name: 'description') required String description,
+    @JsonKey(name: 'article_count') @Default(0) int articleCount,
+    @JsonKey(name: 'follower_count') @Default(0) int followerCount,
+    @JsonKey(name: 'is_followed') @Default(false) bool isFollowed,
+  }) = _Category;
+
+  factory Category.fromJson(Map<String, dynamic> json) {
+    return Category(
+      value: json['value'] as String? ?? '',
+      label: json['label'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      articleCount: json['article_count'] as int? ?? 0,
+      followerCount: json['follower_count'] as int? ?? 0,
+      isFollowed: json['is_followed'] as bool? ?? false,
+    );
+  }
+}

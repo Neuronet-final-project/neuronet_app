@@ -92,3 +92,34 @@ abstract class FollowedPageSummary with _$FollowedPageSummary {
     );
   }
 }
+
+@freezed
+abstract class CategoryFollow with _$CategoryFollow {
+  const factory CategoryFollow({
+    @JsonKey(name: 'id') required String id,
+    @JsonKey(name: 'adolescent_id') required String adolescentId,
+    @JsonKey(name: 'category') required String category,
+    @JsonKey(name: 'category_label') required String categoryLabel,
+    @JsonKey(name: 'followed_at') required DateTime followedAt,
+    @JsonKey(name: 'is_active') @Default(true) bool isActive,
+    @JsonKey(name: 'article_count') @Default(0) int articleCount,
+  }) = _CategoryFollow;
+
+  factory CategoryFollow.fromJson(Map<String, dynamic> json) {
+    final id = json['_id'] ?? json['id'] ?? 'none';
+    final followedAtStr = json['followed_at'] ?? json['created_at'];
+    final followedAt = followedAtStr != null 
+        ? DateTime.parse(followedAtStr as String) 
+        : DateTime.now();
+
+    return CategoryFollow(
+      id: id as String,
+      adolescentId: json['adolescent_id'] as String? ?? '',
+      category: json['category'] as String? ?? '',
+      categoryLabel: json['category_label'] as String? ?? '',
+      followedAt: followedAt,
+      isActive: json['is_active'] as bool? ?? true,
+      articleCount: json['article_count'] as int? ?? 0,
+    );
+  }
+}

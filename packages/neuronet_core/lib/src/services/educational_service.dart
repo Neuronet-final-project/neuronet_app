@@ -124,6 +124,38 @@ class EducationalService {
       return Result.failure(failureFromException(e));
     }
   }
+
+  // ========== Category Methods ==========
+
+  /// Get all available categories with article counts and follow status
+  Future<Result<List<Category>>> getAvailableCategories() async {
+    try {
+      final response = await _client.get(ApiEndpoints.availableCategories);
+      final list = response.data as List<dynamic>;
+      final categories = list
+          .map((json) => Category.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(categories);
+    } catch (e) {
+      debugPrint('[EducationalService] getAvailableCategories ERROR: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Get personalized feed of articles from followed categories
+  Future<Result<List<EducationalPage>>> getMyFeed() async {
+    try {
+      final response = await _client.get(ApiEndpoints.myFeed);
+      final list = response.data as List<dynamic>;
+      final articles = list
+          .map((json) => EducationalPage.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return Result.success(articles);
+    } catch (e) {
+      debugPrint('[EducationalService] getMyFeed ERROR: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
 }
 
 @riverpod
