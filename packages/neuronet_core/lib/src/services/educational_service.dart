@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../errors/failures.dart';
 import '../models/models.dart';
