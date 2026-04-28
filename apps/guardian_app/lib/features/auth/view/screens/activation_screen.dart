@@ -25,12 +25,46 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
   final _passwordFocus = FocusNode();
   final _confirmPasswordFocus = FocusNode();
 
-  final _formKey = GlobalKey<FormState>();
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-  bool _isInitialized = false;
+   final _formKey = GlobalKey<FormState>();
+   bool _obscurePassword = true;
+   bool _obscureConfirmPassword = true;
+   bool _isInitialized = false;
 
-  // Entrance animation
+   // Email validation regex
+   static final RegExp _emailRegex = RegExp(
+     r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$',
+   );
+
+   String? _validateEmail(String? value) {
+     if (value == null || value.isEmpty) {
+       return 'Please enter your email';
+     }
+     final trimmed = value.trim();
+     if (!_emailRegex.hasMatch(trimmed)) {
+       return 'Please enter a valid email address';
+     }
+     final parts = trimmed.split('@');
+     if (parts.length != 2) {
+       return 'Please enter a valid email address';
+     }
+     final domain = parts[1];
+     if (!domain.contains('.') || domain.indexOf('.') == 0 || domain.lastIndexOf('.') == domain.length - 1) {
+       return 'Please enter a valid email address';
+     }
+     return null;
+   }
+
+   String? _validatePassword(String? value) {
+     if (value == null || value.isEmpty) {
+       return 'Create a password';
+     }
+     if (value.length < 6) {
+       return 'Password must be at least 6 characters';
+     }
+     return null;
+   }
+
+   // Entrance animation
   late AnimationController _enterCtrl;
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
@@ -248,7 +282,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                                   icon: Icons.alternate_email_rounded,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
-                                  validator: (v) => (v == null || !v.contains('@')) ? 'Invalid email' : null,
+                                   validator: (v) => _validateEmail(v),
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_codeFocus),
                                 ),
                                 const SizedBox(height: 12),
@@ -281,7 +315,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                                     ),
                                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                   ),
-                                  validator: (v) => (v == null || v.length < 6) ? 'Min 6 characters' : null,
+                                   validator: (v) => _validatePassword(v),
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_confirmPasswordFocus),
                                 ),
                                 const SizedBox(height: 12),
@@ -302,7 +336,15 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                                     ),
                                     onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                                   ),
-                                  validator: (v) => (v != _passwordController.text) ? 'Passwords do not match' : null,
+                                   validator: (v) {
+                                     if (v == null || v.isEmpty) {
+                                       return 'Confirm your password';
+                                     }
+                                     if (v != _passwordController.text) {
+                                       return 'Passwords do not match';
+                                     }
+                                     return null;
+                                   },
                                   onFieldSubmitted: (_) => _handleActivate(),
                                 ),
                                 const SizedBox(height: 24),

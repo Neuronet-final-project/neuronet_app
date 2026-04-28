@@ -19,6 +19,30 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
+  // Email validation regex
+  static final RegExp _emailRegex = RegExp(
+    r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$',
+  );
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email';
+    }
+    final trimmed = value.trim();
+    if (!_emailRegex.hasMatch(trimmed)) {
+      return 'Please enter a valid email address';
+    }
+    final parts = trimmed.split('@');
+    if (parts.length != 2) {
+      return 'Please enter a valid email address';
+    }
+    final domain = parts[1];
+    if (!domain.contains('.') || domain.indexOf('.') == 0 || domain.lastIndexOf('.') == domain.length - 1) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -140,10 +164,11 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter your email';
-                      return null;
-                    },
+                     validator: (value) {
+                       if (value == null || value.isEmpty) return 'Please enter your email';
+                       if (!_emailRegex.hasMatch(value.trim())) return 'Please enter a valid email address';
+                       return null;
+                     },
                   ),
                   const SizedBox(height: 16),
                   
