@@ -3,13 +3,50 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 
-class EducationalPageDetailScreen extends ConsumerWidget {
+class EducationalPageDetailScreen extends ConsumerStatefulWidget {
   const EducationalPageDetailScreen({
     super.key,
     required this.page,
   });
 
   final EducationalPage page;
+
+  @override
+  ConsumerState<EducationalPageDetailScreen> createState() => _EducationalPageDetailScreenState();
+}
+
+class _EducationalPageDetailScreenState extends ConsumerState<EducationalPageDetailScreen> {
+  EducationalPage? _fetchedPage;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPageWithAnalytics();
+  }
+
+  Future<void> _fetchPageWithAnalytics() async {
+    final service = ref.read(educationalServiceProvider);
+    final result = await service.getPage(widget.page.slug);
+    
+    result.when(
+      success: (page) {
+        if (mounted) {
+          setState(() {
+            _fetchedPage = page;
+            _isLoading = false;
+          });
+        }
+      },
+      failure: (failure) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      },
+    );
+  }
 
   Color _getDifficultyColor(String difficulty) {
     switch (difficulty.toLowerCase()) {
@@ -25,8 +62,18 @@ class EducationalPageDetailScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final page = _fetchedPage ?? widget.page;
+
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: theme.colorScheme.surface,
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
