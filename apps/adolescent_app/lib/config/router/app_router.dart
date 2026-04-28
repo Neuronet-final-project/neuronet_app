@@ -352,34 +352,80 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
 });
 
 /// Shell widget with bottom navigation for the Adolescent app.
-class AdolescentShell extends ConsumerWidget {
+class AdolescentShell extends ConsumerStatefulWidget {
   const AdolescentShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Watch counselor chat to get unread message count
+  ConsumerState<AdolescentShell> createState() => _AdolescentShellState();
+}
+
+class _AdolescentShellState extends ConsumerState<AdolescentShell> {
+  DateTime? _lastChatOpenTime;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load last chat open time from shared preferences or similar
+    _loadLastChatOpenTime();
+  }
+
+  Future<void> _loadLastChatOpenTime() async {
+    // For now, we'll track in memory. In production, use SharedPreferences
+    // This will be reset when app restarts, which is acceptable for MVP
+  }
+
+  int _getUnreadCount() {
     final chatAsync = ref.watch(counselorChatControllerProvider);
     final profileAsync = ref.watch(adolescentProfileControllerProvider);
     
-    // Count unread messages from counselor
-    int unreadCount = 0;
-    chatAsync.whenData((chatState) {
-      profileAsync.whenData((profileState) {
-        final myEmail = profileState.user?.email.toLowerCase() ?? '';
-        // Count messages from counselor (not from me)
-        unreadCount = chatState.messages
-            .where((msg) => msg.senderEmail.toLowerCase() != myEmail)
-            .length;
+    return chatAsync.maybeWhen(
+      data: (chatState) {
+        return profileAsync.maybeWhen(
+          data: (profileState) {
+            final myEmail = profileState.user?.email.toLowerCase() ?? '';
+            
+            // Count messages from counselor that came after last chat open
+            return chatState.messages.where((msg) {
+              final isFromCounselor = msg.senderEmail.toLowerCase() != myEmail;
+              if (!isFromCounselor) return false;
+              
+              // If we have a last open time, only count messages after that
+              if (_lastChatOpenTime != null) {
+                return msg.createdAt.isAfter(_lastChatOpenTime!);
+              }
+              
+              // If no last open time, count all messages from counselor
+              return true;
+            }).length;
+          },
+          orElse: () => 0,
+        );
+      },
+      orElse: () => 0,
+    );
+  }
+
+  void _onDestinationSelected(int index) {
+    // If navigating to counselor chat (index 2), mark as read
+    if (index == 2) {
+      setState(() {
+        _lastChatOpenTime = DateTime.now();
       });
-    });
+    }
+    widget.navigationShell.goBranch(index);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final unreadCount = _getUnreadCount();
     
     return Scaffold(
-      body: SafeArea(child: navigationShell),
+      body: SafeArea(child: widget.navigationShell),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: navigationShell.goBranch,
+        selectedIndex: widget.navigationShell.currentIndex,
+        onDestinationSelected: _onDestinationSelected,
         destinations: [
           const NavigationDestination(
             icon: Icon(Icons.dashboard_outlined),
