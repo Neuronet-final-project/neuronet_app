@@ -57,6 +57,7 @@ class ApiEndpoints {
   static const String conversations = '/messaging/conversations';
   static String conversationMessages(String id) => '/messaging/conversations/$id/messages';
   static String sendConversationMessage(String id) => '/messaging/conversations/$id/messages'; // POST
+  static String markConversationAsRead(String id) => '/messaging/conversations/$id/mark-read'; // POST
   static const String uploadMedia = '/messaging/upload';
 
   // Voice/Video Calls

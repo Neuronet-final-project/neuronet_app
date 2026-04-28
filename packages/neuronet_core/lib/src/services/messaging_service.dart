@@ -152,4 +152,21 @@ class MessagingService {
       return Result.failure(failureFromException(e));
     }
   }
+
+  /// Marks all messages in a conversation as read by the current user.
+  Future<Result<void>> markConversationAsRead(String conversationId) async {
+    try {
+      debugPrint('[MessagingService] Marking conversation as read: $conversationId');
+      
+      await _apiClient.post(
+        ApiEndpoints.markConversationAsRead(conversationId),
+      );
+      
+      debugPrint('[MessagingService] ✓ Conversation marked as read');
+      return const Result.success(null);
+    } catch (e) {
+      debugPrint('[MessagingService] Failed to mark conversation as read: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
 }

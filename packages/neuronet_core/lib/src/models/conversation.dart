@@ -39,6 +39,7 @@ abstract class ConversationMessage with _$ConversationMessage {
     @JsonKey(name: 'attachment_url') String? attachmentUrl,
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'is_edited') @Default(false) bool isEdited,
+    @JsonKey(name: 'is_read') @Default(false) bool isRead,
   }) = _ConversationMessage;
 
   factory ConversationMessage.fromJson(Map<String, dynamic> json) =>

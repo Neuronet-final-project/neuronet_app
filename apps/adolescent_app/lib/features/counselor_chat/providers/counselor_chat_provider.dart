@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
@@ -21,12 +22,19 @@ abstract class CounselorChatState with _$CounselorChatState {
 class CounselorChatController extends _$CounselorChatController {
   String? _conversationId;
   bool _isSending = false;
+  Timer? _autoRefreshTimer;
 
   /// Whether a message is currently being sent to the backend.
   bool get isSending => _isSending;
 
   @override
   FutureOr<CounselorChatState> build() async {
+    // Clean up timer when provider is disposed
+    ref.onDispose(() {
+      _autoRefreshTimer?.cancel();
+      _autoRefreshTimer = null;
+    });
+
     final profileState = await ref.watch(adolescentProfileControllerProvider.future);
     final user = profileState.user;
 
@@ -66,6 +74,10 @@ class CounselorChatController extends _$CounselorChatController {
         
         if (messagesResult.isSuccess) {
           debugPrint('[CounselorChat] ✓ Loaded ${messagesResult.value.length} message(s)');
+          
+          // Start auto-refresh timer to check for new messages every 10 seconds
+          _startAutoRefresh();
+          
           return CounselorChatState(
             conversation: existingConversation,
             counselorEmail: counselorEmail,
@@ -99,6 +111,38 @@ class CounselorChatController extends _$CounselorChatController {
       conversation: existingConversation,
       counselorEmail: counselorEmail,
     );
+  }
+
+  /// Starts a timer to automatically refresh messages every 10 seconds
+  void _startAutoRefresh() {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      _silentRefresh();
+    });
+    debugPrint('[CounselorChat] ✓ Auto-refresh started (every 10 seconds)');
+  }
+
+  /// Silently refreshes messages without showing loading state
+  Future<void> _silentRefresh() async {
+    if (_conversationId == null) return;
+    
+    try {
+      final result = await ref.read(messagingServiceProvider).getMessages(_conversationId!);
+      if (result.isSuccess) {
+        final currentState = state.value;
+        if (currentState != null) {
+          final newMessageCount = result.value.length;
+          final oldMessageCount = currentState.messages.length;
+          
+          if (newMessageCount != oldMessageCount) {
+            debugPrint('[CounselorChat] 🔄 Silent refresh: $oldMessageCount → $newMessageCount messages');
+            state = AsyncValue.data(currentState.copyWith(messages: result.value));
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[CounselorChat] ⚠ Silent refresh failed: $e');
+    }
   }
 
   /// Initialize conversation after approval is granted
@@ -151,6 +195,10 @@ class CounselorChatController extends _$CounselorChatController {
           final preview = m.content.substring(0, m.content.length.clamp(0, 60));
           debugPrint('[CounselorChat]   [$i] ${m.senderRole} | ${m.createdAt} | "$preview"');
         }
+        
+        // Start auto-refresh timer
+        _startAutoRefresh();
+        
         state = AsyncValue.data(CounselorChatState(
           conversation: conversation,
           counselorEmail: counselorEmail,
@@ -303,6 +351,27 @@ class CounselorChatController extends _$CounselorChatController {
         messages: result.value,
       );
     });
+  }
+
+  /// Marks all messages in the conversation as read by calling the backend
+  Future<void> markMessagesAsRead() async {
+    if (_conversationId == null) return;
+    
+    debugPrint('[CounselorChat] ── Marking messages as read ──');
+    
+    try {
+      final result = await ref.read(messagingServiceProvider).markConversationAsRead(_conversationId!);
+      
+      if (result.isSuccess) {
+        debugPrint('[CounselorChat] ✓ Messages marked as read');
+        // Refresh to get updated isRead status
+        await _silentRefresh();
+      } else {
+        debugPrint('[CounselorChat] ⚠ Failed to mark as read: ${result.failure.message}');
+      }
+    } catch (e) {
+      debugPrint('[CounselorChat] ✗ Error marking as read: $e');
+    }
   }
 
   /// Gets the current conversation ID for use in call initiation.

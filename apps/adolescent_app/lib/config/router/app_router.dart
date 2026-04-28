@@ -362,8 +362,6 @@ class AdolescentShell extends ConsumerStatefulWidget {
 }
 
 class _AdolescentShellState extends ConsumerState<AdolescentShell> {
-  int? _lastSeenMessageCount;
-
   int _getUnreadCount() {
     final chatAsync = ref.watch(counselorChatControllerProvider);
     final profileAsync = ref.watch(adolescentProfileControllerProvider);
@@ -374,29 +372,14 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
           data: (profileState) {
             final myEmail = profileState.user?.email.toLowerCase() ?? '';
             
-            // Count all messages from counselor
-            final counselorMessages = chatState.messages.where((msg) {
-              return msg.senderEmail.toLowerCase() != myEmail;
-            }).toList();
+            // Count unread messages from counselor using the isRead field from backend
+            final unreadCount = chatState.messages.where((msg) {
+              final isFromCounselor = msg.senderEmail.toLowerCase() != myEmail;
+              final isUnread = !msg.isRead;
+              return isFromCounselor && isUnread;
+            }).length;
             
-            final currentCount = counselorMessages.length;
-            
-            // If we haven't set a baseline yet, set it now and show 0
-            if (_lastSeenMessageCount == null) {
-              // Use a post-frame callback to avoid setState during build
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  setState(() {
-                    _lastSeenMessageCount = currentCount;
-                  });
-                }
-              });
-              return 0;
-            }
-            
-            // Calculate new messages since last seen
-            final newMessages = currentCount - _lastSeenMessageCount!;
-            return newMessages > 0 ? newMessages : 0;
+            return unreadCount;
           },
           orElse: () => 0,
         );
@@ -406,23 +389,10 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
   }
 
   void _onDestinationSelected(int index) {
-    // If navigating to counselor chat (index 2), update last seen count
+    // If navigating to counselor chat (index 2), mark messages as read
     if (index == 2) {
-      final chatAsync = ref.read(counselorChatControllerProvider);
-      final profileAsync = ref.read(adolescentProfileControllerProvider);
-      
-      chatAsync.whenData((chatState) {
-        profileAsync.whenData((profileState) {
-          final myEmail = profileState.user?.email.toLowerCase() ?? '';
-          final counselorMessages = chatState.messages.where((msg) {
-            return msg.senderEmail.toLowerCase() != myEmail;
-          }).length;
-          
-          setState(() {
-            _lastSeenMessageCount = counselorMessages;
-          });
-        });
-      });
+      final controller = ref.read(counselorChatControllerProvider.notifier);
+      controller.markMessagesAsRead();
     }
     widget.navigationShell.goBranch(index);
   }
