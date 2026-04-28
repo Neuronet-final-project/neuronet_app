@@ -1176,7 +1176,19 @@ class _InsightsBanner extends ConsumerWidget {
       data: (state) {
         final alerts = state.alerts;
         if (alerts.isEmpty) return const SizedBox.shrink();
-        final alert = alerts.first;
+        
+        // Sort alerts by created_at (most recent first) and prioritize unread
+        final sortedAlerts = [...alerts];
+        sortedAlerts.sort((a, b) {
+          // First, prioritize unread alerts
+          if (!a.viewedStatus && b.viewedStatus) return -1;
+          if (a.viewedStatus && !b.viewedStatus) return 1;
+          
+          // Then sort by creation date (most recent first)
+          return b.createdAt.compareTo(a.createdAt);
+        });
+        
+        final alert = sortedAlerts.first;
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
