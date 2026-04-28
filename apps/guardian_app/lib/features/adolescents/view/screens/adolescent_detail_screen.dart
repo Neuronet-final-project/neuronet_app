@@ -44,11 +44,11 @@ class AdolescentDetailScreen extends ConsumerWidget {
           ),
           detailState.when(
             data: (state) {
-              if (state.isLoading && state.profile == null) {
-                return const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
+               if (state.isLoading && state.profile == null) {
+                 return const SliverFillRemaining(
+                   child: _DetailShimmerSkeleton(),
+                 );
+               }
 
               if (state.error != null && state.profile == null) {
                 return SliverFillRemaining(
@@ -70,7 +70,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
               );
             },
             loading: () => const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
+              child: _DetailShimmerSkeleton(),
             ),
             error: (err, stack) => SliverFillRemaining(
               child: _buildErrorState(ref, 'Error: $err', adolescentId),
@@ -483,17 +483,253 @@ class AdolescentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(WidgetRef ref, String message, String id) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: NeuroErrorWidget(
-          message: message,
-          onRetry: () => ref
-              .read(adolescentDetailControllerProvider(id).notifier)
-              .refresh(),
+   Widget _buildErrorState(WidgetRef ref, String message, String id) {
+     return Center(
+       child: Padding(
+         padding: const EdgeInsets.all(24.0),
+         child: NeuroErrorWidget(
+           message: message,
+           onRetry: () => ref
+               .read(adolescentDetailControllerProvider(id).notifier)
+               .refresh(),
+         ),
+       ),
+     );
+   }
+ }
+
+// ─── Shimmer Loading Skeleton ──────────────────────────────────────────────────
+class _DetailShimmerSkeleton extends StatelessWidget {
+  const _DetailShimmerSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        // App Bar placeholder (static, no shimmer needed)
+        const SliverToBoxAdapter(child: SizedBox()),
+
+        // Content skeleton
+        SliverToBoxAdapter(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+
+              // Hero profile skeleton
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: GuardianBentoCard(
+                  padding: const EdgeInsets.all(24),
+                  child: Row(
+                    children: [
+                      // Avatar skeleton
+                      NeuroShimmer(
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _SkeletonBox(width: 180, height: 28, borderRadius: 8),
+                            const SizedBox(height: 12),
+                            _SkeletonBox(width: 200, height: 16, borderRadius: 6),
+                            const SizedBox(height: 16),
+                            _SkeletonBox(width: 120, height: 20, borderRadius: 20),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Intervention Hub section
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: _SkeletonBox(width: 150, height: 16, borderRadius: 4),
+              ),
+
+              // Action grid skeleton
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _ActionCardSkeleton(),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _ActionCardSkeleton(),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Registration Details section
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: _SkeletonBox(width: 180, height: 18, borderRadius: 4),
+              ),
+
+              // Details card skeleton
+              GuardianBentoCard(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    _DetailRowSkeleton(),
+                    const Divider(height: 24, thickness: 0.5),
+                    _DetailRowSkeleton(),
+                    const Divider(height: 24, thickness: 0.5),
+                    _DetailRowSkeleton(),
+                    const Divider(height: 24, thickness: 0.5),
+                    _DetailRowSkeleton(),
+                    const Divider(height: 24, thickness: 0.5),
+                    _DetailRowSkeleton(),
+                  ],
+                ),
+              ).animate().fadeIn(delay: 400.ms),
+
+              const SizedBox(height: 32),
+
+              // Active Permissions section
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: _SkeletonBox(width: 180, height: 18, borderRadius: 4),
+              ),
+
+              // Permissions card skeleton
+              GuardianBentoCard(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: List.generate(
+                    2,
+                    (_) => Column(
+                      children: [
+                        _ConsentRowSkeleton(),
+                        const Divider(height: 24, thickness: 0.5),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 48),
+
+              // Unlink button placeholder
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _SkeletonBox(width: double.infinity, height: 54, borderRadius: 16),
+              ),
+
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Skeleton Components ───────────────────────────────────────────────────────
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({
+    this.width,
+    this.height,
+    this.borderRadius = 0,
+  });
+
+  final double? width, height;
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return NeuroShimmer(
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
     );
   }
 }
+
+class _ActionCardSkeleton extends StatelessWidget {
+  const _ActionCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return GuardianBentoCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SkeletonBox(
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+          ),
+          const SizedBox(height: 12),
+          _SkeletonBox(width: 100, height: 18, borderRadius: 6),
+          const SizedBox(height: 6),
+          _SkeletonBox(width: 80, height: 14, borderRadius: 4),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRowSkeleton extends StatelessWidget {
+  const _DetailRowSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: _SkeletonBox(width: 100, height: 16, borderRadius: 4),
+        ),
+        const SizedBox(width: 12),
+        _SkeletonBox(width: 120, height: 16, borderRadius: 4),
+      ],
+    );
+  }
+}
+
+class _ConsentRowSkeleton extends StatelessWidget {
+  const _ConsentRowSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _SkeletonBox(width: 20, height: 20, borderRadius: 10),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _SkeletonBox(width: 140, height: 16, borderRadius: 4),
+        ),
+        const SizedBox(width: 12),
+        _SkeletonBox(width: 50, height: 24, borderRadius: 6),
+      ],
+    );
+  }
+}
+

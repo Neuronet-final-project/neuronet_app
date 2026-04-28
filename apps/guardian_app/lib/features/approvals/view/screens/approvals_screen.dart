@@ -90,7 +90,7 @@ class ApprovalsScreen extends ConsumerWidget {
             ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+         loading: () => const _ApprovalsLoadingShimmer(),
         error: (err, stack) => Center(
           child: NeuroErrorWidget(
             message: 'Failed to load approval requests',
@@ -423,18 +423,233 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
     );
   }
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
+   String _formatDate(DateTime date) {
+     final now = DateTime.now();
+     final diff = now.difference(date);
 
-    if (diff.inDays > 0) {
-      return '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
-    } else if (diff.inHours > 0) {
-      return '${diff.inHours} hour${diff.inHours > 1 ? 's' : ''} ago';
-    } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes} minute${diff.inMinutes > 1 ? 's' : ''} ago';
-    } else {
-      return 'Just now';
-    }
+     if (diff.inDays > 0) {
+       return '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
+     } else if (diff.inHours > 0) {
+       return '${diff.inHours} hour${diff.inHours > 1 ? 's' : ''} ago';
+     } else if (diff.inMinutes > 0) {
+       return '${diff.inMinutes} minute${diff.inMinutes > 1 ? 's' : ''} ago';
+     } else {
+       return 'Just now';
+     }
+   }
+ }
+
+// ─── Shimmer Loading for Tab Body ─────────────────────────────────────────────
+class _ApprovalsLoadingShimmer extends StatelessWidget {
+  const _ApprovalsLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // TabBar placeholder (static shimmer bars)
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Row(
+            children: [
+              // Pending tab placeholder
+              Expanded(
+                child: Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _SkeletonBox(width: 60, height: 16, borderRadius: 4),
+                      const SizedBox(width: 8),
+                      _SkeletonBox(width: 20, height: 18, borderRadius: 9),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // History tab placeholder
+              Expanded(
+                child: Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: _SkeletonBox(width: 70, height: 16, borderRadius: 4),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Shimmer list for both tabs
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 3,
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
+            itemBuilder: (context, index) => const _ApprovalCardSkeleton(),
+          ),
+        ),
+      ],
+    );
+   }
+ }
+
+class _ApprovalCardSkeleton extends StatelessWidget {
+  const _ApprovalCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row: avatar + name + status
+            Row(
+              children: [
+                // Avatar skeleton
+                NeuroShimmer(
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _SkeletonBox(width: 140, height: 18, borderRadius: 6),
+                      const SizedBox(height: 6),
+                      _SkeletonBox(width: 180, height: 14, borderRadius: 4),
+                    ],
+                  ),
+                ),
+                // Status badge skeleton
+                _SkeletonBox(width: 70, height: 24, borderRadius: 12),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Counselor info
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  _SkeletonBox(width: 16, height: 16, borderRadius: 4),
+                  const SizedBox(width: 8),
+                  _SkeletonBox(width: 80, height: 14, borderRadius: 4),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // Reason box (optional)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      _SkeletonBox(width: 16, height: 16, borderRadius: 4),
+                      const SizedBox(width: 8),
+                      _SkeletonBox(width: 50, height: 12, borderRadius: 4),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  _SkeletonBox(width: double.infinity, height: 12, borderRadius: 4),
+                  _SkeletonBox(width: double.infinity, height: 12, borderRadius: 4),
+                  _SkeletonBox(width: 200, height: 12, borderRadius: 4),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // Date text
+            _SkeletonBox(width: 120, height: 12, borderRadius: 4),
+
+            const SizedBox(height: 16),
+
+            // Action buttons
+            Row(
+              children: [
+                Expanded(
+                  child: _SkeletonBox(
+                    width: double.infinity,
+                    height: 44,
+                    borderRadius: 12,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _SkeletonBox(
+                    width: double.infinity,
+                    height: 44,
+                    borderRadius: 12,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
+
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({
+    this.width,
+    this.height,
+    this.borderRadius = 0,
+  });
+
+  final double? width, height;
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return NeuroShimmer(
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+      ),
+    );
+  }
+}
+
