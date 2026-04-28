@@ -169,4 +169,40 @@ class MessagingService {
       return Result.failure(failureFromException(e));
     }
   }
+
+  /// Gets the unread message count for a specific conversation.
+  Future<Result<int>> getUnreadCount(String conversationId) async {
+    try {
+      debugPrint('[MessagingService] Fetching unread count for conversation: $conversationId');
+      
+      final response = await _apiClient.get(
+        ApiEndpoints.conversationUnreadCount(conversationId),
+      );
+      
+      final count = response.data['unread_count'] as int? ?? 0;
+      debugPrint('[MessagingService] Unread count: $count');
+      return Result.success(count);
+    } catch (e) {
+      debugPrint('[MessagingService] Failed to get unread count: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Gets the total unread message count across all conversations.
+  Future<Result<int>> getTotalUnreadCount() async {
+    try {
+      debugPrint('[MessagingService] Fetching total unread count');
+      
+      final response = await _apiClient.get(
+        ApiEndpoints.totalUnreadCount,
+      );
+      
+      final count = response.data['total_unread_count'] as int? ?? 0;
+      debugPrint('[MessagingService] Total unread count: $count');
+      return Result.success(count);
+    } catch (e) {
+      debugPrint('[MessagingService] Failed to get total unread count: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
 }

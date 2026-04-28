@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -377,3 +378,28 @@ class CounselorChatController extends _$CounselorChatController {
   /// Gets the current conversation ID for use in call initiation.
   String? get conversationId => _conversationId;
 }
+
+/// Simple provider for total unread message count
+final totalUnreadMessageCountProvider = FutureProvider.autoDispose<int>((ref) async {
+  final messagingService = ref.watch(messagingServiceProvider);
+  final result = await messagingService.getTotalUnreadCount();
+  
+  return result.when(
+    success: (count) => count,
+    failure: (f) {
+      debugPrint('[TotalUnreadCount] Failed to fetch: ${f.message}');
+      return 0;
+    },
+  );
+});
+
+/// Provider that auto-refreshes unread count every 5 seconds
+final autoRefreshUnreadCountProvider = StreamProvider.autoDispose<int>((ref) {
+  return Stream.periodic(const Duration(seconds: 5), (_) {
+    // Trigger a refresh by invalidating the future provider
+    ref.invalidate(totalUnreadMessageCountProvider);
+  }).asyncMap((_) async {
+    // Wait for the future provider to complete
+    return await ref.watch(totalUnreadMessageCountProvider.future);
+  });
+});

@@ -58,6 +58,8 @@ class ApiEndpoints {
   static String conversationMessages(String id) => '/messaging/conversations/$id/messages';
   static String sendConversationMessage(String id) => '/messaging/conversations/$id/messages'; // POST
   static String markConversationAsRead(String id) => '/messaging/conversations/$id/mark-read'; // POST
+  static String conversationUnreadCount(String id) => '/messaging/conversations/$id/unread-count';
+  static const String totalUnreadCount = '/messaging/unread-count/total';
   static const String uploadMedia = '/messaging/upload';
 
   // Voice/Video Calls

@@ -363,28 +363,13 @@ class AdolescentShell extends ConsumerStatefulWidget {
 
 class _AdolescentShellState extends ConsumerState<AdolescentShell> {
   int _getUnreadCount() {
-    final chatAsync = ref.watch(counselorChatControllerProvider);
-    final profileAsync = ref.watch(adolescentProfileControllerProvider);
+    // Use the totalUnreadMessageCount provider
+    final totalUnreadAsync = ref.watch(totalUnreadMessageCountProvider);
     
-    return chatAsync.maybeWhen(
-      data: (chatState) {
-        return profileAsync.maybeWhen(
-          data: (profileState) {
-            final myEmail = profileState.user?.email.toLowerCase() ?? '';
-            
-            // Count unread messages from counselor using the isRead field from backend
-            final unreadCount = chatState.messages.where((msg) {
-              final isFromCounselor = msg.senderEmail.toLowerCase() != myEmail;
-              final isUnread = !msg.isRead;
-              return isFromCounselor && isUnread;
-            }).length;
-            
-            return unreadCount;
-          },
-          orElse: () => 0,
-        );
-      },
-      orElse: () => 0,
+    return totalUnreadAsync.when(
+      data: (count) => count,
+      loading: () => 0,
+      error: (_, __) => 0,
     );
   }
 
