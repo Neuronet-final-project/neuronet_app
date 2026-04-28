@@ -362,19 +362,7 @@ class AdolescentShell extends ConsumerStatefulWidget {
 }
 
 class _AdolescentShellState extends ConsumerState<AdolescentShell> {
-  DateTime? _lastChatOpenTime;
-
-  @override
-  void initState() {
-    super.initState();
-    // Load last chat open time from shared preferences or similar
-    _loadLastChatOpenTime();
-  }
-
-  Future<void> _loadLastChatOpenTime() async {
-    // For now, we'll track in memory. In production, use SharedPreferences
-    // This will be reset when app restarts, which is acceptable for MVP
-  }
+  DateTime _lastChatOpenTime = DateTime.now(); // Initialize to now to prevent counting old messages
 
   int _getUnreadCount() {
     final chatAsync = ref.watch(counselorChatControllerProvider);
@@ -386,19 +374,16 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
           data: (profileState) {
             final myEmail = profileState.user?.email.toLowerCase() ?? '';
             
-            // Count messages from counselor that came after last chat open
-            return chatState.messages.where((msg) {
+            // Count only messages from counselor that came AFTER last chat open
+            final unreadMessages = chatState.messages.where((msg) {
               final isFromCounselor = msg.senderEmail.toLowerCase() != myEmail;
               if (!isFromCounselor) return false;
               
-              // If we have a last open time, only count messages after that
-              if (_lastChatOpenTime != null) {
-                return msg.createdAt.isAfter(_lastChatOpenTime!);
-              }
-              
-              // If no last open time, count all messages from counselor
-              return true;
-            }).length;
+              // Only count messages that came after the last time we opened chat
+              return msg.createdAt.isAfter(_lastChatOpenTime);
+            }).toList();
+            
+            return unreadMessages.length;
           },
           orElse: () => 0,
         );
@@ -408,7 +393,7 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
   }
 
   void _onDestinationSelected(int index) {
-    // If navigating to counselor chat (index 2), mark as read
+    // If navigating to counselor chat (index 2), update last open time
     if (index == 2) {
       setState(() {
         _lastChatOpenTime = DateTime.now();
