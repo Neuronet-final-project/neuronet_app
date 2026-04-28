@@ -53,7 +53,7 @@ class GuardianRecommendationsScreen extends ConsumerWidget {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const _RecommendationsShimmer(),
         error: (err, stack) => NeuroErrorWidget(
           message: 'Could not load recommendations.\n${err.toString().replaceAll('Exception: ', '').replaceAll('[GuardianRecommendations] ', '')}',
           onRetry: () => ref.invalidate(
@@ -163,6 +163,106 @@ class _RecommendationCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Shimmer Loading Skeleton ──────────────────────────────────────────────────
+class _RecommendationsShimmer extends StatelessWidget {
+  const _RecommendationsShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(24),
+      itemCount: 3,
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      itemBuilder: (context, index) => const _RecommendationCardSkeleton(),
+    );
+  }
+}
+
+class _RecommendationCardSkeleton extends StatelessWidget {
+  const _RecommendationCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(
+          color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _SkeletonBox(width: 80, height: 22, borderRadius: 10),
+                const _SkeletonBox(width: 24, height: 24, borderRadius: 12),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _SkeletonBox(width: double.infinity, height: 20, borderRadius: 6),
+            const SizedBox(height: 8),
+            _SkeletonBox(width: 250, height: 16, borderRadius: 4),
+            const SizedBox(height: 12),
+            _SkeletonBox(width: double.infinity, height: 14, borderRadius: 4),
+            const SizedBox(height: 6),
+            _SkeletonBox(width: double.infinity, height: 14, borderRadius: 4),
+            const SizedBox(height: 6),
+            _SkeletonBox(width: 180, height: 14, borderRadius: 4),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _SkeletonBox(width: 120, height: 14, borderRadius: 4),
+                  ),
+                  const SizedBox(width: 12),
+                  const _SkeletonBox(width: 24, height: 24, borderRadius: 12),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({
+    this.width,
+    this.height,
+    this.borderRadius = 0,
+  });
+
+  final double? width, height;
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return NeuroShimmer(
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
     );

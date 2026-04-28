@@ -100,9 +100,7 @@ class _AdolescentFollowsScreenState extends ConsumerState<AdolescentFollowsScree
             ],
           ),
           if (_loading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            )
+            const _FollowsShimmerSkeleton()
           else if (_error != null)
             SliverFillRemaining(
               child: Center(
@@ -311,5 +309,92 @@ class _FollowCard extends StatelessWidget {
     } else {
       return 'Recently';
     }
+  }
+}
+
+// ─── Shimmer Loading Skeleton ──────────────────────────────────────────────────
+class _FollowsShimmerSkeleton extends StatelessWidget {
+  const _FollowsShimmerSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      sliver: SliverList.separated(
+        itemCount: 3,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) => const _FollowCardSkeleton(),
+      ),
+    );
+  }
+}
+
+class _FollowCardSkeleton extends StatelessWidget {
+  const _FollowCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return GuardianBentoCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title row with badge
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SkeletonBox(width: 180, height: 18, borderRadius: 6),
+                    const SizedBox(height: 8),
+                    _SkeletonBox(width: 100, height: 14, borderRadius: 4),
+                    const SizedBox(height: 4),
+                    _SkeletonBox(width: 120, height: 14, borderRadius: 4),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              _SkeletonBox(width: 80, height: 28, borderRadius: 14),
+            ],
+          ),
+          const SizedBox(height: 14),
+          // Date row
+          Row(
+            children: [
+              _SkeletonBox(width: 14, height: 14, borderRadius: 7),
+              const SizedBox(width: 6),
+              _SkeletonBox(width: 100, height: 14, borderRadius: 4),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  const _SkeletonBox({
+    this.width,
+    this.height,
+    this.borderRadius = 0,
+  });
+
+  final double? width, height;
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return NeuroShimmer(
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+      ),
+    );
   }
 }
