@@ -362,8 +362,7 @@ class AdolescentShell extends ConsumerStatefulWidget {
 }
 
 class _AdolescentShellState extends ConsumerState<AdolescentShell> {
-  int _lastMessageCount = 0;
-  bool _hasOpenedChat = false;
+  int? _lastSeenMessageCount;
 
   int _getUnreadCount() {
     final chatAsync = ref.watch(counselorChatControllerProvider);
@@ -382,14 +381,22 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
             
             final currentCount = counselorMessages.length;
             
-            // If user has opened chat, only show new messages since then
-            if (_hasOpenedChat) {
-              final newMessages = currentCount - _lastMessageCount;
-              return newMessages > 0 ? newMessages : 0;
+            // If we haven't set a baseline yet, set it now and show 0
+            if (_lastSeenMessageCount == null) {
+              // Use a post-frame callback to avoid setState during build
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() {
+                    _lastSeenMessageCount = currentCount;
+                  });
+                }
+              });
+              return 0;
             }
             
-            // First time: don't show any badge (assume all messages are old)
-            return 0;
+            // Calculate new messages since last seen
+            final newMessages = currentCount - _lastSeenMessageCount!;
+            return newMessages > 0 ? newMessages : 0;
           },
           orElse: () => 0,
         );
@@ -399,7 +406,7 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
   }
 
   void _onDestinationSelected(int index) {
-    // If navigating to counselor chat (index 2), mark current count
+    // If navigating to counselor chat (index 2), update last seen count
     if (index == 2) {
       final chatAsync = ref.read(counselorChatControllerProvider);
       final profileAsync = ref.read(adolescentProfileControllerProvider);
@@ -412,8 +419,7 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
           }).length;
           
           setState(() {
-            _hasOpenedChat = true;
-            _lastMessageCount = counselorMessages;
+            _lastSeenMessageCount = counselorMessages;
           });
         });
       });
