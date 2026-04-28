@@ -16,6 +16,8 @@ import 'package:adolescent_app/features/counselor_chat/view/screens/request_appr
 import 'package:adolescent_app/features/journal/view/screens/new_journal_entry_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/journal_search_screen.dart';
 import 'package:adolescent_app/features/journal/providers/journal_provider.dart';
+import 'package:adolescent_app/features/counselor_chat/providers/counselor_chat_provider.dart';
+import 'package:adolescent_app/features/profile/providers/profile_provider.dart';
 import 'package:adolescent_app/features/auth/view/screens/login_screen.dart';
 import 'package:adolescent_app/features/auth/view/screens/activation_screen.dart';
 import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
@@ -199,8 +201,8 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AdolescentRoutes.mood,
-                builder: (context, state) => const MoodScreen(),
+                path: AdolescentRoutes.counselorChat,
+                builder: (context, state) => const CounselorChatScreen(),
               ),
             ],
           ),
@@ -246,8 +248,8 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AiChatScreen(),
       ),
       GoRoute(
-        path: AdolescentRoutes.counselorChat,
-        builder: (context, state) => const CounselorChatScreen(),
+        path: AdolescentRoutes.mood,
+        builder: (context, state) => const MoodScreen(),
       ),
       GoRoute(
         path: AdolescentRoutes.requestApproval,
@@ -357,33 +359,59 @@ class AdolescentShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Watch counselor chat to get unread message count
+    final chatAsync = ref.watch(counselorChatControllerProvider);
+    final profileAsync = ref.watch(adolescentProfileControllerProvider);
+    
+    // Count unread messages from counselor
+    int unreadCount = 0;
+    chatAsync.whenData((chatState) {
+      profileAsync.whenData((profileState) {
+        final myEmail = profileState.user?.email.toLowerCase() ?? '';
+        // Count messages from counselor (not from me)
+        unreadCount = chatState.messages
+            .where((msg) => msg.senderEmail.toLowerCase() != myEmail)
+            .length;
+      });
+    });
+    
     return Scaffold(
       body: SafeArea(child: navigationShell),
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: navigationShell.goBranch,
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.dashboard_outlined),
             selectedIcon: Icon(Icons.dashboard),
             label: 'Home',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.book_outlined),
             selectedIcon: Icon(Icons.book),
             label: 'Journal',
           ),
           NavigationDestination(
-            icon: Icon(Icons.mood_outlined),
-            selectedIcon: Icon(Icons.mood),
-            label: 'Mood',
+            icon: unreadCount > 0
+                ? Badge(
+                    label: Text('$unreadCount'),
+                    child: const Icon(Icons.support_agent_outlined),
+                  )
+                : const Icon(Icons.support_agent_outlined),
+            selectedIcon: unreadCount > 0
+                ? Badge(
+                    label: Text('$unreadCount'),
+                    child: const Icon(Icons.support_agent),
+                  )
+                : const Icon(Icons.support_agent),
+            label: 'Counselor',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.forum_outlined),
             selectedIcon: Icon(Icons.forum),
             label: 'Channels',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
