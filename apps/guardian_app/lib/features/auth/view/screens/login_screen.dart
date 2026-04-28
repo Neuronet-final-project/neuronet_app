@@ -26,11 +26,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _passwordController = TextEditingController();
   final _emailFocus = FocusNode();
   final _passwordFocus = FocusNode();
-  final _formKey = GlobalKey<FormState>();
-  bool _obscurePassword = true;
-  bool _isInitialized = false;
+   final _formKey = GlobalKey<FormState>();
+   bool _obscurePassword = true;
+   bool _isInitialized = false;
 
-  // Entrance animation
+   // Email validation regex
+   static final RegExp _emailRegex = RegExp(
+     r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$',
+   );
+
+   String? _validateEmail(String? value) {
+     if (value == null || value.isEmpty) {
+       return 'Please enter your email';
+     }
+     final trimmed = value.trim();
+     if (!_emailRegex.hasMatch(trimmed)) {
+       return 'Please enter a valid email address';
+     }
+     final parts = trimmed.split('@');
+     if (parts.length != 2) {
+       return 'Please enter a valid email address';
+     }
+     final domain = parts[1];
+     if (!domain.contains('.') || domain.indexOf('.') == 0 || domain.lastIndexOf('.') == domain.length - 1) {
+       return 'Please enter a valid email address';
+     }
+     return null;
+   }
+
+   String? _validatePassword(String? value) {
+     if (value == null || value.isEmpty) {
+       return 'Please enter your password';
+     }
+     if (value.length < 6) {
+       return 'Password must be at least 6 characters';
+     }
+     return null;
+   }
+
+   // Entrance animation
   late AnimationController _enterCtrl;
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
@@ -335,13 +369,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   icon: Icons.alternate_email_rounded,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
-                                  validator: (v) {
-                                    if (v == null || v.isEmpty)
-                                      return 'Please enter your email';
-                                    if (!v.contains('@'))
-                                      return 'Enter a valid email';
-                                    return null;
-                                  },
+                                   validator: (v) => _validateEmail(v),
                                   onFieldSubmitted: (_) => FocusScope.of(context)
                                       .requestFocus(_passwordFocus),
                                 ),
@@ -366,13 +394,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     onPressed: () => setState(() =>
                                         _obscurePassword = !_obscurePassword),
                                   ),
-                                  validator: (v) {
-                                    if (v == null || v.isEmpty)
-                                      return 'Please enter your password';
-                                    if (v.length < 6)
-                                      return 'At least 6 characters';
-                                    return null;
-                                  },
+                                   validator: (v) => _validatePassword(v),
                                   onFieldSubmitted: (_) => _handleLogin(),
                                 ),
 
