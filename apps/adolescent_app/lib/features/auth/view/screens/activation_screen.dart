@@ -164,11 +164,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                     validator: (value) {
-                       if (value == null || value.isEmpty) return 'Please enter your email';
-                       if (!_emailRegex.hasMatch(value.trim())) return 'Please enter a valid email address';
-                       return null;
-                     },
+                     validator: (v) => _validateEmail(v),
                   ),
                   const SizedBox(height: 16),
                   
