@@ -362,7 +362,8 @@ class AdolescentShell extends ConsumerStatefulWidget {
 }
 
 class _AdolescentShellState extends ConsumerState<AdolescentShell> {
-  DateTime _lastChatOpenTime = DateTime.now(); // Initialize to now to prevent counting old messages
+  int _lastMessageCount = 0;
+  bool _hasOpenedChat = false;
 
   int _getUnreadCount() {
     final chatAsync = ref.watch(counselorChatControllerProvider);
@@ -374,16 +375,21 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
           data: (profileState) {
             final myEmail = profileState.user?.email.toLowerCase() ?? '';
             
-            // Count only messages from counselor that came AFTER last chat open
-            final unreadMessages = chatState.messages.where((msg) {
-              final isFromCounselor = msg.senderEmail.toLowerCase() != myEmail;
-              if (!isFromCounselor) return false;
-              
-              // Only count messages that came after the last time we opened chat
-              return msg.createdAt.isAfter(_lastChatOpenTime);
+            // Count all messages from counselor
+            final counselorMessages = chatState.messages.where((msg) {
+              return msg.senderEmail.toLowerCase() != myEmail;
             }).toList();
             
-            return unreadMessages.length;
+            final currentCount = counselorMessages.length;
+            
+            // If user has opened chat, only show new messages since then
+            if (_hasOpenedChat) {
+              final newMessages = currentCount - _lastMessageCount;
+              return newMessages > 0 ? newMessages : 0;
+            }
+            
+            // First time: don't show any badge (assume all messages are old)
+            return 0;
           },
           orElse: () => 0,
         );
@@ -393,10 +399,23 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
   }
 
   void _onDestinationSelected(int index) {
-    // If navigating to counselor chat (index 2), update last open time
+    // If navigating to counselor chat (index 2), mark current count
     if (index == 2) {
-      setState(() {
-        _lastChatOpenTime = DateTime.now();
+      final chatAsync = ref.read(counselorChatControllerProvider);
+      final profileAsync = ref.read(adolescentProfileControllerProvider);
+      
+      chatAsync.whenData((chatState) {
+        profileAsync.whenData((profileState) {
+          final myEmail = profileState.user?.email.toLowerCase() ?? '';
+          final counselorMessages = chatState.messages.where((msg) {
+            return msg.senderEmail.toLowerCase() != myEmail;
+          }).length;
+          
+          setState(() {
+            _hasOpenedChat = true;
+            _lastMessageCount = counselorMessages;
+          });
+        });
       });
     }
     widget.navigationShell.goBranch(index);
