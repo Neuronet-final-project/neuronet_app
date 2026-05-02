@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'neuro_button.dart';
+import 'language_picker_dropdown.dart';
 import '../theme/app_theme.dart';
 
 /// Data model for an individual onboarding slide.
@@ -64,6 +65,13 @@ class _NeuroOnboardingScreenState extends State<NeuroOnboardingScreen> {
             itemBuilder: (context, index) {
               return _OnboardingPage(data: widget.pages[index]);
             },
+          ),
+
+          // Language Picker
+          const Positioned(
+            top: 48,
+            right: 16,
+            child: LanguagePickerDropdown(),
           ),
           
           // Navigation UI (Indicator and Buttons)

@@ -1,0 +1,111 @@
+{
+  "@@locale": "en",
+  "appTitle": "NEURONET",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "login": "Login",
+  "logout": "Logout",
+  "home": "Home",
+  "settings": "Settings",
+  "profile": "Profile",
+  "journal": "Journal",
+  "chat": "Chat",
+  "mood": "Mood",
+  "alerts": "Alerts",
+  "retry": "Retry",
+  "failedToLoadDashboard": "Failed to load dashboard",
+  "goodMorning": "Good morning",
+  "goodAfternoon": "Good afternoon",
+  "goodEvening": "Good evening",
+  "howAreYouFeeling": "How are you feeling?",
+  "allMoods": "All moods →",
+  "quickActions": "Quick Actions",
+  "recentJournals": "Recent Journals",
+  "viewAll": "View all →",
+  "personalInsight": "Personal Insight",
+  "weGotYou": "We've got you 💙",
+  "tryThisToday": "Try This Today",
+  "more": "More →",
+  "recommendedForYou": "Recommended for You",
+  "playAndRelax": "Play & Relax",
+  "newTag": "NEW",
+  "myProfile": "My Profile",
+  "accountInformation": "Account Information",
+  "fullName": "Full Name",
+  "emailAddress": "Email Address",
+  "accountStatus": "Account Status",
+  "privacyAndPermissions": "Privacy & Permissions",
+  "consentStatus": "Consent Status",
+  "viewConsentDescription": "View what your guardian has approved",
+  "signOut": "Sign Out",
+  "language": "Language",
+  "selectLanguage": "Select Language",
+  "adolescent": "ADOLESCENT",
+  "heyUser": "Hey {name} 👋",
+  "@heyUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "innerWorldPrompt": "How's your inner world today?",
+  "writeJournal": "Write Journal",
+  "expressYourself": "Express yourself 📝",
+  "aiCompanion": "AI Companion",
+  "talkItOut": "Talk it out 🤖",
+  "checkYourMood": "Check Your Mood",
+  "moodEmojiPrompt": "How are you feeling? 😊",
+  "learnAndGrow": "Learn & Grow",
+  "exploreResources": "Explore resources 📚",
+  "smallCheckIn": "A small check-in goes a long way.",
+  "today": "TODAY",
+  "take30Seconds": "Take 30 seconds.",
+  "namingFeelings": "Naming what you feel is half the work.\nWe'll help with the rest.",
+  "checkInNow": "Check in now",
+  "journals": "Journals",
+  "moods": "Moods",
+  "forYou": "For You",
+  "journalToday": "Today",
+  "journalYesterday": "Yesterday",
+  "daysAgo": "{count} days ago",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "journalEntryDefault": "Journal Entry",
+  "feelingLabel": "Feeling {mood}",
+  "@feelingLabel": {
+    "placeholders": {
+      "mood": {
+        "type": "String"
+      }
+    }
+  },
+  "minRead": "{count} min read",
+  "@minRead": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readNow": "Read now",
+  "mindfulnessGames": "Mindfulness Games",
+  "boostYourMood": "Boost your mood with fun, science-backed activities.",
+  "playNow": "Play Now",
+  "ai": "AI",
+  "notificationSettings": "Notification Settings",
+  "alertNotifications": "Alert Notifications",
+  "counselorMessages": "Counselor Messages",
+  "getNotifiedPatterns": "Get notified when patterns are detected",
+  "pushNotificationsNewMessages": "Push notifications for new messages",
+  "role": "Role",
+  "guardian": "Guardian",
+  "areYouSureSignOut": "Are you sure you want to sign out?",
+  "cancel": "Cancel"
+}

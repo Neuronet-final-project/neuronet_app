@@ -42,20 +42,35 @@ Future<void> main() async {
   );
 }
 
-class GuardianApp extends ConsumerWidget {
+class GuardianApp extends ConsumerStatefulWidget {
   const GuardianApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GuardianApp> createState() => _GuardianAppState();
+}
+
+class _GuardianAppState extends ConsumerState<GuardianApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize localization
+    Future.microtask(() => ref.read(l10nProvider.notifier).initialize());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Wake up the notification service
     ref.watch(notificationServiceProvider);
 
     final router = ref.watch(guardianRouterProvider);
+    final currentLocale = ref.watch(l10nProvider);
 
     return MaterialApp.router(
       title: 'NEURONET Guardian',
       debugShowCheckedModeBanner: false,
-      locale: DevicePreview.locale(context),
+      locale: currentLocale,
+      localizationsDelegates: neuroLocalizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       builder: DevicePreview.appBuilder,
       theme: GuardianTheme.build(),
       routerConfig: router,

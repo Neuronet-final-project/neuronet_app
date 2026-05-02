@@ -95,11 +95,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                           children: [
                             const Icon(Icons.error_outline, size: 48, color: Colors.red),
                             const SizedBox(height: 16),
-                            Text('Failed to load dashboard\n$err'),
+                            Text('${context.localizations.failedToLoadDashboard}\n$err'),
                             const SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: () => ref.refresh(adolescentDashboardControllerProvider.future),
-                              child: const Text('Retry'),
+                              child: Text(context.localizations.retry),
                             ),
                           ],
                         ),
@@ -138,15 +138,17 @@ class _HeroAppBar extends ConsumerWidget {
   const _HeroAppBar({required this.ref});
   final WidgetRef ref;
 
-  String get _greeting {
+  String _greeting(BuildContext context) {
     final h = DateTime.now().hour;
-    if (h < 12) return 'Good morning';
-    if (h < 17) return 'Good afternoon';
-    return 'Good evening';
+    final l10n = context.localizations;
+    if (h < 12) return l10n.goodMorning;
+    if (h < 17) return l10n.goodAfternoon;
+    return l10n.goodEvening;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.localizations;
     final profileAsync = ref.watch(adolescentProfileControllerProvider);
     final alertsAsync  = ref.watch(adolescentAlertsControllerProvider);
 
@@ -158,7 +160,7 @@ class _HeroAppBar extends ConsumerWidget {
       data: (s) {
         final count = s.alerts.where((a) => !a.viewedStatus).length;
         // Debug: Print unread count
-        print('[Dashboard] Unread insights count: $count / ${s.alerts.length} total');
+        debugPrint('[Dashboard] Unread insights count: $count / ${s.alerts.length} total');
         return count;
       },
       orElse: () => 0,
@@ -205,13 +207,13 @@ class _HeroAppBar extends ConsumerWidget {
                               border: Border.all(
                                   color: Colors.white.withValues(alpha: 0.3)),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
-                                Icon(Icons.self_improvement_rounded,
+                                const Icon(Icons.self_improvement_rounded,
                                     color: Colors.white, size: 16),
-                                SizedBox(width: 5),
-                                Text('ADOLESCENT',
-                                    style: TextStyle(
+                                const SizedBox(width: 5),
+                                Text(l10n.adolescent,
+                                    style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w800,
                                         fontSize: 11,
@@ -224,7 +226,7 @@ class _HeroAppBar extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        _greeting.toUpperCase(),
+                        _greeting(context).toUpperCase(),
                         style: TextStyle(
                           fontSize: 10,
                           letterSpacing: 2,
@@ -234,7 +236,7 @@ class _HeroAppBar extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Hey $name 👋',
+                        l10n.heyUser(name),
                         style: const TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.w900,
@@ -244,7 +246,7 @@ class _HeroAppBar extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        "How's your inner world today?",
+                        l10n.innerWorldPrompt,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.white.withValues(alpha: 0.8),
@@ -257,8 +259,8 @@ class _HeroAppBar extends ConsumerWidget {
             ),
           ),
         ),
-        title: const Text('NeuroNet',
-          style: TextStyle(
+        title: Text(l10n.appTitle,
+          style: const TextStyle(
               color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18)),
       actions: [
         Center(
@@ -332,7 +334,6 @@ class _DailyCheckInCard extends StatefulWidget {
 class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-  bool _isPressed = false;
 
   @override
   void initState() {
@@ -354,6 +355,7 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -372,9 +374,9 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
                 child: const Icon(Icons.favorite_rounded, color: Colors.white, size: 14),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'A small check-in goes a long way.',
-                style: TextStyle(
+              Text(
+                l10n.smallCheckIn,
+                style: const TextStyle(
                   fontSize: 14,
                   color: Color(0xFF6B7280),
                   fontWeight: FontWeight.w600,
@@ -393,16 +395,13 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
             ),
             child: GestureDetector(
               onTapDown: (_) {
-                setState(() => _isPressed = true);
                 _controller.forward();
               },
               onTapUp: (_) {
-                setState(() => _isPressed = false);
                 _controller.reverse();
                 context.go(AdolescentRoutes.mood);
               },
               onTapCancel: () {
-                setState(() => _isPressed = false);
                 _controller.reverse();
               },
               child: Container(
@@ -476,14 +475,14 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
                               width: 1,
                             ),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.wb_sunny_rounded, color: Colors.white, size: 12),
-                              SizedBox(width: 4),
+                              const Icon(Icons.wb_sunny_rounded, color: Colors.white, size: 12),
+                              const SizedBox(width: 4),
                               Text(
-                                'TODAY',
-                                style: TextStyle(
+                                l10n.today,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w900,
@@ -494,9 +493,9 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
                           ),
                         ),
                         const SizedBox(height: 18),
-                        const Text(
-                          'Take 30 seconds.',
-                          style: TextStyle(
+                        Text(
+                          l10n.take30Seconds,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 30,
                             fontWeight: FontWeight.w900,
@@ -506,7 +505,7 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Naming what you feel is half the work.\nWe\'ll help with the rest.',
+                          l10n.namingFeelings,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.95),
                             fontSize: 14,
@@ -537,19 +536,19 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
                                 borderRadius: BorderRadius.circular(30),
                               ),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  'Check in now',
-                                  style: TextStyle(
+                                  l10n.checkInNow,
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.w900,
                                     fontSize: 15,
                                     letterSpacing: 0.2,
                                   ),
                                 ),
-                                SizedBox(width: 10),
-                                Icon(Icons.arrow_forward_rounded, size: 20),
+                                const SizedBox(width: 10),
+                                const Icon(Icons.arrow_forward_rounded, size: 20),
                               ],
                             ),
                           ),
@@ -603,6 +602,7 @@ class _MoodCheckInRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.localizations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -611,15 +611,15 @@ class _MoodCheckInRow extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('How are you feeling?',
-                  style: TextStyle(
+              Text(l10n.howAreYouFeeling,
+                  style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                       color: _kBody)),
               GestureDetector(
                 onTap: () => context.go(AdolescentRoutes.mood),
-                child: const Text('All moods →',
-                    style: TextStyle(
+                child: Text(l10n.allMoods,
+                    style: const TextStyle(
                         fontSize: 12,
                         color: _kPurple,
                         fontWeight: FontWeight.w600)),
@@ -689,6 +689,7 @@ class _StatsRow extends ConsumerWidget {
 
     return dashAsync.maybeWhen(
       data: (state) {
+        final l10n = context.localizations;
         final data = state.data;
         final journals = data?.totalJournals ?? 0;
         final moods = data?.totalMoods ?? 0;
@@ -698,13 +699,13 @@ class _StatsRow extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           child: Row(
             children: [
-              _StatPill(label: 'Journals', value: '$journals', icon: Icons.menu_book_rounded,
+              _StatPill(label: l10n.journals, value: '$journals', icon: Icons.menu_book_rounded,
                   gradient: const [Color(0xFFA875FF), Color(0xFF8D53FF)]),
               const SizedBox(width: 10),
-              _StatPill(label: 'Moods', value: '$moods', icon: Icons.sentiment_very_satisfied_rounded,
+              _StatPill(label: l10n.moods, value: '$moods', icon: Icons.sentiment_very_satisfied_rounded,
                   gradient: const [Color(0xFF38C7F0), Color(0xFF4DB0F6)]),
               const SizedBox(width: 10),
-              _StatPill(label: 'For You', value: '$recs', icon: Icons.school_rounded,
+              _StatPill(label: l10n.forYou, value: '$recs', icon: Icons.school_rounded,
                   gradient: const [Color(0xFFFF8A49), Color(0xFFFF9F49)]),
             ],
           ),
@@ -829,17 +830,18 @@ class _QuickActionGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     final actions = [
-      _ActionData('Write Journal', 'Express yourself 📝',
+      _ActionData(l10n.writeJournal, l10n.expressYourself,
           Icons.edit_note_rounded, _cardColors[0],
           () => context.push(AdolescentRoutes.newJournal)),
-      _ActionData('AI Companion', 'Talk it out 🤖',
+      _ActionData(l10n.aiCompanion, l10n.talkItOut,
           Icons.smart_toy_rounded, _cardColors[1],
           () => context.push(AdolescentRoutes.aiChat)),
-      _ActionData('Check Your Mood', 'How are you feeling? 😊',
+      _ActionData(l10n.checkYourMood, l10n.moodEmojiPrompt,
           Icons.mood_rounded, _cardColors[2],
           () => context.go(AdolescentRoutes.mood)),
-      _ActionData('Learn & Grow', 'Explore resources 📚',
+      _ActionData(l10n.learnAndGrow, l10n.exploreResources,
           Icons.lightbulb_rounded, _cardColors[3],
           () => context.push(AdolescentRoutes.learn)),
     ];
@@ -849,10 +851,10 @@ class _QuickActionGrid extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(bottom: 12),
-            child: Text('Quick Actions',
-                style: TextStyle(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(l10n.quickActions,
+                style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
                     color: _kBody)),
@@ -888,26 +890,16 @@ class _ActionCard extends StatefulWidget {
   State<_ActionCard> createState() => _ActionCardState();
 }
 
-class _ActionCardState extends State<_ActionCard> with SingleTickerProviderStateMixin {
+class _ActionCardState extends State<_ActionCard> {
   bool _pressed = false;
-  late AnimationController _shimmerController;
-  late Animation<double> _shimmerAnimation;
 
   @override
   void initState() {
     super.initState();
-    _shimmerController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..repeat();
-    _shimmerAnimation = Tween<double>(begin: -2, end: 2).animate(
-      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
-    );
   }
 
   @override
   void dispose() {
-    _shimmerController.dispose();
     super.dispose();
   }
 
@@ -996,16 +988,18 @@ class _RecentJournals extends ConsumerWidget {
   const _RecentJournals({required this.ref});
   final WidgetRef ref;
 
-  String _daysAgo(DateTime dt) {
+  String _daysAgo(BuildContext context, DateTime dt) {
+    final l10n = context.localizations;
     final d = DateTime.now().difference(dt).inDays;
-    if (d == 0) return 'Today';
-    if (d == 1) return 'Yesterday';
-    return '$d days ago';
+    if (d == 0) return l10n.journalToday;
+    if (d == 1) return l10n.journalYesterday;
+    return l10n.daysAgo(d);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dashAsync = ref.watch(adolescentDashboardControllerProvider);
+    final l10n = context.localizations;
 
     return dashAsync.maybeWhen(
       data: (state) {
@@ -1020,15 +1014,15 @@ class _RecentJournals extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Recent Journals',
-                      style: TextStyle(
+                  Text(l10n.recentJournals,
+                      style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
                           color: _kBody)),
                   GestureDetector(
                     onTap: () => context.go(AdolescentRoutes.journal),
-                    child: const Text('View all →',
-                        style: TextStyle(
+                    child: Text(l10n.viewAll,
+                        style: const TextStyle(
                             fontSize: 12,
                             color: _kPurple,
                             fontWeight: FontWeight.w600)),
@@ -1038,7 +1032,7 @@ class _RecentJournals extends ConsumerWidget {
               const SizedBox(height: 12),
               ...journals.take(3).map((entry) => _JournalRow(
                     entry: entry,
-                    daysAgo: _daysAgo(entry.createdAt),
+                    daysAgo: _daysAgo(context, entry.createdAt),
                     onTap: () => context.push(
                         '${AdolescentRoutes.journal}/${entry.id}'),
                   )),
@@ -1070,6 +1064,7 @@ class _JournalRowState extends State<_JournalRow> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     return GestureDetector(
       onTap: widget.onTap,
       onTapDown: (_) => setState(() => _isPressed = true),
@@ -1127,7 +1122,7 @@ class _JournalRowState extends State<_JournalRow> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.entry.title ?? 'Journal Entry',
+                      widget.entry.title ?? l10n.journalEntryDefault,
                       style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -1140,7 +1135,7 @@ class _JournalRowState extends State<_JournalRow> {
                     Text(
                       widget.daysAgo +
                           (widget.entry.mood != null
-                              ? '  ·  Feeling ${widget.entry.mood!.label}'
+                              ? '  ·  ${l10n.feelingLabel(widget.entry.mood!.label)}'
                               : ''),
                       style: const TextStyle(fontSize: 11, color: _kSubtle, fontWeight: FontWeight.w600),
                     ),
@@ -1253,8 +1248,8 @@ class _InsightsBanner extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                const Text('Personal Insight',
-                                    style: TextStyle(
+                                Text(context.localizations.personalInsight,
+                                    style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w900,
@@ -1266,8 +1261,8 @@ class _InsightsBanner extends ConsumerWidget {
                                     color: Colors.white.withValues(alpha: 0.25),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Text("We've got you 💙",
-                                    style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900)),
+                                  child: Text(context.localizations.weGotYou,
+                                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900)),
                                 ),
                               ],
                             ),
@@ -1342,8 +1337,8 @@ class _LearningCard extends ConsumerWidget {
                         child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 14),
                       ),
                       const SizedBox(width: 8),
-                      const Text('Try This Today',
-                          style: TextStyle(
+                      Text(context.localizations.tryThisToday,
+                          style: const TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
                               color: _kBody)),
@@ -1351,8 +1346,8 @@ class _LearningCard extends ConsumerWidget {
                   ),
                   GestureDetector(
                     onTap: () => context.push(AdolescentRoutes.learn),
-                    child: const Text('More →',
-                        style: TextStyle(
+                    child: Text(context.localizations.more,
+                        style: const TextStyle(
                             fontSize: 12,
                             color: _kPurple,
                             fontWeight: FontWeight.w600)),
@@ -1418,8 +1413,8 @@ class _LearningCard extends ConsumerWidget {
                                 ),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Text('RECOMMENDED FOR YOU',
-                                  style: TextStyle(
+                              child: Text(context.localizations.recommendedForYou.toUpperCase(),
+                                  style: const TextStyle(
                                       fontSize: 9,
                                       letterSpacing: 1,
                                       fontWeight: FontWeight.w900,
@@ -1453,13 +1448,13 @@ class _LearningCard extends ConsumerWidget {
                                     color: _kSurfaceVariant,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     children: [
-                                      Icon(Icons.access_time_rounded,
+                                      const Icon(Icons.access_time_rounded,
                                           size: 12, color: _kPurple),
-                                      SizedBox(width: 4),
-                                      Text('2 min read',
-                                          style: TextStyle(
+                                      const SizedBox(width: 4),
+                                      Text(context.localizations.minRead(2),
+                                          style: const TextStyle(
                                               fontSize: 11, color: _kPurple, fontWeight: FontWeight.w700)),
                                     ],
                                   ),
@@ -1473,15 +1468,15 @@ class _LearningCard extends ConsumerWidget {
                                     ),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     children: [
-                                      Text('Read now',
-                                          style: TextStyle(
+                                      Text(context.localizations.readNow,
+                                          style: const TextStyle(
                                               fontSize: 12,
                                               color: Colors.white,
                                               fontWeight: FontWeight.w800)),
-                                      SizedBox(width: 4),
-                                      Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
+                                      const SizedBox(width: 4),
+                                      const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
                                     ],
                                   ),
                                 ),
@@ -1591,6 +1586,7 @@ class _PlayRelaxSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
       child: Column(
@@ -1612,8 +1608,8 @@ class _PlayRelaxSection extends StatelessWidget {
                     child: const Icon(Icons.videogame_asset_rounded, color: Colors.white, size: 14),
                   ),
                   const SizedBox(width: 8),
-                  const Text('Play & Relax',
-                      style: TextStyle(
+                  Text(l10n.playAndRelax,
+                      style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
                           color: _kBody)),
@@ -1631,8 +1627,8 @@ class _PlayRelaxSection extends StatelessWidget {
                     width: 1,
                   ),
                 ),
-                child: const Text('NEW',
-                    style: TextStyle(
+                child: Text(l10n.newTag,
+                    style: const TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w900,
                         color: Color(0xFFFF8C00),
@@ -1694,9 +1690,9 @@ class _PlayRelaxSection extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Mindfulness Games',
-                            style: TextStyle(
+                          Text(
+                            l10n.mindfulnessGames,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
@@ -1706,7 +1702,7 @@ class _PlayRelaxSection extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Boost your mood with fun, science-backed activities.',
+                            l10n.boostYourMood,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.95),
                               fontSize: 13,
@@ -1737,19 +1733,19 @@ class _PlayRelaxSection extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(18),
                                 ),
                               ),
-                              child: const Row(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    'Play Now',
-                                    style: TextStyle(
+                                    l10n.playNow,
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w900,
                                       fontSize: 14,
                                       letterSpacing: 0.2,
                                     ),
                                   ),
-                                  SizedBox(width: 8),
-                                  Icon(Icons.play_arrow_rounded, size: 20),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.play_arrow_rounded, size: 20),
                                 ],
                               ),
                             ),

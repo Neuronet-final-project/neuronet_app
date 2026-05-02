@@ -14,12 +14,14 @@ class ProfileScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final profileState = ref.watch(adolescentProfileControllerProvider);
 
+    final l10n = context.localizations;
+
     return Scaffold(
       backgroundColor: NeuroColors.adolescentSurface,
       appBar: AppBar(
-        title: const Text(
-          'My Profile',
-          style: TextStyle(
+        title: Text(
+          l10n.myProfile,
+          style: const TextStyle(
             fontWeight: FontWeight.w900,
             color: Colors.white,
           ),
@@ -68,6 +70,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildContent(BuildContext context, WidgetRef ref, ThemeData theme, User user) {
+    final l10n = context.localizations;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Column(
@@ -76,22 +79,22 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           _SettingSection(
-            title: 'Account Information',
+            title: l10n.accountInformation,
             children: [
               _SettingTile(
-                label: 'Full Name',
+                label: l10n.fullName,
                 value: user.fullName,
                 icon: Icons.person_rounded,
                 showDivider: true,
               ),
               _SettingTile(
-                label: 'Email Address',
+                label: l10n.emailAddress,
                 value: user.email,
                 icon: Icons.alternate_email_rounded,
                 showDivider: true,
               ),
               _SettingTile(
-                label: 'Account Status',
+                label: l10n.accountStatus,
                 value: user.accountStatus.name.toUpperCase(),
                 icon: Icons.verified_user_rounded,
                 showDivider: false,
@@ -102,11 +105,20 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           _SettingSection(
-            title: 'Privacy & Permissions',
+            title: l10n.settings,
+            children: const [
+              LanguageSwitcherTile(),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          _SettingSection(
+            title: l10n.privacyAndPermissions,
             children: [
               _SettingTile(
-                label: 'Consent Status',
-                value: 'View what your guardian has approved',
+                label: l10n.consentStatus,
+                value: l10n.viewConsentDescription,
                 icon: Icons.shield_outlined,
                 showDivider: false,
                 onTap: () => context.push(AdolescentRoutes.consentStatus),
@@ -129,12 +141,12 @@ class ProfileScreen extends ConsumerWidget {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.logout_rounded, size: 22),
-                SizedBox(width: 8),
+              children: [
+                const Icon(Icons.logout_rounded, size: 22),
+                const SizedBox(width: 8),
                 Text(
-                  'Sign Out',
-                  style: TextStyle(
+                  l10n.signOut,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),

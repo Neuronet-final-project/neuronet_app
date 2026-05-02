@@ -41,15 +41,28 @@ Future<void> main() async {
   );
 }
 
-class AdolescentApp extends ConsumerWidget {
+class AdolescentApp extends ConsumerStatefulWidget {
   const AdolescentApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdolescentApp> createState() => _AdolescentAppState();
+}
+
+class _AdolescentAppState extends ConsumerState<AdolescentApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize localization
+    Future.microtask(() => ref.read(l10nProvider.notifier).initialize());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Wake up the notification service
     ref.watch(notificationServiceProvider);
 
     final router = ref.watch(adolescentRouterProvider);
+    final currentLocale = ref.watch(l10nProvider);
 
     // Global listener: Automatically redirect user to Counselor Chat when receiving a call
     ref.listen(callControllerProvider, (previous, next) {
@@ -57,10 +70,10 @@ class AdolescentApp extends ConsumerWidget {
       if (state != null && state.status == CallStatus.ringing && state.currentCall != null) {
         final currentCallId = state.currentCall!.id;
         final prevCallId = previous?.value?.currentCall?.id;
-        
+
         // Avoid multi-pushing by verifying this is a fresh ring notification
         if (currentCallId != prevCallId) {
-          debugPrint('[AdolescentApp] Incoming call from \${state.currentCall!.callerEmail}, navigating to chat...');
+          debugPrint('[AdolescentApp] Incoming call from ${state.currentCall!.callerEmail}, navigating to chat...');
           router.go('/counselor-chat');
         }
       }
@@ -69,10 +82,13 @@ class AdolescentApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'NEURONET',
       debugShowCheckedModeBanner: false,
-      locale: DevicePreview.locale(context),
+      locale: currentLocale,
+      localizationsDelegates: neuroLocalizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       builder: DevicePreview.appBuilder,
       theme: NeuroTheme.adolescentTheme(),
       routerConfig: router,
     );
   }
 }
+

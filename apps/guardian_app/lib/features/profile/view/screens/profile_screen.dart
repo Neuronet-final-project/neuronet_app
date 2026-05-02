@@ -24,9 +24,9 @@ class ProfileScreen extends ConsumerWidget {
             pinned: true,
             automaticallyImplyLeading: false,
             backgroundColor: const Color(0xFFF9FAFB),
-            title: const Text(
-              'My Profile',
-              style: TextStyle(
+            title: Text(
+              context.localizations.myProfile,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: NeuroColors.guardianPrimaryDark,
@@ -107,24 +107,24 @@ class ProfileScreen extends ConsumerWidget {
         const SizedBox(height: 16),
 
         _SettingSection(
-          title: 'Account Information',
+          title: context.localizations.accountInformation,
           children: [
             _SettingTile(
-              label: 'Full Name',
+              label: context.localizations.fullName,
               value: user.fullName,
               icon: Icons.person_rounded,
               showDivider: true,
             ),
             _SettingTile(
-              label: 'Email',
+              label: context.localizations.emailAddress,
               value: user.email,
               icon: Icons.alternate_email_rounded,
               showDivider: true,
             ),
             _SettingTile(
-              label: 'Role',
+              label: context.localizations.role,
               value: user.role == UserRole.guardian
-                  ? 'Guardian'
+                  ? context.localizations.guardian
                   : user.role.name.toUpperCase(),
               icon: Icons.verified_user_rounded,
               showDivider: false,
@@ -135,18 +135,27 @@ class ProfileScreen extends ConsumerWidget {
         const SizedBox(height: 16),
 
         _SettingSection(
-          title: 'Notification Settings',
+          title: context.localizations.settings,
+          children: const [
+            LanguageSwitcherTile(),
+          ],
+        ).animate().fadeIn(delay: 150.ms, duration: 400.ms).slideY(begin: 0.05),
+
+        const SizedBox(height: 16),
+
+        _SettingSection(
+          title: context.localizations.notificationSettings,
           children: [
             _CustomSwitchTile(
-              title: 'Alert Notifications',
-              subtitle: 'Get notified when patterns are detected',
+              title: context.localizations.alertNotifications,
+              subtitle: context.localizations.getNotifiedPatterns,
               value: true,
               onChanged: (val) {},
               showDivider: true,
             ),
             _CustomSwitchTile(
-              title: 'Counselor Messages',
-              subtitle: 'Push notifications for new messages',
+              title: context.localizations.counselorMessages,
+              subtitle: context.localizations.pushNotificationsNewMessages,
               value: true,
               onChanged: (val) {},
               showDivider: false,
@@ -162,13 +171,13 @@ class ProfileScreen extends ConsumerWidget {
             showDialog(
               context: context,
               builder: (ctx) => AlertDialog(
-                title: const Text(
-                  'Sign Out',
-                  style: TextStyle(fontWeight: FontWeight.w900),
+                title: Text(
+                  context.localizations.signOut,
+                  style: const TextStyle(fontWeight: FontWeight.w900),
                 ),
-                content: const Text(
-                  'Are you sure you want to sign out?',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                content: Text(
+                  context.localizations.areYouSureSignOut,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -176,9 +185,9 @@ class ProfileScreen extends ConsumerWidget {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
+                    child: Text(
+                      context.localizations.cancel,
+                      style: const TextStyle(
                         color: Colors.grey,
                         fontWeight: FontWeight.w700,
                       ),
@@ -189,9 +198,9 @@ class ProfileScreen extends ConsumerWidget {
                       Navigator.pop(ctx);
                       ref.read(authControllerProvider.notifier).logout();
                     },
-                    child: const Text(
-                      'Sign Out',
-                      style: TextStyle(
+                    child: Text(
+                      context.localizations.signOut,
+                      style: const TextStyle(
                         color: Color(0xFFEF4444),
                         fontWeight: FontWeight.w900,
                       ),
@@ -212,12 +221,12 @@ class ProfileScreen extends ConsumerWidget {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.logout_rounded, size: 22),
-              SizedBox(width: 8),
+            children: [
+              const Icon(Icons.logout_rounded, size: 22),
+              const SizedBox(width: 8),
               Text(
-                'Sign Out',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                context.localizations.signOut,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
             ],
           ),
