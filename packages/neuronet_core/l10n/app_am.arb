@@ -67,5 +67,9 @@
   "mindfulnessGames": "የአስተሳሰብ ጨዋታዎች",
   "boostYourMood": "በአዝናኝ እና በሳይንስ በተደገፉ እንቅስቃሴዎች ስሜትዎን ያሳድጉ።",
   "playNow": "አሁን ይጫወቱ",
-  "ai": "AI"
+  "ai": "AI",
+  "translate": "ተርጉም",
+  "showOriginal": "ዋናውን አሳይ",
+  "translating": "በመተርጎም ላይ...",
+  "translationError": "መተርጎም አልተቻለም"
 }

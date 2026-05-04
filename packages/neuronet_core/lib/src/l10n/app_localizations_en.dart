@@ -249,4 +249,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get translate => 'Translate';
+
+  @override
+  String get showOriginal => 'Show Original';
+
+  @override
+  String get translating => 'Translating...';
+
+  @override
+  String get translationError => 'Failed to translate';
 }

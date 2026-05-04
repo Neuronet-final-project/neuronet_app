@@ -600,10 +600,31 @@ class _DayGroup extends StatelessWidget {
   }
 }
 
-class _EntryCard extends StatelessWidget {
+class _EntryCard extends StatefulWidget {
   const _EntryCard({required this.entry, this.isPendingSync = false});
   final JournalEntry entry;
   final bool isPendingSync;
+
+  @override
+  State<_EntryCard> createState() => _EntryCardState();
+}
+
+class _EntryCardState extends State<_EntryCard> {
+  late String _displayContent;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayContent = widget.entry.content;
+  }
+
+  @override
+  void didUpdateWidget(_EntryCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.entry.content != widget.entry.content) {
+      _displayContent = widget.entry.content;
+    }
+  }
 
   Color _accent(MoodType? mood) {
     return switch (mood) {
@@ -623,7 +644,7 @@ class _EntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = _accent(entry.mood);
+    final accent = _accent(widget.entry.mood);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
@@ -631,7 +652,7 @@ class _EntryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: isPendingSync
+          onTap: widget.isPendingSync
               ? () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -640,7 +661,7 @@ class _EntryCard extends StatelessWidget {
                     ),
                   );
                 }
-              : () => context.push('${AdolescentRoutes.journal}/${entry.id}'),
+              : () => context.push('${AdolescentRoutes.journal}/${widget.entry.id}'),
           borderRadius: BorderRadius.circular(22),
           splashColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.08),
           highlightColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.04),
@@ -648,8 +669,6 @@ class _EntryCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(22),
-              // Rounded corners require a uniform border color on BoxDecoration.
-              // Mood accent is drawn as a separate strip (see Row below).
               border: Border.all(color: const Color(0xFFE8E0F0), width: 1),
               boxShadow: [
                 BoxShadow(
@@ -676,8 +695,8 @@ class _EntryCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          _MoodBadge(mood: entry.mood),
-                          if (isPendingSync) ...[
+                          _MoodBadge(mood: widget.entry.mood),
+                          if (widget.isPendingSync) ...[
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -700,7 +719,7 @@ class _EntryCard extends StatelessWidget {
                           const Icon(Icons.access_time_rounded, size: 12, color: Color(0xFF8A7DAC)),
                           const SizedBox(width: 4),
                           Text(
-                            DateFormat('h:mm a').format(entry.createdAt),
+                            DateFormat('h:mm a').format(widget.entry.createdAt),
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
@@ -710,9 +729,9 @@ class _EntryCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 14),
-                      if (entry.title != null) ...[
+                      if (widget.entry.title != null) ...[
                         Text(
-                          entry.title!,
+                          widget.entry.title!,
                           style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w900,
@@ -723,7 +742,7 @@ class _EntryCard extends StatelessWidget {
                         const SizedBox(height: 6),
                       ],
                       Text(
-                        entry.content,
+                        _displayContent,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -731,6 +750,15 @@ class _EntryCard extends StatelessWidget {
                           height: 1.5,
                           color: Color(0xFF53477D),
                         ),
+                      ),
+                      const SizedBox(height: 8),
+                      NeuroTranslateButton(
+                        text: widget.entry.content,
+                        onTranslationDone: (translated, isOriginal) {
+                          setState(() {
+                            _displayContent = translated;
+                          });
+                        },
                       ),
                     ],
                   ),

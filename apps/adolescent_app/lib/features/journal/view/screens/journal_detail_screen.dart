@@ -271,12 +271,26 @@ class _ErrorBody extends StatelessWidget {
   }
 }
 
-class _DetailContent extends StatelessWidget {
+class _DetailContent extends StatefulWidget {
   const _DetailContent({required this.entry});
   final JournalEntry entry;
 
   @override
+  State<_DetailContent> createState() => _DetailContentState();
+}
+
+class _DetailContentState extends State<_DetailContent> {
+  late String _displayContent;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayContent = widget.entry.content;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final entry = widget.entry;
     final wordCount = entry.content.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).length;
     final readTime = wordCount == 0 ? 1 : (wordCount / 200).ceil();
     final moodColor = _journalEntryMoodAccent(entry.mood);
@@ -548,19 +562,32 @@ class _DetailContent extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 44,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF9E7AFF), Color(0xFF6A1FDB)],
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF9E7AFF), Color(0xFF6A1FDB)],
+                                  ),
+                                ),
                               ),
-                            ),
+                              NeuroTranslateButton(
+                                text: entry.content,
+                                onTranslationDone: (translated, isOriginal) {
+                                  setState(() {
+                                    _displayContent = translated;
+                                  });
+                                },
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 22),
                           SelectableText(
-                            entry.content,
+                            _displayContent,
                             style: const TextStyle(
                               fontSize: 17,
                               height: 1.75,

@@ -76,5 +76,9 @@
   "role": "Rol",
   "guardian": "Tutor",
   "areYouSureSignOut": "¿Estás seguro de que quieres cerrar sesión?",
-  "cancel": "Cancelar"
+  "cancel": "Cancelar",
+  "translate": "Traducir",
+  "showOriginal": "Mostrar original",
+  "translating": "Traduciendo...",
+  "translationError": "Error al traducir"
 }

@@ -250,4 +250,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cancel => 'Cancelar';
+
+  @override
+  String get translate => 'Traducir';
+
+  @override
+  String get showOriginal => 'Mostrar original';
+
+  @override
+  String get translating => 'Traduciendo...';
+
+  @override
+  String get translationError => 'Error al traducir';
 }

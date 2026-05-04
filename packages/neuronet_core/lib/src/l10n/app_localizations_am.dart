@@ -247,4 +247,16 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get translate => 'ተርጉም';
+
+  @override
+  String get showOriginal => 'ዋናውን አሳይ';
+
+  @override
+  String get translating => 'በመተርጎም ላይ...';
+
+  @override
+  String get translationError => 'መተርጎም አልተቻለም';
 }

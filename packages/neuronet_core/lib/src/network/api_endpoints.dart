@@ -131,4 +131,7 @@ class ApiEndpoints {
 
   // Counselor Assignments
   static String adolescentCounselors(String adolescentId) => '/counselor-assignments/adolescent/$adolescentId/counselors';
+
+  // Translation
+  static const String translate = '/api/translation/translate';
 }

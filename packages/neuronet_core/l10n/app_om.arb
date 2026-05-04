@@ -67,5 +67,9 @@
   "mindfulnessGames": "Taphawwan Mindfulness",
   "boostYourMood": "Gochaawwan gammachiisoo fi saayinsii irratti hunda'aniin miira kee dabali.",
   "playNow": "Amma taphadhu",
-  "ai": "AI"
+  "ai": "AI",
+  "translate": "Hiiki",
+  "showOriginal": "Kan jalqabaa agarsiisi",
+  "translating": "Hiikaa jira...",
+  "translationError": "Hiikuun hindanda'amne"
 }

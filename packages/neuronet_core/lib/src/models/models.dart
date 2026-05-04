@@ -15,4 +15,5 @@ export 'guardian_approval.dart';
 export 'conversation.dart';
 export 'ai_chat_session.dart';
 export 'call.dart';
+export 'translation.dart';
 

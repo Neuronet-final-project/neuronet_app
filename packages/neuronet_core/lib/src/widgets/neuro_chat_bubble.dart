@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../theme/app_theme.dart';
 import '../services/voice_recorder_service.dart';
 import '../models/conversation.dart';
+import 'neuro_translate_button.dart';
 
 /// Shared chat message bubble widget used across AI chat, counselor chat,
 /// and guardian counselor messaging screens.
@@ -58,10 +59,12 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
   late AnimationController _entranceController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
+  late String _displayContent;
 
   @override
   void initState() {
     super.initState();
+    _displayContent = widget.messageContent;
     _entranceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -245,12 +248,22 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.messageContent.isEmpty ? '(empty message)' : widget.messageContent,
+          _displayContent.isEmpty ? '(empty message)' : _displayContent,
           style: TextStyle(
             color: widget.isUser ? Colors.white : NeuroColors.onSurface,
             fontSize: 15,
             height: 1.4,
           ),
+        ),
+        const SizedBox(height: 4),
+        NeuroTranslateButton(
+          text: widget.messageContent,
+          color: widget.isUser ? Colors.white.withValues(alpha: 0.9) : accentColor,
+          onTranslationDone: (translated, isOriginal) {
+            setState(() {
+              _displayContent = translated;
+            });
+          },
         ),
         const SizedBox(height: 4),
         Text(

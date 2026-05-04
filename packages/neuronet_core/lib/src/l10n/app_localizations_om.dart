@@ -249,4 +249,16 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get translate => 'Hiiki';
+
+  @override
+  String get showOriginal => 'Kan jalqabaa agarsiisi';
+
+  @override
+  String get translating => 'Hiikaa jira...';
+
+  @override
+  String get translationError => 'Hiikuun hindanda\'amne';
 }

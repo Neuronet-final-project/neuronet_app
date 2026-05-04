@@ -28,6 +28,7 @@ export 'src/services/call_controller.dart';
 export 'src/services/educational_follow_service.dart';
 export 'src/services/ai_recommendation_service.dart';
 export 'src/services/guardian_approval_service.dart';
+export 'src/services/translation_service.dart';
 // Localization
 export 'l10n.dart';
 export 'src/services/l10n_service.dart';
@@ -58,6 +59,7 @@ export 'src/widgets/neuro_incoming_call.dart';
 export 'src/widgets/neuro_active_call.dart';
 export 'src/widgets/neuro_button.dart';
 export 'src/widgets/neuro_toast.dart';
+export 'src/widgets/neuro_translate_button.dart';
 export 'src/widgets/language_picker_dropdown.dart';
 export 'src/widgets/language_switcher_tile.dart';
 
