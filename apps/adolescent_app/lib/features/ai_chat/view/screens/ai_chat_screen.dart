@@ -57,16 +57,16 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       appBar: AppBar(
         title: Column(
           children: [
-            const Text('AI Assistant', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(context.localizations.aiAssistant, style: const TextStyle(fontWeight: FontWeight.bold)),
             chatState.when(
               data: (d) => Text(
-                d.isTyping ? 'Typing...' : 'Online',
+                d.isTyping ? context.localizations.typing : context.localizations.online,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: d.isTyping ? Colors.white70 : NeuroColors.moodCalm,
                 ),
               ),
-              loading: () => Text('Loading...', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.white70)),
-              error: (_, __) => Text('Offline', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: NeuroColors.alertHigh)),
+              loading: () => Text(context.localizations.loading, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.white70)),
+              error: (_, __) => Text(context.localizations.offline, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: NeuroColors.alertHigh)),
             ),
           ],
         ),
@@ -84,29 +84,29 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                     children: [
                       const Icon(Icons.psychology_rounded, color: NeuroColors.adolescentPrimary),
                       const SizedBox(width: 12),
-                      const Text('AI Assistant Information', style: TextStyle(fontWeight: FontWeight.w800)),
+                      Text(context.localizations.aiAssistantInfo, style: const TextStyle(fontWeight: FontWeight.w800)),
                     ],
                   ),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _buildInfoItem(Icons.security_rounded, 'Safety First', 'This AI is for support and reflection, not for medical diagnosis or crisis intervention.'),
+                      _buildInfoItem(Icons.security_rounded, context.localizations.safetyFirst, context.localizations.safetyFirstDesc),
                       const SizedBox(height: 16),
-                      _buildInfoItem(Icons.privacy_tip_rounded, 'Your Data', 'Conversations are analyzed to provide support and may be reviewed by your school counselor.'),
+                      _buildInfoItem(Icons.privacy_tip_rounded, context.localizations.yourData, context.localizations.yourDataDesc),
                       const SizedBox(height: 16),
-                      _buildInfoItem(Icons.lightbulb_rounded, 'How to Use', 'Ask about stress management, study tips, or just chat about your day.'),
+                      _buildInfoItem(Icons.lightbulb_rounded, context.localizations.howToUse, context.localizations.howToUseDesc),
                     ],
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Got it', style: TextStyle(fontWeight: FontWeight.bold, color: NeuroColors.adolescentPrimary)),
+                      child: Text(context.localizations.gotIt, style: const TextStyle(fontWeight: FontWeight.bold, color: NeuroColors.adolescentPrimary)),
                     ),
                   ],
                 ),
               );
             },
-            tooltip: 'About AI Assistant',
+            tooltip: context.localizations.aboutAiAssistant,
           ),
         ],
       ),
@@ -120,10 +120,10 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.wifi_off_rounded, size: 64, color: NeuroColors.onSurfaceVariant),
+                  const Icon(Icons.wifi_off_rounded, size: 64, color: NeuroColors.onSurfaceVariant),
                   const SizedBox(height: 16),
                   Text(
-                    'Unable to connect to AI Assistant',
+                    context.localizations.unableConnectAi,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: NeuroColors.onSurface,
@@ -132,7 +132,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Check your internet connection and try again.',
+                    context.localizations.checkInternetTryAgain,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: NeuroColors.onSurfaceVariant,
                     ),
@@ -162,7 +162,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                       messageContent: message.messageContent,
                       timestamp: message.timestamp,
                       isUser: isUser,
-                      senderLabel: isUser ? 'You' : 'NEURO Assistant',
+                      senderLabel: isUser ? context.localizations.youSenderLabel : context.localizations.aiSenderLabel,
                       userColor: NeuroColors.adolescentPrimary,
                     );
                   },
@@ -186,7 +186,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         Icon(Icons.psychology_outlined, size: 80, color: NeuroColors.onSurfaceVariant.withValues(alpha: 0.3)),
         const SizedBox(height: 16),
         Text(
-          'Start a Conversation',
+          context.localizations.startConversation,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
             color: NeuroColors.onSurface,
@@ -194,7 +194,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          "Ask me anything about your well-being.\nI'm here to help you reflect.",
+          context.localizations.aiEmptyPrompt,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: NeuroColors.onSurfaceVariant,
@@ -213,7 +213,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          'AI Assistant is thinking...',
+          context.localizations.aiThinking,
           style: theme.textTheme.labelSmall?.copyWith(
             fontStyle: FontStyle.italic,
             color: NeuroColors.onSurfaceVariant,
@@ -225,10 +225,10 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
 
   Widget _buildQuickPrompts() {
     final prompts = [
-      "What can you help me with?",
-      "How do I add a journal entry?",
-      "Who can see my data?",
-      "How do I contact my counselor?",
+      context.localizations.aiPrompt1,
+      context.localizations.aiPrompt2,
+      context.localizations.aiPrompt3,
+      context.localizations.aiPrompt4,
     ];
 
     return Container(
@@ -291,7 +291,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'AI Assistant can support your reflection but is not a medical professional. For urgent help, please contact your counselor.',
+                context.localizations.aiSafetyDisclaimer,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: NeuroColors.adolescentPrimary,
                   fontWeight: FontWeight.w600,
