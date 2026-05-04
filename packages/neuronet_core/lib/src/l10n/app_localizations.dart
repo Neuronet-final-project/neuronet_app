@@ -587,6 +587,654 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to translate'**
   String get translationError;
+
+  /// No description provided for @failedToLoadJournals.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading journals'**
+  String get failedToLoadJournals;
+
+  /// No description provided for @yourJournalAwaits.
+  ///
+  /// In en, this message translates to:
+  /// **'Your journal awaits'**
+  String get yourJournalAwaits;
+
+  /// No description provided for @captureHowYouFeel.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture how you feel in a private space.\nTap compose when you are ready.'**
+  String get captureHowYouFeel;
+
+  /// No description provided for @secureJournalTag.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR SECURE JOURNAL'**
+  String get secureJournalTag;
+
+  /// No description provided for @refreshingJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing journal...'**
+  String get refreshingJournal;
+
+  /// No description provided for @stillSyncingEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Still syncing this entry to the server...'**
+  String get stillSyncingEntry;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'THIS WEEK'**
+  String get thisWeek;
+
+  /// No description provided for @memoriesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 MEMORY} other{{count} MEMORIES}}'**
+  String memoriesCount(int count);
+
+  /// No description provided for @openingYourEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening your entry...'**
+  String get openingYourEntry;
+
+  /// No description provided for @couldNotOpenShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open share. Text copied to clipboard instead.'**
+  String get couldNotOpenShare;
+
+  /// No description provided for @journalNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal not found'**
+  String get journalNotFound;
+
+  /// No description provided for @journalSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'My journal entry'**
+  String get journalSubject;
+
+  /// No description provided for @pleaseWriteSomething.
+  ///
+  /// In en, this message translates to:
+  /// **'Please write something first'**
+  String get pleaseWriteSomething;
+
+  /// No description provided for @journalSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your journal was saved.'**
+  String get journalSaved;
+
+  /// No description provided for @newEntryTag.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW ENTRY'**
+  String get newEntryTag;
+
+  /// No description provided for @safeSpaceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your safe space. Write what you feel today.'**
+  String get safeSpaceNote;
+
+  /// No description provided for @journalTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Give it a title...'**
+  String get journalTitleHint;
+
+  /// No description provided for @journalContentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Start writing your thoughts here...'**
+  String get journalContentHint;
+
+  /// No description provided for @sparkSmile.
+  ///
+  /// In en, this message translates to:
+  /// **'What made me smile today?'**
+  String get sparkSmile;
+
+  /// No description provided for @sparkGrateful.
+  ///
+  /// In en, this message translates to:
+  /// **'One thing I\'m grateful for'**
+  String get sparkGrateful;
+
+  /// No description provided for @sparkVictory.
+  ///
+  /// In en, this message translates to:
+  /// **'A small victory I had'**
+  String get sparkVictory;
+
+  /// No description provided for @sparkChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'How I handled a challenge'**
+  String get sparkChallenge;
+
+  /// No description provided for @discoverHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'DISCOVER'**
+  String get discoverHeader;
+
+  /// No description provided for @searchMemoriesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search memories...'**
+  String get searchMemoriesHint;
+
+  /// No description provided for @filterWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'WHEN'**
+  String get filterWhen;
+
+  /// No description provided for @filterMood.
+  ///
+  /// In en, this message translates to:
+  /// **'MOOD'**
+  String get filterMood;
+
+  /// No description provided for @filterResults.
+  ///
+  /// In en, this message translates to:
+  /// **'RESULTS ({count})'**
+  String filterResults(int count);
+
+  /// No description provided for @stillLooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Still looking...'**
+  String get stillLooking;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get filterToday;
+
+  /// No description provided for @filterThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get filterThisWeek;
+
+  /// No description provided for @filterSpecific.
+  ///
+  /// In en, this message translates to:
+  /// **'Specific Date'**
+  String get filterSpecific;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get copiedToClipboard;
+
+  /// No description provided for @aboutJournalPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'About journal privacy'**
+  String get aboutJournalPrivacy;
+
+  /// No description provided for @journalPrivacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal privacy'**
+  String get journalPrivacyTitle;
+
+  /// No description provided for @journalPrivacyContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Your journal entries are stored securely for your account. The app is designed so your raw journal text is not shown to guardians or counselors. If you ever use optional features that analyze mood in aggregate, those are described in your consent settings.'**
+  String get journalPrivacyContent;
+
+  /// No description provided for @gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get gotIt;
+
+  /// No description provided for @backToJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to journal'**
+  String get backToJournal;
+
+  /// No description provided for @entryRemovedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been removed or this link is outdated.'**
+  String get entryRemovedNote;
+
+  /// No description provided for @somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get somethingWentWrong;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
+  /// No description provided for @moodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood'**
+  String get moodLabel;
+
+  /// No description provided for @wordsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Words'**
+  String get wordsLabel;
+
+  /// No description provided for @readLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get readLabel;
+
+  /// No description provided for @tipLongPress.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: long-press your entry below to select text or copy a favorite line.'**
+  String get tipLongPress;
+
+  /// No description provided for @yourPrivateSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Your private space'**
+  String get yourPrivateSpace;
+
+  /// No description provided for @privateSpaceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This entry stays on your account for you. Guardians and counselors do not read your journal text.'**
+  String get privateSpaceNote;
+
+  /// No description provided for @copyEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy entry'**
+  String get copyEntry;
+
+  /// No description provided for @titleAndFullText.
+  ///
+  /// In en, this message translates to:
+  /// **'Title and full text'**
+  String get titleAndFullText;
+
+  /// No description provided for @writingSparksTag.
+  ///
+  /// In en, this message translates to:
+  /// **'WRITING SPARKS'**
+  String get writingSparksTag;
+
+  /// No description provided for @howAreYouFeelingNow.
+  ///
+  /// In en, this message translates to:
+  /// **'How are you feeling right now?'**
+  String get howAreYouFeelingNow;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @syncingTag.
+  ///
+  /// In en, this message translates to:
+  /// **'SYNCING'**
+  String get syncingTag;
+
+  /// No description provided for @shareTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareTooltip;
+
+  /// No description provided for @moreTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get moreTooltip;
+
+  /// No description provided for @moodHappy.
+  ///
+  /// In en, this message translates to:
+  /// **'Happy'**
+  String get moodHappy;
+
+  /// No description provided for @moodSad.
+  ///
+  /// In en, this message translates to:
+  /// **'Sad'**
+  String get moodSad;
+
+  /// No description provided for @moodAnxious.
+  ///
+  /// In en, this message translates to:
+  /// **'Anxious'**
+  String get moodAnxious;
+
+  /// No description provided for @moodCalm.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm'**
+  String get moodCalm;
+
+  /// No description provided for @moodStressed.
+  ///
+  /// In en, this message translates to:
+  /// **'Stressed'**
+  String get moodStressed;
+
+  /// No description provided for @moodNeutral.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get moodNeutral;
+
+  /// No description provided for @moodExcited.
+  ///
+  /// In en, this message translates to:
+  /// **'Excited'**
+  String get moodExcited;
+
+  /// No description provided for @moodTired.
+  ///
+  /// In en, this message translates to:
+  /// **'Tired'**
+  String get moodTired;
+
+  /// No description provided for @moodAngry.
+  ///
+  /// In en, this message translates to:
+  /// **'Angry'**
+  String get moodAngry;
+
+  /// No description provided for @moodHopeful.
+  ///
+  /// In en, this message translates to:
+  /// **'Hopeful'**
+  String get moodHopeful;
+
+  /// No description provided for @dailyCheckInTag.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR DAILY CHECK-IN'**
+  String get dailyCheckInTag;
+
+  /// No description provided for @tapEmojiPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the emoji that best captures your current mood.'**
+  String get tapEmojiPrompt;
+
+  /// No description provided for @intensityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Intensity'**
+  String get intensityLabel;
+
+  /// No description provided for @mildLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mild'**
+  String get mildLabel;
+
+  /// No description provided for @strongLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get strongLabel;
+
+  /// No description provided for @moodReasonPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s making you feel this way?'**
+  String get moodReasonPrompt;
+
+  /// No description provided for @moodNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a quick note... (Optional)'**
+  String get moodNoteHint;
+
+  /// No description provided for @logMoodButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Log This Mood'**
+  String get logMoodButton;
+
+  /// No description provided for @moodLoggedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood Logged!'**
+  String get moodLoggedSuccess;
+
+  /// No description provided for @thanksCheckingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for checking in.\nTracking how you feel helps you understand yourself better.'**
+  String get thanksCheckingIn;
+
+  /// No description provided for @logAnotherMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Log another mood'**
+  String get logAnotherMood;
+
+  /// No description provided for @pastCheckInsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Past Check-ins'**
+  String get pastCheckInsHeader;
+
+  /// No description provided for @failedToLoadHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load history'**
+  String get failedToLoadHistory;
+
+  /// No description provided for @now.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get now;
+
+  /// No description provided for @minAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get minAbbr;
+
+  /// No description provided for @hourAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'h'**
+  String get hourAbbr;
+
+  /// No description provided for @dayAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'d'**
+  String get dayAbbr;
+
+  /// No description provided for @levelAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'Lvl'**
+  String get levelAbbr;
+
+  /// No description provided for @aiAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant'**
+  String get aiAssistant;
+
+  /// No description provided for @typing.
+  ///
+  /// In en, this message translates to:
+  /// **'Typing...'**
+  String get typing;
+
+  /// No description provided for @online.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get online;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// No description provided for @offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offline;
+
+  /// No description provided for @aiAssistantInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant Information'**
+  String get aiAssistantInfo;
+
+  /// No description provided for @safetyFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety First'**
+  String get safetyFirst;
+
+  /// No description provided for @safetyFirstDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'This AI is for support and reflection, not for medical diagnosis or crisis intervention.'**
+  String get safetyFirstDesc;
+
+  /// No description provided for @yourData.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Data'**
+  String get yourData;
+
+  /// No description provided for @yourDataDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversations are analyzed to provide support and may be reviewed by your school counselor.'**
+  String get yourDataDesc;
+
+  /// No description provided for @howToUse.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Use'**
+  String get howToUse;
+
+  /// No description provided for @howToUseDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about stress management, study tips, or just chat about your day.'**
+  String get howToUseDesc;
+
+  /// No description provided for @aboutAiAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'About AI Assistant'**
+  String get aboutAiAssistant;
+
+  /// No description provided for @unableConnectAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to connect to AI Assistant'**
+  String get unableConnectAi;
+
+  /// No description provided for @checkInternetTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your internet connection and try again.'**
+  String get checkInternetTryAgain;
+
+  /// No description provided for @startConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a Conversation'**
+  String get startConversation;
+
+  /// No description provided for @aiEmptyPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask me anything about your well-being.\nI\'m here to help you reflect.'**
+  String get aiEmptyPrompt;
+
+  /// No description provided for @aiThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant is thinking...'**
+  String get aiThinking;
+
+  /// No description provided for @aiSafetyDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant can support your reflection but is not a medical professional. For urgent help, please contact your counselor.'**
+  String get aiSafetyDisclaimer;
+
+  /// No description provided for @aiSenderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'NEURO Assistant'**
+  String get aiSenderLabel;
+
+  /// No description provided for @youSenderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get youSenderLabel;
+
+  /// No description provided for @aiPrompt1.
+  ///
+  /// In en, this message translates to:
+  /// **'What can you help me with?'**
+  String get aiPrompt1;
+
+  /// No description provided for @aiPrompt2.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I add a journal entry?'**
+  String get aiPrompt2;
+
+  /// No description provided for @aiPrompt3.
+  ///
+  /// In en, this message translates to:
+  /// **'Who can see my data?'**
+  String get aiPrompt3;
+
+  /// No description provided for @aiPrompt4.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I contact my counselor?'**
+  String get aiPrompt4;
 }
 
 class _AppLocalizationsDelegate

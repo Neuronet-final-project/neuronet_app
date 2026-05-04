@@ -48,7 +48,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get goodMorning => 'Buenos días';
 
   @override
-  String get goodAfternoon => 'Buenas tardes';
+  String get goodAfternoon => 'Buenos tardes';
 
   @override
   String get goodEvening => 'Buenas noches';
@@ -262,4 +262,355 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get translationError => 'Error al traducir';
+
+  @override
+  String get failedToLoadJournals => 'Error al cargar los diarios';
+
+  @override
+  String get yourJournalAwaits => 'Tu diario te espera';
+
+  @override
+  String get captureHowYouFeel =>
+      'Captura cómo te sientes en un espacio privado.\nToca redactar cuando estés listo.';
+
+  @override
+  String get secureJournalTag => 'TU DIARIO SEGURO';
+
+  @override
+  String get refreshingJournal => 'Actualizando diario...';
+
+  @override
+  String get stillSyncingEntry =>
+      'Aún sincronizando esta entrada con el servidor...';
+
+  @override
+  String get thisWeek => 'ESTA SEMANA';
+
+  @override
+  String memoriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count MEMORIAS',
+      one: '1 MEMORIA',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get openingYourEntry => 'Abriendo tu entrada...';
+
+  @override
+  String get couldNotOpenShare =>
+      'No se pudo abrir el intercambio. El texto se copió al portapapeles.';
+
+  @override
+  String get journalNotFound => 'Diario no encontrado';
+
+  @override
+  String get journalSubject => 'Mi entrada de diario';
+
+  @override
+  String get pleaseWriteSomething => 'Por favor escribe algo primero';
+
+  @override
+  String get journalSaved => 'Tu diario fue guardado.';
+
+  @override
+  String get newEntryTag => 'NUEVA ENTRADA';
+
+  @override
+  String get safeSpaceNote =>
+      'Este es tu espacio seguro. Escribe lo que sientes hoy.';
+
+  @override
+  String get journalTitleHint => 'Dale un título...';
+
+  @override
+  String get journalContentHint =>
+      'Empieza a escribir tus pensamientos aquí...';
+
+  @override
+  String get sparkSmile => '¿Qué me hizo sonreír hoy?';
+
+  @override
+  String get sparkGrateful => 'Una cosa por la que estoy agradecido';
+
+  @override
+  String get sparkVictory => 'Una pequeña victoria que tuve';
+
+  @override
+  String get sparkChallenge => 'Cómo manejé un desafío';
+
+  @override
+  String get discoverHeader => 'DESCUBRIR';
+
+  @override
+  String get searchMemoriesHint => 'Buscar memorias...';
+
+  @override
+  String get filterWhen => 'CUÁNDO';
+
+  @override
+  String get filterMood => 'ESTADO DE ÁNIMO';
+
+  @override
+  String filterResults(int count) {
+    return 'RESULTADOS ($count)';
+  }
+
+  @override
+  String get stillLooking => 'Siguiendo buscando...';
+
+  @override
+  String get filterAll => 'Todo';
+
+  @override
+  String get filterToday => 'Hoy';
+
+  @override
+  String get filterThisWeek => 'Esta semana';
+
+  @override
+  String get filterSpecific => 'Fecha específica';
+
+  @override
+  String get copiedToClipboard => 'Copiado al portapapeles';
+
+  @override
+  String get aboutJournalPrivacy => 'Acerca de la privacidad del diario';
+
+  @override
+  String get journalPrivacyTitle => 'Privacidad del diario';
+
+  @override
+  String get journalPrivacyContent =>
+      'Tus entradas de diario se guardan de forma segura para tu cuenta. La aplicación está diseñada para que el texto original de tu diario no se muestre a tutores o consejeros. Si alguna vez usas funciones opcionales que analizan el estado de ánimo de forma agregada, estas se describen en tus ajustes de consentimiento.';
+
+  @override
+  String get gotIt => 'Entendido';
+
+  @override
+  String get backToJournal => 'Volver al diario';
+
+  @override
+  String get entryRemovedNote =>
+      'Es posible que se haya eliminado o que este enlace esté desactualizado.';
+
+  @override
+  String get somethingWentWrong => 'Algo salió mal';
+
+  @override
+  String get tryAgain => 'Reintentar';
+
+  @override
+  String get moodLabel => 'Estado';
+
+  @override
+  String get wordsLabel => 'Palabras';
+
+  @override
+  String get readLabel => 'Lectura';
+
+  @override
+  String get tipLongPress =>
+      'Consejo: mantén presionada tu entrada a continuación para seleccionar texto o copiar una línea favorita.';
+
+  @override
+  String get yourPrivateSpace => 'Tu espacio privado';
+
+  @override
+  String get privateSpaceNote =>
+      'Esta entrada permanece en tu cuenta para ti. Los tutores y consejeros no leen el texto de tu diario.';
+
+  @override
+  String get copyEntry => 'Copiar entrada';
+
+  @override
+  String get titleAndFullText => 'Título y texto completo';
+
+  @override
+  String get writingSparksTag => 'CHISPAS DE ESCRITURA';
+
+  @override
+  String get howAreYouFeelingNow => '¿Cómo te sientes ahora mismo?';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get syncingTag => 'SINCRONIZANDO';
+
+  @override
+  String get shareTooltip => 'Compartir';
+
+  @override
+  String get moreTooltip => 'Más';
+
+  @override
+  String get moodHappy => 'Feliz';
+
+  @override
+  String get moodSad => 'Triste';
+
+  @override
+  String get moodAnxious => 'Ansioso';
+
+  @override
+  String get moodCalm => 'Tranquilo';
+
+  @override
+  String get moodStressed => 'Estresado';
+
+  @override
+  String get moodNeutral => 'Neutral';
+
+  @override
+  String get moodExcited => 'Emocionado';
+
+  @override
+  String get moodTired => 'Cansado';
+
+  @override
+  String get moodAngry => 'Enojado';
+
+  @override
+  String get moodHopeful => 'Esperanzado';
+
+  @override
+  String get dailyCheckInTag => 'TU REGISTRO DIARIO';
+
+  @override
+  String get tapEmojiPrompt =>
+      'Toca el emoji que mejor capture tu estado de ánimo actual.';
+
+  @override
+  String get intensityLabel => 'Intensidad';
+
+  @override
+  String get mildLabel => 'Leve';
+
+  @override
+  String get strongLabel => 'Fuerte';
+
+  @override
+  String get moodReasonPrompt => '¿Qué te hace sentir así?';
+
+  @override
+  String get moodNoteHint => 'Añade una nota rápida... (Opcional)';
+
+  @override
+  String get logMoodButton => 'Registrar este ánimo';
+
+  @override
+  String get moodLoggedSuccess => '¡Ánimo registrado!';
+
+  @override
+  String get thanksCheckingIn =>
+      'Gracias por registrarte.\nRastrear cómo te sientes te ayuda a entenderte mejor.';
+
+  @override
+  String get logAnotherMood => 'Registrar otro ánimo';
+
+  @override
+  String get pastCheckInsHeader => 'Registros pasados';
+
+  @override
+  String get failedToLoadHistory => 'No se pudo cargar el historial';
+
+  @override
+  String get now => 'Ahora';
+
+  @override
+  String get minAbbr => 'm';
+
+  @override
+  String get hourAbbr => 'h';
+
+  @override
+  String get dayAbbr => 'd';
+
+  @override
+  String get levelAbbr => 'Nivel';
+
+  @override
+  String get aiAssistant => 'Asistente IA';
+
+  @override
+  String get typing => 'Escribiendo...';
+
+  @override
+  String get online => 'En línea';
+
+  @override
+  String get loading => 'Cargando...';
+
+  @override
+  String get offline => 'Desconectado';
+
+  @override
+  String get aiAssistantInfo => 'Información del asistente IA';
+
+  @override
+  String get safetyFirst => 'La seguridad es lo primero';
+
+  @override
+  String get safetyFirstDesc =>
+      'Esta IA es para apoyo y reflexión, no para diagnóstico médico o intervención en crisis.';
+
+  @override
+  String get yourData => 'Tus datos';
+
+  @override
+  String get yourDataDesc =>
+      'Las conversaciones se analizan para proporcionar apoyo y pueden ser revisadas por tu consejero escolar.';
+
+  @override
+  String get howToUse => 'Cómo usar';
+
+  @override
+  String get howToUseDesc =>
+      'Pregunta sobre el manejo del estrés, consejos de estudio o simplemente charla sobre tu día.';
+
+  @override
+  String get aboutAiAssistant => 'Acerca del asistente IA';
+
+  @override
+  String get unableConnectAi => 'No se pudo conectar con el asistente IA';
+
+  @override
+  String get checkInternetTryAgain =>
+      'Comprueba tu conexión a Internet e inténtalo de nuevo.';
+
+  @override
+  String get startConversation => 'Iniciar una conversación';
+
+  @override
+  String get aiEmptyPrompt =>
+      'Pregúntame cualquier cosa sobre tu bienestar.\nEstoy aquí para ayudarte a reflexionar.';
+
+  @override
+  String get aiThinking => 'El asistente IA está pensando...';
+
+  @override
+  String get aiSafetyDisclaimer =>
+      'El asistente IA puede apoyar tu reflexión pero no es un profesional médico. Para ayuda urgente, contacta a tu consejero.';
+
+  @override
+  String get aiSenderLabel => 'Asistente NEURO';
+
+  @override
+  String get youSenderLabel => 'Tú';
+
+  @override
+  String get aiPrompt1 => '¿En qué puedes ayudarme?';
+
+  @override
+  String get aiPrompt2 => '¿Cómo añado una entrada de diario?';
+
+  @override
+  String get aiPrompt3 => '¿Quién puede ver mis datos?';
+
+  @override
+  String get aiPrompt4 => '¿Cómo contacto a mi consejero?';
 }

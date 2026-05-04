@@ -40,6 +40,13 @@
   "selectLanguage": "Affaan filadhu",
   "adolescent": "Dargaggeessa",
   "heyUser": "Akkaam {name} 👋",
+  "@heyUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "innerWorldPrompt": "Har'a addunyaan keessoo kee akkaam jira?",
   "writeJournal": "Guraandhala barreessi",
   "expressYourself": "Of ibsi 📝",
@@ -60,16 +67,168 @@
   "journalToday": "Har'a",
   "journalYesterday": "Kaleessa",
   "daysAgo": "Guyyaa {count} dura",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "journalEntryDefault": "Galmee Guraandhala",
   "feelingLabel": "Miira {mood}",
+  "@feelingLabel": {
+    "placeholders": {
+      "mood": {
+        "type": "String"
+      }
+    }
+  },
   "minRead": "Dubbisa daqiiqaa {count}",
+  "@minRead": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "readNow": "Amma dubbisi",
   "mindfulnessGames": "Taphawwan Mindfulness",
   "boostYourMood": "Gochaawwan gammachiisoo fi saayinsii irratti hunda'aniin miira kee dabali.",
   "playNow": "Amma taphadhu",
   "ai": "AI",
+  "notificationSettings": "Sirna beeksisaa",
+  "alertNotifications": "Beeksisoota beeksisa",
+  "counselorMessages": "Ergichaan kutaalee",
+  "getNotifiedPatterns": "Mee baayysiisaa deebisuu ture filadhu",
+  "pushNotificationsNewMessages": "Push beeksisaa kutiin dubbisa haaraa",
+  "role": "Gahee",
+  "guardian": "Kofla",
+  "areYouSureSignOut": "Mee baayysiisaa baatutu siif dandeessu?",
+  "cancel": "Kulsi",
   "translate": "Hiiki",
   "showOriginal": "Kan jalqabaa agarsiisi",
   "translating": "Hiikaa jira...",
-  "translationError": "Hiikuun hindanda'amne"
+  "translationError": "Hiikuun hindanda'amne",
+  "failedToLoadJournals": "Guraandhala hin danda'amne",
+  "yourJournalAwaits": "Guraandhalichaa kee ilaali",
+  "captureHowYouFeel": "Miiraa kee qusachaa galmee dhuunfaa kana keessatti.\nKanaan bakka xiqqolteen dandeessu.",
+  "secureJournalTag": "GURAANDHALA KEET FUDHACHISUU",
+  "refreshingJournal": "Guraandhala dhaqaaqa...",
+  "stillSyncingEntry": "Kanaan galmee kana server irraa dhaqaaqaa jira...",
+  "thisWeek": "SAMA GALLA",
+  "memoriesCount": "{count, plural, =1{1 MIIRA} other{{count} MIIRA}}",
+  "@memoriesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "openingYourEntry": "Galmee kee fuka...",
+  "couldNotOpenShare": "Hin fudhachu. Barreeffama galmee galmee.",
+  "journalNotFound": "Guraandhala hin ilaalame",
+  "journalSubject": "Galmee kooti",
+  "pleaseWriteSomething": "Mee qusachaa ibsi",
+  "journalSaved": "Galmee kee fiigame.",
+  "newEntryTag": "GALMEE HAARA",
+  "safeSpaceNote": "Kanaan galmee fudhachisuu. Har'a miiraa kee qusachaa.",
+  "journalTitleHint": "Maqaa kanaan...",
+  "journalContentHint": "Galmee kee har'a...",
+  "sparkSmile": "Har'a manna guddadhe?",
+  "sparkGrateful": "Tokko fudhachisuu kana",
+  "sparkVictory": "Gammachisoo tokko",
+  "sparkChallenge": "Mee hin danda'amne",
+  "discoverHeader": "BANACHUUN",
+  "searchMemoriesHint": "Miirawwan barbaadi...",
+  "filterWhen": "MEE",
+  "filterMood": "MIIRA",
+  "filterResults": "MIISA ({count})",
+  "@filterResults": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stillLooking": "Illeensi...",
+  "filterAll": "Hunda",
+  "filterToday": "Har'a",
+  "filterThisWeek": "Sama gala",
+  "filterSpecific": "Guyyaa tokko",
+  "copiedToClipboard": "Galmee galmee",
+  "aboutJournalPrivacy": "Galmee fudhachisuu",
+  "journalPrivacyTitle": "Galmee fudhachisuu",
+  "journalPrivacyContent": "Galmee kee galmee keessatti qusachaa. Kanaan fudhachisuu kanaan kooti.",
+  "gotIt": "Fudhachisi",
+  "backToJournal": "Galmee galmee",
+  "entryRemovedNote": "Ture dhaqaaqaa yoo baate.",
+  "somethingWentWrong": "Mee hin danda'amne",
+  "tryAgain": "Irra deebi'i",
+  "moodLabel": "Miira",
+  "wordsLabel": "Dhugaa",
+  "readLabel": "Dubbisi",
+  "tipLongPress": "Galmee kee dhaqaaqaa filadhu.",
+  "yourPrivateSpace": "Galmee kee dhuunfaa",
+  "privateSpaceNote": "Kanaan galmee kanaan keessatti qusachaa. Koflaan kanaan hin dubbisu.",
+  "copyEntry": "Galmee galmee",
+  "titleAndFullText": "Maqaa fi barreeffama guutuu",
+  "writingSparksTag": "WRITING SPARKS",
+  "howAreYouFeelingNow": "Har'a maaltu sitti dhagahama?",
+  "save": "Obse",
+  "syncingTag": "DHAAQA",
+  "shareTooltip": "Share",
+  "moreTooltip": "Dabalata",
+  "moodHappy": "Gammachisuu",
+  "moodSad": "Baayyee",
+  "moodAnxious": "Baayyee",
+  "moodCalm": "Dhaqaaqaa",
+  "moodStressed": "Fudhachisuu",
+  "moodNeutral": "Dhaqaaqaa",
+  "moodExcited": "Dhaqaaqaa",
+  "moodTired": "Fudhachisuu",
+  "moodAngry": "Baayyee",
+  "moodHopeful": "Miira",
+  "dailyCheckInTag": "SAMA GALLA",
+  "tapEmojiPrompt": "Emoji tokkos miira kee mirkaneessi.",
+  "intensityLabel": "Dhaqaaqaa",
+  "mildLabel": "Xiqqoo",
+  "strongLabel": "Guddaa",
+  "moodReasonPrompt": "Mee sitti dhagahama?",
+  "moodNoteHint": "Barreeffama xiqqoo... (Filannoo)",
+  "logMoodButton": "Miira obse",
+  "moodLoggedSuccess": "Miira obse!",
+  "thanksCheckingIn": "Miira obse.\nMiira kee dhaqaaqaa.",
+  "logAnotherMood": "Miira biro obse",
+  "pastCheckInsHeader": "Sammiin",
+  "failedToLoadHistory": "Tarii hin danda'amne",
+  "now": "Amma",
+  "minAbbr": "daq",
+  "hourAbbr": "sa",
+  "dayAbbr": "gu",
+  "levelAbbr": "Lv",
+  "aiAssistant": "Hiriyyaa AI",
+  "typing": "Barreessaa jira...",
+  "online": "Toli",
+  "loading": "Dhaqaaqaa jira...",
+  "offline": "Galmee",
+  "aiAssistantInfo": "Hiriyyaa AI",
+  "safetyFirst": "Fudhachisuu",
+  "safetyFirstDesc": "AI kanaan miira fi gammachisuu.",
+  "yourData": "Miira kee",
+  "yourDataDesc": "Dubbisa dhaqaaqaa.",
+  "howToUse": "Mee fayyadamu",
+  "howToUseDesc": "Mee fayyadamu.",
+  "aboutAiAssistant": "Hiriyyaa AI",
+  "unableConnectAi": "AI hin danda'amne",
+  "checkInternetTryAgain": "Internet qusachaa fi irra deebi'i.",
+  "startConversation": "Dubbisa jaladhu",
+  "aiEmptyPrompt": "Mee fayyadamu.\nKanaan gargaaruu.",
+  "aiThinking": "Hiriyyaa AI jira...",
+  "aiSafetyDisclaimer": "AI miira gammachisuu.",
+  "aiSenderLabel": "NEURO Hiriyyaa",
+  "youSenderLabel": "Atti",
+  "aiPrompt1": "Mee fayyadamu?",
+  "aiPrompt2": "Mee galmee obse?",
+  "aiPrompt3": "Hin danda'amne?",
+  "aiPrompt4": "Mee fayyadamu?"
 }

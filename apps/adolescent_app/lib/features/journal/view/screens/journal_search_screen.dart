@@ -96,9 +96,9 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                         icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
                         onPressed: () => Navigator.pop(context),
                       ),
-                      const Text(
-                        'DISCOVER',
-                        style: TextStyle(
+                      Text(
+                        context.localizations.discoverHeader,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w900,
                           letterSpacing: 2,
                           fontSize: 12,
@@ -139,9 +139,9 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                               fontWeight: FontWeight.w600,
                               color: NeuroColors.ink,
                             ),
-                            decoration: const InputDecoration(
-                              hintText: 'Search memories...',
-                              hintStyle: TextStyle(color: NeuroColors.inkMuted),
+                            decoration: InputDecoration(
+                              hintText: context.localizations.searchMemoriesHint,
+                              hintStyle: const TextStyle(color: NeuroColors.inkMuted),
                               border: InputBorder.none,
                             ),
                           ),
@@ -158,15 +158,15 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 children: [
-                  _filterHeader('WHEN'),
+                  _filterHeader(context.localizations.filterWhen),
                   const SizedBox(height: 12),
                   _dateFilterStrip(),
                   const SizedBox(height: 28),
-                  _filterHeader('MOOD'),
+                  _filterHeader(context.localizations.filterMood),
                   const SizedBox(height: 12),
                   _moodFilterStrip(),
                   const SizedBox(height: 32),
-                  _filterHeader('RESULTS (${results.length})'),
+                  _filterHeader(context.localizations.filterResults(results.length)),
                   const SizedBox(height: 12),
                   if (results.isEmpty) 
                     _emptyState() 
@@ -215,9 +215,9 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _filterPill('All', _dateFilter == _DateFilter.all, () => setState(() => _dateFilter = _DateFilter.all)),
-          _filterPill('Today', _dateFilter == _DateFilter.today, () => setState(() => _dateFilter = _DateFilter.today)),
-          _filterPill('This Week', _dateFilter == _DateFilter.thisWeek, () => setState(() => _dateFilter = _DateFilter.thisWeek)),
+          _filterPill(context.localizations.filterAll, _dateFilter == _DateFilter.all, () => setState(() => _dateFilter = _DateFilter.all)),
+          _filterPill(context.localizations.filterToday, _dateFilter == _DateFilter.today, () => setState(() => _dateFilter = _DateFilter.today)),
+          _filterPill(context.localizations.filterThisWeek, _dateFilter == _DateFilter.thisWeek, () => setState(() => _dateFilter = _DateFilter.thisWeek)),
           if (_selectedSpecificDate != null)
             _filterPill(
               DateFormat('d MMM').format(_selectedSpecificDate!),
@@ -347,9 +347,9 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
           children: [
             const Icon(Icons.search_off_rounded, size: 48, color: NeuroColors.hairline),
             const SizedBox(height: 16),
-            const Text(
-              'Still looking...',
-              style: TextStyle(fontWeight: FontWeight.w900, color: NeuroColors.inkMuted),
+            Text(
+              context.localizations.stillLooking,
+              style: const TextStyle(fontWeight: FontWeight.w900, color: NeuroColors.inkMuted),
             ),
           ],
         ),

@@ -20,11 +20,11 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
   MoodType? _selectedMood;
   bool _isSaving = false;
 
-  final List<String> _sparks = [
-    'What made me smile today?',
-    "One thing I'm grateful for",
-    'A small victory I had',
-    'How I handled a challenge',
+  List<String> get _sparks => [
+    context.localizations.sparkSmile,
+    context.localizations.sparkGrateful,
+    context.localizations.sparkVictory,
+    context.localizations.sparkChallenge,
   ];
 
   @override
@@ -41,7 +41,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Please write something first', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          content: Text(context.localizations.pleaseWriteSomething, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           backgroundColor: NeuroColors.adolescentPrimaryDark,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -64,9 +64,9 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
     setState(() => _isSaving = false);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text(
-          'Your journal was saved.',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+        content: Text(
+          context.localizations.journalSaved,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
         backgroundColor: NeuroColors.adolescentPrimaryDark,
         behavior: SnackBarBehavior.floating,
@@ -150,9 +150,9 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                         ),
-                        child: const Text(
-                          'NEW ENTRY',
-                          style: TextStyle(
+                        child: Text(
+                          context.localizations.newEntryTag,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
@@ -212,23 +212,23 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(color: const Color(0xFFE4DAF5)),
                               ),
-                              child: const Row(
-                                children: [
-                                  Icon(Icons.favorite_rounded, color: Color(0xFF6A1FDB), size: 20),
-                                  SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      'This is your safe space. Write what you feel today.',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
-                                        height: 1.35,
-                                        color: Color(0xFF5A4A8A),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+child: Row(
+                                 children: [
+                                   Icon(Icons.favorite_rounded, color: Color(0xFF6A1FDB), size: 20),
+                                   SizedBox(width: 10),
+                                   Expanded(
+                                     child: Text(
+                                       context.localizations.safeSpaceNote,
+                                       style: TextStyle(
+                                         fontSize: 15,
+                                         fontWeight: FontWeight.w700,
+                                         height: 1.35,
+                                         color: Color(0xFF5A4A8A),
+                                       ),
+                                     ),
+                                   ),
+                                 ],
+                               ),
                             ),
                             const SizedBox(height: 24),
                             JournalComposerSparkStrip(
@@ -250,9 +250,9 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                                 color: Color(0xFF2C1C5F),
                                 letterSpacing: -0.5,
                               ),
-                              decoration: const InputDecoration(
-                                hintText: 'Give it a title...',
-                                hintStyle: TextStyle(color: Color(0xFFB4A8D3)),
+                              decoration: InputDecoration(
+                                hintText: context.localizations.journalTitleHint,
+                                hintStyle: const TextStyle(color: Color(0xFFB4A8D3)),
                                 border: InputBorder.none,
                                 focusedBorder: InputBorder.none,
                                 enabledBorder: InputBorder.none,
@@ -277,9 +277,9 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                                   fontWeight: FontWeight.w500,
                                   color: Color(0xFF53477D),
                                 ),
-                                decoration: const InputDecoration(
-                                  hintText: 'Start writing your thoughts here...',
-                                  hintStyle: TextStyle(color: Color(0xFFB4A8D3)),
+                                decoration: InputDecoration(
+                                  hintText: context.localizations.journalContentHint,
+                                  hintStyle: const TextStyle(color: Color(0xFFB4A8D3)),
                                   border: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                   enabledBorder: InputBorder.none,

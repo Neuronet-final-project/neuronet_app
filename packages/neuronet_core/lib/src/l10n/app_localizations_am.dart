@@ -167,7 +167,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get take30Seconds => '30 ሰከንድ ይውሰዱ።';
 
   @override
-  String get namingFeelings => 'የሚሰማዎትን ስም መስጠት የግማሽ ስራ ነው።\nቀሪውን እኛ እንረዳለን።';
+  String get namingFeelings => 'የሚሰማዎቱን ስም መስጠት የግማህ ስራ ነው።\nቀሪውን እኛ እንረዳለን።';
 
   @override
   String get checkInNow => 'አሁን ይመዝገቡ';
@@ -212,7 +212,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get mindfulnessGames => 'የአስተሳሰብ ጨዋታዎች';
 
   @override
-  String get boostYourMood => 'በአዝናኝ እና በሳይንስ በተደገፉ እንቅስቃሴዎች ስሜትዎን ያሳድጉ።';
+  String get boostYourMood => 'በአዝናኝ እና በሳይንስ በተደገፅ እንቅስቃሴዎች ስሜትዎን ያሳድጉ።';
 
   @override
   String get playNow => 'አሁን ይጫወቱ';
@@ -221,32 +221,31 @@ class AppLocalizationsAm extends AppLocalizations {
   String get ai => 'AI';
 
   @override
-  String get notificationSettings => 'Notification Settings';
+  String get notificationSettings => 'የማሳወቂያ ቅንብሮች';
 
   @override
-  String get alertNotifications => 'Alert Notifications';
+  String get alertNotifications => 'የማሳወቂያ ማሳወቂያዎች';
 
   @override
-  String get counselorMessages => 'Counselor Messages';
+  String get counselorMessages => 'የአማካሪ መልእክቶች';
 
   @override
-  String get getNotifiedPatterns => 'Get notified when patterns are detected';
+  String get getNotifiedPatterns => '� pattern የተገኙ ድንጋጠ ማሳዎች ያስተዳድሉ';
 
   @override
-  String get pushNotificationsNewMessages =>
-      'Push notifications for new messages';
+  String get pushNotificationsNewMessages => 'አዳዲሞ መልእክቶች የpush ማሳዎች';
 
   @override
-  String get role => 'Role';
+  String get role => 'ሚና';
 
   @override
-  String get guardian => 'Guardian';
+  String get guardian => 'አሳዳጊ';
 
   @override
-  String get areYouSureSignOut => 'Are you sure you want to sign out?';
+  String get areYouSureSignOut => 'እንደምን ወደ መለያ መግባት ነው?';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'ሰርዝ';
 
   @override
   String get translate => 'ተርጉም';
@@ -259,4 +258,342 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get translationError => 'መተርጎም አልተቻለም';
+
+  @override
+  String get failedToLoadJournals => 'ጆርናሎችን መጫን አልተቻለም';
+
+  @override
+  String get yourJournalAwaits => 'ጆርናልዎ በጠቀሙ ይጠብቃል';
+
+  @override
+  String get captureHowYouFeel => 'እንዴት እንደምን ይሰማሃል ይደርስ።\nዘመን ሲደርስ ይተመልከቱ።';
+
+  @override
+  String get secureJournalTag => 'የእርስዎ የተለያዩ ጆርናል';
+
+  @override
+  String get refreshingJournal => 'ጆርናል የተለያዩ...';
+
+  @override
+  String get stillSyncingEntry => 'መዝገብ የተለያዩ ዘዴ ላይ...';
+
+  @override
+  String get thisWeek => 'በዚህ ሳምንት';
+
+  @override
+  String memoriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ማህደኛዎች',
+      one: '1 ማህደኛ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get openingYourEntry => 'መዝገብዎን በማዕከል...';
+
+  @override
+  String get couldNotOpenShare => 'ማኅበረዚያ አይተለያዩም። ጽሁፍ ወደ ቅዱስ ያካበብ።';
+
+  @override
+  String get journalNotFound => 'ጆርናል አልተገኙም';
+
+  @override
+  String get journalSubject => 'የጆርናል መዝገብዎ';
+
+  @override
+  String get pleaseWriteSomething => 'እባክዎ የተለያዩ ይጻፉ';
+
+  @override
+  String get journalSaved => 'ጆርናልዎ ተቆል፧';
+
+  @override
+  String get newEntryTag => 'አዲስ መዝገብ';
+
+  @override
+  String get safeSpaceNote => 'ይህ የእርስዎ የተለያዩ ቦታ ነው። ዛሬ የሚሰማውን ይጻፉ።';
+
+  @override
+  String get journalTitleHint => 'አንድ ርዕስ ይስጡ...';
+
+  @override
+  String get journalContentHint => 'እዚህ ልምዶችዎን ጀመሩ...';
+
+  @override
+  String get sparkSmile => 'ዛሬ የሚያስተምር ምን ነው?';
+
+  @override
+  String get sparkGrateful => 'አንድ ነገር እናምን';
+
+  @override
+  String get sparkVictory => 'የኔ ትንሽ ድል';
+
+  @override
+  String get sparkChallenge => 'በመንበር እንዴት ተወግየ?';
+
+  @override
+  String get discoverHeader => 'ፍተኛ ማዕከል';
+
+  @override
+  String get searchMemoriesHint => 'ማህደኛዎችን ፈልግ...';
+
+  @override
+  String get filterWhen => 'መሀሪያ';
+
+  @override
+  String get filterMood => 'ስሜት';
+
+  @override
+  String filterResults(int count) {
+    return 'የመረጃ ውጤቶች ($count)';
+  }
+
+  @override
+  String get stillLooking => 'እሱም ፈልግ...';
+
+  @override
+  String get filterAll => 'ሁሉም';
+
+  @override
+  String get filterToday => 'ዛሬ';
+
+  @override
+  String get filterThisWeek => 'በዚህ ሳምንት';
+
+  @override
+  String get filterSpecific => 'የተለየ ቀን';
+
+  @override
+  String get copiedToClipboard => 'ወደ ቅዱስ ያካበብ';
+
+  @override
+  String get aboutJournalPrivacy => 'የጆርናል ግላዊነት ማንበብ';
+
+  @override
+  String get journalPrivacyTitle => 'የጆርናል ግላዊነት';
+
+  @override
+  String get journalPrivacyContent =>
+      'የጆርናል መዝገቦች ለእርስዎ ይቆያሉ። የመተዳደፊ መረጃ አይታያይቁም።';
+
+  @override
+  String get gotIt => 'ገብተው';
+
+  @override
+  String get backToJournal => 'ወደ ጆርናል';
+
+  @override
+  String get entryRemovedNote => 'ጠፋ ወይም የመረጃ መረጃ ይችላሉ።';
+
+  @override
+  String get somethingWentWrong => 'የሚያውቅ ነገር ይችላል';
+
+  @override
+  String get tryAgain => 'እንደገና ሞክር';
+
+  @override
+  String get moodLabel => 'ስሜት';
+
+  @override
+  String get wordsLabel => 'ቃላት';
+
+  @override
+  String get readLabel => 'አንብብ';
+
+  @override
+  String get tipLongPress => 'ማንበብ: የታያዘውን መዝገብ ይቅዱ ወይም የተመረጠውን መልእክት ይቅዱ።';
+
+  @override
+  String get yourPrivateSpace => 'የእርስዎ ተለያዩ ቦታ';
+
+  @override
+  String get privateSpaceNote =>
+      'ይህ መዝገብ ለእርስዎ ይቆያል። አሳዳጊዎች የጆርናል መልእክት አይነበሩም።';
+
+  @override
+  String get copyEntry => 'መዝገብ ኮፐ';
+
+  @override
+  String get titleAndFullText => 'ርዕስ እና ሙሉ ጽሁፍ';
+
+  @override
+  String get writingSparksTag => 'WRITING SPARKS';
+
+  @override
+  String get howAreYouFeelingNow => 'አሁን እንዴት ነው?';
+
+  @override
+  String get save => 'አስቀምጥ';
+
+  @override
+  String get syncingTag => 'የተለያዩ';
+
+  @override
+  String get shareTooltip => 'አጋፍሪ';
+
+  @override
+  String get moreTooltip => 'ተጨማሪ';
+
+  @override
+  String get moodHappy => 'ደስታ';
+
+  @override
+  String get moodSad => 'አዝዩ';
+
+  @override
+  String get moodAnxious => 'አዝዩ';
+
+  @override
+  String get moodCalm => 'የተለያዩ';
+
+  @override
+  String get moodStressed => 'ደህና';
+
+  @override
+  String get moodNeutral => 'የተለያዩ';
+
+  @override
+  String get moodExcited => 'አስተዳደፊ';
+
+  @override
+  String get moodTired => 'ደህና';
+
+  @override
+  String get moodAngry => 'አዝዩ';
+
+  @override
+  String get moodHopeful => 'ነገር ይችላል';
+
+  @override
+  String get dailyCheckInTag => 'የዛሬ የማሳዎች መዝገብ';
+
+  @override
+  String get tapEmojiPrompt => 'የአሁን ስሜትዎን የሚያሳይ emoji ይታመን።';
+
+  @override
+  String get intensityLabel => 'የተለያዩ';
+
+  @override
+  String get mildLabel => 'ትንሽ';
+
+  @override
+  String get strongLabel => 'ጠንካራ';
+
+  @override
+  String get moodReasonPrompt => 'እንዴት ነው?';
+
+  @override
+  String get moodNoteHint => 'የተለያዩ ማስታဋስ... (በአማራጭ)';
+
+  @override
+  String get logMoodButton => 'ስሜት አስቀምጥ';
+
+  @override
+  String get moodLoggedSuccess => 'ስሜት ተቆል፧!';
+
+  @override
+  String get thanksCheckingIn => 'የመዝገብ ማሳዎ አመሰግናለሁ።\nስሜትዎን መከታተያ ይህን ይጠብቁ።';
+
+  @override
+  String get logAnotherMood => 'ምንም ስሜት ይጻፉ';
+
+  @override
+  String get pastCheckInsHeader => 'የቀደም የማሳዎች';
+
+  @override
+  String get failedToLoadHistory => 'ታሪክ አልተገኘም';
+
+  @override
+  String get now => 'አሁን';
+
+  @override
+  String get minAbbr => 'ደቂቃ';
+
+  @override
+  String get hourAbbr => 'ሰዓት';
+
+  @override
+  String get dayAbbr => 'ቀን';
+
+  @override
+  String get levelAbbr => 'ደረጃ';
+
+  @override
+  String get aiAssistant => 'የAI ረዳት';
+
+  @override
+  String get typing => 'እንደምን እየጻፈ...';
+
+  @override
+  String get online => 'ጋዜጣ';
+
+  @override
+  String get loading => 'በመንበር...';
+
+  @override
+  String get offline => 'ከመረጃ ውጣ';
+
+  @override
+  String get aiAssistantInfo => 'የAI ረዳት መረጃ';
+
+  @override
+  String get safetyFirst => 'የመጀመሪያ ደህና';
+
+  @override
+  String get safetyFirstDesc =>
+      'ይህ AI ለደህና እና ለማንበብ ነው፣ የሕይወት ምክረ ሐይማኖች ወይም ዕድገት አይደለም።';
+
+  @override
+  String get yourData => 'የእርስዎ መረጃ';
+
+  @override
+  String get yourDataDesc => 'ውይይቶች የደህና ለማዕከል ይቆያሉ እና የትምህርት መሠረት ይኖሩታል።';
+
+  @override
+  String get howToUse => 'እንዴት እንደምን እጠብቁ';
+
+  @override
+  String get howToUseDesc => 'ለደህና ለትምህርት ወይም የዛሬ ድምፅ ይህን ይጠብቁ።';
+
+  @override
+  String get aboutAiAssistant => 'የAI ረዳት ማንበብ';
+
+  @override
+  String get unableConnectAi => 'እስከ AI ረዳት አይተገኙም';
+
+  @override
+  String get checkInternetTryAgain => 'የመረጃ መረጃ ይህ እና እንደገና ሞክር።';
+
+  @override
+  String get startConversation => 'ውይይት ጀመር';
+
+  @override
+  String get aiEmptyPrompt => 'ስለ ደህና ወይም ምንም ይጠብቁ።\nእኔ የሚረዳህ ይችላል።';
+
+  @override
+  String get aiThinking => 'AI ረዳት እየጠብቁ...';
+
+  @override
+  String get aiSafetyDisclaimer =>
+      'AI ረዳት የደህና ለማንበብ ነው እና የሕይወት ምክረ ሐይማኖች አይደለም።';
+
+  @override
+  String get aiSenderLabel => 'NEURO ረዳት';
+
+  @override
+  String get youSenderLabel => 'አንቺ';
+
+  @override
+  String get aiPrompt1 => 'እኛ እንደምን እርስዎ?';
+
+  @override
+  String get aiPrompt2 => 'እንዴት ጆርናል ይጻፉ?';
+
+  @override
+  String get aiPrompt3 => 'ሄን እንደምን መረጃዬ?';
+
+  @override
+  String get aiPrompt4 => 'እንዴት እስከ አማካሪ ይጠብቁ?';
 }

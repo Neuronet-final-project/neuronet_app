@@ -261,4 +261,353 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translationError => 'Failed to translate';
+
+  @override
+  String get failedToLoadJournals => 'Error loading journals';
+
+  @override
+  String get yourJournalAwaits => 'Your journal awaits';
+
+  @override
+  String get captureHowYouFeel =>
+      'Capture how you feel in a private space.\nTap compose when you are ready.';
+
+  @override
+  String get secureJournalTag => 'YOUR SECURE JOURNAL';
+
+  @override
+  String get refreshingJournal => 'Refreshing journal...';
+
+  @override
+  String get stillSyncingEntry => 'Still syncing this entry to the server...';
+
+  @override
+  String get thisWeek => 'THIS WEEK';
+
+  @override
+  String memoriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count MEMORIES',
+      one: '1 MEMORY',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get openingYourEntry => 'Opening your entry...';
+
+  @override
+  String get couldNotOpenShare =>
+      'Could not open share. Text copied to clipboard instead.';
+
+  @override
+  String get journalNotFound => 'Journal not found';
+
+  @override
+  String get journalSubject => 'My journal entry';
+
+  @override
+  String get pleaseWriteSomething => 'Please write something first';
+
+  @override
+  String get journalSaved => 'Your journal was saved.';
+
+  @override
+  String get newEntryTag => 'NEW ENTRY';
+
+  @override
+  String get safeSpaceNote =>
+      'This is your safe space. Write what you feel today.';
+
+  @override
+  String get journalTitleHint => 'Give it a title...';
+
+  @override
+  String get journalContentHint => 'Start writing your thoughts here...';
+
+  @override
+  String get sparkSmile => 'What made me smile today?';
+
+  @override
+  String get sparkGrateful => 'One thing I\'m grateful for';
+
+  @override
+  String get sparkVictory => 'A small victory I had';
+
+  @override
+  String get sparkChallenge => 'How I handled a challenge';
+
+  @override
+  String get discoverHeader => 'DISCOVER';
+
+  @override
+  String get searchMemoriesHint => 'Search memories...';
+
+  @override
+  String get filterWhen => 'WHEN';
+
+  @override
+  String get filterMood => 'MOOD';
+
+  @override
+  String filterResults(int count) {
+    return 'RESULTS ($count)';
+  }
+
+  @override
+  String get stillLooking => 'Still looking...';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterToday => 'Today';
+
+  @override
+  String get filterThisWeek => 'This Week';
+
+  @override
+  String get filterSpecific => 'Specific Date';
+
+  @override
+  String get copiedToClipboard => 'Copied to clipboard';
+
+  @override
+  String get aboutJournalPrivacy => 'About journal privacy';
+
+  @override
+  String get journalPrivacyTitle => 'Journal privacy';
+
+  @override
+  String get journalPrivacyContent =>
+      'Your journal entries are stored securely for your account. The app is designed so your raw journal text is not shown to guardians or counselors. If you ever use optional features that analyze mood in aggregate, those are described in your consent settings.';
+
+  @override
+  String get gotIt => 'Got it';
+
+  @override
+  String get backToJournal => 'Back to journal';
+
+  @override
+  String get entryRemovedNote =>
+      'It may have been removed or this link is outdated.';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get moodLabel => 'Mood';
+
+  @override
+  String get wordsLabel => 'Words';
+
+  @override
+  String get readLabel => 'Read';
+
+  @override
+  String get tipLongPress =>
+      'Tip: long-press your entry below to select text or copy a favorite line.';
+
+  @override
+  String get yourPrivateSpace => 'Your private space';
+
+  @override
+  String get privateSpaceNote =>
+      'This entry stays on your account for you. Guardians and counselors do not read your journal text.';
+
+  @override
+  String get copyEntry => 'Copy entry';
+
+  @override
+  String get titleAndFullText => 'Title and full text';
+
+  @override
+  String get writingSparksTag => 'WRITING SPARKS';
+
+  @override
+  String get howAreYouFeelingNow => 'How are you feeling right now?';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get syncingTag => 'SYNCING';
+
+  @override
+  String get shareTooltip => 'Share';
+
+  @override
+  String get moreTooltip => 'More';
+
+  @override
+  String get moodHappy => 'Happy';
+
+  @override
+  String get moodSad => 'Sad';
+
+  @override
+  String get moodAnxious => 'Anxious';
+
+  @override
+  String get moodCalm => 'Calm';
+
+  @override
+  String get moodStressed => 'Stressed';
+
+  @override
+  String get moodNeutral => 'Neutral';
+
+  @override
+  String get moodExcited => 'Excited';
+
+  @override
+  String get moodTired => 'Tired';
+
+  @override
+  String get moodAngry => 'Angry';
+
+  @override
+  String get moodHopeful => 'Hopeful';
+
+  @override
+  String get dailyCheckInTag => 'YOUR DAILY CHECK-IN';
+
+  @override
+  String get tapEmojiPrompt =>
+      'Tap the emoji that best captures your current mood.';
+
+  @override
+  String get intensityLabel => 'Intensity';
+
+  @override
+  String get mildLabel => 'Mild';
+
+  @override
+  String get strongLabel => 'Strong';
+
+  @override
+  String get moodReasonPrompt => 'What\'s making you feel this way?';
+
+  @override
+  String get moodNoteHint => 'Add a quick note... (Optional)';
+
+  @override
+  String get logMoodButton => 'Log This Mood';
+
+  @override
+  String get moodLoggedSuccess => 'Mood Logged!';
+
+  @override
+  String get thanksCheckingIn =>
+      'Thanks for checking in.\nTracking how you feel helps you understand yourself better.';
+
+  @override
+  String get logAnotherMood => 'Log another mood';
+
+  @override
+  String get pastCheckInsHeader => 'Past Check-ins';
+
+  @override
+  String get failedToLoadHistory => 'Could not load history';
+
+  @override
+  String get now => 'Now';
+
+  @override
+  String get minAbbr => 'm';
+
+  @override
+  String get hourAbbr => 'h';
+
+  @override
+  String get dayAbbr => 'd';
+
+  @override
+  String get levelAbbr => 'Lvl';
+
+  @override
+  String get aiAssistant => 'AI Assistant';
+
+  @override
+  String get typing => 'Typing...';
+
+  @override
+  String get online => 'Online';
+
+  @override
+  String get loading => 'Loading...';
+
+  @override
+  String get offline => 'Offline';
+
+  @override
+  String get aiAssistantInfo => 'AI Assistant Information';
+
+  @override
+  String get safetyFirst => 'Safety First';
+
+  @override
+  String get safetyFirstDesc =>
+      'This AI is for support and reflection, not for medical diagnosis or crisis intervention.';
+
+  @override
+  String get yourData => 'Your Data';
+
+  @override
+  String get yourDataDesc =>
+      'Conversations are analyzed to provide support and may be reviewed by your school counselor.';
+
+  @override
+  String get howToUse => 'How to Use';
+
+  @override
+  String get howToUseDesc =>
+      'Ask about stress management, study tips, or just chat about your day.';
+
+  @override
+  String get aboutAiAssistant => 'About AI Assistant';
+
+  @override
+  String get unableConnectAi => 'Unable to connect to AI Assistant';
+
+  @override
+  String get checkInternetTryAgain =>
+      'Check your internet connection and try again.';
+
+  @override
+  String get startConversation => 'Start a Conversation';
+
+  @override
+  String get aiEmptyPrompt =>
+      'Ask me anything about your well-being.\nI\'m here to help you reflect.';
+
+  @override
+  String get aiThinking => 'AI Assistant is thinking...';
+
+  @override
+  String get aiSafetyDisclaimer =>
+      'AI Assistant can support your reflection but is not a medical professional. For urgent help, please contact your counselor.';
+
+  @override
+  String get aiSenderLabel => 'NEURO Assistant';
+
+  @override
+  String get youSenderLabel => 'You';
+
+  @override
+  String get aiPrompt1 => 'What can you help me with?';
+
+  @override
+  String get aiPrompt2 => 'How do I add a journal entry?';
+
+  @override
+  String get aiPrompt3 => 'Who can see my data?';
+
+  @override
+  String get aiPrompt4 => 'How do I contact my counselor?';
 }

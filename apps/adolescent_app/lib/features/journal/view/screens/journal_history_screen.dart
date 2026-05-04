@@ -92,7 +92,7 @@ class _JournalHistoryScreenState extends ConsumerState<JournalHistoryScreen> {
                  child: Padding(
                    padding: const EdgeInsets.all(24),
                    child: NeuroErrorWidget(
-                     message: 'Error loading journals: $err',
+                     message: '${context.localizations.failedToLoadJournals}: $err',
                      onRetry: () =>
                          ref.read(journalControllerProvider.notifier).refresh(),
                    ),
@@ -158,10 +158,10 @@ class _JournalHistoryScreenState extends ConsumerState<JournalHistoryScreen> {
                   shaderCallback: (bounds) => const LinearGradient(
                     colors: [Color(0xFF6A1FDB), Color(0xFF9E7AFF)],
                   ).createShader(bounds),
-                  child: const Text(
-                    'Your journal awaits',
+                  child: Text(
+                    context.localizations.yourJournalAwaits,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
@@ -170,10 +170,10 @@ class _JournalHistoryScreenState extends ConsumerState<JournalHistoryScreen> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Text(
-                  'Capture how you feel in a private space.\nTap compose when you are ready.',
+                Text(
+                  context.localizations.captureHowYouFeel,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     height: 1.5,
                     fontWeight: FontWeight.w600,
@@ -258,9 +258,9 @@ class _JournalHeader extends StatelessWidget {
                   gradient: NeuroGradients.adolescent,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'YOUR SECURE JOURNAL',
-                  style: TextStyle(
+                child: Text(
+                  context.localizations.secureJournalTag,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
@@ -312,10 +312,10 @@ class _JournalHeader extends StatelessWidget {
                 onTap: () {
                   onRefresh();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Refreshing journal...'),
+                    SnackBar(
+                      content: Text(context.localizations.refreshingJournal),
                       behavior: SnackBarBehavior.floating,
-                      duration: Duration(seconds: 1),
+                      duration: const Duration(seconds: 1),
                     ),
                   );
                 },
@@ -432,9 +432,9 @@ class _WeeklyActivityCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'THIS WEEK',
-                style: TextStyle(
+              Text(
+                context.localizations.thisWeek,
+                style: const TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 12,
                   letterSpacing: 1.6,
@@ -448,7 +448,7 @@ class _WeeklyActivityCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  '$entriesThisWeekCount MEMORIES',
+                  context.localizations.memoriesCount(entriesThisWeekCount),
                   style: const TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 10,
@@ -570,7 +570,7 @@ class _DayGroup extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isToday ? 'TODAY' : DateFormat('EEEE').format(date).toUpperCase(),
+                    isToday ? context.localizations.today : DateFormat('EEEE').format(date).toUpperCase(),
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
@@ -653,15 +653,14 @@ class _EntryCardState extends State<_EntryCard> {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: widget.isPendingSync
-              ? () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Still syncing this entry to the server…'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              : () => context.push('${AdolescentRoutes.journal}/${widget.entry.id}'),
+             ? () {
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   SnackBar(
+                     content: Text(context.localizations.stillSyncingEntry),
+                     behavior: SnackBarBehavior.floating,
+                   ),
+                 );
+               }              : () => context.push('${AdolescentRoutes.journal}/${widget.entry.id}'),
           borderRadius: BorderRadius.circular(22),
           splashColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.08),
           highlightColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.04),
@@ -704,9 +703,9 @@ class _EntryCardState extends State<_EntryCard> {
                                 color: NeuroColors.adolescentPrimary.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text(
-                                'SYNCING',
-                                style: TextStyle(
+                              child: Text(
+                                context.localizations.syncingTag,
+                                style: const TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 0.6,

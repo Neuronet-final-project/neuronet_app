@@ -1,6 +1,9 @@
 {
   "@@locale": "am",
   "appTitle": "NEURONET",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
   "login": "ግባ",
   "logout": "ውጣ",
   "home": "መነሻ",
@@ -40,6 +43,13 @@
   "selectLanguage": "ቋንቋ ይምረጡ",
   "adolescent": "ታዳጊ",
   "heyUser": "ሰላም {name} 👋",
+  "@heyUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "innerWorldPrompt": "ዛሬ ውስጣዊ አለምህ እንዴት ነው?",
   "writeJournal": "ጆርናል ጻፍ",
   "expressYourself": "ራስህን ግለጽ 📝",
@@ -52,7 +62,7 @@
   "smallCheckIn": "ትንሽ ቆይታ ትልቅ ለውጥ ያመጣል።",
   "today": "ዛሬ",
   "take30Seconds": "30 ሰከንድ ይውሰዱ።",
-  "namingFeelings": "የሚሰማዎትን ስም መስጠት የግማሽ ስራ ነው።\nቀሪውን እኛ እንረዳለን።",
+  "namingFeelings": "የሚሰማዎቱን ስም መስጠት የግማህ ስራ ነው።\nቀሪውን እኛ እንረዳለን።",
   "checkInNow": "አሁን ይመዝገቡ",
   "journals": "ጆርናሎች",
   "moods": "ስሜቶች",
@@ -60,16 +70,161 @@
   "journalToday": "ዛሬ",
   "journalYesterday": "ትናንት",
   "daysAgo": "ከ {count} ቀናት በፊት",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "journalEntryDefault": "የጆርናል መዝገብ",
   "feelingLabel": "ስሜት {mood}",
+  "@feelingLabel": {
+    "placeholders": {
+      "mood": {
+        "type": "String"
+      }
+    }
+  },
   "minRead": "{count} ደቂቃ ንባብ",
   "readNow": "አሁን ያንብቡ",
   "mindfulnessGames": "የአስተሳሰብ ጨዋታዎች",
-  "boostYourMood": "በአዝናኝ እና በሳይንስ በተደገፉ እንቅስቃሴዎች ስሜትዎን ያሳድጉ።",
+  "boostYourMood": "በአዝናኝ እና በሳይንስ በተደገፅ እንቅስቃሴዎች ስሜትዎን ያሳድጉ።",
   "playNow": "አሁን ይጫወቱ",
   "ai": "AI",
+  "notificationSettings": "የማሳወቂያ ቅንብሮች",
+  "alertNotifications": "የማሳወቂያ ማሳወቂያዎች",
+  "counselorMessages": "የአማካሪ መልእክቶች",
+  "getNotifiedPatterns": "� pattern የተገኙ ድንጋጠ ማሳዎች ያስተዳድሉ",
+  "pushNotificationsNewMessages": "አዳዲሞ መልእክቶች የpush ማሳዎች",
+  "role": "ሚና",
+  "guardian": "አሳዳጊ",
+  "areYouSureSignOut": "እንደምን ወደ መለያ መግባት ነው?",
+  "cancel": "ሰርዝ",
   "translate": "ተርጉም",
   "showOriginal": "ዋናውን አሳይ",
   "translating": "በመተርጎም ላይ...",
-  "translationError": "መተርጎም አልተቻለም"
+  "translationError": "መተርጎም አልተቻለም",
+  "failedToLoadJournals": "ጆርናሎችን መጫን አልተቻለም",
+  "yourJournalAwaits": "ጆርናልዎ በጠቀሙ ይጠብቃል",
+  "captureHowYouFeel": "እንዴት እንደምን ይሰማሃል ይደርስ።\nዘመን ሲደርስ ይተመልከቱ።",
+  "secureJournalTag": "የእርስዎ የተለያዩ ጆርናል",
+  "refreshingJournal": "ጆርናል የተለያዩ...",
+  "stillSyncingEntry": "መዝገብ የተለያዩ ዘዴ ላይ...",
+  "thisWeek": "በዚህ ሳምንት",
+  "memoriesCount": "{count, plural, =1{1 ማህደኛ} other{{count} ማህደኛዎች}}",
+  "@memoriesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "openingYourEntry": "መዝገብዎን በማዕከል...",
+  "couldNotOpenShare": "ማኅበረዚያ አይተለያዩም። ጽሁፍ ወደ ቅዱስ ያካበብ።",
+  "journalNotFound": "ጆርናል አልተገኙም",
+  "journalSubject": "የጆርናል መዝገብዎ",
+  "pleaseWriteSomething": "እባክዎ የተለያዩ ይጻፉ",
+  "journalSaved": "ጆርናልዎ ተቆል፧",
+  "newEntryTag": "አዲስ መዝገብ",
+  "safeSpaceNote": "ይህ የእርስዎ የተለያዩ ቦታ ነው። ዛሬ የሚሰማውን ይጻፉ።",
+  "journalTitleHint": "አንድ ርዕስ ይስጡ...",
+  "journalContentHint": "እዚህ ልምዶችዎን ጀመሩ...",
+  "sparkSmile": "ዛሬ የሚያስተምር ምን ነው?",
+  "sparkGrateful": "አንድ ነገር እናምን",
+  "sparkVictory": "የኔ ትንሽ ድል",
+  "sparkChallenge": "በመንበር እንዴት ተወግየ?",
+  "discoverHeader": "ፍተኛ ማዕከል",
+  "searchMemoriesHint": "ማህደኛዎችን ፈልግ...",
+  "filterWhen": "መሀሪያ",
+  "filterMood": "ስሜት",
+  "filterResults": "የመረጃ ውጤቶች ({count})",
+  "@filterResults": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stillLooking": "እሱም ፈልግ...",
+  "filterAll": "ሁሉም",
+  "filterToday": "ዛሬ",
+  "filterThisWeek": "በዚህ ሳምንት",
+  "filterSpecific": "የተለየ ቀን",
+  "copiedToClipboard": "ወደ ቅዱስ ያካበብ",
+  "aboutJournalPrivacy": "የጆርናል ግላዊነት ማንበብ",
+  "journalPrivacyTitle": "የጆርናል ግላዊነት",
+  "journalPrivacyContent": "የጆርናል መዝገቦች ለእርስዎ ይቆያሉ። የመተዳደፊ መረጃ አይታያይቁም።",
+  "gotIt": "ገብተው",
+  "backToJournal": "ወደ ጆርናል",
+  "entryRemovedNote": "ጠፋ ወይም የመረጃ መረጃ ይችላሉ።",
+  "somethingWentWrong": "የሚያውቅ ነገር ይችላል",
+  "tryAgain": "እንደገና ሞክር",
+  "moodLabel": "ስሜት",
+  "wordsLabel": "ቃላት",
+  "readLabel": "አንብብ",
+  "tipLongPress": "ማንበብ: የታያዘውን መዝገብ ይቅዱ ወይም የተመረጠውን መልእክት ይቅዱ።",
+  "yourPrivateSpace": "የእርስዎ ተለያዩ ቦታ",
+  "privateSpaceNote": "ይህ መዝገብ ለእርስዎ ይቆያል። አሳዳጊዎች የጆርናል መልእክት አይነበሩም።",
+  "copyEntry": "መዝገብ ኮፐ",
+  "titleAndFullText": "ርዕስ እና ሙሉ ጽሁፍ",
+  "writingSparksTag": "WRITING SPARKS",
+  "howAreYouFeelingNow": "አሁን እንዴት ነው?",
+  "save": "አስቀምጥ",
+  "syncingTag": "የተለያዩ",
+  "shareTooltip": "አጋፍሪ",
+  "moreTooltip": "ተጨማሪ",
+  "moodHappy": "ደስታ",
+  "moodSad": "አዝዩ",
+  "moodAnxious": "አዝዩ",
+  "moodCalm": "የተለያዩ",
+  "moodStressed": "ደህና",
+  "moodNeutral": "የተለያዩ",
+  "moodExcited": "አስተዳደፊ",
+  "moodTired": "ደህና",
+  "moodAngry": "አዝዩ",
+  "moodHopeful": "ነገር ይችላል",
+  "dailyCheckInTag": "የዛሬ የማሳዎች መዝገብ",
+  "tapEmojiPrompt": "የአሁን ስሜትዎን የሚያሳይ emoji ይታመን።",
+  "intensityLabel": "የተለያዩ",
+  "mildLabel": "ትንሽ",
+  "strongLabel": "ጠንካራ",
+  "moodReasonPrompt": "እንዴት ነው?",
+  "moodNoteHint": "የተለያዩ ማስታဋስ... (በአማራጭ)",
+  "logMoodButton": "ስሜት አስቀምጥ",
+  "moodLoggedSuccess": "ስሜት ተቆል፧!",
+  "thanksCheckingIn": "የመዝገብ ማሳዎ አመሰግናለሁ።\nስሜትዎን መከታተያ ይህን ይጠብቁ።",
+  "logAnotherMood": "ምንም ስሜት ይጻፉ",
+  "pastCheckInsHeader": "የቀደም የማሳዎች",
+  "failedToLoadHistory": "ታሪክ አልተገኘም",
+  "now": "አሁን",
+  "minAbbr": "ደቂቃ",
+  "hourAbbr": "ሰዓት",
+  "dayAbbr": "ቀን",
+  "levelAbbr": "ደረጃ",
+  "aiAssistant": "የAI ረዳት",
+  "typing": "እንደምን እየጻፈ...",
+  "online": "ጋዜጣ",
+  "loading": "በመንበር...",
+  "offline": "ከመረጃ ውጣ",
+  "aiAssistantInfo": "የAI ረዳት መረጃ",
+  "safetyFirst": "የመጀመሪያ ደህና",
+  "safetyFirstDesc": "ይህ AI ለደህና እና ለማንበብ ነው፣ የሕይወት ምክረ ሐይማኖች ወይም ዕድገት አይደለም።",
+  "yourData": "የእርስዎ መረጃ",
+  "yourDataDesc": "ውይይቶች የደህና ለማዕከል ይቆያሉ እና የትምህርት መሠረት ይኖሩታል።",
+  "howToUse": "እንዴት እንደምን እጠብቁ",
+  "howToUseDesc": "ለደህና ለትምህርት ወይም የዛሬ ድምፅ ይህን ይጠብቁ።",
+  "aboutAiAssistant": "የAI ረዳት ማንበብ",
+  "unableConnectAi": "እስከ AI ረዳት አይተገኙም",
+  "checkInternetTryAgain": "የመረጃ መረጃ ይህ እና እንደገና ሞክር።",
+  "startConversation": "ውይይት ጀመር",
+  "aiEmptyPrompt": "ስለ ደህና ወይም ምንም ይጠብቁ።\nእኔ የሚረዳህ ይችላል።",
+  "aiThinking": "AI ረዳት እየጠብቁ...",
+  "aiSafetyDisclaimer": "AI ረዳት የደህና ለማንበብ ነው እና የሕይወት ምክረ ሐይማኖች አይደለም።",
+  "aiSenderLabel": "NEURO ረዳት",
+  "youSenderLabel": "አንቺ",
+  "aiPrompt1": "እኛ እንደምን እርስዎ?",
+  "aiPrompt2": "እንዴት ጆርናል ይጻፉ?",
+  "aiPrompt3": "ሄን እንደምን መረጃዬ?",
+  "aiPrompt4": "እንዴት እስከ አማካሪ ይጠብቁ?"
 }

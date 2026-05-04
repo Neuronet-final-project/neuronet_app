@@ -34,53 +34,72 @@ class JournalDetailScreen extends ConsumerWidget {
           }
           return _DetailContent(entry: entry);
         },
-        loading: () => Center(
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFE8E0F5)),
-              boxShadow: [
-                BoxShadow(
-                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
-                  blurRadius: 24,
-                  offset: const Offset(0, 12),
+loading: () => Center(
+           child: Container(
+             padding: const EdgeInsets.all(32),
+             decoration: BoxDecoration(
+               color: Colors.white,
+               borderRadius: BorderRadius.circular(24),
+               border: Border.all(color: const Color(0xFFE8E0F5)),
+               boxShadow: [
+                 BoxShadow(
+                   color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                   blurRadius: 24,
+                   offset: const Offset(0, 12),
+                 ),
+               ],
+             ),
+             child: Column(
+               mainAxisSize: MainAxisSize.min,
+               children: [
+                 const SizedBox(
+                   width: 36,
+                   height: 36,
+                   child: CircularProgressIndicator(
+                     color: Color(0xFF6A1FDB),
+                     strokeWidth: 3,
+                   ),
+                 ),
+                 const SizedBox(height: 16),
+                 Text(
+                   context.localizations.openingYourEntry,
+                   style: const TextStyle(
+                     fontWeight: FontWeight.w800,
+                     fontSize: 14,
+                     color: Color(0xFF6A5C9A),
+                   ),
+                 ),
+               ],
+             ),
+           ),
+         ),
+                error: (error, stack) => _ErrorBody(
+                message: '$error',
+                onRetry: () => ref.read(journalControllerProvider.notifier).refresh(),
                 ),
-              ],
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: CircularProgressIndicator(
-                    color: Color(0xFF6A1FDB),
-                    strokeWidth: 3,
-                  ),
                 ),
-                SizedBox(height: 16),
-                Text(
-                  'Opening your entry…',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                    color: Color(0xFF6A5C9A),
-                  ),
+                );
+                }
+                }
+
+                class _ErrorBody extends StatelessWidget {
+                const _ErrorBody({required this.message, required this.onRetry});
+                final String message;
+                final VoidCallback onRetry;
+
+                @override
+                Widget build(BuildContext context) {
+                return Center(
+                child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: NeuroErrorWidget(
+                message: '${context.localizations.failedToLoadJournals}: $message',
+                onRetry: onRetry,
                 ),
-              ],
-            ),
-          ),
-        ),
-        error: (error, stack) => _ErrorBody(
-          message: '$error',
-          onRetry: () => ref.read(journalControllerProvider.notifier).refresh(),
-        ),
-      ),
-    );
-  }
-}
+                ),
+                );
+                }
+                }
 
 void _popOrGoJournal(BuildContext context) {
   if (context.canPop()) {
@@ -141,7 +160,7 @@ Future<void> _journalDetailShareFromAnchor(
     origin = Rect.fromCenter(center: Offset(sz.width / 2, sz.height / 2), width: 2, height: 2);
   }
 
-  final subject = (entry.title?.trim().isNotEmpty ?? false) ? entry.title!.trim() : 'My journal entry';
+  final subject = (entry.title?.trim().isNotEmpty ?? false) ? entry.title!.trim() : scaffoldContext.localizations.journalSubject;
 
   try {
     await SharePlus.instance.share(
@@ -156,7 +175,7 @@ Future<void> _journalDetailShareFromAnchor(
     if (scaffoldContext.mounted) {
       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
         SnackBar(
-          content: const Text('Could not open share. Text copied to clipboard instead.'),
+          content: Text(scaffoldContext.localizations.couldNotOpenShare),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           backgroundColor: const Color(0xFF2C1C5F),
@@ -191,7 +210,7 @@ class _EntryMissingBody extends StatelessWidget {
             Icon(Icons.menu_book_outlined, size: 64, color: NeuroColors.adolescentPrimary.withValues(alpha: 0.45)),
             const SizedBox(height: 20),
             Text(
-              'Journal not found',
+              context.localizations.journalNotFound,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w800,
@@ -200,7 +219,7 @@ class _EntryMissingBody extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'It may have been removed or this link is outdated.',
+              context.localizations.entryRemovedNote,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
@@ -212,57 +231,13 @@ class _EntryMissingBody extends StatelessWidget {
             FilledButton.icon(
               onPressed: onBack,
               icon: const Icon(Icons.arrow_back_rounded, size: 20),
-              label: const Text('Back to journal'),
+              label: Text(context.localizations.backToJournal),
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFF6A1FDB),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorBody extends StatelessWidget {
-  const _ErrorBody({required this.message, required this.onRetry});
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.cloud_off_rounded, size: 56, color: NeuroColors.adolescentPrimary.withValues(alpha: 0.5)),
-            const SizedBox(height: 16),
-            Text(
-              'Something went wrong',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF2C1C5F),
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF6A5C9A), fontSize: 14, height: 1.4),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: onRetry,
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF6A1FDB),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Try again'),
             ),
           ],
         ),
@@ -294,7 +269,7 @@ class _DetailContentState extends State<_DetailContent> {
     final wordCount = entry.content.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).length;
     final readTime = wordCount == 0 ? 1 : (wordCount / 200).ceil();
     final moodColor = _journalEntryMoodAccent(entry.mood);
-    final moodLabel = entry.mood?.label ?? 'Neutral';
+    final moodLabel = entry.mood?.localizedLabel(context.localizations) ?? context.localizations.moodNeutral;
     final moodEmoji = entry.mood?.emoji ?? '😐';
 
     return CustomScrollView(
@@ -317,14 +292,14 @@ class _DetailContentState extends State<_DetailContent> {
             Builder(
               builder: (anchorContext) => IconButton(
                 icon: const Icon(Icons.ios_share_rounded, color: Colors.white),
-                tooltip: 'Share',
+                tooltip: context.localizations.shareTooltip,
                 onPressed: () => _journalDetailShareFromAnchor(context, anchorContext, entry),
                 style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.18)),
               ),
             ),
             IconButton(
               icon: const Icon(Icons.more_horiz_rounded, color: Colors.white),
-              tooltip: 'More',
+              tooltip: context.localizations.moreTooltip,
               onPressed: () => _showJournalActionsSheet(context, entry),
               style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.18)),
             ),
@@ -474,7 +449,7 @@ class _DetailContentState extends State<_DetailContent> {
                               icon: Icons.auto_awesome_rounded,
                               iconColor: moodColor,
                               value: moodLabel,
-                              caption: 'Mood',
+                              caption: context.localizations.moodLabel,
                             ),
                           ),
                           _VerticalHairline(color: NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.35)),
@@ -483,7 +458,7 @@ class _DetailContentState extends State<_DetailContent> {
                               icon: Icons.text_fields_rounded,
                               iconColor: const Color(0xFF6A5C9A),
                               value: '$wordCount',
-                              caption: 'Words',
+                              caption: context.localizations.wordsLabel,
                             ),
                           ),
                           _VerticalHairline(color: NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.35)),
@@ -492,7 +467,7 @@ class _DetailContentState extends State<_DetailContent> {
                               icon: Icons.local_cafe_rounded,
                               iconColor: const Color(0xFF6A5C9A),
                               value: '$readTime min',
-                              caption: 'Read',
+                              caption: context.localizations.readLabel,
                             ),
                           ),
                         ],
@@ -518,7 +493,7 @@ class _DetailContentState extends State<_DetailContent> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Tip: long-press your entry below to select text or copy a favorite line.',
+                            context.localizations.tipLongPress,
                             style: TextStyle(
                               fontSize: 13,
                               height: 1.45,
@@ -632,7 +607,7 @@ class _DetailContentState extends State<_DetailContent> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Your private space',
+                                  context.localizations.yourPrivateSpace,
                                   style: TextStyle(
                                     color: NeuroColors.adolescentPrimaryDark,
                                     fontWeight: FontWeight.w900,
@@ -642,7 +617,7 @@ class _DetailContentState extends State<_DetailContent> {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'This entry stays on your account for you. Guardians and counselors do not read your journal text.',
+                                  context.localizations.privateSpaceNote,
                                   style: TextStyle(
                                     color: NeuroColors.adolescentPrimaryDark.withValues(alpha: 0.78),
                                     fontSize: 13,
@@ -761,15 +736,15 @@ Future<void> _showJournalActionsSheet(BuildContext context, JournalEntry entry) 
               const SizedBox(height: 8),
               ListTile(
                 leading: const Icon(Icons.copy_all_rounded, color: Color(0xFF6A1FDB)),
-                title: const Text('Copy entry', style: TextStyle(fontWeight: FontWeight.w700)),
-                subtitle: const Text('Title and full text', style: TextStyle(fontSize: 12)),
+                title: Text(context.localizations.copyEntry, style: const TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: Text(context.localizations.titleAndFullText, style: const TextStyle(fontSize: 12)),
                 onTap: () async {
                   Navigator.pop(ctx);
                   await Clipboard.setData(ClipboardData(text: _formatEntryForShare(entry)));
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Copied to clipboard'),
+                      content: Text(context.localizations.copiedToClipboard),
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       backgroundColor: const Color(0xFF2C1C5F),
@@ -780,23 +755,21 @@ Future<void> _showJournalActionsSheet(BuildContext context, JournalEntry entry) 
               const Divider(height: 1),
               ListTile(
                 leading: const Icon(Icons.privacy_tip_outlined, color: Color(0xFF6A1FDB)),
-                title: const Text('About journal privacy', style: TextStyle(fontWeight: FontWeight.w700)),
+                title: Text(context.localizations.aboutJournalPrivacy, style: const TextStyle(fontWeight: FontWeight.w700)),
                 onTap: () {
                   Navigator.pop(ctx);
                   showDialog<void>(
                     context: context,
                     builder: (dCtx) => AlertDialog(
-                      title: const Text('Journal privacy'),
-                      content: const Text(
-                        'Your journal entries are stored securely for your account. '
-                        'The app is designed so your raw journal text is not shown to guardians or counselors. '
-                        'If you ever use optional features that analyze mood in aggregate, those are described in your consent settings.',
-                        style: TextStyle(height: 1.45),
+                      title: Text(context.localizations.journalPrivacyTitle),
+                      content: Text(
+                        context.localizations.journalPrivacyContent,
+                        style: const TextStyle(height: 1.45),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(dCtx),
-                          child: const Text('Got it'),
+                          child: Text(context.localizations.gotIt),
                         ),
                       ],
                     ),

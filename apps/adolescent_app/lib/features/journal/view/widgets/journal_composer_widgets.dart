@@ -3,13 +3,14 @@ import 'package:neuronet_core/neuronet_core.dart';
 
 /// Shared UI for new and edit journal flows.
 class JournalComposerBottomBar extends StatelessWidget {
-  const JournalComposerBottomBar({super.key, required this.isSaving, required this.onSave, this.label = 'Save'});
+  const JournalComposerBottomBar({super.key, required this.isSaving, required this.onSave, this.label});
   final bool isSaving;
   final VoidCallback? onSave;
-  final String label;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
+    final displayLabel = label ?? context.localizations.save;
     return Material(
       elevation: 0,
       color: Colors.transparent,
@@ -68,7 +69,7 @@ class JournalComposerBottomBar extends StatelessWidget {
                           child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                         )
                       : Text(
-                          label,
+                          displayLabel,
                           style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 0.6),
                         ),
                 ),
@@ -95,9 +96,9 @@ class JournalComposerSparkStrip extends StatelessWidget {
           children: [
             const Icon(Icons.bolt_rounded, color: NeuroColors.adolescentPrimary, size: 18),
             const SizedBox(width: 4),
-            const Text(
-              'WRITING SPARKS',
-              style: TextStyle(
+            Text(
+              context.localizations.writingSparksTag,
+              style: const TextStyle(
                 color: NeuroColors.adolescentPrimary,
                 fontWeight: FontWeight.w900,
                 fontSize: 11,
@@ -196,9 +197,9 @@ class JournalComposerMoodStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text(
-          'How are you feeling right now?',
-          style: TextStyle(
+        Text(
+          context.localizations.howAreYouFeelingNow,
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w800,
             color: Colors.white,

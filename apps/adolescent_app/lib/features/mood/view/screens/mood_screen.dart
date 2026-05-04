@@ -64,9 +64,9 @@ class MoodScreen extends ConsumerWidget {
                               color: const Color(0xFFEFE8FF),
                               borderRadius: BorderRadius.circular(999),
                             ),
-                            child: const Text(
-                              'YOUR DAILY CHECK-IN',
-                              style: TextStyle(
+                            child: Text(
+                              context.localizations.dailyCheckInTag,
+                              style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: 1.2,
@@ -75,9 +75,9 @@ class MoodScreen extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 14),
-                          const Text(
-                            'How are you feeling right now?',
-                            style: TextStyle(
+                          Text(
+                            context.localizations.howAreYouFeelingNow,
+                            style: const TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFF2C1C5F),
@@ -85,9 +85,9 @@ class MoodScreen extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'Tap the emoji that best captures your current mood.',
-                            style: TextStyle(
+                          Text(
+                            context.localizations.tapEmojiPrompt,
+                            style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF6A5C9A),
@@ -102,7 +102,7 @@ class MoodScreen extends ConsumerWidget {
                             const SizedBox(height: 32),
                             _buildNotesSection(context, state, notifier),
                             const SizedBox(height: 48),
-                            _buildSubmitButton(state, notifier),
+                            _buildSubmitButton(state, notifier, context),
                             const SizedBox(height: 32),
                           ],
                           _buildMoodHistory(context, ref, moodHistoryAsync),
@@ -238,7 +238,7 @@ class MoodScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  mood.name.toUpperCase(),
+                  mood.localizedLabel(context.localizations).toUpperCase(),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
@@ -274,9 +274,9 @@ class MoodScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Intensity',
-                style: TextStyle(
+              Text(
+                context.localizations.intensityLabel,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF2C1C5F),
@@ -319,13 +319,13 @@ class MoodScreen extends ConsumerWidget {
               onChanged: (value) => notifier.updateIntensity(value),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Mild', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC))),
-                Text('Strong', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC))),
+                Text(context.localizations.mildLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC))),
+                Text(context.localizations.strongLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC))),
               ],
             ),
           ),
@@ -338,9 +338,9 @@ class MoodScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'What\'s making you feel this way?',
-          style: TextStyle(
+        Text(
+          context.localizations.moodReasonPrompt,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
             color: Color(0xFF2C1C5F),
@@ -363,11 +363,11 @@ class MoodScreen extends ConsumerWidget {
           child: TextField(
             onChanged: (value) => notifier.updateNotes(value),
             style: const TextStyle(fontSize: 16, color: Color(0xFF53477D), fontWeight: FontWeight.w500),
-            decoration: const InputDecoration(
-              hintText: 'Add a quick note... (Optional)',
-              hintStyle: TextStyle(color: Color(0xFFB4A8D3)),
+            decoration: InputDecoration(
+              hintText: context.localizations.moodNoteHint,
+              hintStyle: const TextStyle(color: Color(0xFFB4A8D3)),
               border: InputBorder.none,
-              contentPadding: EdgeInsets.all(20),
+              contentPadding: const EdgeInsets.all(20),
             ),
             maxLines: 4,
           ),
@@ -376,7 +376,7 @@ class MoodScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSubmitButton(MoodState state, MoodController notifier) {
+  Widget _buildSubmitButton(MoodState state, MoodController notifier, BuildContext context) {
     return Container(
       width: double.infinity,
       height: 60,
@@ -399,9 +399,9 @@ class MoodScreen extends ConsumerWidget {
                 width: 24,
                 child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
               )
-            : const Text(
-                'Log This Mood',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+            : Text(
+                context.localizations.logMoodButton,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 0.5),
               ),
       ),
     );
@@ -430,9 +430,9 @@ class MoodScreen extends ConsumerWidget {
             child: const Icon(Icons.favorite_rounded, size: 80, color: NeuroColors.adolescentPrimary),
           ),
           const SizedBox(height: 48),
-          const Text(
-            'Mood Logged!',
-            style: TextStyle(
+          Text(
+            context.localizations.moodLoggedSuccess,
+            style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w900,
               color: Color(0xFF2C1C5F),
@@ -440,10 +440,10 @@ class MoodScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Thanks for checking in.\nTracking how you feel helps you understand yourself better.',
+          Text(
+            context.localizations.thanksCheckingIn,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               height: 1.5,
               fontWeight: FontWeight.w500,
@@ -459,7 +459,7 @@ class MoodScreen extends ConsumerWidget {
             style: TextButton.styleFrom(
               foregroundColor: NeuroColors.adolescentPrimaryDark,
             ),
-            child: const Text('Log another mood', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            child: Text(context.localizations.logAnotherMood, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
           ),
         ],
       ),
@@ -475,7 +475,7 @@ class MoodScreen extends ConsumerWidget {
 
         if (state.error != null && state.records.isEmpty) {
            return NeuroErrorWidget(
-             message: 'Could not load history: ${state.error}',
+             message: '${context.localizations.failedToLoadHistory}: ${state.error}',
              onRetry: () => ref.read(moodHistoryControllerProvider.notifier).refresh(),
            );
         }
@@ -488,9 +488,9 @@ class MoodScreen extends ConsumerWidget {
           children: [
             const Divider(color: Color(0xFFE0DAF0), height: 1),
             const SizedBox(height: 32),
-            const Text(
-              'Past Check-ins',
-              style: TextStyle(
+            Text(
+              context.localizations.pastCheckInsHeader,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
                 color: Color(0xFF2C1C5F),
@@ -537,7 +537,7 @@ class MoodScreen extends ConsumerWidget {
                             Row(
                               children: [
                                 Text(
-                                  r.mood.label.toUpperCase(),
+                                  r.mood.localizedLabel(context.localizations).toUpperCase(),
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w900,
@@ -553,7 +553,7 @@ class MoodScreen extends ConsumerWidget {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Lvl ${r.intensity}',
+                                    '${context.localizations.levelAbbr} ${r.intensity}',
                                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC)),
                                   ),
                                 ]
@@ -585,7 +585,7 @@ class MoodScreen extends ConsumerWidget {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        _formatTimeAgo(r.createdAt),
+                        _formatTimeAgo(r.createdAt, context),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -608,12 +608,12 @@ class MoodScreen extends ConsumerWidget {
     );
   }
 
-  String _formatTimeAgo(DateTime dt) {
+  String _formatTimeAgo(DateTime dt, BuildContext context) {
     final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'Now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
-    if (diff.inHours < 24) return '${diff.inHours}h';
-    return '${diff.inDays}d';
+    if (diff.inMinutes < 1) return context.localizations.now;
+    if (diff.inMinutes < 60) return '${diff.inMinutes}${context.localizations.minAbbr}';
+    if (diff.inHours < 24) return '${diff.inHours}${context.localizations.hourAbbr}';
+    return '${diff.inDays}${context.localizations.dayAbbr}';
   }
 
   Color _getMoodColor(MoodType mood) {
