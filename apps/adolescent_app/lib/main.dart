@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'config/router/app_router.dart';
 
@@ -13,6 +14,12 @@ import 'firebase_options.dart';
 Future<void> main() async {
   debugPrint('>>> MAIN STARTING: Adolescent App <<<');
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize date formatting for supported locales to prevent crashes in Journal tab
+  await initializeDateFormatting('am', null);
+  await initializeDateFormatting('om', null);
+  await initializeDateFormatting('es', null);
+  await initializeDateFormatting('en', null);
 
   String baseUrl = ApiEndpoints.baseUrl;
   if (!kIsWeb) {
@@ -34,9 +41,8 @@ Future<void> main() async {
   }
 
   runApp(
-    DevicePreview(
-      enabled: kIsWeb,
-      builder: (context) => const ProviderScope(child: AdolescentApp()),
+    const ProviderScope(
+      child: AdolescentApp(),
     ),
   );
 }
@@ -79,15 +85,19 @@ class _AdolescentAppState extends ConsumerState<AdolescentApp> {
       }
     });
 
-    return MaterialApp.router(
-      title: 'NEURONET',
-      debugShowCheckedModeBanner: false,
-      locale: currentLocale,
-      localizationsDelegates: neuroLocalizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      builder: DevicePreview.appBuilder,
-      theme: NeuroTheme.adolescentTheme(),
-      routerConfig: router,
+    return DevicePreview(
+      enabled: kIsWeb,
+      builder: (context) => MaterialApp.router(
+        title: 'NEURONET',
+        debugShowCheckedModeBanner: false,
+        useInheritedMediaQuery: true, // Required for DevicePreview
+        locale: currentLocale, // Driven by l10nProvider — in-app toggle is source of truth
+        localizationsDelegates: neuroLocalizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        builder: DevicePreview.appBuilder,
+        theme: NeuroTheme.adolescentTheme(),
+        routerConfig: router,
+      ),
     );
   }
 }

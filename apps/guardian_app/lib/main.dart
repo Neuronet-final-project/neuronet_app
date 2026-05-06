@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'config/router/app_router.dart';
 import 'config/theme/guardian_theme.dart';
@@ -14,6 +15,12 @@ import 'firebase_options.dart';
 Future<void> main() async {
   debugPrint('>>> MAIN STARTING: Guardian App <<<');
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize date formatting for supported locales to prevent crashes on date-heavy screens
+  await initializeDateFormatting('am', null);
+  await initializeDateFormatting('om', null);
+  await initializeDateFormatting('es', null);
+  await initializeDateFormatting('en', null);
 
   String baseUrl = ApiEndpoints.baseUrl;
   if (!kIsWeb) {
