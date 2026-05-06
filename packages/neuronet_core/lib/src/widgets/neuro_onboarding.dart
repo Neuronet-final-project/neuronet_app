@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'neuro_button.dart';
 import 'language_picker_dropdown.dart';
+import '../l10n/l10n_extensions.dart';
 import '../theme/app_theme.dart';
 
 /// Data model for an individual onboarding slide.
@@ -24,14 +25,14 @@ class NeuroOnboardingScreen extends StatefulWidget {
   final List<OnboardingPageData> pages;
   final VoidCallback onFinish;
   final Color primaryColor;
-  final String finishButtonText;
+  final String? finishButtonText;
 
   const NeuroOnboardingScreen({
     super.key,
     required this.pages,
     required this.onFinish,
     required this.primaryColor,
-    this.finishButtonText = 'Get Started',
+    this.finishButtonText,
   });
 
   @override
@@ -108,8 +109,8 @@ class _NeuroOnboardingScreenState extends State<NeuroOnboardingScreen> {
                     if (_currentPage < widget.pages.length - 1)
                       TextButton(
                         onPressed: widget.onFinish,
-                        child: const Text(
-                          'Skip',
+                        child: Text(
+                          context.localizations.skip,
                           style: TextStyle(
                             color: NeuroColors.onSurfaceVariant,
                             fontWeight: FontWeight.w600,
@@ -133,8 +134,8 @@ class _NeuroOnboardingScreenState extends State<NeuroOnboardingScreen> {
                         }
                       },
                       label: _currentPage == widget.pages.length - 1 
-                          ? widget.finishButtonText 
-                          : 'Next',
+                          ? (widget.finishButtonText ?? context.localizations.getStarted) 
+                          : context.localizations.next,
                       backgroundColor: widget.primaryColor,
                       width: 140,
                       height: 56,

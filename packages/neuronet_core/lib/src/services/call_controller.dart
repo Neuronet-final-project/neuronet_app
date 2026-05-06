@@ -138,6 +138,12 @@ class CallController extends _$CallController {
       _,
     ) async {
       if (!ref.mounted) return;
+      
+      // Check for token before polling to avoid 401 spam when unauthenticated
+      final storage = ref.read(tokenStorageProvider);
+      final token = await storage.getAccessToken();
+      if (token == null) return;
+
       final state = this.state.value;
       // Only check if not already in a call
       if (state != null && !state.isInCall) {

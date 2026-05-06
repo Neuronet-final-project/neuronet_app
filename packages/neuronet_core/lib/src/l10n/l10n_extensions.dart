@@ -29,3 +29,14 @@ extension MoodTypeL10n on MoodType {
         MoodType.hopeful => l10n.moodHopeful,
       };
 }
+
+/// Extension to provide localized labels for [AccountStatus].
+extension AccountStatusL10n on AccountStatus {
+  /// Returns the localized label for this account status.
+  String localizedLabel(AppLocalizations l10n) => switch (this) {
+        AccountStatus.active => l10n.statusActive,
+        AccountStatus.inactive => l10n.statusInactive,
+        AccountStatus.suspended => l10n.statusSuspended,
+        AccountStatus.pendingActivation => l10n.statusPendingActivation,
+      };
+}

@@ -65,12 +65,12 @@ class ProfileScreen extends ConsumerWidget {
                 );
               }
 
-              final user = state.user;
-              if (user == null) {
-                return const SliverFillRemaining(
-                  child: Center(child: Text('No user profile found.')),
-                );
-              }
+final user = state.user;
+               if (user == null) {
+                 return SliverFillRemaining(
+                   child: Center(child: Text(context.localizations.profileNotFoundUser)),
+                 );
+               }
 
               return SliverPadding(
                 padding: const EdgeInsets.symmetric(
@@ -235,7 +235,7 @@ class ProfileScreen extends ConsumerWidget {
         const SizedBox(height: 48),
         Center(
           child: Text(
-            'NeuroNet Guardian v${AppConstants.appVersion}',
+            context.localizations.guardianAppVersion(AppConstants.appVersion),
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,

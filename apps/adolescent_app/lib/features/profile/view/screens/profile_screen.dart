@@ -40,7 +40,7 @@ class ProfileScreen extends ConsumerWidget {
           if (state.error != null && state.user == null) {
             return Center(
               child: NeuroErrorWidget(
-                message: 'Error: ${state.error}',
+                message: '${l10n.errorPrefix}: ${state.error}',
                 onRetry: () => ref.read(adolescentProfileControllerProvider.notifier).refresh(),
               ),
             );
@@ -50,7 +50,7 @@ class ProfileScreen extends ConsumerWidget {
           if (user == null) {
              return Center(
               child: NeuroErrorWidget(
-                message: 'User profile not found.',
+                message: l10n.profileNotFound,
                 onRetry: () => ref.read(adolescentProfileControllerProvider.notifier).refresh(),
               ),
             );
@@ -61,7 +61,7 @@ class ProfileScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(
           child: NeuroErrorWidget(
-            message: 'Error: $err',
+            message: '${l10n.errorPrefix}: $err',
             onRetry: () => ref.read(adolescentProfileControllerProvider.notifier).refresh(),
           ),
         ),
@@ -95,7 +95,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
               _SettingTile(
                 label: l10n.accountStatus,
-                value: user.accountStatus.name.toUpperCase(),
+                value: user.accountStatus.localizedLabel(l10n).toUpperCase(),
                 icon: Icons.verified_user_rounded,
                 showDivider: false,
               ),
@@ -157,7 +157,7 @@ class ProfileScreen extends ConsumerWidget {
 
           const SizedBox(height: 32),
           Text(
-            'NeuroNet v${AppConstants.appVersion}',
+            l10n.appVersion(AppConstants.appVersion),
             style: theme.textTheme.labelSmall?.copyWith(
               color: NeuroColors.onSurfaceVariant.withValues(alpha: 0.6),
               letterSpacing: 1,
@@ -236,7 +236,7 @@ class _ProfileHeader extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'Adolescent Account',
+                      context.localizations.adolescentAccount,
                       style: theme.textTheme.labelMedium?.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,

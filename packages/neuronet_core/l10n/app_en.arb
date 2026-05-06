@@ -233,5 +233,449 @@
   "aiPrompt1": "What can you help me with?",
   "aiPrompt2": "How do I add a journal entry?",
   "aiPrompt3": "Who can see my data?",
-  "aiPrompt4": "How do I contact my counselor?"
+  "aiPrompt4": "How do I contact my counselor?",
+  "requestApproval": "Request Approval",
+  "checkingApprovalStatus": "Checking approval status...",
+  "approvalRequest": "Approval Request",
+  "approvalPending": "Approval Pending",
+  "approvalPendingMessage": "Your approval request for {counselorName} is already pending.",
+  "@approvalPendingMessage": {
+    "placeholders": {
+      "counselorName": {
+        "type": "String"
+      }
+    }
+  },
+  "guardianReviewingMessage": "Your guardian is reviewing your request. You'll be notified once they respond.",
+  "requestSent": "Request Sent",
+  "requestSentSuccess": "Request Sent!",
+  "approvalSentMessage": "Your approval request has been sent to your guardian.",
+  "statusPending": "Status: Pending",
+  "backToChat": "Back to Chat",
+  "guardianApprovalRequired": "Guardian Approval Required",
+  "guardianApprovalExplanation": "To communicate with a counselor, you need approval from your guardian. Please explain why you would like to talk to this counselor.",
+  "counselorLabel": "Counselor",
+  "reasonForRequest": "Reason for Request",
+  "reasonHint": "Explain why you would like to talk to this counselor...",
+  "reasonRequired": "Please provide a reason for your request",
+  "reasonMinLength": "Please provide more details (at least 20 characters)",
+  "sendRequest": "Send Request",
+  "unableToGetUserInfo": "Unable to get user information. Please try again.",
+  "pendingRequestExists": "You already have a pending approval request for this counselor.",
+  "alreadyPending": "already pending",
+  "approvalRequestAlreadyPending": "Approval request already pending",
+  "profileNotFound": "User profile not found.",
+  "adolescentAccount": "Adolescent Account",
+  "errorPrefix": "Error",
+  "statusActive": "Active",
+  "statusInactive": "Inactive",
+  "statusSuspended": "Suspended",
+  "statusPendingActivation": "Pending Activation",
+  "appVersion": "NeuroNet v{version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "guardianAppVersion": "NeuroNet Guardian v{version}",
+  "@guardianAppVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "profileNotFoundUser": "No user profile found.",
+  "accountActivatedLogin": "Account activated! Please login.",
+  "activateAccountTitle": "Activate Account",
+  "setUpSecureAccount": "Set Up Your Secure Account",
+  "activationCodeHint": "Use the activation code provided by your guardian to begin your journey.",
+  "registeredEmail": "Registered Email",
+  "activationCode": "Activation Code",
+  "activationCodeExample": "e.g. NEURO-2026",
+  "newPassword": "New Password",
+  "confirmPassword": "Confirm Password",
+  "activateAccountButton": "Activate Account",
+  "passwordPrivacyInfo": "Your password ensures your journal remains private and secure.",
+  "pleaseEnterEmail": "Please enter your email",
+  "pleaseEnterActivationCode": "Please enter the activation code",
+  "pleaseEnterPassword": "Please enter a password",
+  "passwordMinLength": "Password must be at least 6 characters",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "discoverPages": "Discover Pages",
+  "followedPages": "Followed Pages",
+  "pickedForYou": "Picked for You",
+  "aiPicks": "AI Picks",
+  "popular": "Popular",
+  "analyzeNow": "Analyze Now",
+  "insightDetail": "Insight Detail",
+  "channelNotFound": "Channel not found. Please try again later.",
+  "yourChannels": "Your Channels",
+  "following": "Following",
+  "follow": "Follow",
+  "retry": "Retry",
+  "requestApprovalAgain": "Request Approval Again",
+  "requestAgain": "Request Again",
+  "goToYourChannels": "Go to Your Channels",
+  "loginTagline1": "Your Emotional Support Space 💜",
+  "loginTagline2": "You are not alone in this 🌿",
+  "loginTagline3": "Every feeling is valid here ✨",
+  "anErrorOccurred": "An error occurred",
+  "welcomeBack": "Welcome back 👋",
+  "signInToContinue": "Sign in to continue",
+  "emailHint": "Email address",
+  "passwordHint": "Password",
+  "forgotPassword": "Forgot password?",
+  "newToNeuroNet": "New to NeuroNet?",
+  "activateMyAccount": "Activate My Account",
+  "dataPrivateEncrypted": "Your data is private and encrypted",
+  "onboardingTitle1": "Your Safe Space",
+  "onboardingDesc1": "A private place for your thoughts and feelings. Your journals are never seen by guardians or counselors.",
+  "onboardingTitle2": "Understand Your Trends",
+  "onboardingDesc2": "Our AI helps you see patterns in your emotional journey over time, helping you grow with self-awareness.",
+  "onboardingTitle3": "Support, Not Diagnosis",
+  "onboardingDesc3": "We're here to support you. Our AI is an informational assistant, not a doctor or therapist.",
+  "onboardingTitle4": "Ready to Start?",
+  "onboardingDesc4": "Use the activation code provided by your guardian to unlock your personal emotional journey.",
+  "noCommentsYet": "No comments yet.",
+  "discover": "Discover",
+  "myInsights": "My Insights",
+  "aiReflectiveQuest": "AI REFLECTIVE QUEST",
+  "gameOver": "Game Over!",
+  "playAgain": "Play Again",
+  "close": "Close",
+  "startGame": "START GAME",
+  "startExercise": "Start Exercise",
+  "noInsightsYet": "No insights yet!",
+  "keepJournalingDesc": "Keep journaling and tracking your moods.\nWe'll share helpful patterns here.",
+  "insightsHistory": "Insights History ({count})",
+  "@insightsHistory": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recent": "RECENT",
+  "newLabel": "NEW",
+  "viewDetails": "View Details",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "failedToUploadVoice": "Failed to upload voice message: {error}",
+  "@failedToUploadVoice": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "failedToUploadMedia": "Failed to upload {type}: {error}",
+  "@failedToUploadMedia": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceCall": "Voice call",
+  "videoCall": "Video call",
+  "refreshMessages": "Refresh messages",
+  "chatEnabledBanner": "Chat enabled - Your guardian has approved counselor communication",
+  "chatDisabledBanner": "Chat disabled - Counselor communication consent required",
+  "loadingConsent": "Loading consent status...",
+  "unableToStartChat": "Unable to Start Counselor Chat",
+  "noMessagesYet": "No Messages Yet",
+  "startConversationWithCounselor": "Send a message to start a conversation\nwith your counselor.",
+  "counselorPrompt1": "I'd like to talk about something",
+  "counselorPrompt2": "Can you help me with some concerns?",
+  "counselorPrompt3": "I need some guidance",
+  "deepBreathingTitle": "Deep Breathing",
+  "deepBreathingDesc": "A simple 4-4-4 rhythm to calm your mind and regulate your system.",
+  "mindfulFocusTitle": "Mindful Focus",
+  "mindfulFocusDesc": "Train your attention by following the rhythmic movement of light.",
+  "moodMatcherTitle": "Mood Matcher",
+  "moodMatcherDesc": "A fun pattern-matching game to sharpen your focus.",
+  "aiQuestTitle": "AI Reflective Quest",
+  "aiQuestDesc": "Embark on a personal journey of self-discovery powered by AI.",
+  "playAndRelax": "Play & Relax",
+  "minCount": "{count} min",
+  "@minCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "learnersNook": "Learner's Nook",
+  "browseTopics": "Browse Topics",
+  "myFeed": "My Feed",
+  "unfollowedCategory": "Unfollowed {category}",
+  "@unfollowedCategory": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "followingCategory": "Following {category}",
+  "@followingCategory": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "noTopicsAvailable": "No topics available",
+  "checkBackSoonTopics": "Check back soon for new topics!",
+  "feedEmpty": "Your feed is empty",
+  "followTopicsToSeeArticles": "Follow some topics to see articles here!",
+  "articlesCount": "{count} articles",
+  "@articlesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "followersCount": "{count} followers",
+  "@followersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "following": "Following",
+  "follow": "Follow",
+  "readMoreAbout": "Read more about {title}",
+  "@readMoreAbout": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "searchPagesHint": "Search pages...",
+  "all": "All",
+  "noPagesFound": "No pages found",
+  "tryDifferentSearch": "Try a different search term",
+  "noPagesInCategory": "No pages available in this category",
+  "popular": "Popular",
+  "followerCountLabel": "{count, plural, =1{1 follower} other{{count} followers}}",
+  "@followerCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moodCategory": "Mood",
+  "sleepCategory": "Sleep",
+  "stressCategory": "Stress",
+  "relationshipsCategory": "Relationships",
+  "beginner": "Beginner",
+  "intermediate": "Intermediate",
+  "advanced": "Advanced",
+  "minRead": "{count} min read",
+  "@minRead": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "counselorDefaultName": "Counselor",
+  "counselorCredentialsDefault": "Licensed Clinical Psychologist",
+  "tagsLabel": "Tags",
+  "partOfTopic": "Part of {category} topic",
+  "@partOfTopic": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "iveReadThis": "I've read this!",
+  "noFollowedPages": "No followed pages yet",
+  "startFollowingToSee": "Start following pages to see them here. Discover new content to follow!",
+  "couldNotLoadFollowedPages": "Could not load followed pages.",
+  "couldNotLoadPageDetails": "Could not load page details",
+  "byAuthor": "By {author}",
+  "@byAuthor": {
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "daysAgo": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weeksAgo": "{count, plural, =1{1 week ago} other{{count} weeks ago}}",
+  "@weeksAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "monthsAgo": "{count, plural, =1{1 month ago} other{{count} months ago}}",
+  "@monthsAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisComplete": "Analysis complete! Check for new recommendations.",
+  "noNewRecommendations": "No new recommendations at this time.",
+  "analyzingJourney": "Analyzing your journey...",
+  "noAiPicks": "No AI picks yet!",
+  "aiPicksDesc": "Keep journaling and exploring! Our AI will analyze your journey and suggest personalized content.",
+  "couldNotLoadAiRecs": "Could not load AI recommendations.",
+  "noPicksYet": "No picks yet!",
+  "picksDesc": "Keep journaling and exploring! Your personalized picks will appear here as we learn more about your journey.",
+  "couldNotLoadPicks": "Could not load your picks.",
+  "aiPickLabel": "AI PICK",
+  "recommendedForYou": "Recommended for you:",
+  "smartPickLabel": "SMART PICK",
+  "relatedArticle": "Related Article:",
+  "errorLabel": "Error: {message}",
+  "@errorLabel": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "ai": "AI",
+  "channels": "Channels",
+  "yourChannels": "Your Channels",
+  "hideComments": "Hide comments",
+  "viewComments": "View comments",
+  "addCommentHint": "Add a comment...",
+  "noCommentsYet": "No comments yet.",
+  "refreshPostsTooltip": "Refresh posts",
+  "followingTooltip": "Following",
+  "followTooltip": "Follow",
+  "reactionsCount": "{count, plural, =1{1 reaction} other{{count} reactions}}",
+  "@reactionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "privacyHubTitle": "Privacy Hub",
+  "coreTransparency": "Core Transparency",
+  "sharingVisibility": "Sharing & Visibility",
+  "personalGrowthData": "Personal Growth Data",
+  "counselorAccess": "Counselor Access",
+  "oversightTitle": "Guardian Oversight",
+  "oversightDescription": "Your guardian can see your mood trends but not your private journals.",
+  "dataPrivacyTitle": "Data Privacy",
+  "dataPrivacyDescription": "Your personal data is encrypted and stored securely.",
+  "aiAnalysisTitle": "AI Analysis",
+  "aiAnalysisDescription": "AI analyzes your patterns to provide helpful insights.",
+  "activitySharingTitle": "Activity Sharing",
+  "activitySharingDescription": "You can choose which activities to share with others.",
+  "filterWhen": "WHEN",
+  "filterMood": "MOOD",
+  "filterResults": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
+  "@filterResults": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterAll": "All",
+  "filterToday": "Today",
+  "filterThisWeek": "This Week",
+  "totalLabel": "Total",
+  "followingLabel": "Following",
+  "inThisTabLabel": "In this tab",
+  "noChannelsYet": "No channels yet",
+  "noChannelsToDiscover": "No channels to discover",
+  "followFromDiscoverNote": "Follow channels from the Discover tab to see them here.",
+  "checkBackLaterForChannels": "Check back later for new channels!",
+  "browseAllChannels": "Browse All Channels",
+  "noPostsYet": "No posts yet.",
+  "counselorUpdatesNote": "Counselors will post updates here.",
+  "commentsCount": "{count, plural, =1{1 comment} other{{count} comments}}",
+  "privacyHubTitle": "Privacy Hub",
+  "coreTransparency": "Core Transparency",
+  "sharingVisibility": "Sharing & Visibility",
+  "interactionControls": "Interaction Controls",
+  "generalParticipation": "General Participation",
+  "generalParticipationDesc": "This allows Neuronet AI to analyze your journal entries for emotional patterns. If disabled, entries are stored but not analyzed.",
+  "aiInsightsSummaries": "AI Insights & Summaries",
+  "aiInsightsSummariesDesc": "Your guardian and counselor can view summaries of your emotional trends.",
+  "safetyAlerts": "Safety Alerts",
+  "safetyAlertsDesc": "Real-time notifications sent to your guardian when high-risk patterns are identified.",
+  "counselorConnection": "Counselor Connection",
+  "counselorConnectionDesc": "Allows your school counselor to view your profile and participate in your growth journey.",
+  "directMessaging": "Direct Messaging",
+  "directMessagingDesc": "Enable secure messaging between you, your guardian, and your counselor.",
+  "couldNotLoadPrivacy": "Could not load privacy settings.",
+  "participationPausedNote": "Paused: General Participation is off",
+  "guardianOversightNote": "Guardian Oversight",
+  "guardianOversightNoteDesc": "Your guardian can see your mood trends but not your private journals.",
+  "understandingPrivacy": "Understanding Your Privacy",
+  "privacyEducation1": "Your guardian manages these settings to ensure you have the right support.",
+  "privacyEducation2": "If you have questions about these settings, we encourage you to discuss them with your guardian.",
+  "privacyEducation3": "Neuronet uses AI only for emotional insight, never for clinical diagnosis.",
+  "yourPrivacyMatters": "Your Privacy Matters",
+  "transparencyNote": "We value transparency. Below are the oversight settings currently active for your account.",
+  "granted": "Granted",
+  "revoked": "Revoked",
+  "paused": "Paused",
+  "composeEntry": "Compose Entry",
+  "analyzingJourney": "Analyzing your journey...",
+  "noAiPicks": "No AI picks yet",
+  "aiPicksDesc": "Check back later for personalized recommendations.",
+  "intensityLevel": "Intensity: {level}",
+  "@intensityLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "couldNotLoadAlerts": "Could not load alerts.",
+  "noCommentsYet": "No comments yet.",
+  "unableToStartChat": "Unable to start chat.",
+  "noMessagesYet": "No messages yet.",
+  "startConversationWithCounselor": "Start a conversation with your counselor.",
+  "loadingConsent": "Checking permissions...",
+  "newLabel": "NEW",
+  "viewDetails": "View Details",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "you": "You",
+  "friend": "friend",
+  "followerCountLabel": "{count, plural, =1{1 follower} other{{count} followers}}",
+  "@followerCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "popular": "Popular",
+  "refreshingDashboard": "Refreshing dashboard...",
+  "skip": "Skip",
+  "next": "Next",
+  "getStarted": "Get Started"
 }
+

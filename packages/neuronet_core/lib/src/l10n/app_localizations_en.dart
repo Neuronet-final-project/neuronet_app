@@ -81,7 +81,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get more => 'More →';
 
   @override
-  String get recommendedForYou => 'Recommended for You';
+  String get recommendedForYou => 'Recommended for you:';
 
   @override
   String get playAndRelax => 'Play & Relax';
@@ -161,7 +161,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smallCheckIn => 'A small check-in goes a long way.';
 
   @override
-  String get today => 'TODAY';
+  String get today => 'Today';
 
   @override
   String get take30Seconds => 'Take 30 seconds.';
@@ -190,7 +190,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String daysAgo(int count) {
-    return '$count days ago';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -353,7 +359,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String filterResults(int count) {
-    return 'RESULTS ($count)';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '1 result',
+      zero: 'No results',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -610,4 +623,829 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPrompt4 => 'How do I contact my counselor?';
+
+  @override
+  String get requestApproval => 'Request Approval';
+
+  @override
+  String get checkingApprovalStatus => 'Checking approval status...';
+
+  @override
+  String get approvalRequest => 'Approval Request';
+
+  @override
+  String get approvalPending => 'Approval Pending';
+
+  @override
+  String approvalPendingMessage(String counselorName) {
+    return 'Your approval request for $counselorName is already pending.';
+  }
+
+  @override
+  String get guardianReviewingMessage =>
+      'Your guardian is reviewing your request. You\'ll be notified once they respond.';
+
+  @override
+  String get requestSent => 'Request Sent';
+
+  @override
+  String get requestSentSuccess => 'Request Sent!';
+
+  @override
+  String get approvalSentMessage =>
+      'Your approval request has been sent to your guardian.';
+
+  @override
+  String get statusPending => 'Status: Pending';
+
+  @override
+  String get backToChat => 'Back to Chat';
+
+  @override
+  String get guardianApprovalRequired => 'Guardian Approval Required';
+
+  @override
+  String get guardianApprovalExplanation =>
+      'To communicate with a counselor, you need approval from your guardian. Please explain why you would like to talk to this counselor.';
+
+  @override
+  String get counselorLabel => 'Counselor';
+
+  @override
+  String get reasonForRequest => 'Reason for Request';
+
+  @override
+  String get reasonHint =>
+      'Explain why you would like to talk to this counselor...';
+
+  @override
+  String get reasonRequired => 'Please provide a reason for your request';
+
+  @override
+  String get reasonMinLength =>
+      'Please provide more details (at least 20 characters)';
+
+  @override
+  String get sendRequest => 'Send Request';
+
+  @override
+  String get unableToGetUserInfo =>
+      'Unable to get user information. Please try again.';
+
+  @override
+  String get pendingRequestExists =>
+      'You already have a pending approval request for this counselor.';
+
+  @override
+  String get alreadyPending => 'already pending';
+
+  @override
+  String get approvalRequestAlreadyPending =>
+      'Approval request already pending';
+
+  @override
+  String get profileNotFound => 'User profile not found.';
+
+  @override
+  String get adolescentAccount => 'Adolescent Account';
+
+  @override
+  String get errorPrefix => 'Error';
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusInactive => 'Inactive';
+
+  @override
+  String get statusSuspended => 'Suspended';
+
+  @override
+  String get statusPendingActivation => 'Pending Activation';
+
+  @override
+  String appVersion(String version) {
+    return 'NeuroNet v$version';
+  }
+
+  @override
+  String guardianAppVersion(String version) {
+    return 'NeuroNet Guardian v$version';
+  }
+
+  @override
+  String get profileNotFoundUser => 'No user profile found.';
+
+  @override
+  String get accountActivatedLogin => 'Account activated! Please login.';
+
+  @override
+  String get activateAccountTitle => 'Activate Account';
+
+  @override
+  String get setUpSecureAccount => 'Set Up Your Secure Account';
+
+  @override
+  String get activationCodeHint =>
+      'Use the activation code provided by your guardian to begin your journey.';
+
+  @override
+  String get registeredEmail => 'Registered Email';
+
+  @override
+  String get activationCode => 'Activation Code';
+
+  @override
+  String get activationCodeExample => 'e.g. NEURO-2026';
+
+  @override
+  String get newPassword => 'New Password';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get activateAccountButton => 'Activate Account';
+
+  @override
+  String get passwordPrivacyInfo =>
+      'Your password ensures your journal remains private and secure.';
+
+  @override
+  String get pleaseEnterEmail => 'Please enter your email';
+
+  @override
+  String get pleaseEnterActivationCode => 'Please enter the activation code';
+
+  @override
+  String get pleaseEnterPassword => 'Please enter a password';
+
+  @override
+  String get passwordMinLength => 'Password must be at least 6 characters';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get discoverPages => 'Discover Pages';
+
+  @override
+  String get followedPages => 'Followed Pages';
+
+  @override
+  String get pickedForYou => 'Picked for You';
+
+  @override
+  String get aiPicks => 'AI Picks';
+
+  @override
+  String get popular => 'Popular';
+
+  @override
+  String get analyzeNow => 'Analyze Now';
+
+  @override
+  String get insightDetail => 'Insight Detail';
+
+  @override
+  String get channelNotFound => 'Channel not found. Please try again later.';
+
+  @override
+  String get yourChannels => 'Your Channels';
+
+  @override
+  String get following => 'Following';
+
+  @override
+  String get follow => 'Follow';
+
+  @override
+  String get requestApprovalAgain => 'Request Approval Again';
+
+  @override
+  String get requestAgain => 'Request Again';
+
+  @override
+  String get goToYourChannels => 'Go to Your Channels';
+
+  @override
+  String get loginTagline1 => 'Your Emotional Support Space 💜';
+
+  @override
+  String get loginTagline2 => 'You are not alone in this 🌿';
+
+  @override
+  String get loginTagline3 => 'Every feeling is valid here ✨';
+
+  @override
+  String get anErrorOccurred => 'An error occurred';
+
+  @override
+  String get welcomeBack => 'Welcome back 👋';
+
+  @override
+  String get signInToContinue => 'Sign in to continue';
+
+  @override
+  String get emailHint => 'Email address';
+
+  @override
+  String get passwordHint => 'Password';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get newToNeuroNet => 'New to NeuroNet?';
+
+  @override
+  String get activateMyAccount => 'Activate My Account';
+
+  @override
+  String get dataPrivateEncrypted => 'Your data is private and encrypted';
+
+  @override
+  String get onboardingTitle1 => 'Your Safe Space';
+
+  @override
+  String get onboardingDesc1 =>
+      'A private place for your thoughts and feelings. Your journals are never seen by guardians or counselors.';
+
+  @override
+  String get onboardingTitle2 => 'Understand Your Trends';
+
+  @override
+  String get onboardingDesc2 =>
+      'Our AI helps you see patterns in your emotional journey over time, helping you grow with self-awareness.';
+
+  @override
+  String get onboardingTitle3 => 'Support, Not Diagnosis';
+
+  @override
+  String get onboardingDesc3 =>
+      'We\'re here to support you. Our AI is an informational assistant, not a doctor or therapist.';
+
+  @override
+  String get onboardingTitle4 => 'Ready to Start?';
+
+  @override
+  String get onboardingDesc4 =>
+      'Use the activation code provided by your guardian to unlock your personal emotional journey.';
+
+  @override
+  String get noCommentsYet => 'No comments yet.';
+
+  @override
+  String get discover => 'Discover';
+
+  @override
+  String get myInsights => 'My Insights';
+
+  @override
+  String get aiReflectiveQuest => 'AI REFLECTIVE QUEST';
+
+  @override
+  String get gameOver => 'Game Over!';
+
+  @override
+  String get playAgain => 'Play Again';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get startGame => 'START GAME';
+
+  @override
+  String get startExercise => 'Start Exercise';
+
+  @override
+  String get noInsightsYet => 'No insights yet!';
+
+  @override
+  String get keepJournalingDesc =>
+      'Keep journaling and tracking your moods.\nWe\'ll share helpful patterns here.';
+
+  @override
+  String insightsHistory(int count) {
+    return 'Insights History ($count)';
+  }
+
+  @override
+  String get recent => 'RECENT';
+
+  @override
+  String get newLabel => 'NEW';
+
+  @override
+  String get viewDetails => 'View Details';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String failedToUploadVoice(String error) {
+    return 'Failed to upload voice message: $error';
+  }
+
+  @override
+  String failedToUploadMedia(String type, String error) {
+    return 'Failed to upload $type: $error';
+  }
+
+  @override
+  String get voiceCall => 'Voice call';
+
+  @override
+  String get videoCall => 'Video call';
+
+  @override
+  String get refreshMessages => 'Refresh messages';
+
+  @override
+  String get chatEnabledBanner =>
+      'Chat enabled - Your guardian has approved counselor communication';
+
+  @override
+  String get chatDisabledBanner =>
+      'Chat disabled - Counselor communication consent required';
+
+  @override
+  String get loadingConsent => 'Checking permissions...';
+
+  @override
+  String get unableToStartChat => 'Unable to start chat.';
+
+  @override
+  String get noMessagesYet => 'No messages yet.';
+
+  @override
+  String get startConversationWithCounselor =>
+      'Start a conversation with your counselor.';
+
+  @override
+  String get counselorPrompt1 => 'I\'d like to talk about something';
+
+  @override
+  String get counselorPrompt2 => 'Can you help me with some concerns?';
+
+  @override
+  String get counselorPrompt3 => 'I need some guidance';
+
+  @override
+  String get deepBreathingTitle => 'Deep Breathing';
+
+  @override
+  String get deepBreathingDesc =>
+      'A simple 4-4-4 rhythm to calm your mind and regulate your system.';
+
+  @override
+  String get mindfulFocusTitle => 'Mindful Focus';
+
+  @override
+  String get mindfulFocusDesc =>
+      'Train your attention by following the rhythmic movement of light.';
+
+  @override
+  String get moodMatcherTitle => 'Mood Matcher';
+
+  @override
+  String get moodMatcherDesc =>
+      'A fun pattern-matching game to sharpen your focus.';
+
+  @override
+  String get aiQuestTitle => 'AI Reflective Quest';
+
+  @override
+  String get aiQuestDesc =>
+      'Embark on a personal journey of self-discovery powered by AI.';
+
+  @override
+  String minCount(int count) {
+    return '$count min';
+  }
+
+  @override
+  String get learnersNook => 'Learner\'s Nook';
+
+  @override
+  String get browseTopics => 'Browse Topics';
+
+  @override
+  String get myFeed => 'My Feed';
+
+  @override
+  String unfollowedCategory(String category) {
+    return 'Unfollowed $category';
+  }
+
+  @override
+  String followingCategory(String category) {
+    return 'Following $category';
+  }
+
+  @override
+  String get noTopicsAvailable => 'No topics available';
+
+  @override
+  String get checkBackSoonTopics => 'Check back soon for new topics!';
+
+  @override
+  String get feedEmpty => 'Your feed is empty';
+
+  @override
+  String get followTopicsToSeeArticles =>
+      'Follow some topics to see articles here!';
+
+  @override
+  String articlesCount(int count) {
+    return '$count articles';
+  }
+
+  @override
+  String followersCount(int count) {
+    return '$count followers';
+  }
+
+  @override
+  String readMoreAbout(String title) {
+    return 'Read more about $title';
+  }
+
+  @override
+  String get searchPagesHint => 'Search pages...';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get noPagesFound => 'No pages found';
+
+  @override
+  String get tryDifferentSearch => 'Try a different search term';
+
+  @override
+  String get noPagesInCategory => 'No pages available in this category';
+
+  @override
+  String followerCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count followers',
+      one: '1 follower',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get moodCategory => 'Mood';
+
+  @override
+  String get sleepCategory => 'Sleep';
+
+  @override
+  String get stressCategory => 'Stress';
+
+  @override
+  String get relationshipsCategory => 'Relationships';
+
+  @override
+  String get beginner => 'Beginner';
+
+  @override
+  String get intermediate => 'Intermediate';
+
+  @override
+  String get advanced => 'Advanced';
+
+  @override
+  String get counselorDefaultName => 'Counselor';
+
+  @override
+  String get counselorCredentialsDefault => 'Licensed Clinical Psychologist';
+
+  @override
+  String get tagsLabel => 'Tags';
+
+  @override
+  String partOfTopic(String category) {
+    return 'Part of $category topic';
+  }
+
+  @override
+  String get iveReadThis => 'I\'ve read this!';
+
+  @override
+  String get noFollowedPages => 'No followed pages yet';
+
+  @override
+  String get startFollowingToSee =>
+      'Start following pages to see them here. Discover new content to follow!';
+
+  @override
+  String get couldNotLoadFollowedPages => 'Could not load followed pages.';
+
+  @override
+  String get couldNotLoadPageDetails => 'Could not load page details';
+
+  @override
+  String byAuthor(String author) {
+    return 'By $author';
+  }
+
+  @override
+  String weeksAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks ago',
+      one: '1 week ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String monthsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months ago',
+      one: '1 month ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get analysisComplete =>
+      'Analysis complete! Check for new recommendations.';
+
+  @override
+  String get noNewRecommendations => 'No new recommendations at this time.';
+
+  @override
+  String get analyzingJourney => 'Analyzing your journey...';
+
+  @override
+  String get noAiPicks => 'No AI picks yet';
+
+  @override
+  String get aiPicksDesc =>
+      'Check back later for personalized recommendations.';
+
+  @override
+  String get couldNotLoadAiRecs => 'Could not load AI recommendations.';
+
+  @override
+  String get noPicksYet => 'No picks yet!';
+
+  @override
+  String get picksDesc =>
+      'Keep journaling and exploring! Your personalized picks will appear here as we learn more about your journey.';
+
+  @override
+  String get couldNotLoadPicks => 'Could not load your picks.';
+
+  @override
+  String get aiPickLabel => 'AI PICK';
+
+  @override
+  String get smartPickLabel => 'SMART PICK';
+
+  @override
+  String get relatedArticle => 'Related Article:';
+
+  @override
+  String errorLabel(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get channels => 'Channels';
+
+  @override
+  String get hideComments => 'Hide comments';
+
+  @override
+  String get viewComments => 'View comments';
+
+  @override
+  String get addCommentHint => 'Add a comment...';
+
+  @override
+  String get refreshPostsTooltip => 'Refresh posts';
+
+  @override
+  String get followingTooltip => 'Following';
+
+  @override
+  String get followTooltip => 'Follow';
+
+  @override
+  String reactionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reactions',
+      one: '1 reaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get privacyHubTitle => 'Privacy Hub';
+
+  @override
+  String get coreTransparency => 'Core Transparency';
+
+  @override
+  String get sharingVisibility => 'Sharing & Visibility';
+
+  @override
+  String get personalGrowthData => 'Personal Growth Data';
+
+  @override
+  String get counselorAccess => 'Counselor Access';
+
+  @override
+  String get oversightTitle => 'Guardian Oversight';
+
+  @override
+  String get oversightDescription =>
+      'Your guardian can see your mood trends but not your private journals.';
+
+  @override
+  String get dataPrivacyTitle => 'Data Privacy';
+
+  @override
+  String get dataPrivacyDescription =>
+      'Your personal data is encrypted and stored securely.';
+
+  @override
+  String get aiAnalysisTitle => 'AI Analysis';
+
+  @override
+  String get aiAnalysisDescription =>
+      'AI analyzes your patterns to provide helpful insights.';
+
+  @override
+  String get activitySharingTitle => 'Activity Sharing';
+
+  @override
+  String get activitySharingDescription =>
+      'You can choose which activities to share with others.';
+
+  @override
+  String get totalLabel => 'Total';
+
+  @override
+  String get followingLabel => 'Following';
+
+  @override
+  String get inThisTabLabel => 'In this tab';
+
+  @override
+  String get noChannelsYet => 'No channels yet';
+
+  @override
+  String get noChannelsToDiscover => 'No channels to discover';
+
+  @override
+  String get followFromDiscoverNote =>
+      'Follow channels from the Discover tab to see them here.';
+
+  @override
+  String get checkBackLaterForChannels => 'Check back later for new channels!';
+
+  @override
+  String get browseAllChannels => 'Browse All Channels';
+
+  @override
+  String get noPostsYet => 'No posts yet.';
+
+  @override
+  String get counselorUpdatesNote => 'Counselors will post updates here.';
+
+  @override
+  String commentsCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count comments',
+      one: '1 comment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get interactionControls => 'Interaction Controls';
+
+  @override
+  String get generalParticipation => 'General Participation';
+
+  @override
+  String get generalParticipationDesc =>
+      'This allows Neuronet AI to analyze your journal entries for emotional patterns. If disabled, entries are stored but not analyzed.';
+
+  @override
+  String get aiInsightsSummaries => 'AI Insights & Summaries';
+
+  @override
+  String get aiInsightsSummariesDesc =>
+      'Your guardian and counselor can view summaries of your emotional trends.';
+
+  @override
+  String get safetyAlerts => 'Safety Alerts';
+
+  @override
+  String get safetyAlertsDesc =>
+      'Real-time notifications sent to your guardian when high-risk patterns are identified.';
+
+  @override
+  String get counselorConnection => 'Counselor Connection';
+
+  @override
+  String get counselorConnectionDesc =>
+      'Allows your school counselor to view your profile and participate in your growth journey.';
+
+  @override
+  String get directMessaging => 'Direct Messaging';
+
+  @override
+  String get directMessagingDesc =>
+      'Enable secure messaging between you, your guardian, and your counselor.';
+
+  @override
+  String get couldNotLoadPrivacy => 'Could not load privacy settings.';
+
+  @override
+  String get participationPausedNote => 'Paused: General Participation is off';
+
+  @override
+  String get guardianOversightNote => 'Guardian Oversight';
+
+  @override
+  String get guardianOversightNoteDesc =>
+      'Your guardian can see your mood trends but not your private journals.';
+
+  @override
+  String get understandingPrivacy => 'Understanding Your Privacy';
+
+  @override
+  String get privacyEducation1 =>
+      'Your guardian manages these settings to ensure you have the right support.';
+
+  @override
+  String get privacyEducation2 =>
+      'If you have questions about these settings, we encourage you to discuss them with your guardian.';
+
+  @override
+  String get privacyEducation3 =>
+      'Neuronet uses AI only for emotional insight, never for clinical diagnosis.';
+
+  @override
+  String get yourPrivacyMatters => 'Your Privacy Matters';
+
+  @override
+  String get transparencyNote =>
+      'We value transparency. Below are the oversight settings currently active for your account.';
+
+  @override
+  String get granted => 'Granted';
+
+  @override
+  String get revoked => 'Revoked';
+
+  @override
+  String get paused => 'Paused';
+
+  @override
+  String get composeEntry => 'Compose Entry';
+
+  @override
+  String intensityLevel(int level) {
+    return 'Intensity: $level';
+  }
+
+  @override
+  String get couldNotLoadAlerts => 'Could not load alerts.';
+
+  @override
+  String get you => 'You';
+
+  @override
+  String get friend => 'friend';
+
+  @override
+  String get refreshingDashboard => 'Refreshing dashboard...';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get getStarted => 'Get Started';
 }

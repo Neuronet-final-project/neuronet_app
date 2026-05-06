@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter/foundation.dart';
 import 'auth_service.dart';
+import '../network/providers.dart';
 
 part 'notification_service.g.dart';
 
@@ -68,7 +69,12 @@ class NotificationService extends _$NotificationService {
         String? token = await _fcm!.getToken();
         if (token != null) {
           debugPrint('[NotificationService] FCM Token: $token');
-          await _registerTokenWithBackend(token);
+          // Check for token before registering to avoid 401 spam
+          final storage = ref.read(tokenStorageProvider);
+          final accessToken = await storage.getAccessToken();
+          if (accessToken != null) {
+            await _registerTokenWithBackend(token);
+          }
         }
 
         // 3. Listen for token refreshes
@@ -108,8 +114,11 @@ class NotificationService extends _$NotificationService {
         
         _initialized = true;
       }
-    } catch (e) {
+    } catch (e, stack) {
       debugPrint('[NotificationService] Initialization failed: $e');
+      if (kDebugMode) {
+        debugPrint(stack.toString());
+      }
     } finally {
       _initCompleter?.complete();
     }
