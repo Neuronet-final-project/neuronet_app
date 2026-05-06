@@ -40,6 +40,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     final authState = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
 
@@ -48,7 +49,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              next.errorMessage ?? 'An error occurred',
+              next.errorMessage ?? l10n.errorPrefix,
               style: TextStyle(
                 color: theme.colorScheme.onErrorContainer,
                 fontSize: 14,
@@ -69,7 +70,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
           previous?.status == AuthStatus.activating) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Account activated! Please login.'),
+            content: Text(l10n.accountActivatedLogin),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
@@ -81,7 +82,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Activate Account'),
+        title: Text(l10n.activateAccountTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.black,
@@ -112,7 +113,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Set Up Your Secure Account',
+                    l10n.setUpSecureAccount,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
@@ -121,7 +122,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Use the activation code provided by your guardian to begin your journey.',
+                    l10n.activationCodeHint,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.grey[600],
@@ -134,14 +135,14 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      labelText: 'Registered Email',
+                      labelText: l10n.registeredEmail,
                       prefixIcon: const Icon(Icons.email_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter your email';
+                      if (value == null || value.isEmpty) return l10n.pleaseEnterEmail;
                       return null;
                     },
                   ),
@@ -151,15 +152,15 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   TextFormField(
                     controller: _codeController,
                     decoration: InputDecoration(
-                      labelText: 'Activation Code',
-                      hintText: 'e.g. NEURO-2026',
+                      labelText: l10n.activationCode,
+                      hintText: l10n.activationCodeExample,
                       prefixIcon: const Icon(Icons.vpn_key_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter the activation code';
+                      if (value == null || value.isEmpty) return l10n.pleaseEnterActivationCode;
                       return null;
                     },
                   ),
@@ -170,7 +171,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
-                      labelText: 'New Password',
+                      labelText: l10n.newPassword,
                       prefixIcon: const Icon(Icons.lock_outline),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -188,8 +189,8 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter a password';
-                      if (value.length < 6) return 'Password must be at least 6 characters';
+                      if (value == null || value.isEmpty) return l10n.pleaseEnterPassword;
+                      if (value.length < 6) return l10n.passwordMinLength;
                       return null;
                     },
                   ),
@@ -200,7 +201,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
                     decoration: InputDecoration(
-                      labelText: 'Confirm Password',
+                      labelText: l10n.confirmPassword,
                       prefixIcon: const Icon(Icons.lock_reset_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -218,7 +219,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value != _passwordController.text) return 'Passwords do not match';
+                      if (value != _passwordController.text) return l10n.passwordsDoNotMatch;
                       return null;
                     },
                   ),
@@ -237,18 +238,18 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                       elevation: 0,
                     ),
                     child: authState.status == AuthStatus.loading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            l10n.activateAccountButton,
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                        )
-                      : const Text(
-                          'Activate Account',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
                   ),
                   const SizedBox(height: 24),
                   
@@ -265,7 +266,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Your password ensures your journal remains private and secure.',
+                            l10n.passwordPrivacyInfo,
                             style: TextStyle(color: Colors.blue[800], fontSize: 13),
                           ),
                         ),

@@ -15,6 +15,7 @@ class ChannelsScreen extends ConsumerStatefulWidget {
 class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     final channelsAsync = ref.watch(channelsControllerProvider);
 
     return DefaultTabController(
@@ -24,9 +25,9 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
         appBar: AppBar(
           foregroundColor: Colors.white,
           surfaceTintColor: Colors.transparent,
-          title: const Text(
-            'Counselor Channels',
-            style: TextStyle(
+          title: Text(
+            l10n.channels,
+            style: const TextStyle(
               fontWeight: FontWeight.w900,
               color: Colors.white,
             ),
@@ -37,7 +38,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
             IconButton(
               icon: const Icon(Icons.refresh_rounded),
               onPressed: () => ref.read(channelsControllerProvider.notifier).refresh(),
-              tooltip: 'Refresh channels',
+              tooltip: l10n.retry,
             ),
           ],
           bottom: TabBar(
@@ -47,9 +48,9 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
             unselectedLabelStyle: const TextStyle(fontSize: 14),
             indicatorColor: Colors.white,
             indicatorWeight: 3.2,
-            tabs: const [
-              Tab(child: Text('Your Channels')),
-              Tab(child: Text('Discover')),
+            tabs: [
+              Tab(child: Text(l10n.yourChannels)),
+              Tab(child: Text(l10n.discover)),
             ],
           ),
         ),
@@ -147,6 +148,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
     required int followedCount,
     required bool isYourTab,
   }) {
+    final l10n = context.localizations;
     final discoverCount = allCount - followedCount;
     final shownCount = isYourTab ? followedCount : discoverCount;
 
@@ -180,10 +182,10 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
             ),
             child: Row(
               children: [
-                _StatChip(label: 'Total', value: '$allCount'),
+                _StatChip(label: l10n.totalLabel, value: '$allCount'),
                 const SizedBox(width: 8),
                 _StatChip(
-                  label: 'Following',
+                  label: l10n.followingLabel,
                   value: '$followedCount',
                   backgroundColor: const Color(0xFFE7F8F0),
                   borderColor: const Color(0xFFC9EEDB),
@@ -192,7 +194,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
                 ),
                 const SizedBox(width: 8),
                 _StatChip(
-                  label: isYourTab ? 'In this tab' : 'Discover',
+                  label: isYourTab ? l10n.inThisTabLabel : l10n.discover,
                   value: '$shownCount',
                   backgroundColor: const Color(0xFFFFF0DE),
                   borderColor: const Color(0xFFFFE0B8),
@@ -213,6 +215,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context, bool isYourChannelsTab) {
+    final l10n = context.localizations;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -226,7 +229,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              isYourChannelsTab ? 'No channels yet' : 'No channels to discover',
+              isYourChannelsTab ? l10n.noChannelsYet : l10n.noChannelsToDiscover,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
@@ -236,8 +239,8 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
             const SizedBox(height: 12),
             Text(
               isYourChannelsTab
-                  ? 'Follow channels from the Discover tab\nto see them here.'
-                  : 'Check back later for new channels!',
+                  ? l10n.followFromDiscoverNote
+                  : l10n.checkBackLaterForChannels,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Color(0xFF6A5C9A),
@@ -252,7 +255,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
                   DefaultTabController.of(context).animateTo(0);
                 },
                 icon: const Icon(Icons.arrow_back_rounded),
-                label: const Text('Go to Your Channels'),
+                label: Text(l10n.goToYourChannels),
                 style: FilledButton.styleFrom(
                   backgroundColor: NeuroColors.adolescentPrimary,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

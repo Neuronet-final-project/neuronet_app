@@ -289,7 +289,7 @@ class MoodScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${state.intensity} / 5',
+                  context.localizations.intensityLevel(state.intensity),
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
@@ -602,7 +602,7 @@ class MoodScreen extends ConsumerWidget {
       },
       loading: () => const Center(child: CircularProgressIndicator(color: NeuroColors.adolescentPrimary)),
       error: (err, stack) => NeuroErrorWidget(
-        message: 'Error: $err',
+        message: '${context.localizations.errorPrefix}: $err',
         onRetry: () => ref.read(moodHistoryControllerProvider.notifier).refresh(),
       ),
     );

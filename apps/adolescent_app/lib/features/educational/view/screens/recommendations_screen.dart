@@ -18,12 +18,13 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.localizations;
     final aiRecommendationsAsync = ref.watch(aIRecommendationControllerProvider);
     final regularRecommendationsAsync = ref.watch(adolescentRecommendationsControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Picked for You'),
+        title: Text(l10n.pickedForYou),
         elevation: 0,
         actions: [
           IconButton(
@@ -44,16 +45,16 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: SegmentedButton<bool>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: true,
-                  label: Text('AI Picks'),
-                  icon: Icon(Icons.auto_awesome_rounded),
+                  label: Text(l10n.aiPicks),
+                  icon: const Icon(Icons.auto_awesome_rounded),
                 ),
                 ButtonSegment(
                   value: false,
-                  label: Text('Popular'),
-                  icon: Icon(Icons.trending_up_rounded),
+                  label: Text(l10n.popular),
+                  icon: const Icon(Icons.trending_up_rounded),
                 ),
               ],
               selected: {_showAIRecommendations},
@@ -66,8 +67,8 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
           ),
           Expanded(
             child: _showAIRecommendations
-                ? _buildAIRecommendations(aiRecommendationsAsync, theme)
-                : _buildRegularRecommendations(regularRecommendationsAsync, theme),
+                ? _buildAIRecommendations(aiRecommendationsAsync, theme, context)
+                : _buildRegularRecommendations(regularRecommendationsAsync, theme, context),
           ),
         ],
       ),
@@ -82,15 +83,15 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
                     SnackBar(
                       content: Text(
                         success
-                            ? 'Analysis complete! Check for new recommendations.'
-                            : 'No new recommendations at this time.',
+                            ? l10n.analysisComplete
+                            : l10n.noNewRecommendations,
                       ),
                     ),
                   );
                 }
               },
               icon: const Icon(Icons.psychology_rounded),
-              label: const Text('Analyze Now'),
+              label: Text(l10n.analyzeNow),
             )
           : null,
     );
@@ -99,7 +100,9 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
   Widget _buildAIRecommendations(
     AsyncValue<AIRecommendationState> aiRecommendationsAsync,
     ThemeData theme,
+    BuildContext context,
   ) {
+    final l10n = context.localizations;
     return aiRecommendationsAsync.when(
       data: (state) {
         if (state.error != null) {
@@ -117,7 +120,7 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
                 const CircularProgressIndicator(),
                 const SizedBox(height: 16),
                 Text(
-                  'Analyzing your journey...',
+                  l10n.analyzingJourney,
                   style: theme.textTheme.bodyLarge,
                 ),
               ],
@@ -131,9 +134,8 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: NeuroEmptyState(
-                title: 'No AI picks yet!',
-                message:
-                    'Keep journaling and exploring! Our AI will analyze your journey and suggest personalized content.',
+                title: l10n.noAiPicks,
+                message: l10n.aiPicksDesc,
                 icon: Icons.auto_awesome_rounded,
                 color: theme.colorScheme.primary,
               ),
@@ -153,7 +155,7 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => NeuroErrorWidget(
-        message: 'Could not load AI recommendations.',
+        message: context.localizations.couldNotLoadAiRecs,
         onRetry: () => ref.read(aIRecommendationControllerProvider.notifier).refresh(),
       ),
     );
@@ -162,7 +164,9 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
   Widget _buildRegularRecommendations(
     AsyncValue<EducationalState> recommendationsAsync,
     ThemeData theme,
+    BuildContext context,
   ) {
+    final l10n = context.localizations;
     return recommendationsAsync.when(
       data: (state) {
         if (state.error != null) {
@@ -179,9 +183,8 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: NeuroEmptyState(
-                title: 'No picks yet!',
-                message:
-                    'Keep journaling and exploring! Your personalized picks will appear here as we learn more about your journey.',
+                title: l10n.noPicksYet,
+                message: l10n.picksDesc,
                 icon: Icons.auto_fix_high_rounded,
                 color: theme.colorScheme.primary,
               ),
@@ -201,7 +204,7 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => NeuroErrorWidget(
-        message: 'Could not load your picks.',
+        message: context.localizations.couldNotLoadPicks,
         onRetry: () =>
             ref.read(adolescentRecommendationsControllerProvider.notifier).refresh(),
       ),
@@ -263,7 +266,7 @@ class _AIRecommendationCard extends ConsumerWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'AI PICK',
+                        context.localizations.aiPickLabel,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: theme.colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,
@@ -313,7 +316,7 @@ class _AIRecommendationCard extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Recommended for you:',
+              context.localizations.recommendedForYou,
               style: theme.textTheme.labelMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w600,
@@ -469,7 +472,7 @@ class _RecommendationCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      'SMART PICK',
+                      context.localizations.smartPickLabel,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.onPrimary,
                         fontWeight: FontWeight.bold,
@@ -503,7 +506,7 @@ class _RecommendationCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Related Article:',
+                            context.localizations.relatedArticle,
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),

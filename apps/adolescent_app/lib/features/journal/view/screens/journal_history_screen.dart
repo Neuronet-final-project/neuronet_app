@@ -220,7 +220,7 @@ class _JournalHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final monthYear = DateFormat('MMMM yyyy').format(now);
+    final monthYear = DateFormat.yMMMM(context.localizations.localeName).format(now);
 
     return SliverAppBar(
       expandedHeight: 152,
@@ -470,7 +470,7 @@ class _WeeklyActivityCard extends StatelessWidget {
               return Column(
                 children: [
                   Text(
-                    DateFormat('E').format(day).substring(0, 1).toUpperCase(),
+                    DateFormat.E(context.localizations.localeName).format(day).substring(0, 1).toUpperCase(),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: isToday ? FontWeight.w900 : FontWeight.w700,
@@ -487,7 +487,7 @@ class _WeeklyActivityCard extends StatelessWidget {
                       border: Border.all(
                         color: isToday 
                             ? NeuroColors.adolescentPrimary 
-                            : (color == null ? const Color(0xFFE0DAF0) : color),
+                            : (color ?? const Color(0xFFE0DAF0)),
                         width: isToday ? 2.5 : 1.0,
                       ),
                       boxShadow: color != null ? [
@@ -556,7 +556,7 @@ class _DayGroup extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    DateFormat('dd').format(date),
+                    DateFormat.d(context.localizations.localeName).format(date),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -570,7 +570,7 @@ class _DayGroup extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isToday ? context.localizations.today : DateFormat('EEEE').format(date).toUpperCase(),
+                    isToday ? context.localizations.today : DateFormat.EEEE(context.localizations.localeName).format(date).toUpperCase(),
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
@@ -579,7 +579,7 @@ class _DayGroup extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    DateFormat('MMM yyyy').format(date).toUpperCase(),
+                    DateFormat.yMMM(context.localizations.localeName).format(date).toUpperCase(),
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -718,7 +718,7 @@ class _EntryCardState extends State<_EntryCard> {
                           const Icon(Icons.access_time_rounded, size: 12, color: Color(0xFF8A7DAC)),
                           const SizedBox(width: 4),
                           Text(
-                            DateFormat('h:mm a').format(widget.entry.createdAt),
+                            DateFormat.jm(context.localizations.localeName).format(widget.entry.createdAt),
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
@@ -791,7 +791,7 @@ class _MoodBadge extends StatelessWidget {
           Text(_getMoodEmoji(mood), style: const TextStyle(fontSize: 12)),
           const SizedBox(width: 4),
           Text(
-            mood!.label.toUpperCase(),
+            mood!.localizedLabel(context.localizations).toUpperCase(),
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w900,
@@ -853,8 +853,8 @@ class _ComposeFAB extends StatelessWidget {
         child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: const Icon(Icons.edit_document, size: 20),
-        label: const Text(
-          'Compose Entry',
+        label: Text(
+          context.localizations.composeEntry,
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,

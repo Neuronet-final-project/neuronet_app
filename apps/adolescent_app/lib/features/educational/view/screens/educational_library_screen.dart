@@ -103,14 +103,14 @@ class _EducationalLibraryScreenState extends ConsumerState<EducationalLibraryScr
           _loadFeed();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Unfollowed ${category.label}')),
+              SnackBar(content: Text(context.localizations.unfollowedCategory(category.label))),
             );
           }
         },
         failure: (failure) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: ${failure.message}')),
+              SnackBar(content: Text(context.localizations.errorLabel(failure.message))),
             );
           }
         },
@@ -123,14 +123,14 @@ class _EducationalLibraryScreenState extends ConsumerState<EducationalLibraryScr
           _loadFeed();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Following ${category.label}')),
+              SnackBar(content: Text(context.localizations.followingCategory(category.label))),
             );
           }
         },
         failure: (failure) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: ${failure.message}')),
+              SnackBar(content: Text(context.localizations.errorLabel(failure.message))),
             );
           }
         },
@@ -144,16 +144,16 @@ class _EducationalLibraryScreenState extends ConsumerState<EducationalLibraryScr
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Learner\'s Nook'),
+        title: Text(context.localizations.learnersNook),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
           indicatorWeight: 3,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(text: 'Browse Topics', icon: Icon(Icons.explore_outlined)),
-            Tab(text: 'My Feed', icon: Icon(Icons.article_outlined)),
+          tabs: [
+            Tab(text: context.localizations.browseTopics, icon: const Icon(Icons.explore_outlined)),
+            Tab(text: context.localizations.myFeed, icon: const Icon(Icons.article_outlined)),
           ],
         ),
       ),
@@ -184,8 +184,8 @@ class _EducationalLibraryScreenState extends ConsumerState<EducationalLibraryScr
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: NeuroEmptyState(
-            title: 'No topics available',
-            message: 'Check back soon for new topics!',
+            title: context.localizations.noTopicsAvailable,
+            message: context.localizations.checkBackSoonTopics,
             icon: Icons.category_outlined,
             color: NeuroColors.onSurfaceVariant,
           ),
@@ -226,8 +226,8 @@ class _EducationalLibraryScreenState extends ConsumerState<EducationalLibraryScr
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: NeuroEmptyState(
-            title: 'Your feed is empty',
-            message: 'Follow some topics to see articles here!',
+            title: context.localizations.feedEmpty,
+            message: context.localizations.followTopicsToSeeArticles,
             icon: Icons.article_outlined,
             color: NeuroColors.onSurfaceVariant,
           ),
@@ -332,7 +332,7 @@ class _CategoryCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${category.articleCount} articles',
+                              context.localizations.articlesCount(category.articleCount),
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -349,7 +349,7 @@ class _CategoryCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${category.followerCount} followers',
+                              context.localizations.followersCount(category.followerCount),
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -369,7 +369,7 @@ class _CategoryCard extends StatelessWidget {
                   category.isFollowed ? Icons.check : Icons.add,
                   size: 18,
                 ),
-                label: Text(category.isFollowed ? 'Following' : 'Follow'),
+                label: Text(category.isFollowed ? context.localizations.following : context.localizations.follow),
                 style: FilledButton.styleFrom(
                   backgroundColor: category.isFollowed
                       ? theme.colorScheme.primary
@@ -544,7 +544,7 @@ class _ArticleCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                article.summary ?? 'Read more about ${article.title}',
+                article.summary ?? context.localizations.readMoreAbout(article.title),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -570,7 +570,7 @@ class _ArticleCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${article.estimatedReadTime} min',
+                            context.localizations.minCount(article.estimatedReadTime),
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),

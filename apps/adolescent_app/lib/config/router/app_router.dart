@@ -98,6 +98,8 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
     authChangeNotifier.notifyListeners();
   });
 
+
+
   return GoRouter(
     initialLocation: AdolescentRoutes.splash,
     refreshListenable: authChangeNotifier,
@@ -392,15 +394,15 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
         selectedIndex: widget.navigationShell.currentIndex,
         onDestinationSelected: _onDestinationSelected,
         destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Home',
+          NavigationDestination(
+            icon: const Icon(Icons.dashboard_outlined),
+            selectedIcon: const Icon(Icons.dashboard),
+            label: context.localizations.home,
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.book_outlined),
-            selectedIcon: Icon(Icons.book),
-            label: 'Journal',
+          NavigationDestination(
+            icon: const Icon(Icons.book_outlined),
+            selectedIcon: const Icon(Icons.book),
+            label: context.localizations.journal,
           ),
           NavigationDestination(
             icon: unreadCount > 0
@@ -415,17 +417,17 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
                     child: const Icon(Icons.support_agent),
                   )
                 : const Icon(Icons.support_agent),
-            label: 'Counselor',
+            label: context.localizations.counselorLabel,
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.forum_outlined),
-            selectedIcon: Icon(Icons.forum),
-            label: 'Channels',
+          NavigationDestination(
+            icon: const Icon(Icons.forum_outlined),
+            selectedIcon: const Icon(Icons.forum),
+            label: context.localizations.channels,
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
+            label: context.localizations.profile,
           ),
         ],
       ),

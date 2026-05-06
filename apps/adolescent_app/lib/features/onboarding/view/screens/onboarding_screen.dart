@@ -9,6 +9,9 @@ class AdolescentOnboardingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentLocale = ref.watch(l10nProvider);
+    debugPrint('[Onboarding] Building with locale: ${currentLocale.languageCode}');
+    
     return NeuroOnboardingScreen(
       primaryColor: NeuroColors.adolescentPrimary,
       onFinish: () async {
@@ -17,28 +20,28 @@ class AdolescentOnboardingScreen extends ConsumerWidget {
           context.go(AdolescentRoutes.login);
         }
       },
-      pages: const [
+      pages: [
         OnboardingPageData(
-          title: 'Your Safe Space',
-          description: 'A private place for your thoughts and feelings. Your journals are never seen by guardians or counselors.',
+          title: context.localizations.onboardingTitle1,
+          description: context.localizations.onboardingDesc1,
           icon: Icons.lock_person_rounded,
           color: NeuroColors.adolescentPrimary,
         ),
         OnboardingPageData(
-          title: 'Understand Your Trends',
-          description: 'Our AI helps you see patterns in your emotional journey over time, helping you grow with self-awareness.',
+          title: context.localizations.onboardingTitle2,
+          description: context.localizations.onboardingDesc2,
           icon: Icons.insights_rounded,
           color: NeuroColors.adolescentPrimary,
         ),
         OnboardingPageData(
-          title: 'Support, Not Diagnosis',
-          description: "We're here to support you. Our AI is an informational assistant, not a doctor or therapist.",
+          title: context.localizations.onboardingTitle3,
+          description: context.localizations.onboardingDesc3,
           icon: Icons.favorite_rounded,
           color: NeuroColors.adolescentPrimary,
         ),
         OnboardingPageData(
-          title: 'Ready to Start?',
-          description: 'Use the activation code provided by your guardian to unlock your personal emotional journey.',
+          title: context.localizations.onboardingTitle4,
+          description: context.localizations.onboardingDesc4,
           icon: Icons.rocket_launch_rounded,
           color: NeuroColors.adolescentPrimary,
         ),

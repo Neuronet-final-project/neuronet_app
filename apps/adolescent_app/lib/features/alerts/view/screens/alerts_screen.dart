@@ -25,7 +25,7 @@ class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3FF),
       appBar: AppBar(
-        title: const Text('My Insights', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(context.localizations.myInsights, style: const TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFF7C4DFF),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -33,7 +33,7 @@ class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen>
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () => ref.read(adolescentAlertsControllerProvider.notifier).refresh(),
-            tooltip: 'Refresh insights',
+            tooltip: context.localizations.retry,
           ),
         ],
       ),
@@ -68,7 +68,7 @@ class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen>
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'No insights yet!',
+                      context.localizations.noInsightsYet,
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: const Color(0xFF2D1B6B),
@@ -76,7 +76,7 @@ class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen>
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Keep journaling and tracking your moods.\nWe\'ll share helpful patterns here.',
+                      context.localizations.keepJournalingDesc,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: const Color(0xFF9E9EB8),
@@ -115,8 +115,8 @@ class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen>
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text(
-                          'RECENT',
+                        child: Text(
+                          context.localizations.recent,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 11,
@@ -158,7 +158,7 @@ class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen>
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Insights History (${historyAlerts.length})',
+                              context.localizations.insightsHistory(historyAlerts.length),
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
@@ -189,7 +189,7 @@ class _AdolescentAlertsScreenState extends ConsumerState<AdolescentAlertsScreen>
           itemBuilder: (context, index) => const NeuroSkeletonCard(),
         ),
         error: (err, stack) => NeuroErrorWidget(
-          message: 'Could not load insights.',
+          message: context.localizations.couldNotLoadAlerts,
           onRetry: () => ref.read(adolescentAlertsControllerProvider.notifier).refresh(),
         ),
       ),
@@ -205,7 +205,6 @@ class _InsightCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     
     // Determine if this insight is unread
     final isUnread = !alert.viewedStatus;
@@ -258,7 +257,7 @@ class _InsightCard extends ConsumerWidget {
           onTap: () async {
             // Mark this specific insight as viewed when clicked
             if (isUnread) {
-              print('[Insights] Marking insight ${alert.alertId} as viewed');
+              debugPrint('[Insights] Marking insight ${alert.alertId} as viewed');
               final alertService = ref.read(alertServiceProvider);
               await alertService.markViewed(alert.alertId);
               // Refresh the alerts list to update the UI
@@ -285,8 +284,8 @@ class _InsightCard extends ConsumerWidget {
                           color: const Color(0xFFFF6B6B),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Text(
-                          'NEW',
+                        child: Text(
+                          context.localizations.newLabel,
                           style: TextStyle(
                             fontSize: 10,
                             color: Colors.white,
@@ -313,7 +312,7 @@ class _InsightCard extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Text(
-                      _formatDate(alert.createdAt),
+                      _formatDate(context, alert.createdAt),
                       style: TextStyle(
                         fontSize: 12,
                         color: isUnread ? const Color(0xFF9E4A4A) : const Color(0xFF9E9EB8),
@@ -377,7 +376,7 @@ class _InsightCard extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      'View Details',
+                      context.localizations.viewDetails,
                       style: TextStyle(
                         fontSize: 13,
                         color: isUnread ? const Color(0xFFFF6B6B) : color,
@@ -441,11 +440,11 @@ class _InsightCard extends ConsumerWidget {
         .replaceAll('detected over', 'noticed in');
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
-    if (diff.inDays == 0) return 'Today';
-    if (diff.inDays == 1) return 'Yesterday';
+    if (diff.inDays == 0) return context.localizations.today;
+    if (diff.inDays == 1) return context.localizations.yesterday;
     return '${date.day}/${date.month}';
   }
 }

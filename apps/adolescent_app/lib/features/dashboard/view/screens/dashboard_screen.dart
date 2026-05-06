@@ -659,7 +659,7 @@ class _MoodCheckInRow extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        mood.label,
+                        mood.localizedLabel(l10n),
                         style: TextStyle(
                             fontSize: 12,
                             color: _labelColors[i],
@@ -1565,8 +1565,8 @@ class _SageAIButtonState extends State<_SageAIButton>
                           color: Color(0x22000000), blurRadius: 4)
                     ],
                   ),
-                  child: const Text('AI',
-                      style: TextStyle(
+                  child: Text(context.localizations.ai,
+                      style: const TextStyle(
                           fontSize: 7,
                           fontWeight: FontWeight.w900,
                           color: _kPurple)),

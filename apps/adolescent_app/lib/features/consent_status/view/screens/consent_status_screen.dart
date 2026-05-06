@@ -6,38 +6,40 @@ import '../../providers/consent_status_provider.dart';
 class ConsentStatusScreen extends ConsumerWidget {
   const ConsentStatusScreen({super.key});
 
-   @override
-   Widget build(BuildContext context, WidgetRef ref) {
-     final consentAsync = ref.watch(adolescentConsentControllerProvider);
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final consentAsync = ref.watch(adolescentConsentControllerProvider);
+    final l10n = context.localizations;
 
-     return Scaffold(
-       backgroundColor: NeuroColors.background,
-       appBar: AppBar(
-         title: Text(
-           'Privacy Hub',
-           style: TextStyle(
-             fontWeight: FontWeight.w700,
-             color: NeuroColors.onSurface,
-           ),
-         ),
-         centerTitle: true,
-         backgroundColor: Colors.transparent,
-         elevation: 0,
-         foregroundColor: NeuroColors.onSurface,
-         iconTheme: const IconThemeData(color: NeuroColors.onSurface),
-       ),
-       body: consentAsync.when(
-         data: (state) => _buildContent(context, state),
-         loading: () => const _ConsentStatusSkeletonLoading(),
-         error: (err, stack) => NeuroErrorWidget(
-           message: 'Could not load privacy settings.',
-           onRetry: () => ref.refresh(adolescentConsentControllerProvider),
-         ),
-       ),
-     );
-   }
+    return Scaffold(
+      backgroundColor: NeuroColors.background,
+      appBar: AppBar(
+        title: Text(
+          l10n.privacyHubTitle,
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            color: NeuroColors.onSurface,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: NeuroColors.onSurface,
+        iconTheme: const IconThemeData(color: NeuroColors.onSurface),
+      ),
+      body: consentAsync.when(
+        data: (state) => _buildContent(context, state),
+        loading: () => const _ConsentStatusSkeletonLoading(),
+        error: (err, stack) => NeuroErrorWidget(
+          message: l10n.couldNotLoadPrivacy,
+          onRetry: () => ref.refresh(adolescentConsentControllerProvider),
+        ),
+      ),
+    );
+  }
 
   Widget _buildContent(BuildContext context, ConsentStatusState state) {
+    final l10n = context.localizations;
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -46,25 +48,25 @@ class ConsentStatusScreen extends ConsumerWidget {
         children: [
           _buildPrivacyStatusHeader(context),
           const SizedBox(height: 32),
-          
+
           Text(
-            'Core Transparency',
+            l10n.coreTransparency,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          
+
           // AI Analysis Section
           _buildPrivacyCard(
             context,
-            title: 'General Participation',
-            description: 'This allows Neuronet AI to analyze your journal entries for emotional patterns. If disabled, entries are stored but not analyzed.',
+            title: l10n.generalParticipation,
+            description: l10n.generalParticipationDesc,
             isGranted: state.participation,
             icon: Icons.psychology_rounded,
           ),
-          
+
           const SizedBox(height: 24),
           Text(
-            'Sharing & Visibility',
+            l10n.sharingVisibility,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
@@ -72,19 +74,19 @@ class ConsentStatusScreen extends ConsumerWidget {
           // Sub-sharing controls
           _buildPrivacyCard(
             context,
-            title: 'AI Insights & Summaries',
-            description: 'Your guardian and counselor can view summaries of your emotional trends.',
+            title: l10n.aiInsightsSummaries,
+            description: l10n.aiInsightsSummariesDesc,
             isGranted: state.shareAiSummaries && state.participation,
             icon: Icons.summarize_rounded,
             isDisabled: !state.participation,
-            warning: !state.participation ? 'Paused: General Participation is off' : null,
+            warning: !state.participation ? l10n.participationPausedNote : null,
           ),
           
           const SizedBox(height: 16),
           _buildPrivacyCard(
             context,
-            title: 'Safety Alerts',
-            description: 'Real-time notifications sent to your guardian when high-risk patterns are identified.',
+            title: l10n.safetyAlerts,
+            description: l10n.safetyAlertsDesc,
             isGranted: state.shareAlerts && state.participation,
             icon: Icons.notifications_active_rounded,
             isDisabled: !state.participation,
@@ -92,15 +94,15 @@ class ConsentStatusScreen extends ConsumerWidget {
 
           const SizedBox(height: 24),
           Text(
-            'Interaction Controls',
+            l10n.interactionControls,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
 
           _buildPrivacyCard(
             context,
-            title: 'Counselor Communication',
-            description: 'Private messaging channel with your assigned counselor.',
+            title: l10n.counselorConnection,
+            description: l10n.counselorConnectionDesc,
             isGranted: state.counselorChat,
             icon: Icons.forum_rounded,
           ),
@@ -114,6 +116,7 @@ class ConsentStatusScreen extends ConsumerWidget {
   }
 
   Widget _buildPrivacyStatusHeader(BuildContext context) {
+    final l10n = context.localizations;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -138,13 +141,13 @@ class ConsentStatusScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Your Privacy Matters',
+            l10n.yourPrivacyMatters,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'We value transparency. Below are the oversight settings currently active for your account.',
+            l10n.transparencyNote,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NeuroColors.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
@@ -162,11 +165,12 @@ class ConsentStatusScreen extends ConsumerWidget {
     bool isDisabled = false,
     String? warning,
   }) {
+    final l10n = context.localizations;
     final statusColor = isDisabled 
       ? NeuroColors.onSurfaceVariant.withValues(alpha: 0.5)
       : (isGranted ? NeuroColors.alertLow : NeuroColors.alertHigh);
       
-    final statusText = isDisabled ? 'Paused' : (isGranted ? 'Granted' : 'Revoked');
+    final statusText = isDisabled ? l10n.paused : (isGranted ? l10n.granted : l10n.revoked);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -245,6 +249,7 @@ class ConsentStatusScreen extends ConsumerWidget {
   }
 
   Widget _buildPrivacyEducation(BuildContext context) {
+    final l10n = context.localizations;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -259,26 +264,26 @@ class ConsentStatusScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.help_center_outlined, color: NeuroColors.adolescentPrimary),
-              SizedBox(width: 12),
+              const Icon(Icons.help_center_outlined, color: NeuroColors.adolescentPrimary),
+              const SizedBox(width: 12),
               Text(
-                'Understanding Your Privacy',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                l10n.understandingPrivacy,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          _buildEducationItem(context, 'Your guardian manages these settings to ensure you have the right support.'),
-          _buildEducationItem(context, 'If you have questions about these settings, we encourage you to discuss them with your guardian.'),
-          _buildEducationItem(context, 'Neuronet uses AI only for emotional insight, never for clinical diagnosis.'),
+          _buildEducationItem(context, l10n.privacyEducation1),
+          _buildEducationItem(context, l10n.privacyEducation2),
+          _buildEducationItem(context, l10n.privacyEducation3),
         ],
       ),
     );
   }
 
-   Widget _buildEducationItem(BuildContext context, String text) {
+  Widget _buildEducationItem(BuildContext context, String text) {
      return Padding(
        padding: const EdgeInsets.only(bottom: 12),
        child: Row(
@@ -295,9 +300,7 @@ class ConsentStatusScreen extends ConsumerWidget {
        ),
      );
    }
- }
-
- // --- Skeleton Loading Widgets ------------------------------------------------
+}
 
 const _kSkeletonGrey = Color(0xFFE5E7EB);
 
@@ -565,4 +568,3 @@ class _ConsentStatusSkeletonEducationItem extends StatelessWidget {
     );
   }
 }
-

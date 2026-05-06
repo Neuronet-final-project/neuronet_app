@@ -61,6 +61,19 @@ class _EducationalPageDetailScreenState extends ConsumerState<EducationalPageDet
     }
   }
 
+  String _getDifficultyLabel(BuildContext context, String difficulty) {
+    switch (difficulty.toLowerCase()) {
+      case 'beginner':
+        return context.localizations.beginner;
+      case 'intermediate':
+        return context.localizations.intermediate;
+      case 'advanced':
+        return context.localizations.advanced;
+      default:
+        return difficulty;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -202,7 +215,7 @@ class _EducationalPageDetailScreenState extends ConsumerState<EducationalPageDet
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            page.difficultyLevel!.toUpperCase(),
+                            _getDifficultyLabel(context, page.difficultyLevel!).toUpperCase(),
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -227,7 +240,7 @@ class _EducationalPageDetailScreenState extends ConsumerState<EducationalPageDet
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${page.estimatedReadTime} min read',
+                          context.localizations.minRead(page.estimatedReadTime),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -266,13 +279,13 @@ class _EducationalPageDetailScreenState extends ConsumerState<EducationalPageDet
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                page.authorName ?? 'Counselor',
+                                page.authorName ?? context.localizations.counselorDefaultName,
                                 style: theme.textTheme.titleSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
-                                page.authorCredentials ?? 'Licensed Clinical Psychologist',
+                                page.authorCredentials ?? context.localizations.counselorCredentialsDefault,
                                 style: theme.textTheme.labelSmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
@@ -351,7 +364,7 @@ class _EducationalPageDetailScreenState extends ConsumerState<EducationalPageDet
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Tags',
+                          context.localizations.tagsLabel,
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.onSurfaceVariant,
@@ -408,7 +421,7 @@ class _EducationalPageDetailScreenState extends ConsumerState<EducationalPageDet
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Part of ${page.category} topic',
+                              context.localizations.partOfTopic(page.category!),
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface,
                                 fontWeight: FontWeight.w500,
@@ -430,7 +443,7 @@ class _EducationalPageDetailScreenState extends ConsumerState<EducationalPageDet
                     child: FilledButton.icon(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.check_circle_outline),
-                      label: const Text('I\'ve read this!'),
+                      label: Text(context.localizations.iveReadThis),
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(

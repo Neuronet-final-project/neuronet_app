@@ -10,12 +10,13 @@ class FollowedPagesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.localizations;
     final followedAsync = ref.watch(educationalFollowControllerProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Followed Pages'),
+        title: Text(l10n.followedPages),
         elevation: 0,
       ),
       body: followedAsync.when(
@@ -36,8 +37,8 @@ class FollowedPagesScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     NeuroEmptyState(
-                      title: 'No followed pages yet',
-                      message: 'Start following pages to see them here. Discover new content to follow!',
+                      title: l10n.noFollowedPages,
+                      message: l10n.startFollowingToSee,
                       icon: Icons.bookmark_border,
                       color: theme.colorScheme.primary,
                     ),
@@ -45,7 +46,7 @@ class FollowedPagesScreen extends ConsumerWidget {
                     FilledButton.icon(
                       onPressed: () => context.push('/discover-pages'),
                       icon: const Icon(Icons.explore),
-                      label: const Text('Discover Pages'),
+                      label: Text(l10n.discoverPages),
                     ),
                   ],
                 ),
@@ -67,7 +68,7 @@ class FollowedPagesScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => NeuroErrorWidget(
-          message: 'Could not load followed pages.',
+          message: context.localizations.couldNotLoadFollowedPages,
           onRetry: () => ref.read(educationalFollowControllerProvider.notifier).refresh(),
         ),
       ),
@@ -107,7 +108,7 @@ class _FollowedPageCard extends ConsumerWidget {
             if (context.mounted) {
               NeuroToast.show(
                 context,
-                'Could not load page details',
+                context.localizations.couldNotLoadPageDetails,
                 type: NeuroToastType.error,
               );
             }
@@ -172,14 +173,14 @@ class _FollowedPageCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'By ${page.counselorName}',
+                      context.localizations.byAuthor(page.counselorName!),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                     const Spacer(),
                     Text(
-                      _formatDate(page.followedAt),
+                      _formatDate(context, page.followedAt),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -194,22 +195,22 @@ class _FollowedPageCard extends ConsumerWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
-      return 'Today';
+      return context.localizations.today;
     } else if (difference.inDays == 1) {
-      return 'Yesterday';
+      return context.localizations.yesterday;
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} days ago';
+      return context.localizations.daysAgo(difference.inDays);
     } else if (difference.inDays < 30) {
       final weeks = (difference.inDays / 7).floor();
-      return '$weeks ${weeks == 1 ? 'week' : 'weeks'} ago';
+      return context.localizations.weeksAgo(weeks);
     } else {
       final months = (difference.inDays / 30).floor();
-      return '$months ${months == 1 ? 'month' : 'months'} ago';
+      return context.localizations.monthsAgo(months);
     }
   }
 }

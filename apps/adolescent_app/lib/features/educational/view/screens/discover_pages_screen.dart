@@ -37,6 +37,7 @@ class _DiscoverPagesScreenState extends ConsumerState<DiscoverPagesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     final theme = Theme.of(context);
     final discoveryAsync = ref.watch(
       pageDiscoveryControllerProvider(
@@ -47,7 +48,7 @@ class _DiscoverPagesScreenState extends ConsumerState<DiscoverPagesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Discover Pages'),
+        title: Text(l10n.discoverPages),
         elevation: 0,
       ),
       body: Column(
@@ -58,7 +59,7 @@ class _DiscoverPagesScreenState extends ConsumerState<DiscoverPagesScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search pages...',
+                hintText: l10n.searchPagesHint,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery != null
                     ? IconButton(
@@ -87,31 +88,31 @@ class _DiscoverPagesScreenState extends ConsumerState<DiscoverPagesScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 _CategoryChip(
-                  label: 'All',
+                  label: l10n.all,
                   isSelected: _selectedCategory == null,
                   onSelected: () => _onCategorySelected(null),
                 ),
                 const SizedBox(width: 8),
                 _CategoryChip(
-                  label: 'Mood',
+                  label: l10n.moodCategory,
                   isSelected: _selectedCategory == 'mood',
                   onSelected: () => _onCategorySelected('mood'),
                 ),
                 const SizedBox(width: 8),
                 _CategoryChip(
-                  label: 'Stress',
+                  label: l10n.stressCategory,
                   isSelected: _selectedCategory == 'stress',
                   onSelected: () => _onCategorySelected('stress'),
                 ),
                 const SizedBox(width: 8),
                 _CategoryChip(
-                  label: 'Sleep',
+                  label: l10n.sleepCategory,
                   isSelected: _selectedCategory == 'sleep',
                   onSelected: () => _onCategorySelected('sleep'),
                 ),
                 const SizedBox(width: 8),
                 _CategoryChip(
-                  label: 'Relationships',
+                  label: l10n.relationshipsCategory,
                   isSelected: _selectedCategory == 'relationships',
                   onSelected: () => _onCategorySelected('relationships'),
                 ),
@@ -143,10 +144,10 @@ class _DiscoverPagesScreenState extends ConsumerState<DiscoverPagesScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: NeuroEmptyState(
-                        title: 'No pages found',
+                        title: l10n.noPagesFound,
                         message: _searchQuery != null
-                            ? 'Try a different search term'
-                            : 'No pages available in this category',
+                            ? l10n.tryDifferentSearch
+                            : l10n.noPagesInCategory,
                         icon: Icons.search_off,
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -173,7 +174,7 @@ class _DiscoverPagesScreenState extends ConsumerState<DiscoverPagesScreen> {
               },
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => NeuroErrorWidget(
-                message: 'Could not load pages.',
+                message: l10n.failedToLoadDashboard,
                 onRetry: () => ref.read(
                   pageDiscoveryControllerProvider(
                     category: _selectedCategory,
@@ -228,6 +229,7 @@ class _DiscoverPageCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.localizations;
     final theme = Theme.of(context);
 
     return Card(
@@ -346,7 +348,7 @@ class _DiscoverPageCard extends ConsumerWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${page.followCount} ${page.followCount == 1 ? 'follower' : 'followers'}',
+                        l10n.followerCountLabel(page.followCount),
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -370,7 +372,7 @@ class _DiscoverPageCard extends ConsumerWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Popular',
+                            l10n.popular,
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: theme.colorScheme.onTertiaryContainer,
                               fontWeight: FontWeight.bold,

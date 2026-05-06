@@ -374,7 +374,7 @@ class _DetailContentState extends State<_DetailContent> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              DateFormat('EEEE').format(entry.createdAt).toUpperCase(),
+                              DateFormat.EEEE(context.localizations.localeName).format(entry.createdAt).toUpperCase(),
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.85),
                                 fontSize: 11,
@@ -384,7 +384,7 @@ class _DetailContentState extends State<_DetailContent> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              DateFormat.yMMMMd().format(entry.createdAt),
+                              DateFormat.yMMMMd(context.localizations.localeName).format(entry.createdAt),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,
@@ -399,7 +399,7 @@ class _DetailContentState extends State<_DetailContent> {
                                 const SizedBox(width: 6),
                                 Flexible(
                                   child: Text(
-                                    DateFormat.jm().format(entry.createdAt),
+                                    DateFormat.jm(context.localizations.localeName).format(entry.createdAt),
                                     style: TextStyle(
                                       color: Colors.white.withValues(alpha: 0.92),
                                       fontSize: 14,
@@ -466,7 +466,7 @@ class _DetailContentState extends State<_DetailContent> {
                             child: _StatColumn(
                               icon: Icons.local_cafe_rounded,
                               iconColor: const Color(0xFF6A5C9A),
-                              value: '$readTime min',
+                              value: context.localizations.minCount(readTime),
                               caption: context.localizations.readLabel,
                             ),
                           ),

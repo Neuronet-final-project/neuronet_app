@@ -68,7 +68,6 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
               entryDate.month == _selectedSpecificDate!.month &&
               entryDate.day == _selectedSpecificDate!.day;
         case _DateFilter.all:
-        default:
           return true;
       }
     }).toList()
@@ -240,8 +239,11 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => setState(() {
-                if (isSelected) _selectedMoods.remove(mood);
-                else _selectedMoods.add(mood);
+                if (isSelected) {
+                  _selectedMoods.remove(mood);
+                } else {
+                  _selectedMoods.add(mood);
+                }
               }),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
@@ -373,17 +375,17 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
   }
 
   String _getMoodEmoji(MoodType mood) {
-    switch (mood) {
-      case MoodType.happy: return '😊';
-      case MoodType.calm: return '🍃';
-      case MoodType.hopeful: return '🌈';
-      case MoodType.excited: return '✨';
-      case MoodType.anxious: return '😰';
-      case MoodType.sad: return '😢';
-      case MoodType.stressed: return '😫';
-      case MoodType.angry: return '😠';
-      case MoodType.tired: return '😴';
-      default: return '😐';
-    }
+    return switch (mood) {
+      MoodType.happy => '😊',
+      MoodType.calm => '🍃',
+      MoodType.hopeful => '🌈',
+      MoodType.excited => '✨',
+      MoodType.anxious => '😰',
+      MoodType.sad => '😢',
+      MoodType.stressed => '😫',
+      MoodType.angry => '😠',
+      MoodType.tired => '😴',
+      MoodType.neutral => '😐',
+    };
   }
 }

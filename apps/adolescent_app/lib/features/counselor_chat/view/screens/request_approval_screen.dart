@@ -34,8 +34,6 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
   }
 
   Future<void> _checkPendingStatus() async {
-    // We'll check pending status when user tries to submit
-    // For now, just mark as ready
     setState(() => _isCheckingStatus = false);
   }
 
@@ -48,14 +46,13 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
   Future<void> _submitRequest() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Get current user ID from auth
     final authState = ref.read(authControllerProvider);
     final adolescentId = authState.user?.getEffectiveId();
-    
+
     if (adolescentId == null || adolescentId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Unable to get user information. Please try again.'),
+        SnackBar(
+          content: Text(context.localizations.unableToGetUserInfo),
           backgroundColor: Colors.red,
         ),
       );
@@ -78,16 +75,15 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
       if (success) {
         setState(() => _isSubmitted = true);
       } else {
-        // Check if error is "already pending"
         final approvalState = ref.read(guardianApprovalControllerProvider);
         final errorMsg = approvalState.value?.error ?? '';
-        
-        if (errorMsg.contains('already pending') || errorMsg.contains('Approval request already pending')) {
+
+        if (errorMsg.contains(context.localizations.alreadyPending) || errorMsg.contains(context.localizations.approvalRequestAlreadyPending)) {
           setState(() => _isPending = true);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('You already have a pending approval request for this counselor.'),
+            SnackBar(
+              content: Text(context.localizations.pendingRequestExists),
               backgroundColor: Colors.orange,
             ),
           );
@@ -100,11 +96,10 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Show loading while checking status
     if (_isCheckingStatus) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Request Approval'),
+          title: Text(context.localizations.requestApproval),
           elevation: 0,
         ),
         body: Center(
@@ -114,7 +109,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
               Text(
-                'Checking approval status...',
+                context.localizations.checkingApprovalStatus,
                 style: theme.textTheme.bodyMedium,
               ),
             ],
@@ -123,12 +118,22 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
       );
     }
 
-    // Show pending status if request already exists
     if (_isPending) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Approval Request'),
+          title: Text(context.localizations.approvalRequest),
           elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                setState(() {
+                  _isPending = false;
+                  _isSubmitted = false;
+                });
+              },
+            ),
+          ],
         ),
         body: Center(
           child: Padding(
@@ -151,14 +156,14 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Approval Pending',
+                  context.localizations.approvalPending,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Your approval request for ${widget.counselorName} is already pending.',
+                  context.localizations.approvalPendingMessage(widget.counselorName),
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
@@ -166,7 +171,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Your guardian is reviewing your request. You\'ll be notified once they respond.',
+                  context.localizations.guardianReviewingMessage,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
@@ -183,7 +188,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text('Back to Chat'),
+                    child: Text(context.localizations.backToChat),
                   ),
                 ),
               ],
@@ -196,7 +201,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
     if (_isSubmitted) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Request Sent'),
+          title: Text(context.localizations.requestSent),
           elevation: 0,
           automaticallyImplyLeading: false,
         ),
@@ -221,14 +226,14 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Request Sent!',
+                  context.localizations.requestSentSuccess,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Your approval request has been sent to your guardian.',
+                  context.localizations.approvalSentMessage,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
@@ -254,7 +259,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Status: Pending',
+                          context.localizations.statusPending,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.primary,
                             fontWeight: FontWeight.w600,
@@ -275,7 +280,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text('Back to Chat'),
+                    child: Text(context.localizations.backToChat),
                   ),
                 ),
               ],
@@ -287,7 +292,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Request Approval'),
+        title: Text(context.localizations.requestApproval),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -297,7 +302,6 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Info card
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -320,7 +324,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Guardian Approval Required',
+                            context.localizations.guardianApprovalRequired,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: theme.colorScheme.primary,
@@ -331,8 +335,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'To communicate with a counselor, you need approval from your guardian. '
-                      'Please explain why you would like to talk to this counselor.',
+                      context.localizations.guardianApprovalExplanation,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -341,10 +344,8 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                 ),
               ),
               const SizedBox(height: 32),
-
-              // Counselor info
               Text(
-                'Counselor',
+                context.localizations.counselorLabel,
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
@@ -376,9 +377,10 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.counselorName,
+                            context.localizations.requestApproval,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
                             ),
                           ),
                           Text(
@@ -394,10 +396,8 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                 ),
               ),
               const SizedBox(height: 32),
-
-              // Reason input
               Text(
-                'Reason for Request',
+                context.localizations.reasonForRequest,
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
@@ -409,7 +409,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                 maxLines: 6,
                 maxLength: 500,
                 decoration: InputDecoration(
-                  hintText: 'Explain why you would like to talk to this counselor...',
+                  hintText: context.localizations.reasonHint,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -418,17 +418,15 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please provide a reason for your request';
+                    return context.localizations.reasonRequired;
                   }
                   if (value.trim().length < 20) {
-                    return 'Please provide more details (at least 20 characters)';
+                    return context.localizations.reasonMinLength;
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 32),
-
-              // Submit button
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -445,7 +443,7 @@ class _RequestApprovalScreenStateImpl extends ConsumerState<RequestApprovalScree
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Send Request'),
+                      : Text(context.localizations.sendRequest),
                 ),
               ),
             ],

@@ -7,10 +7,10 @@ import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
 import 'package:adolescent_app/config/router/app_router.dart';
 
 // ─── Rotating taglines shown under the logo ────────────────────────────────
-const _taglines = [
-  'Your Emotional Support Space 💜',
-  'You are not alone in this 🌿',
-  'Every feeling is valid here ✨',
+List<String> _getTaglines(AppLocalizations l10n) => [
+  l10n.loginTagline1,
+  l10n.loginTagline2,
+  l10n.loginTagline3,
 ];
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -78,7 +78,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     while (mounted) {
       await _taglineCtrl.reverse();
       if (!mounted) break;
-      setState(() => _taglineIndex = (_taglineIndex + 1) % _taglines.length);
+      final taglines = _getTaglines(context.localizations);
+      setState(() => _taglineIndex = (_taglineIndex + 1) % taglines.length);
       await _taglineCtrl.forward();
       await Future.delayed(const Duration(seconds: 3));
     }
@@ -126,7 +127,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              next.errorMessage ?? 'An error occurred',
+              next.errorMessage ?? context.localizations.anErrorOccurred,
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
             ),
             backgroundColor: const Color(0xFF5E35B1),
@@ -248,7 +249,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           FadeTransition(
                             opacity: _taglineFade,
                             child: Text(
-                              _taglines[_taglineIndex],
+                              _getTaglines(context.localizations)[_taglineIndex],
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.white.withValues(alpha: 0.85),
@@ -292,17 +293,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           color: Colors.white, size: 18),
                                     ),
                                     const SizedBox(width: 12),
-                                    const Column(
+                                    Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('Welcome back 👋',
-                                            style: TextStyle(
+                                        Text(context.localizations.welcomeBack,
+                                            style: const TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w800,
                                               color: Color(0xFF2D1B6B),
                                             )),
-                                        Text('Sign in to continue',
-                                            style: TextStyle(
+                                        Text(context.localizations.signInToContinue,
+                                            style: const TextStyle(
                                               fontSize: 12,
                                               color: Color(0xFF9E9EB8),
                                             )),
@@ -316,13 +317,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 _PurpleTextField(
                                   controller: _emailController,
                                   focusNode: _emailFocus,
-                                  label: 'Email address',
+                                  label: context.localizations.emailHint,
                                   icon: Icons.alternate_email_rounded,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
                                   validator: (v) {
-                                    if (v == null || v.isEmpty) return 'Please enter your email';
-                                    if (!v.contains('@')) return 'Enter a valid email';
+                                    if (v == null || v.isEmpty) return context.localizations.pleaseEnterEmail;
+                                    if (!v.contains('@')) return context.localizations.emailAddress;
                                     return null;
                                   },
                                   onFieldSubmitted: (_) =>
@@ -334,7 +335,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 _PurpleTextField(
                                   controller: _passwordController,
                                   focusNode: _passwordFocus,
-                                  label: 'Password',
+                                  label: context.localizations.passwordHint,
                                   icon: Icons.lock_outline_rounded,
                                   obscureText: _obscurePassword,
                                   textInputAction: TextInputAction.done,
@@ -350,8 +351,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         () => _obscurePassword = !_obscurePassword),
                                   ),
                                   validator: (v) {
-                                    if (v == null || v.isEmpty) return 'Please enter your password';
-                                    if (v.length < 6) return 'At least 6 characters';
+                                    if (v == null || v.isEmpty) return context.localizations.pleaseEnterPassword;
+                                    if (v.length < 6) return context.localizations.passwordMinLength;
                                     return null;
                                   },
                                   onFieldSubmitted: (_) => _handleLogin(),
@@ -366,9 +367,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       padding: const EdgeInsets.only(top: 4, bottom: 0),
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                     ),
-                                    child: const Text(
-                                      'Forgot password?',
-                                      style: TextStyle(
+                                    child: Text(
+                                      context.localizations.forgotPassword,
+                                      style: const TextStyle(
                                         color: Color(0xFF8C52FF),
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
@@ -384,7 +385,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       ? null
                                       : _handleLogin,
                                   isLoading: authState.status == AuthStatus.loading,
-                                  label: 'Sign In',
+                                  label: context.localizations.login,
                                 ),
                                 const SizedBox(height: 20),
 
@@ -395,10 +396,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         child: Divider(
                                             color: const Color(0xFFDDD5FF),
                                             thickness: 1)),
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10),
-                                      child: Text('New to NeuroNet?',
-                                          style: TextStyle(
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Text(context.localizations.newToNeuroNet,
+                                          style: const TextStyle(
                                               fontSize: 11, color: Color(0xFF9E9EB8))),
                                     ),
                                     Expanded(
@@ -419,9 +420,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         borderRadius: BorderRadius.circular(14)),
                                     padding: const EdgeInsets.symmetric(vertical: 13),
                                   ),
-                                  child: const Text(
-                                    'Activate My Account',
-                                    style: TextStyle(
+                                  child: Text(
+                                    context.localizations.activateMyAccount,
+                                    style: const TextStyle(
                                       color: Color(0xFF7C4DFF),
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
@@ -442,7 +443,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   color: Colors.white.withValues(alpha: 0.7)),
                               const SizedBox(width: 5),
                               Text(
-                                'Your data is private and encrypted',
+                                context.localizations.dataPrivateEncrypted,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.7),
                                   fontSize: 11.5,

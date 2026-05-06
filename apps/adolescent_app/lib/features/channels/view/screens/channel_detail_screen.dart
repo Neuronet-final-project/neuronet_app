@@ -107,13 +107,14 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     final channelsAsync = ref.watch(channelsControllerProvider);
 
     final channel = channelsAsync.value?.channels.firstWhere(
       (c) => c.channelId == widget.channelId,
       orElse: () => Channel(
         channelId: widget.channelId,
-        channelName: 'Loading Channel...',
+        channelName: '',
         counselorId: '',
         channelType: ChannelType.educational,
         createdAt: DateTime.now(),
@@ -128,7 +129,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
         backgroundColor: const Color(0xFF6A1FDB),
         elevation: 0,
         title: Text(
-          channel?.channelName ?? 'Channel',
+          channel?.channelName ?? l10n.channels,
           style: const TextStyle(
             fontWeight: FontWeight.w900,
             color: Colors.white,
@@ -140,12 +141,12 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
             onPressed: () => ref
                 .read(channelsControllerProvider.notifier)
                 .toggleFollow(widget.channelId),
-            tooltip: channel?.isFollowed == true ? 'Following' : 'Follow',
+            tooltip: channel?.isFollowed == true ? l10n.followingTooltip : l10n.followTooltip,
           ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: _loadData,
-            tooltip: 'Refresh posts',
+            tooltip: l10n.refreshPostsTooltip,
           ),
         ],
       ),
@@ -201,7 +202,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                               const Icon(Icons.people_alt_rounded, size: 16, color: NeuroColors.adolescentPrimary),
                               const SizedBox(width: 8),
                               Text(
-                                '${channel?.subscriberCount ?? 0} followers',
+                                l10n.followerCountLabel(channel?.subscriberCount ?? 0),
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,
@@ -255,12 +256,12 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                   else
                   
                   if (_posts.isEmpty)
-                    const SliverFillRemaining(
+                    SliverFillRemaining(
                       child: Center(
                         child: Text(
-                          'No posts yet.\nCounselors will post updates here.',
+                          '${l10n.noPostsYet}\n${l10n.counselorUpdatesNote}',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.grey),
+                          style: const TextStyle(color: Colors.grey),
                         ),
                       ),
                     )
@@ -283,6 +284,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
   }
 
   Widget _buildPostCard(ChannelPost post) {
+    final l10n = context.localizations;
     final isExpanded = _expandedPostId == post.id;
     final postInteractions = _interactions[post.id] ?? [];
     
@@ -423,7 +425,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                 const Spacer(),
                 
                 Text(
-                  '${post.reactionCount} reactions • ${post.commentCount} comments',
+                    '${l10n.reactionsCount(post.reactionCount)} • ${l10n.commentsCount(post.commentCount)}',
                   style: const TextStyle(
                     fontSize: 11,
                     color: Color(0xFF7B6AAB),
@@ -451,7 +453,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    isExpanded ? 'Hide comments' : 'View comments',
+                    isExpanded ? l10n.hideComments : l10n.viewComments,
                     style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                 ],
@@ -468,9 +470,9 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (comments.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 16),
-                      child: Text('No comments yet.', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(l10n.noCommentsYet, style: const TextStyle(color: Colors.grey, fontSize: 13)),
                     ),
                   
                   ...comments.map((c) => Padding(
@@ -518,7 +520,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'Add a comment...',
+                              hintText: l10n.addCommentHint,
                               hintStyle: const TextStyle(fontSize: 13),
                               filled: true,
                               fillColor: Colors.white,

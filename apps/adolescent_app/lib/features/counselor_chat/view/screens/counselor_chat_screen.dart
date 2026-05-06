@@ -58,7 +58,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to upload voice message: ${uploadResult.failure.message}'),
+            content: Text(context.localizations.failedToUploadVoice(uploadResult.failure.message)),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -83,7 +83,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to upload ${type.name}: ${uploadResult.failure.message}'),
+            content: Text(context.localizations.failedToUploadMedia(type.name, uploadResult.failure.message)),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -125,7 +125,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     final counselorEmail = chatState.value?.counselorEmail;
     final appBarTitle = counselorEmail != null
         ? _emailToDisplayName(counselorEmail)
-        : 'Counselor Chat';
+        : context.localizations.counselorLabel + ' Chat';
 
     final showIncomingCall =
         callState.value?.status == CallStatus.ringing &&
@@ -148,19 +148,19 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                 IconButton(
                   icon: const Icon(Icons.phone),
                   onPressed: _startVoiceCall,
-                  tooltip: 'Voice call',
+                  tooltip: context.localizations.voiceCall,
                 ),
                 IconButton(
                   icon: const Icon(Icons.videocam),
                   onPressed: _startVideoCall,
-                  tooltip: 'Video call',
+                  tooltip: context.localizations.videoCall,
                 ),
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   onPressed: () {
                     ref.read(counselorChatControllerProvider.notifier).refresh();
                   },
-                  tooltip: 'Refresh messages',
+                  tooltip: context.localizations.refreshMessages,
                 ),
               ],
             ),
@@ -189,8 +189,8 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                         Expanded(
                           child: Text(
                             granted
-                                ? 'Chat enabled - Your guardian has approved counselor communication'
-                                : 'Chat disabled - Counselor communication consent required',
+                                ? context.localizations.chatEnabledBanner
+                                : context.localizations.chatDisabledBanner,
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: NeuroColors.onSurface,
                               fontWeight: FontWeight.w700,
@@ -203,7 +203,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                   ),
                 );
               },
-              loading: () => const Padding(
+              loading: () => Padding(
                 padding: EdgeInsets.all(12.0),
                 child: NeuroCard(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -217,7 +217,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                        SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Loading consent status...',
+                          context.localizations.loadingConsent,
                           style: TextStyle(
                             color: NeuroColors.onSurfaceVariant,
                             fontWeight: FontWeight.w600,
@@ -252,7 +252,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                           messageContent: message.content,
                           timestamp: message.createdAt,
                           isUser: isUser,
-                          senderLabel: isUser ? 'You' : appBarTitle,
+                          senderLabel: isUser ? context.localizations.you : appBarTitle,
                           userColor: theme.colorScheme.primary,
                           messageType: message.messageType,
                           attachmentUrl: message.attachmentUrl,
@@ -271,7 +271,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                               size: 64, color: theme.colorScheme.error),
                           const SizedBox(height: 16),
                           Text(
-                            'Unable to Start Counselor Chat',
+                            context.localizations.unableToStartChat,
                             style: theme.textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -291,7 +291,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                               ref.invalidate(counselorChatControllerProvider);
                             },
                             icon: const Icon(Icons.refresh),
-                            label: const Text('Retry'),
+                            label: Text(context.localizations.retry),
                           ),
                         ],
                       ),
@@ -335,7 +335,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No Messages Yet',
+              context.localizations.noMessagesYet,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onSurface,
@@ -343,7 +343,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Send a message to start a conversation\nwith your counselor.',
+              context.localizations.startConversationWithCounselor,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
@@ -359,9 +359,9 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
 
   Widget _buildSuggestedPrompts(BuildContext context, ThemeData theme) {
     final prompts = [
-      "I'd like to talk about something",
-      "Can you help me with some concerns?",
-      "I need some guidance",
+      context.localizations.counselorPrompt1,
+      context.localizations.counselorPrompt2,
+      context.localizations.counselorPrompt3,
     ];
 
     return Wrap(

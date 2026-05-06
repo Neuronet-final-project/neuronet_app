@@ -252,7 +252,7 @@ class JournalComposerMoodStrip extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        mood.label,
+                        mood.localizedLabel(context.localizations),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
