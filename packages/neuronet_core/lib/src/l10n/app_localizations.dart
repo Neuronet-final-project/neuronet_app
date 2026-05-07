@@ -2657,6 +2657,468 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get Started'**
   String get getStarted;
+
+  /// No description provided for @boxBreathingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Box Breathing'**
+  String get boxBreathingTitle;
+
+  /// No description provided for @boxBreathingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm your mind & find your focus.'**
+  String get boxBreathingDesc;
+
+  /// No description provided for @phasePrepare.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepare'**
+  String get phasePrepare;
+
+  /// No description provided for @phaseInhale.
+  ///
+  /// In en, this message translates to:
+  /// **'Inhale'**
+  String get phaseInhale;
+
+  /// No description provided for @phaseHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold'**
+  String get phaseHold;
+
+  /// No description provided for @phaseExhale.
+  ///
+  /// In en, this message translates to:
+  /// **'Exhale'**
+  String get phaseExhale;
+
+  /// No description provided for @phaseReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready?'**
+  String get phaseReady;
+
+  /// No description provided for @focusOnBreath.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus on your breath...'**
+  String get focusOnBreath;
+
+  /// No description provided for @tapOrbToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the orb to start your quest'**
+  String get tapOrbToStart;
+
+  /// No description provided for @reflectedOnThis.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve reflected on this'**
+  String get reflectedOnThis;
+
+  /// No description provided for @quest1.
+  ///
+  /// In en, this message translates to:
+  /// **'If your current mood was a weather pattern, what would it look like right now?'**
+  String get quest1;
+
+  /// No description provided for @quest2.
+  ///
+  /// In en, this message translates to:
+  /// **'Identify one thing you can control in your life today, and one thing you can let go.'**
+  String get quest2;
+
+  /// No description provided for @quest3.
+  ///
+  /// In en, this message translates to:
+  /// **'Imagine a future version of yourself who is completely at peace. What\'s the one piece of advice they\'d give you?'**
+  String get quest3;
+
+  /// No description provided for @quest4.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s a small act of kindness you\'ve witnessed or done recently that stayed with you?'**
+  String get quest4;
+
+  /// No description provided for @yourMoodMatchScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Mood Match score: {score}'**
+  String yourMoodMatchScore(int score);
+
+  /// No description provided for @howToPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Play'**
+  String get howToPlay;
+
+  /// No description provided for @moodMatcherInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the mood icon that matches the target as fast as you can!'**
+  String get moodMatcherInstructions;
+
+  /// No description provided for @findThisMood.
+  ///
+  /// In en, this message translates to:
+  /// **'FIND THIS MOOD:'**
+  String get findThisMood;
+
+  /// No description provided for @scoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Score: {score}'**
+  String scoreLabel(int score);
+
+  /// No description provided for @timeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time: {time}'**
+  String timeLabel(int time);
+
+  /// No description provided for @pageFollowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Page followed!'**
+  String get pageFollowed;
+
+  /// No description provided for @pageUnfollowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Page unfollowed'**
+  String get pageUnfollowed;
+
+  /// No description provided for @failedToUnfollowPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to unfollow page'**
+  String get failedToUnfollowPage;
+
+  /// No description provided for @failedToFollowPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to follow page'**
+  String get failedToFollowPage;
+
+  /// No description provided for @unfollowTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollow'**
+  String get unfollowTooltip;
+
+  /// No description provided for @approvalRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval Required'**
+  String get approvalRequired;
+
+  /// No description provided for @needGuardianApprovalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You need guardian approval to communicate with this counselor. Request approval to start chatting.'**
+  String get needGuardianApprovalDesc;
+
+  /// No description provided for @alertTriggeredRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert-triggered request'**
+  String get alertTriggeredRequest;
+
+  /// No description provided for @aiAlertDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Alert Details'**
+  String get aiAlertDetails;
+
+  /// No description provided for @riskLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk Level: '**
+  String get riskLevelLabel;
+
+  /// No description provided for @riskScoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk Score: {score}%'**
+  String riskScoreLabel(double score);
+
+  /// No description provided for @approvedByGuardian.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved by guardian'**
+  String get approvedByGuardian;
+
+  /// No description provided for @approvalRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval Revoked'**
+  String get approvalRevoked;
+
+  /// No description provided for @guardianRevokedApprovalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your guardian has revoked approval for this counselor. You can request approval again to continue chatting.'**
+  String get guardianRevokedApprovalDesc;
+
+  /// No description provided for @requestDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Denied'**
+  String get requestDenied;
+
+  /// No description provided for @guardianDeniedRequestDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your guardian has denied this request. You can submit a new request with more details.'**
+  String get guardianDeniedRequestDesc;
+
+  /// No description provided for @checking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking...'**
+  String get checking;
+
+  /// No description provided for @failedToLoadAlertDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load alert details'**
+  String get failedToLoadAlertDetails;
+
+  /// No description provided for @patternNoticedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern noticed on {date}'**
+  String patternNoticedOn(String date);
+
+  /// No description provided for @whatWeNoticed.
+  ///
+  /// In en, this message translates to:
+  /// **'What we noticed'**
+  String get whatWeNoticed;
+
+  /// No description provided for @feelingsPickedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Feelings we picked up on'**
+  String get feelingsPickedUp;
+
+  /// No description provided for @groupsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups that might help'**
+  String get groupsHelp;
+
+  /// No description provided for @channelRecSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Highly recommended for you based on recent journals.'**
+  String get channelRecSubtitle;
+
+  /// No description provided for @leftGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Left group'**
+  String get leftGroup;
+
+  /// No description provided for @joinedGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined {name}!'**
+  String joinedGroup(String name);
+
+  /// No description provided for @joined.
+  ///
+  /// In en, this message translates to:
+  /// **'JOINED'**
+  String get joined;
+
+  /// No description provided for @join.
+  ///
+  /// In en, this message translates to:
+  /// **'JOIN'**
+  String get join;
+
+  /// No description provided for @thinkingAboutThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking about this?'**
+  String get thinkingAboutThis;
+
+  /// No description provided for @keepJournaling.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Journaling'**
+  String get keepJournaling;
+
+  /// No description provided for @journalingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing your thoughts helps us find more patterns.'**
+  String get journalingSubtitle;
+
+  /// No description provided for @chatWithCounselor.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with Counselor'**
+  String get chatWithCounselor;
+
+  /// No description provided for @chatWithCounselorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s always good to reach out if you feel like it.'**
+  String get chatWithCounselorSubtitle;
+
+  /// No description provided for @alertDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'These insights are patterns we noticed based on your activity. They aren\'t a diagnosis or medical advice. We\'re just here to help you understand your emotional journey.'**
+  String get alertDisclaimer;
+
+  /// No description provided for @moodPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood Pattern'**
+  String get moodPattern;
+
+  /// No description provided for @energyShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy Shift'**
+  String get energyShift;
+
+  /// No description provided for @activityUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Update'**
+  String get activityUpdate;
+
+  /// No description provided for @mindfulnessPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Mindfulness Prompt'**
+  String get mindfulnessPrompt;
+
+  /// No description provided for @chatInsight.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat Insight'**
+  String get chatInsight;
+
+  /// No description provided for @notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Notice'**
+  String get notice;
+
+  /// No description provided for @emotionSadness.
+  ///
+  /// In en, this message translates to:
+  /// **'😔 Feeling down'**
+  String get emotionSadness;
+
+  /// No description provided for @emotionLoneliness.
+  ///
+  /// In en, this message translates to:
+  /// **'🫂 Feeling alone'**
+  String get emotionLoneliness;
+
+  /// No description provided for @emotionHopelessness.
+  ///
+  /// In en, this message translates to:
+  /// **'💭 Tough thoughts'**
+  String get emotionHopelessness;
+
+  /// No description provided for @emotionFear.
+  ///
+  /// In en, this message translates to:
+  /// **'😨 Feeling scared'**
+  String get emotionFear;
+
+  /// No description provided for @emotionAnger.
+  ///
+  /// In en, this message translates to:
+  /// **'😤 Feeling frustrated'**
+  String get emotionAnger;
+
+  /// No description provided for @emotionNervousness.
+  ///
+  /// In en, this message translates to:
+  /// **'😰 Feeling nervous'**
+  String get emotionNervousness;
+
+  /// No description provided for @emotionAnxiety.
+  ///
+  /// In en, this message translates to:
+  /// **'🌊 Waves of worry'**
+  String get emotionAnxiety;
+
+  /// No description provided for @emotionDisappointment.
+  ///
+  /// In en, this message translates to:
+  /// **'😞 Disappointed'**
+  String get emotionDisappointment;
+
+  /// No description provided for @emotionGrief.
+  ///
+  /// In en, this message translates to:
+  /// **'💔 Heavy heart'**
+  String get emotionGrief;
+
+  /// No description provided for @emotionAnnoyance.
+  ///
+  /// In en, this message translates to:
+  /// **'😒 Annoyed'**
+  String get emotionAnnoyance;
+
+  /// No description provided for @emotionConfusion.
+  ///
+  /// In en, this message translates to:
+  /// **'🤔 Confused'**
+  String get emotionConfusion;
+
+  /// No description provided for @noDescriptionAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No description available'**
+  String get noDescriptionAvailable;
+
+  /// No description provided for @followChannelTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow channel'**
+  String get followChannelTooltip;
+
+  /// No description provided for @channelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Channel'**
+  String get channelLabel;
+
+  /// No description provided for @userLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get userLabel;
+
+  /// No description provided for @unauthorizedAdolescentAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Unauthorized access: This account does not have Adolescent privileges.'**
+  String get unauthorizedAdolescentAccess;
+
+  /// No description provided for @unauthorizedRoleMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Unauthorized access: Account role mismatch.'**
+  String get unauthorizedRoleMismatch;
+
+  /// No description provided for @invalidEmailError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get invalidEmailError;
 }
 
 class _AppLocalizationsDelegate

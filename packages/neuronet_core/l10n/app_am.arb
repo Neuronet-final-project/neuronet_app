@@ -316,5 +316,20 @@
   "onboardingDesc4": "የግል ስሜታዊ ጉዞዎን ለመጀመር በአሳዳጊዎ የተሰጠውን የማግበሪያ ኮድ ይጠቀሙ።",
   "skip": "ዝለል",
   "next": "ቀጣይ",
-  "getStarted": "እንጀምር"
+  "getStarted": "እንጀምር",
+  "loginTagline1": "የስሜት ድጋፍ ቦታዎ 💜",
+  "loginTagline2": "በዚህ ውስጥ ብቻዎን አይደሉም 🌿",
+  "loginTagline3": "እዚህ ሁሉም ስሜት ተቀባይነት አለው ✨",
+  "welcomeBack": "እንኳን ደህና መጡ 👋",
+  "signInToContinue": "ለመቀጠል ይግቡ",
+  "emailHint": "የኢሜይል አድራሻ",
+  "passwordHint": "ፓስዋርድ",
+  "forgotPassword": "ፓስዋርድ ረስተዋል?",
+  "newToNeuroNet": "ለኔየሩኔት አዲስ ነዎት?",
+  "activateMyAccount": "መለያዬን አንቀሳቅስ",
+  "dataPrivateEncrypted": "የእርስዎ መረጃ የግል እና የተመሰጠረ ነው",
+  "anErrorOccurred": "ስህተት ተከስቷል",
+  "invalidEmailError": "እባክዎ ትክክለኛ የኢሜይል አድራሻ ያስገቡ",
+  "unauthorizedAdolescentAccess": "ያልተፈቀደ መዳረሻ: ይህ መለያ የታዳጊ መብቶች የሉትም::",
+  "unauthorizedRoleMismatch": "ያልተፈቀደ መዳረሻ: የመለያ ሚና አለመዛመድ::"
 }

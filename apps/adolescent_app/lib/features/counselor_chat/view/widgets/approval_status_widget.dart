@@ -128,6 +128,7 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
 
     // Show loading indicator while checking
     if (_isLoading) {
+      final l10n = context.localizations;
       return Container(
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.all(16),
@@ -137,7 +138,7 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
         ),
         child: Row(
           children: [
-            SizedBox(
+            const SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
@@ -145,7 +146,7 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Checking approval status...',
+                l10n.checkingApprovalStatus,
                 style: theme.textTheme.bodyMedium,
               ),
             ),
@@ -155,7 +156,7 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
                 setState(() => _isLoading = true);
                 _checkApproval();
               },
-              tooltip: 'Retry',
+              tooltip: l10n.retry,
             ),
           ],
         ),
@@ -250,6 +251,7 @@ class _NotRequestedBannerState extends ConsumerState<_NotRequestedBanner> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -273,7 +275,7 @@ class _NotRequestedBannerState extends ConsumerState<_NotRequestedBanner> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Approval Required',
+                  l10n.approvalRequired,
                   style: widget.theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: widget.theme.colorScheme.error,
@@ -284,8 +286,7 @@ class _NotRequestedBannerState extends ConsumerState<_NotRequestedBanner> {
           ),
           const SizedBox(height: 12),
           Text(
-            'You need guardian approval to communicate with this counselor. '
-            'Request approval to start chatting.',
+            l10n.needGuardianApprovalDesc,
             style: widget.theme.textTheme.bodyMedium?.copyWith(
               color: widget.theme.colorScheme.onErrorContainer,
             ),
@@ -298,7 +299,7 @@ class _NotRequestedBannerState extends ConsumerState<_NotRequestedBanner> {
               icon: _isChecking 
                   ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.send_rounded),
-              label: Text(_isChecking ? 'Checking...' : 'Request Approval'),
+              label: Text(_isChecking ? l10n.checking : l10n.requestApproval),
               style: FilledButton.styleFrom(
                 backgroundColor: widget.theme.colorScheme.error,
                 foregroundColor: widget.theme.colorScheme.onError,
@@ -324,6 +325,7 @@ class _PendingBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     final riskLevel = alertContext?['risk_level'] as String? ?? 'unknown';
     final riskScore = alertContext?['risk_score'] as num? ?? 0;
     
@@ -354,7 +356,7 @@ class _PendingBanner extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Approval Pending',
+                      l10n.approvalPending,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.tertiary,
@@ -362,7 +364,7 @@ class _PendingBanner extends StatelessWidget {
                     ),
                     if (triggeredByAlert)
                       Text(
-                        'Alert-triggered request',
+                        l10n.alertTriggeredRequest,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: theme.colorScheme.tertiary,
                           fontStyle: FontStyle.italic,
@@ -385,7 +387,7 @@ class _PendingBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'AI Alert Details',
+                    l10n.aiAlertDetails,
                     style: theme.textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -394,7 +396,7 @@ class _PendingBanner extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'Risk Level: ',
+                        l10n.riskLevelLabel,
                         style: theme.textTheme.bodySmall,
                       ),
                       Container(
@@ -415,7 +417,7 @@ class _PendingBanner extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Risk Score: ${riskScore.toStringAsFixed(1)}%',
+                    l10n.riskScoreLabel(riskScore.toDouble()),
                     style: theme.textTheme.bodySmall,
                   ),
                 ],
@@ -423,7 +425,7 @@ class _PendingBanner extends StatelessWidget {
             )
           else
             Text(
-              'Your guardian is reviewing your request. You\'ll be notified once they respond.',
+              l10n.guardianReviewingMessage,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onTertiaryContainer,
               ),
@@ -454,6 +456,7 @@ class _ApprovedBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -466,7 +469,7 @@ class _ApprovedBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.check_circle_rounded,
             color: Colors.green,
             size: 24,
@@ -474,7 +477,7 @@ class _ApprovedBanner extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Approved by guardian',
+              l10n.approvedByGuardian,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: Colors.green.shade700,
                 fontWeight: FontWeight.w600,
@@ -498,6 +501,7 @@ class _RevokedBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -513,7 +517,7 @@ class _RevokedBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.block_rounded,
                 color: Colors.orange,
                 size: 28,
@@ -521,7 +525,7 @@ class _RevokedBanner extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Approval Revoked',
+                  l10n.approvalRevoked,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.orange.shade700,
@@ -532,7 +536,7 @@ class _RevokedBanner extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Your guardian has revoked approval for this counselor. You can request approval again to continue chatting.',
+            l10n.guardianRevokedApprovalDesc,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.orange.shade900,
             ),
@@ -543,7 +547,7 @@ class _RevokedBanner extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: onRequestApproval,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Request Approval Again'),
+              label: Text(l10n.requestApprovalAgain),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.orange,
                 foregroundColor: Colors.white,
@@ -567,6 +571,7 @@ class _DeniedBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -590,7 +595,7 @@ class _DeniedBanner extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Request Denied',
+                  l10n.requestDenied,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.error,
@@ -601,7 +606,7 @@ class _DeniedBanner extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Your guardian has denied this request. You can submit a new request with more details.',
+            l10n.guardianDeniedRequestDesc,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onErrorContainer,
             ),
@@ -612,7 +617,7 @@ class _DeniedBanner extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: onRequestApproval,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Request Again'),
+              label: Text(l10n.requestAgain),
               style: OutlinedButton.styleFrom(
                 foregroundColor: theme.colorScheme.error,
                 side: BorderSide(color: theme.colorScheme.error),

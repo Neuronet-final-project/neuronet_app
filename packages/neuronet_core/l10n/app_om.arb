@@ -320,5 +320,20 @@
   "onboardingDesc4": "Adeemsa miira keetii dhuunfaa eegaluuf koodii qabuu koflaa keetiin siif kenname fayyadami.",
   "skip": "Darbi",
   "next": "Itti aana",
-  "getStarted": "Eegali"
+  "getStarted": "Eegali",
+  "loginTagline1": "Bakka Deeggarsa Miira Keetii 💜",
+  "loginTagline2": "Kana keessatti kophaa keetii miti 🌿",
+  "loginTagline3": "Miirri hundi asitti fudhatama qaba ✨",
+  "welcomeBack": "Baga nagaan dhufte 👋",
+  "signInToContinue": "Itti fufuuf seeni",
+  "emailHint": "Teessoo Iimeelii",
+  "passwordHint": "Paswaardii",
+  "forgotPassword": "Paswaardii dagattee?",
+  "newToNeuroNet": "NeuroNet'f haaraadha?",
+  "activateMyAccount": "Herrega koo qabadhu",
+  "dataPrivateEncrypted": "Oodeeffannoon kee dhuunfaa fi iccitii dha",
+  "anErrorOccurred": "Dogoggorri uumameera",
+  "invalidEmailError": "Mee teessoo iimeelii sirrii galchi",
+  "unauthorizedAdolescentAccess": "Hayyama hin qabdu: Herregni kun mirga Dargaggeessaa hin qabu.",
+  "unauthorizedRoleMismatch": "Hayyama hin qabdu: Gaheen herregaa wal hin simu."
 }

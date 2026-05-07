@@ -801,40 +801,41 @@ class AppLocalizationsOm extends AppLocalizations {
   String get goToYourChannels => 'Qunnii Keessan Gali';
 
   @override
-  String get loginTagline1 => 'Your Emotional Support Space 💜';
+  String get loginTagline1 => 'Bakka Deeggarsa Miira Keetii 💜';
 
   @override
-  String get loginTagline2 => 'You are not alone in this 🌿';
+  String get loginTagline2 => 'Kana keessatti kophaa keetii miti 🌿';
 
   @override
-  String get loginTagline3 => 'Every feeling is valid here ✨';
+  String get loginTagline3 => 'Miirri hundi asitti fudhatama qaba ✨';
 
   @override
-  String get anErrorOccurred => 'An error occurred';
+  String get anErrorOccurred => 'Dogoggorri uumameera';
 
   @override
-  String get welcomeBack => 'Welcome back 👋';
+  String get welcomeBack => 'Baga nagaan dhufte 👋';
 
   @override
-  String get signInToContinue => 'Sign in to continue';
+  String get signInToContinue => 'Itti fufuuf seeni';
 
   @override
-  String get emailHint => 'Email address';
+  String get emailHint => 'Teessoo Iimeelii';
 
   @override
-  String get passwordHint => 'Password';
+  String get passwordHint => 'Paswaardii';
 
   @override
-  String get forgotPassword => 'Forgot password?';
+  String get forgotPassword => 'Paswaardii dagattee?';
 
   @override
-  String get newToNeuroNet => 'New to NeuroNet?';
+  String get newToNeuroNet => 'NeuroNet\'f haaraadha?';
 
   @override
-  String get activateMyAccount => 'Activate My Account';
+  String get activateMyAccount => 'Herrega koo qabadhu';
 
   @override
-  String get dataPrivateEncrypted => 'Your data is private and encrypted';
+  String get dataPrivateEncrypted =>
+      'Oodeeffannoon kee dhuunfaa fi iccitii dha';
 
   @override
   String get onboardingTitle1 => 'Bakka kee kan tasgabbii';
@@ -1419,4 +1420,261 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get getStarted => 'Eegali';
+
+  @override
+  String get boxBreathingTitle => 'Box Breathing';
+
+  @override
+  String get boxBreathingDesc => 'Calm your mind & find your focus.';
+
+  @override
+  String get phasePrepare => 'Prepare';
+
+  @override
+  String get phaseInhale => 'Inhale';
+
+  @override
+  String get phaseHold => 'Hold';
+
+  @override
+  String get phaseExhale => 'Exhale';
+
+  @override
+  String get phaseReady => 'Ready?';
+
+  @override
+  String get focusOnBreath => 'Focus on your breath...';
+
+  @override
+  String get tapOrbToStart => 'Tap the orb to start your quest';
+
+  @override
+  String get reflectedOnThis => 'I\'ve reflected on this';
+
+  @override
+  String get quest1 =>
+      'If your current mood was a weather pattern, what would it look like right now?';
+
+  @override
+  String get quest2 =>
+      'Identify one thing you can control in your life today, and one thing you can let go.';
+
+  @override
+  String get quest3 =>
+      'Imagine a future version of yourself who is completely at peace. What\'s the one piece of advice they\'d give you?';
+
+  @override
+  String get quest4 =>
+      'What\'s a small act of kindness you\'ve witnessed or done recently that stayed with you?';
+
+  @override
+  String yourMoodMatchScore(int score) {
+    return 'Your Mood Match score: $score';
+  }
+
+  @override
+  String get howToPlay => 'How to Play';
+
+  @override
+  String get moodMatcherInstructions =>
+      'Tap the mood icon that matches the target as fast as you can!';
+
+  @override
+  String get findThisMood => 'FIND THIS MOOD:';
+
+  @override
+  String scoreLabel(int score) {
+    return 'Score: $score';
+  }
+
+  @override
+  String timeLabel(int time) {
+    return 'Time: $time';
+  }
+
+  @override
+  String get pageFollowed => 'Page followed!';
+
+  @override
+  String get pageUnfollowed => 'Page unfollowed';
+
+  @override
+  String get failedToUnfollowPage => 'Failed to unfollow page';
+
+  @override
+  String get failedToFollowPage => 'Failed to follow page';
+
+  @override
+  String get unfollowTooltip => 'Unfollow';
+
+  @override
+  String get approvalRequired => 'Approval Required';
+
+  @override
+  String get needGuardianApprovalDesc =>
+      'You need guardian approval to communicate with this counselor. Request approval to start chatting.';
+
+  @override
+  String get alertTriggeredRequest => 'Alert-triggered request';
+
+  @override
+  String get aiAlertDetails => 'AI Alert Details';
+
+  @override
+  String get riskLevelLabel => 'Risk Level: ';
+
+  @override
+  String riskScoreLabel(double score) {
+    return 'Risk Score: $score%';
+  }
+
+  @override
+  String get approvedByGuardian => 'Approved by guardian';
+
+  @override
+  String get approvalRevoked => 'Approval Revoked';
+
+  @override
+  String get guardianRevokedApprovalDesc =>
+      'Your guardian has revoked approval for this counselor. You can request approval again to continue chatting.';
+
+  @override
+  String get requestDenied => 'Request Denied';
+
+  @override
+  String get guardianDeniedRequestDesc =>
+      'Your guardian has denied this request. You can submit a new request with more details.';
+
+  @override
+  String get checking => 'Checking...';
+
+  @override
+  String get failedToLoadAlertDetails => 'Failed to load alert details';
+
+  @override
+  String patternNoticedOn(String date) {
+    return 'Pattern noticed on $date';
+  }
+
+  @override
+  String get whatWeNoticed => 'What we noticed';
+
+  @override
+  String get feelingsPickedUp => 'Feelings we picked up on';
+
+  @override
+  String get groupsHelp => 'Groups that might help';
+
+  @override
+  String get channelRecSubtitle =>
+      'Highly recommended for you based on recent journals.';
+
+  @override
+  String get leftGroup => 'Left group';
+
+  @override
+  String joinedGroup(String name) {
+    return 'Joined $name!';
+  }
+
+  @override
+  String get joined => 'JOINED';
+
+  @override
+  String get join => 'JOIN';
+
+  @override
+  String get thinkingAboutThis => 'Thinking about this?';
+
+  @override
+  String get keepJournaling => 'Keep Journaling';
+
+  @override
+  String get journalingSubtitle =>
+      'Sharing your thoughts helps us find more patterns.';
+
+  @override
+  String get chatWithCounselor => 'Chat with Counselor';
+
+  @override
+  String get chatWithCounselorSubtitle =>
+      'It\'s always good to reach out if you feel like it.';
+
+  @override
+  String get alertDisclaimer =>
+      'These insights are patterns we noticed based on your activity. They aren\'t a diagnosis or medical advice. We\'re just here to help you understand your emotional journey.';
+
+  @override
+  String get moodPattern => 'Mood Pattern';
+
+  @override
+  String get energyShift => 'Energy Shift';
+
+  @override
+  String get activityUpdate => 'Activity Update';
+
+  @override
+  String get mindfulnessPrompt => 'Mindfulness Prompt';
+
+  @override
+  String get chatInsight => 'Chat Insight';
+
+  @override
+  String get notice => 'Notice';
+
+  @override
+  String get emotionSadness => '😔 Feeling down';
+
+  @override
+  String get emotionLoneliness => '🫂 Feeling alone';
+
+  @override
+  String get emotionHopelessness => '💭 Tough thoughts';
+
+  @override
+  String get emotionFear => '😨 Feeling scared';
+
+  @override
+  String get emotionAnger => '😤 Feeling frustrated';
+
+  @override
+  String get emotionNervousness => '😰 Feeling nervous';
+
+  @override
+  String get emotionAnxiety => '🌊 Waves of worry';
+
+  @override
+  String get emotionDisappointment => '😞 Disappointed';
+
+  @override
+  String get emotionGrief => '💔 Heavy heart';
+
+  @override
+  String get emotionAnnoyance => '😒 Annoyed';
+
+  @override
+  String get emotionConfusion => '🤔 Confused';
+
+  @override
+  String get noDescriptionAvailable => 'No description available';
+
+  @override
+  String get followChannelTooltip => 'Follow channel';
+
+  @override
+  String get channelLabel => 'Channel';
+
+  @override
+  String get userLabel => 'User';
+
+  @override
+  String get unauthorizedAdolescentAccess =>
+      'Hayyama hin qabdu: Herregni kun mirga Dargaggeessaa hin qabu.';
+
+  @override
+  String get unauthorizedRoleMismatch =>
+      'Hayyama hin qabdu: Gaheen herregaa wal hin simu.';
+
+  @override
+  String get invalidEmailError => 'Mee teessoo iimeelii sirrii galchi';
 }

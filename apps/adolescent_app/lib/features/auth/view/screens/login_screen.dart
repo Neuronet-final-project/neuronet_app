@@ -106,6 +106,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
   }
 
+  String _localizeError(String? message, AppLocalizations l10n) {
+    if (message == null) return l10n.anErrorOccurred;
+    if (message == 'unauthorizedAdolescentAccess') {
+      return l10n.unauthorizedAdolescentAccess;
+    }
+    if (message == 'unauthorizedRoleMismatch') return l10n.unauthorizedRoleMismatch;
+    return message;
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
@@ -127,7 +136,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              next.errorMessage ?? context.localizations.anErrorOccurred,
+              _localizeError(next.errorMessage, context.localizations),
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
             ),
             backgroundColor: const Color(0xFF5E35B1),
@@ -180,10 +189,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ..._sparkles(size),
 
           // ── Main content ─────────────────────────────────────────────────
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: SafeArea(
                 child: FadeTransition(
                   opacity: _fadeAnim,
                   child: SlideTransition(
@@ -233,9 +242,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 const LinearGradient(
                                   colors: [Colors.white, Color(0xFFD4B8FF)],
                                 ).createShader(bounds),
-                            child: const Text(
-                              'NEURONET',
-                              style: TextStyle(
+                            child: Text(
+                              context.localizations.appTitle,
+                              style: const TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
@@ -323,7 +332,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   textInputAction: TextInputAction.next,
                                   validator: (v) {
                                     if (v == null || v.isEmpty) return context.localizations.pleaseEnterEmail;
-                                    if (!v.contains('@')) return context.localizations.emailAddress;
+                                    if (!v.contains('@')) return context.localizations.invalidEmailError;
                                     return null;
                                   },
                                   onFieldSubmitted: (_) =>
@@ -454,6 +463,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         ],
                       ),
                     ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // ── Language Toggle (Moved to end to be on top) ─────────────────
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12, right: 16),
+                child: Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.35),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const LanguagePickerDropdown(
+                    textColor: Colors.white,
+                    iconColor: Colors.white,
+                    dropdownColor: Color(0xFF6A1FDB),
+                    itemTextColor: Colors.white,
                   ),
                 ),
               ),

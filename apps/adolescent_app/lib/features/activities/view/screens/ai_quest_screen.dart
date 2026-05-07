@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 import 'dart:math' as math;
 
 class AIQuestScreen extends StatefulWidget {
@@ -13,20 +13,13 @@ class _AIQuestScreenState extends State<AIQuestScreen> with SingleTickerProvider
   late AnimationController _controller;
   late Animation<double> _pulse;
   
-  final List<String> _quests = [
-    "If your current mood was a weather pattern, what would it look like right now?",
-    "Identify one thing you can control in your life today, and one thing you can let go.",
-    "Imagine a future version of yourself who is completely at peace. What's the one piece of advice they'd give you?",
-    "What's a small act of kindness you've witnessed or done recently that stayed with you?",
-  ];
-  
   late String _currentQuest;
   bool _revealed = false;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _currentQuest = _quests[math.Random().nextInt(_quests.length)];
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -34,6 +27,18 @@ class _AIQuestScreenState extends State<AIQuestScreen> with SingleTickerProvider
     _pulse = Tween<double>(begin: 1.0, end: 1.1).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+  }
+
+  void _initializeQuest(AppLocalizations l10n) {
+    if (_isInitialized) return;
+    final List<String> quests = [
+      l10n.quest1,
+      l10n.quest2,
+      l10n.quest3,
+      l10n.quest4,
+    ];
+    _currentQuest = quests[math.Random().nextInt(quests.length)];
+    _isInitialized = true;
   }
 
   @override
@@ -44,6 +49,9 @@ class _AIQuestScreenState extends State<AIQuestScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
+    _initializeQuest(l10n);
+
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E), // Deep space blue
       appBar: AppBar(
@@ -53,7 +61,8 @@ class _AIQuestScreenState extends State<AIQuestScreen> with SingleTickerProvider
           icon: const Icon(Icons.close_rounded, color: Colors.white70),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('AI REFLECTIVE QUEST', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 2)),
+        title: Text(l10n.aiReflectiveQuest, 
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 2)),
         centerTitle: true,
       ),
       body: Padding(
@@ -120,15 +129,15 @@ class _AIQuestScreenState extends State<AIQuestScreen> with SingleTickerProvider
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30), side: const BorderSide(color: Colors.white24)),
                     ),
-                    child: const Text('I\'ve reflected on this', style: TextStyle(fontWeight: FontWeight.w800)),
+                    child: Text(l10n.reflectedOnThis, style: const TextStyle(fontWeight: FontWeight.w800)),
                   ),
                 ],
               ),
             ),
             if (!_revealed)
-               const Text(
-                'Tap the orb to start your quest',
-                style: TextStyle(color: Colors.white38, fontSize: 14, fontStyle: FontStyle.italic),
+               Text(
+                l10n.tapOrbToStart,
+                style: const TextStyle(color: Colors.white38, fontSize: 14, fontStyle: FontStyle.italic),
               ),
             const Spacer(flex: 2),
           ],

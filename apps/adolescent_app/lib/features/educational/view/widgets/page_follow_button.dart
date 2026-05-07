@@ -58,6 +58,7 @@ class _PageFollowButtonState extends ConsumerState<PageFollowButton>
   Future<void> _toggleFollow() async {
     if (_isLoading) return;
 
+    final l10n = context.localizations;
     setState(() => _isLoading = true);
     
     // Play animation
@@ -80,7 +81,7 @@ class _PageFollowButtonState extends ConsumerState<PageFollowButton>
       if (mounted) {
         NeuroToast.show(
           context,
-          _isFollowed ? 'Page followed!' : 'Page unfollowed',
+          _isFollowed ? l10n.pageFollowed : l10n.pageUnfollowed,
           type: _isFollowed ? NeuroToastType.success : NeuroToastType.info,
         );
       }
@@ -88,7 +89,7 @@ class _PageFollowButtonState extends ConsumerState<PageFollowButton>
       setState(() => _isLoading = false);
       NeuroToast.show(
         context,
-        'Failed to ${_isFollowed ? 'unfollow' : 'follow'} page',
+        _isFollowed ? l10n.failedToUnfollowPage : l10n.failedToFollowPage,
         type: NeuroToastType.error,
       );
     }
@@ -97,6 +98,7 @@ class _PageFollowButtonState extends ConsumerState<PageFollowButton>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.localizations;
 
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -113,7 +115,7 @@ class _PageFollowButtonState extends ConsumerState<PageFollowButton>
               ? FilledButton.tonalIcon(
                   onPressed: _toggleFollow,
                   icon: const Icon(Icons.check_circle, size: 18),
-                  label: const Text('Following'),
+                  label: Text(l10n.following),
                   style: FilledButton.styleFrom(
                     backgroundColor: theme.colorScheme.primaryContainer,
                     foregroundColor: theme.colorScheme.onPrimaryContainer,
@@ -122,7 +124,7 @@ class _PageFollowButtonState extends ConsumerState<PageFollowButton>
               : OutlinedButton.icon(
                   onPressed: _toggleFollow,
                   icon: const Icon(Icons.add_circle_outline, size: 18),
-                  label: const Text('Follow'),
+                  label: Text(l10n.follow),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: theme.colorScheme.primary,
                     side: BorderSide(color: theme.colorScheme.primary),
@@ -193,6 +195,7 @@ class _CompactFollowButtonState extends ConsumerState<CompactFollowButton> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.localizations;
 
     if (_isLoading) {
       return SizedBox(
@@ -211,7 +214,7 @@ class _CompactFollowButtonState extends ConsumerState<CompactFollowButton> {
         _isFollowed ? Icons.bookmark : Icons.bookmark_border,
         color: _isFollowed ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
       ),
-      tooltip: _isFollowed ? 'Unfollow' : 'Follow',
+      tooltip: _isFollowed ? l10n.unfollowTooltip : l10n.followTooltip,
     );
   }
-}
+}

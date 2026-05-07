@@ -38,6 +38,15 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
     }
   }
 
+  String _localizeError(String? message, AppLocalizations l10n) {
+    if (message == null) return l10n.errorPrefix;
+    if (message == 'unauthorizedAdolescentAccess') {
+      return l10n.unauthorizedAdolescentAccess;
+    }
+    if (message == 'unauthorizedRoleMismatch') return l10n.unauthorizedRoleMismatch;
+    return message;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.localizations;
@@ -49,7 +58,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              next.errorMessage ?? l10n.errorPrefix,
+              _localizeError(next.errorMessage, l10n),
               style: TextStyle(
                 color: theme.colorScheme.onErrorContainer,
                 fontSize: 14,
@@ -86,6 +95,12 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.black,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 8.0),
+            child: LanguagePickerDropdown(),
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -143,6 +158,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) return l10n.pleaseEnterEmail;
+                      if (!value.contains('@')) return l10n.invalidEmailError;
                       return null;
                     },
                   ),

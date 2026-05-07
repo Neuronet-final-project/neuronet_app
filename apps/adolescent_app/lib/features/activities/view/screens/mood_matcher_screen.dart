@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 import 'dart:math' as math;
 
 class MoodMatcherScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _MoodMatcherScreenState extends State<MoodMatcherScreen> {
   int _score = 0;
   int _timeLeft = 30;
   bool _isPlaying = false;
-  math.Random _random = math.Random();
+  final math.Random _random = math.Random();
 
   @override
   void initState() {
@@ -65,28 +66,29 @@ class _MoodMatcherScreenState extends State<MoodMatcherScreen> {
   }
 
   void _showResult() {
+    final l10n = context.localizations;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Game Over!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
-        content: Text('Your Mood Match score: $_score', style: const TextStyle(color: Colors.white70)),
+        title: Text(l10n.gameOver, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+        content: Text(l10n.yourMoodMatchScore(_score), style: const TextStyle(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _startGame();
             },
-            child: const Text('Play Again', style: TextStyle(color: Color(0xFF7C4DFF))),
+            child: Text(l10n.playAgain, style: const TextStyle(color: Color(0xFF7C4DFF))),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Close', style: TextStyle(color: Colors.white60)),
+            child: Text(l10n.close, style: const TextStyle(color: Colors.white60)),
           ),
         ],
       ),
@@ -109,6 +111,8 @@ class _MoodMatcherScreenState extends State<MoodMatcherScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
@@ -119,7 +123,7 @@ class _MoodMatcherScreenState extends State<MoodMatcherScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _isPlaying ? 'Time: $_timeLeft' : 'Mood Matcher',
+          _isPlaying ? l10n.timeLabel(_timeLeft) : l10n.moodMatcherTitle,
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
         ),
         actions: [
@@ -127,7 +131,7 @@ class _MoodMatcherScreenState extends State<MoodMatcherScreen> {
             padding: const EdgeInsets.only(right: 20),
             child: Center(
               child: Text(
-                'Score: $_score',
+                l10n.scoreLabel(_score),
                 style: const TextStyle(color: Color(0xFF7C4DFF), fontWeight: FontWeight.w900, fontSize: 18),
               ),
             ),
@@ -142,15 +146,15 @@ class _MoodMatcherScreenState extends State<MoodMatcherScreen> {
               const SizedBox(height: 40),
               const Icon(Icons.games_rounded, size: 80, color: Color(0xFF7C4DFF)),
               const SizedBox(height: 20),
-              const Text(
-                'How to Play',
-                style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900),
+              Text(
+                l10n.howToPlay,
+                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 10),
-              const Text(
-                'Tap the mood icon that matches the target as fast as you can!',
+              Text(
+                l10n.moodMatcherInstructions,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white60, fontSize: 14),
+                style: const TextStyle(color: Colors.white60, fontSize: 14),
               ),
               const Spacer(),
               ElevatedButton(
@@ -161,14 +165,14 @@ class _MoodMatcherScreenState extends State<MoodMatcherScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 ),
-                child: const Text('START GAME', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
+                child: Text(l10n.startGame, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
               ),
               const SizedBox(height: 40),
             ] else ...[
               const SizedBox(height: 20),
-              const Text(
-                'FIND THIS MOOD:',
-                style: TextStyle(color: Colors.white38, letterSpacing: 2, fontWeight: FontWeight.w800),
+              Text(
+                l10n.findThisMood,
+                style: const TextStyle(color: Colors.white38, letterSpacing: 2, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               Container(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 import 'dart:async';
 
 class BreathingExerciseScreen extends StatefulWidget {
@@ -14,7 +15,6 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
   late Animation<double> _scaleAnimation;
   
   String _phase = "Prepare";
-  int _seconds = 0;
   bool _isActive = false;
 
   @override
@@ -29,32 +29,33 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
     );
   }
 
-  void _startExercise() {
+  void _startExercise(AppLocalizations l10n) {
     setState(() {
       _isActive = true;
-      _phase = "Inhale";
+      _phase = l10n.phaseInhale;
     });
-    _runCycle();
+    _runCycle(l10n);
   }
 
-  Future<void> _runCycle() async {
+  Future<void> _runCycle(AppLocalizations l10n) async {
     while (_isActive) {
       // Inhale
-      setState(() => _phase = "Inhale");
+      if (!mounted) break;
+      setState(() => _phase = l10n.phaseInhale);
       _controller.forward();
       await Future.delayed(const Duration(seconds: 4));
-      if (!_isActive) break;
+      if (!_isActive || !mounted) break;
 
       // Hold
-      setState(() => _phase = "Hold");
+      setState(() => _phase = l10n.phaseHold);
       await Future.delayed(const Duration(seconds: 4));
-      if (!_isActive) break;
+      if (!_isActive || !mounted) break;
 
       // Exhale
-      setState(() => _phase = "Exhale");
+      setState(() => _phase = l10n.phaseExhale);
       _controller.reverse();
       await Future.delayed(const Duration(seconds: 4));
-      if (!_isActive) break;
+      if (!_isActive || !mounted) break;
     }
   }
 
@@ -67,6 +68,8 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
+    
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E), // Deep dark theme for focus
       appBar: AppBar(
@@ -81,9 +84,9 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Box Breathing',
-              style: TextStyle(
+            Text(
+              l10n.boxBreathingTitle,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
@@ -91,7 +94,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
             ),
             const SizedBox(height: 10),
             Text(
-              'Calm your mind & find your focus.',
+              l10n.boxBreathingDesc,
               style: TextStyle(
                 color: Colors.white.withOpacity(0.6),
                 fontSize: 14,
@@ -134,7 +137,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
                       ),
                       child: Center(
                         child: Text(
-                          _isActive ? _phase : "Ready?",
+                          _isActive ? _phase : l10n.phaseReady,
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w900,
@@ -150,7 +153,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
             const SizedBox(height: 100),
             if (!_isActive)
               ElevatedButton(
-                onPressed: _startExercise,
+                onPressed: () => _startExercise(l10n),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF7C4DFF),
                   foregroundColor: Colors.white,
@@ -159,13 +162,13 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: const Text('Start Exercise',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                child: Text(l10n.startExercise,
+                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
               )
             else
-              const Text(
-                'Focus on your breath...',
-                style: TextStyle(color: Colors.white70, fontStyle: FontStyle.italic),
+              Text(
+                l10n.focusOnBreath,
+                style: const TextStyle(color: Colors.white70, fontStyle: FontStyle.italic),
               ),
           ],
         ),

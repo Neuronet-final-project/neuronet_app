@@ -676,6 +676,125 @@
   "refreshingDashboard": "Refreshing dashboard...",
   "skip": "Skip",
   "next": "Next",
-  "getStarted": "Get Started"
+  "getStarted": "Get Started",
+  "boxBreathingTitle": "Box Breathing",
+  "boxBreathingDesc": "Calm your mind & find your focus.",
+  "phasePrepare": "Prepare",
+  "phaseInhale": "Inhale",
+  "phaseHold": "Hold",
+  "phaseExhale": "Exhale",
+  "phaseReady": "Ready?",
+  "focusOnBreath": "Focus on your breath...",
+  "tapOrbToStart": "Tap the orb to start your quest",
+  "reflectedOnThis": "I've reflected on this",
+  "quest1": "If your current mood was a weather pattern, what would it look like right now?",
+  "quest2": "Identify one thing you can control in your life today, and one thing you can let go.",
+  "quest3": "Imagine a future version of yourself who is completely at peace. What's the one piece of advice they'd give you?",
+  "quest4": "What's a small act of kindness you've witnessed or done recently that stayed with you?",
+  "yourMoodMatchScore": "Your Mood Match score: {score}",
+  "@yourMoodMatchScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "howToPlay": "How to Play",
+  "moodMatcherInstructions": "Tap the mood icon that matches the target as fast as you can!",
+  "findThisMood": "FIND THIS MOOD:",
+  "scoreLabel": "Score: {score}",
+  "@scoreLabel": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "timeLabel": "Time: {time}",
+  "@timeLabel": {
+    "placeholders": {
+      "time": {
+        "type": "int"
+      }
+    }
+  },
+  "pageFollowed": "Page followed!",
+  "pageUnfollowed": "Page unfollowed",
+  "failedToUnfollowPage": "Failed to unfollow page",
+  "failedToFollowPage": "Failed to follow page",
+  "unfollowTooltip": "Unfollow",
+  "approvalRequired": "Approval Required",
+  "needGuardianApprovalDesc": "You need guardian approval to communicate with this counselor. Request approval to start chatting.",
+  "alertTriggeredRequest": "Alert-triggered request",
+  "aiAlertDetails": "AI Alert Details",
+  "riskLevelLabel": "Risk Level: ",
+  "riskScoreLabel": "Risk Score: {score}%",
+  "@riskScoreLabel": {
+    "placeholders": {
+      "score": {
+        "type": "double"
+      }
+    }
+  },
+  "approvedByGuardian": "Approved by guardian",
+  "approvalRevoked": "Approval Revoked",
+  "guardianRevokedApprovalDesc": "Your guardian has revoked approval for this counselor. You can request approval again to continue chatting.",
+  "requestDenied": "Request Denied",
+  "guardianDeniedRequestDesc": "Your guardian has denied this request. You can submit a new request with more details.",
+  "checking": "Checking...",
+  "failedToLoadAlertDetails": "Failed to load alert details",
+  "patternNoticedOn": "Pattern noticed on {date}",
+  "@patternNoticedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "whatWeNoticed": "What we noticed",
+  "feelingsPickedUp": "Feelings we picked up on",
+  "groupsHelp": "Groups that might help",
+  "channelRecSubtitle": "Highly recommended for you based on recent journals.",
+  "leftGroup": "Left group",
+  "joinedGroup": "Joined {name}!",
+  "@joinedGroup": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "joined": "JOINED",
+  "join": "JOIN",
+  "thinkingAboutThis": "Thinking about this?",
+  "keepJournaling": "Keep Journaling",
+  "journalingSubtitle": "Sharing your thoughts helps us find more patterns.",
+  "chatWithCounselor": "Chat with Counselor",
+  "chatWithCounselorSubtitle": "It's always good to reach out if you feel like it.",
+  "alertDisclaimer": "These insights are patterns we noticed based on your activity. They aren't a diagnosis or medical advice. We're just here to help you understand your emotional journey.",
+  "moodPattern": "Mood Pattern",
+  "energyShift": "Energy Shift",
+  "activityUpdate": "Activity Update",
+  "mindfulnessPrompt": "Mindfulness Prompt",
+  "chatInsight": "Chat Insight",
+  "notice": "Notice",
+  "emotionSadness": "😔 Feeling down",
+  "emotionLoneliness": "🫂 Feeling alone",
+  "emotionHopelessness": "💭 Tough thoughts",
+  "emotionFear": "😨 Feeling scared",
+  "emotionAnger": "😤 Feeling frustrated",
+  "emotionNervousness": "😰 Feeling nervous",
+  "emotionAnxiety": "🌊 Waves of worry",
+  "emotionDisappointment": "😞 Disappointed",
+  "emotionGrief": "💔 Heavy heart",
+  "emotionAnnoyance": "😒 Annoyed",
+  "emotionConfusion": "🤔 Confused",
+  "noDescriptionAvailable": "No description available",
+  "followChannelTooltip": "Follow channel",
+  "channelLabel": "Channel",
+  "userLabel": "User",
+  "unauthorizedAdolescentAccess": "Unauthorized access: This account does not have Adolescent privileges.",
+  "unauthorizedRoleMismatch": "Unauthorized access: Account role mismatch.",
+  "invalidEmailError": "Please enter a valid email address."
 }
 

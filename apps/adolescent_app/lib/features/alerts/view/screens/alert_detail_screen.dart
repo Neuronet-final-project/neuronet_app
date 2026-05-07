@@ -21,7 +21,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Insight Detail'),
+        title: Text(context.localizations.insightDetail),
         elevation: 0,
       ),
       body: alertsAsync.when(
@@ -42,7 +42,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => NeuroErrorWidget(
-          message: 'Failed to load alert details',
+          message: context.localizations.failedToLoadAlertDetails,
           onRetry: () => ref.read(adolescentAlertsControllerProvider.notifier).refresh(),
         ),
       ),
@@ -60,7 +60,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
     // Safely pull from behavioral_analysis map if available
     final dynamic rawEmotions = alert.behavioralAnalysis?['emotions'] ?? alert.detectedEmotions;
     final List<String> emotionsList = (rawEmotions is List) ? rawEmotions.cast<String>() : <String>[];
-    final friendlyEmotions = emotionsList.map(_getFriendlyEmotion).toList();
+    final friendlyEmotions = emotionsList.map((e) => _getFriendlyEmotion(context, e)).toList();
     
     final String aiSummary = alert.behavioralAnalysis?['behavioral_summary'] as String? ?? alert.aiSummary;
     
@@ -99,7 +99,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  _getFriendlyTitle(alert.alertType),
+                  _getFriendlyTitle(context, alert.alertType),
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface,
@@ -107,7 +107,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Pattern noticed on ${_formatFullDate(alert.createdAt)}',
+                  context.localizations.patternNoticedOn(_formatFullDate(alert.createdAt)),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -144,7 +144,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                             Icon(Icons.lightbulb_outline_rounded, size: 20, color: color),
                             const SizedBox(width: 8),
                             Text(
-                              'What we noticed',
+                              context.localizations.whatWeNoticed,
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -182,7 +182,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                             Icon(Icons.lightbulb_outline_rounded, size: 20, color: color),
                             const SizedBox(width: 8),
                             Text(
-                              'What we noticed',
+                              context.localizations.whatWeNoticed,
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -205,7 +205,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                 if (friendlyEmotions.isNotEmpty) ...[
                   const SizedBox(height: 24),
                   Text(
-                    'Feelings we picked up on',
+                    context.localizations.feelingsPickedUp,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -241,7 +241,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                 // AI Channel Recommendations
                 if (hasRecommendations) ...[
                   Text(
-                    'Groups that might help',
+                    context.localizations.groupsHelp,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -262,7 +262,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                         return _ActionTile(
                           icon: Icons.group_rounded,
                           title: map['channel_name'] as String? ?? 'Support Group',
-                          subtitle: 'Highly recommended for you based on recent journals.',
+                          subtitle: context.localizations.channelRecSubtitle,
                           onTap: () {
                             if (channelId != null) {
                               context.push('${AdolescentRoutes.channels}/$channelId');
@@ -280,7 +280,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                               ref.read(channelsControllerProvider.notifier).toggleFollow(channelId);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(isFollowed ? 'Left group' : 'Joined ${map['channel_name']}!'),
+                                  content: Text(isFollowed ? context.localizations.leftGroup : context.localizations.joinedGroup(map['channel_name'] as String? ?? '')),
                                   behavior: SnackBarBehavior.floating,
                                 )
                               );
@@ -289,7 +289,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                               visualDensity: VisualDensity.compact,
                               padding: const EdgeInsets.symmetric(horizontal: 12),
                             ),
-                            child: Text(isFollowed ? 'JOINED' : 'JOIN'),
+                            child: Text(isFollowed ? context.localizations.joined : context.localizations.join),
                           ) : null,
                         );
                       }
@@ -300,7 +300,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
 
                 // Non-clinical suggestion section
                 Text(
-                  'Thinking about this?',
+                  context.localizations.thinkingAboutThis,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -308,14 +308,14 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _ActionTile(
                   icon: Icons.edit_note_rounded,
-                  title: 'Keep Journaling',
-                  subtitle: 'Sharing your thoughts helps us find more patterns.',
+                  title: context.localizations.keepJournaling,
+                  subtitle: context.localizations.journalingSubtitle,
                   onTap: () {},
                 ),
                 _ActionTile(
                   icon: Icons.chat_bubble_outline_rounded,
-                  title: 'Chat with Counselor',
-                  subtitle: 'It\'s always good to reach out if you feel like it.',
+                  title: context.localizations.chatWithCounselor,
+                  subtitle: context.localizations.chatWithCounselorSubtitle,
                   onTap: () => context.push(AdolescentRoutes.counselorChat),
                 ),
 
@@ -335,7 +335,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'These insights are patterns we noticed based on your activity. They aren\'t a diagnosis or medical advice. We\'re just here to help you understand your emotional journey.',
+                          context.localizations.alertDisclaimer,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                             fontStyle: FontStyle.italic,
@@ -375,31 +375,33 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
     };
   }
 
-  String _getFriendlyTitle(String type) {
+  String _getFriendlyTitle(BuildContext context, String type) {
+    final l10n = context.localizations;
     return switch (type.toLowerCase()) {
-      'emotionalpattern' => 'Mood Pattern',
-      'mooddrop' => 'Energy Shift',
-      'journalfrequency' => 'Activity Update',
-      'contentflag' => 'Mindfulness Prompt',
-      'high_risk_sentiment' => 'Mood Pattern',
-      'high_risk_chat' => 'Chat Insight',
-      _ => 'Notice',
+      'emotionalpattern' => l10n.moodPattern,
+      'mooddrop' => l10n.energyShift,
+      'journalfrequency' => l10n.activityUpdate,
+      'contentflag' => l10n.mindfulnessPrompt,
+      'high_risk_sentiment' => l10n.moodPattern,
+      'high_risk_chat' => l10n.chatInsight,
+      _ => l10n.notice,
     };
   }
 
-  String _getFriendlyEmotion(String emotion) {
+  String _getFriendlyEmotion(BuildContext context, String emotion) {
+    final l10n = context.localizations;
     return switch (emotion.toLowerCase()) {
-      'sadness' => '😔 Feeling down',
-      'loneliness' => '🫂 Feeling alone',
-      'hopelessness' => '💭 Tough thoughts',
-      'fear' => '😨 Feeling scared',
-      'anger' => '😤 Feeling frustrated',
-      'nervousness' => '😰 Feeling nervous',
-      'anxiety' => '🌊 Waves of worry',
-      'disappointment' => '😞 Disappointed',
-      'grief' => '💔 Heavy heart',
-      'annoyance' => '😒 Annoyed',
-      'confusion' => '🤔 Confused',
+      'sadness' => l10n.emotionSadness,
+      'loneliness' => l10n.emotionLoneliness,
+      'hopelessness' => l10n.emotionHopelessness,
+      'fear' => l10n.emotionFear,
+      'anger' => l10n.emotionAnger,
+      'nervousness' => l10n.emotionNervousness,
+      'anxiety' => l10n.emotionAnxiety,
+      'disappointment' => l10n.emotionDisappointment,
+      'grief' => l10n.emotionGrief,
+      'annoyance' => l10n.emotionAnnoyance,
+      'confusion' => l10n.emotionConfusion,
       _ => '💫 $emotion',
     };
   }

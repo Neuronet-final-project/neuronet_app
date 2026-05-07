@@ -61,7 +61,7 @@ class ChannelCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        channel.description ?? 'No description available',
+                        channel.description ?? context.localizations.noDescriptionAvailable,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontStyle: FontStyle.italic,
                             ),
@@ -74,7 +74,7 @@ class ChannelCard extends StatelessWidget {
                           Icon(Icons.people_outline, size: 16, color: Colors.grey[600]),
                           const SizedBox(width: 4),
                           Text(
-                            '${channel.subscriberCount} followers',
+                            context.localizations.followerCountLabel(channel.subscriberCount),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -90,7 +90,7 @@ class ChannelCard extends StatelessWidget {
                     size: 28,
                   ),
                   onPressed: onFollowToggle,
-                  tooltip: channel.isFollowed ? 'Following' : 'Follow channel',
+                  tooltip: channel.isFollowed ? context.localizations.following : context.localizations.followChannelTooltip,
                 ),
               ],
             ),

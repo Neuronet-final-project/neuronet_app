@@ -318,14 +318,14 @@ class _ConsentStatusSkeletonLoading extends StatelessWidget {
           const _ConsentStatusSkeletonHero(),
           const SizedBox(height: 32),
           Text(
-            'Core Transparency',
+            context.localizations.coreTransparency,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           const _ConsentStatusSkeletonCard(),
           const SizedBox(height: 24),
           Text(
-            'Sharing & Visibility',
+            context.localizations.sharingVisibility,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
@@ -334,7 +334,7 @@ class _ConsentStatusSkeletonLoading extends StatelessWidget {
           const _ConsentStatusSkeletonCard(isDisabled: true),
           const SizedBox(height: 24),
           Text(
-            'Interaction Controls',
+            context.localizations.interactionControls,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),

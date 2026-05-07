@@ -7,11 +7,15 @@ import '../theme/app_theme.dart';
 class LanguagePickerDropdown extends ConsumerWidget {
   final Color? textColor;
   final Color? iconColor;
+  final Color? dropdownColor;
+  final Color? itemTextColor;
 
   const LanguagePickerDropdown({
     super.key,
     this.textColor,
     this.iconColor,
+    this.dropdownColor,
+    this.itemTextColor,
   });
 
   @override
@@ -23,21 +27,39 @@ class LanguagePickerDropdown extends ConsumerWidget {
     return DropdownButtonHideUnderline(
       child: DropdownButton<Locale>(
         value: currentLocale,
-        icon: Icon(Icons.language_rounded, color: iconColor ?? NeuroColors.onSurfaceVariant, size: 20),
+        dropdownColor: dropdownColor ?? NeuroColors.surface,
+        icon: Padding(
+          padding: const EdgeInsets.only(left: 4.0),
+          child: Icon(
+            Icons.translate_rounded,
+            color: iconColor ?? NeuroColors.onSurfaceVariant,
+            size: 18,
+          ),
+        ),
+        elevation: 16,
+        borderRadius: BorderRadius.circular(16),
+        alignment: AlignmentDirectional.centerEnd,
+        isDense: true,
         onChanged: (Locale? newLocale) {
           if (newLocale != null) {
             ref.read(l10nProvider.notifier).setLocale(newLocale);
           }
         },
         items: supportedLocales.map((Locale locale) {
+          final isSelected = locale.languageCode == currentLocale.languageCode;
           return DropdownMenuItem<Locale>(
             value: locale,
-            child: Text(
-              l10nNotifier.getDisplayName(locale),
-              style: TextStyle(
-                color: textColor ?? NeuroColors.onSurface,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                l10nNotifier.getDisplayName(locale),
+                style: TextStyle(
+                  color: isSelected
+                      ? (textColor ?? NeuroColors.adolescentPrimary)
+                      : (itemTextColor ?? NeuroColors.onSurface),
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontSize: 14,
+                ),
               ),
             ),
           );
