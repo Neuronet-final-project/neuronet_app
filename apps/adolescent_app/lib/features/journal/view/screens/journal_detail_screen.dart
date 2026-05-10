@@ -552,6 +552,7 @@ class _DetailContentState extends State<_DetailContent> {
                               ),
                               NeuroTranslateButton(
                                 text: entry.content,
+                                translatedContent: entry.translatedContent,
                                 onTranslationDone: (translated, isOriginal) {
                                   setState(() {
                                     _displayContent = translated;

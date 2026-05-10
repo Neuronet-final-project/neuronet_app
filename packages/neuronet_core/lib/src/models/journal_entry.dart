@@ -17,6 +17,7 @@ abstract class JournalEntry with _$JournalEntry {
     @JsonKey(name: 'sentiment_score') double? sentimentScore,
     @JsonKey(name: 'risk_level') String? riskLevel,
     @JsonKey(name: 'keywords_detected') List<String>? keywordsDetected,
+    @JsonKey(name: 'translated_content') String? translatedContent,
   }) = _JournalEntry;
 
   factory JournalEntry.fromJson(Map<String, dynamic> json) =>

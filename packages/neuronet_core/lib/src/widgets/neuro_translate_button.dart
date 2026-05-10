@@ -12,11 +12,15 @@ class NeuroTranslateButton extends ConsumerStatefulWidget {
     super.key,
     required this.text,
     required this.onTranslationDone,
+    this.translatedContent,
     this.color,
   });
 
   /// The original text to translate.
   final String text;
+
+  /// Optional pre-translated content from backend.
+  final String? translatedContent;
 
   /// Callback when translation is completed or toggled.
   /// 
@@ -37,14 +41,17 @@ class _NeuroTranslateButtonState extends ConsumerState<NeuroTranslateButton> {
   String? _originalText;
 
   /// Simple heuristic for Ethiopian scripts or specific languages.
-  String _detectLanguage(String text) {
+  String _detectLanguage(String text, BuildContext context) {
     // Ethiopic/Geez script range: U+1200 to U+137F
     final ethiopicRegex = RegExp(r'[\u1200-\u137F]');
     if (ethiopicRegex.hasMatch(text)) return 'am';
     
-    // For Afaan Oromo, it's harder as it uses Latin script. 
-    // Usually we might rely on backend detection or user preference.
-    // Defaulting to 'om' if it looks like Oromo or just trying 'am' if it's Ge'ez.
+    // For Afaan Oromo, it's harder as it uses Latin script.
+    // We check the current app locale as a hint.
+    final currentLocale = Localizations.localeOf(context);
+    if (currentLocale.languageCode == 'om') return 'om';
+
+    // Default to Amharic if it's Ethiopic, otherwise might be English or other.
     return 'am'; 
   }
 
@@ -57,12 +64,22 @@ class _NeuroTranslateButtonState extends ConsumerState<NeuroTranslateButton> {
       return;
     }
 
+    _originalText = widget.text;
+
+    // Use pre-translated content if available from backend (optimization)
+    if (widget.translatedContent != null && widget.translatedContent!.isNotEmpty) {
+      setState(() {
+        _isTranslated = true;
+      });
+      widget.onTranslationDone(widget.translatedContent!, false);
+      return;
+    }
+
     setState(() {
       _isTranslating = true;
     });
 
-    _originalText = widget.text;
-    final sourceLang = _detectLanguage(widget.text);
+    final sourceLang = _detectLanguage(widget.text, context);
 
     final result = await ref.read(translationServiceProvider).translate(
       text: widget.text,
