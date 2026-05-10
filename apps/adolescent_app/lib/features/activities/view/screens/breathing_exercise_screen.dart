@@ -96,7 +96,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
             Text(
               l10n.boxBreathingDesc,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.6),
                 fontSize: 14,
               ),
             ),
@@ -113,7 +113,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
                       height: 140 * _scaleAnimation.value,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFF7C4DFF).withOpacity(0.1),
+                        color: const Color(0xFF7C4DFF).withValues(alpha: 0.1),
                       ),
                     ),
                     // Inner pulse
@@ -129,7 +129,7 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF7C4DFF).withOpacity(0.4),
+                            color: const Color(0xFF7C4DFF).withValues(alpha: 0.4),
                             blurRadius: 20 * _scaleAnimation.value,
                             spreadRadius: 5,
                           ),

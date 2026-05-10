@@ -255,6 +255,7 @@
   "guardianApprovalRequired": "Guardian Approval Required",
   "guardianApprovalExplanation": "To communicate with a counselor, you need approval from your guardian. Please explain why you would like to talk to this counselor.",
   "counselorLabel": "Counselor",
+  "counselorChat": "Counselor Chat",
   "reasonForRequest": "Reason for Request",
   "reasonHint": "Explain why you would like to talk to this counselor...",
   "reasonRequired": "Please provide a reason for your request",
@@ -795,6 +796,50 @@
   "userLabel": "User",
   "unauthorizedAdolescentAccess": "Unauthorized access: This account does not have Adolescent privileges.",
   "unauthorizedRoleMismatch": "Unauthorized access: Account role mismatch.",
-  "invalidEmailError": "Please enter a valid email address."
+  "invalidEmailError": "Please enter a valid email address.",
+  "callError": "Call Error",
+  "dismiss": "Dismiss",
+  "unknownCaller": "Unknown Caller",
+  "calling": "Calling...",
+  "endCall": "End Call",
+  "decline": "Decline",
+  "accept": "Accept",
+  "connected": "Connected",
+  "connecting": "Connecting",
+  "mute": "Mute",
+  "unmute": "Unmute",
+  "camera": "Camera",
+  "camOff": "Cam Off",
+  "flip": "Flip",
+  "speaker": "Speaker",
+  "insufficientData": "Insufficient data for analysis.",
+  "micPermissionRequired": "Microphone permission is required to record voice messages.",
+  "failedToPickImage": "Failed to pick image: {error}",
+  "@failedToPickImage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "failedToPickVideo": "Failed to pick video: {error}",
+  "@failedToPickVideo": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "playVideo": "Play Video",
+  "shareMedia": "Share Media",
+  "gallery": "Gallery",
+  "cameraLabel": "Camera",
+  "videoLabel": "Video",
+  "preparingMedia": "Preparing media...",
+  "tapToDownload": "Tap to download",
+  "voiceLabel": "Voice",
+  "contactLabel": "Contact",
+  "emptyMessage": "(empty message)",
+  "attachmentLabel": "Attachment"
 }
 

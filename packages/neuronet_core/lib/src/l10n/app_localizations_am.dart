@@ -644,6 +644,9 @@ class AppLocalizationsAm extends AppLocalizations {
   String get counselorLabel => 'መረዳሪያ ሰው';
 
   @override
+  String get counselorChat => 'የመረዳሪያ ሰው ቻት';
+
+  @override
   String get reasonForRequest => 'ምክንያት ይጠይቁ';
 
   @override
@@ -1670,4 +1673,98 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get invalidEmailError => 'እባክዎ ትክክለኛ የኢሜይል አድራሻ ያስገቡ';
+
+  @override
+  String get callError => 'የጥሪ ስህተት';
+
+  @override
+  String get dismiss => 'አሰናብት';
+
+  @override
+  String get unknownCaller => 'ያልታወቀ ደዋይ';
+
+  @override
+  String get calling => 'እየደወለ ነው...';
+
+  @override
+  String get endCall => 'ጥሪ አቁም';
+
+  @override
+  String get decline => 'አትቀበል';
+
+  @override
+  String get accept => 'ተቀበል';
+
+  @override
+  String get connected => 'ተገናኝቷል';
+
+  @override
+  String get connecting => 'በመገናኘት ላይ...';
+
+  @override
+  String get mute => 'ድምፅ አጥፋ';
+
+  @override
+  String get unmute => 'ድምፅ አብራ';
+
+  @override
+  String get camera => 'ካሜራ';
+
+  @override
+  String get camOff => 'ካሜራ አጥፋ';
+
+  @override
+  String get flip => 'አዙር';
+
+  @override
+  String get speaker => 'ስፒከር';
+
+  @override
+  String get insufficientData => 'ለትንተና በቂ መረጃ የለም።';
+
+  @override
+  String get micPermissionRequired => 'የድምጽ መልዕክቶችን ለመቅዳት የማይክሮፎን ፈቃድ ያስፈልጋል።';
+
+  @override
+  String failedToPickImage(String error) {
+    return 'ምስል መምረጥ አልተቻለም: $error';
+  }
+
+  @override
+  String failedToPickVideo(String error) {
+    return 'ቪዲዮ መምረጥ አልተቻለም: $error';
+  }
+
+  @override
+  String get playVideo => 'ቪዲዮውን አጫውት';
+
+  @override
+  String get shareMedia => 'ሚዲያ አጋራ';
+
+  @override
+  String get gallery => 'ጋለሪ';
+
+  @override
+  String get cameraLabel => 'ካሜራ';
+
+  @override
+  String get videoLabel => 'ቪዲዮ';
+
+  @override
+  String get preparingMedia => 'ሚዲያ በማዘጋጀት ላይ...';
+
+  @override
+  String get tapToDownload => 'ለማውረድ ይንኩ';
+
+  @override
+  String get voiceLabel => 'ድምጽ';
+
+  @override
+  String get contactLabel => 'እውቂያ';
+
+  @override
+  String get emptyMessage => '(ባዶ መልዕክት)';
+
+  @override
+  String get attachmentLabel => 'አባሪ';
 }

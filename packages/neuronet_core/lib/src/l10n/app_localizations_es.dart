@@ -662,6 +662,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get counselorLabel => 'Counselor';
 
   @override
+  String get counselorChat => 'Counselor Chat';
+
+  @override
   String get reasonForRequest => 'Reason for Request';
 
   @override
@@ -1696,4 +1699,99 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get invalidEmailError => 'Please enter a valid email address.';
+
+  @override
+  String get callError => 'Call Error';
+
+  @override
+  String get dismiss => 'Dismiss';
+
+  @override
+  String get unknownCaller => 'Unknown Caller';
+
+  @override
+  String get calling => 'Calling...';
+
+  @override
+  String get endCall => 'End Call';
+
+  @override
+  String get decline => 'Decline';
+
+  @override
+  String get accept => 'Accept';
+
+  @override
+  String get connected => 'Connected';
+
+  @override
+  String get connecting => 'Connecting';
+
+  @override
+  String get mute => 'Mute';
+
+  @override
+  String get unmute => 'Unmute';
+
+  @override
+  String get camera => 'Camera';
+
+  @override
+  String get camOff => 'Cam Off';
+
+  @override
+  String get flip => 'Flip';
+
+  @override
+  String get speaker => 'Speaker';
+
+  @override
+  String get insufficientData => 'Insufficient data for analysis.';
+
+  @override
+  String get micPermissionRequired =>
+      'Microphone permission is required to record voice messages.';
+
+  @override
+  String failedToPickImage(String error) {
+    return 'Failed to pick image: $error';
+  }
+
+  @override
+  String failedToPickVideo(String error) {
+    return 'Failed to pick video: $error';
+  }
+
+  @override
+  String get playVideo => 'Play Video';
+
+  @override
+  String get shareMedia => 'Share Media';
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get cameraLabel => 'Camera';
+
+  @override
+  String get videoLabel => 'Video';
+
+  @override
+  String get preparingMedia => 'Preparing media...';
+
+  @override
+  String get tapToDownload => 'Tap to download';
+
+  @override
+  String get voiceLabel => 'Voice';
+
+  @override
+  String get contactLabel => 'Contact';
+
+  @override
+  String get emptyMessage => '(empty message)';
+
+  @override
+  String get attachmentLabel => 'Attachment';
 }

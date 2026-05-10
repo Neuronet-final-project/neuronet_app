@@ -178,9 +178,9 @@ class _MoodMatcherScreenState extends State<MoodMatcherScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
+                  color: Colors.white.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF7C4DFF).withOpacity(0.3)),
+                  border: Border.all(color: const Color(0xFF7C4DFF).withValues(alpha: 0.3)),
                 ),
                 child: Icon(_targetIcon, size: 60, color: const Color(0xFF7C4DFF)),
               ),
@@ -199,9 +199,9 @@ class _MoodMatcherScreenState extends State<MoodMatcherScreen> {
                       onTap: () => _handleTap(icon),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
+                          color: Colors.white.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withOpacity(0.1)),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                         ),
                         child: Icon(icon, size: 40, color: Colors.white),
                       ),

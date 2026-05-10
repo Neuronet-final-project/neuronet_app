@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,7 +60,7 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
       return widget.call.callerName!;
     }
     final email = widget.remotePeerEmail;
-    if (email == null) return 'Unknown';
+    if (email == null) return context.localizations.unknownCaller;
     return email.split('@').first[0].toUpperCase() +
         email.split('@').first.substring(1);
   }
@@ -69,7 +68,7 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
   String get _formattedDuration {
     final state = ref.read(callControllerProvider).value;
     if (state?.status == CallStatus.initiated) {
-      return 'Calling...';
+      return context.localizations.calling;
     }
     return VoiceRecorderService.formatDuration(
       state?.duration ?? Duration.zero,
@@ -82,7 +81,9 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
   }
 
   String get _endButtonLabel {
-    return _isCallerWaiting ? 'Cancel' : 'End Call';
+    return _isCallerWaiting
+        ? context.localizations.cancel
+        : context.localizations.endCall;
   }
 
   Future<void> _endCall() async {
@@ -124,10 +125,7 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
     return Container(
       color: const Color(0xFF1A1A2E),
       child: callState.when(
-        data: (state) {
-          if (state == null) return const SizedBox.shrink();
-          return _buildCallUI(state);
-        },
+        data: (state) => _buildCallUI(state),
         loading: () =>
             const Center(child: CircularProgressIndicator(color: Colors.white)),
         error: (err, _) => _buildErrorState(err),
@@ -292,7 +290,9 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  _isCallerWaiting ? 'Calling...' : 'Connecting video...',
+                  _isCallerWaiting
+                      ? context.localizations.calling
+                      : context.localizations.connecting,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.65),
                     fontSize: 15,
@@ -309,13 +309,14 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
 
   /// Row of call control buttons — always visible, even while calling.
   Widget _buildControlsRow(CallState state) {
+    final l10n = context.localizations;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         // Mute
         _ControlBtn(
           icon: state.isMuted ? Icons.mic_off_rounded : Icons.mic_rounded,
-          label: state.isMuted ? 'Unmute' : 'Mute',
+          label: state.isMuted ? l10n.unmute : l10n.mute,
           isActive: state.isMuted,
           onTap: () => ref.read(callControllerProvider.notifier).toggleMute(),
         ),
@@ -324,7 +325,7 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
           icon: state.isCameraOn
               ? Icons.videocam_rounded
               : Icons.videocam_off_rounded,
-          label: state.isCameraOn ? 'Camera' : 'Cam Off',
+          label: state.isCameraOn ? l10n.camera : l10n.camOff,
           isActive: !state.isCameraOn,
           onTap: () => ref.read(callControllerProvider.notifier).toggleCamera(),
         ),
@@ -333,13 +334,13 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
         // Flip camera
         _ControlBtn(
           icon: Icons.flip_camera_ios_rounded,
-          label: 'Flip',
+          label: l10n.flip,
           onTap: () => ref.read(callControllerProvider.notifier).switchCamera(),
         ),
         // Speaker (placeholder visual — actual speaker toggle varies by platform)
         _ControlBtn(
           icon: Icons.volume_up_rounded,
-          label: 'Speaker',
+          label: l10n.speaker,
           onTap: () {}, // Speaker toggle (future enhancement)
         ),
       ],
@@ -349,6 +350,7 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
   // ─── Voice Call UI ───────────────────────────────────────────────────────
 
   Widget _buildVoiceCallUI(CallState state) {
+    final l10n = context.localizations;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -434,7 +436,7 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
                   if (!_isCallerWaiting) ...[
                     _ControlBtn(
                       icon: state.isMuted ? Icons.mic_off : Icons.mic,
-                      label: state.isMuted ? 'Unmute' : 'Mute',
+                      label: state.isMuted ? l10n.unmute : l10n.mute,
                       isActive: state.isMuted,
                       onTap: () {
                         ref.read(callControllerProvider.notifier).toggleMute();
@@ -454,6 +456,7 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
   }
 
   Widget _buildErrorState(Object error) {
+    final l10n = context.localizations;
     return Container(
       color: const Color(0xFF1A1A2E),
       child: Center(
@@ -468,9 +471,9 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
                 color: Color(0xFFE11D48),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Call Error',
-                style: TextStyle(
+              Text(
+                l10n.callError,
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -489,7 +492,7 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
                   backgroundColor: const Color(0xFFE11D48),
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Dismiss'),
+                child: Text(l10n.dismiss),
               ),
             ],
           ),
@@ -714,6 +717,7 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -735,7 +739,7 @@ class _StatusPill extends StatelessWidget {
           ),
           const SizedBox(width: 5),
           Text(
-            isConnected ? 'Connected' : 'Connecting',
+            isConnected ? l10n.connected : l10n.connecting,
             style: TextStyle(
               color: isConnected ? Colors.greenAccent : const Color(0xFF9D8FFF),
               fontSize: 11,

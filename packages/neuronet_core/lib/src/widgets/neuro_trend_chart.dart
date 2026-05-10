@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../l10n.dart';
 
 class NeuroTrendChart extends StatelessWidget {
   final List<dynamic> trends;
@@ -16,7 +17,7 @@ class NeuroTrendChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (trends.isEmpty) {
-      return const Center(child: Text('Insufficient data for analysis.'));
+      return Center(child: Text(context.localizations.insufficientData));
     }
 
     final effectiveColor = lineColor ?? Theme.of(context).primaryColor;

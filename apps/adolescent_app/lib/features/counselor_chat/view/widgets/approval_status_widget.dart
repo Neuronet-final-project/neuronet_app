@@ -90,17 +90,7 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
 
         // Update the provider cache so the chat screen knows about the approval
         final cacheKey = '${widget.adolescentId}:${widget.counselorEmail}';
-        final controller = ref.read(guardianApprovalControllerProvider.notifier);
-        
-        // Get current state and update cache
-        final currentState = ref.read(guardianApprovalControllerProvider).value;
-        if (currentState != null) {
-          controller.state = AsyncValue.data(
-            currentState.copyWith(
-              approvalCache: {...currentState.approvalCache, cacheKey: isApproved},
-            ),
-          );
-        }
+        ref.read(guardianApprovalControllerProvider.notifier).updateCache(cacheKey, isApproved);
       } else {
         // If API call fails, retry up to 3 times with exponential backoff
         if (_retryCount < _maxRetries) {
@@ -202,10 +192,8 @@ class _ApprovalStatusWidgetState extends ConsumerState<ApprovalStatusWidget> {
     );
   }
 }
-
 class _NotRequestedBanner extends ConsumerStatefulWidget {
   const _NotRequestedBanner({
-    super.key,
     required this.onRequestApproval,
     required this.theme,
     required this.adolescentId,
@@ -229,7 +217,7 @@ class _NotRequestedBannerState extends ConsumerState<_NotRequestedBanner> {
     
     // Check if there's already a pending request
     final service = ref.read(guardianApprovalServiceProvider);
-    final statusResult = await service.checkApprovalStatus(
+    await service.checkApprovalStatus(
       widget.adolescentId,
       widget.counselorEmail,
     );
@@ -237,15 +225,9 @@ class _NotRequestedBannerState extends ConsumerState<_NotRequestedBanner> {
     if (mounted) {
       setState(() => _isChecking = false);
       
-      if (statusResult.isSuccess) {
-        final status = statusResult.value;
-        // If there's a pending request, the status might indicate it
-        // For now, just proceed to the request screen
-        widget.onRequestApproval();
-      } else {
-        // Error checking status, proceed anyway
-        widget.onRequestApproval();
-      }
+      // If there's a pending request, the status might indicate it
+      // For now, just proceed to the request screen
+      widget.onRequestApproval();
     }
   }
 

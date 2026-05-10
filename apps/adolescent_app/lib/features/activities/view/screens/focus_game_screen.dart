@@ -71,7 +71,7 @@ class _FocusGameScreenState extends State<FocusGameScreen>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                            color: Colors.white.withOpacity(0.05), width: 1),
+                            color: Colors.white.withValues(alpha: 0.05), width: 1),
                       ),
                     ),
                     // Moving Point
@@ -87,7 +87,7 @@ class _FocusGameScreenState extends State<FocusGameScreen>
                           color: const Color(0xFFFFA726),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFFFA726).withOpacity(0.6),
+                              color: const Color(0xFFFFA726).withValues(alpha: 0.6),
                               blurRadius: 20,
                               spreadRadius: 2,
                             ),
@@ -100,7 +100,7 @@ class _FocusGameScreenState extends State<FocusGameScreen>
                       width: 12, height: 12,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                       ),
                     ),
                   ],

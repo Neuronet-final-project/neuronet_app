@@ -75,11 +75,13 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
       floatingActionButton: _showAIRecommendations
           ? FloatingActionButton.extended(
               onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final l10n = context.localizations;
                 final success = await ref
                     .read(aIRecommendationControllerProvider.notifier)
                     .triggerAnalysis();
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text(
                         success

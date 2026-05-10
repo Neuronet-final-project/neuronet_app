@@ -268,10 +268,10 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
                               context.push('${AdolescentRoutes.channels}/$channelId');
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Channel not found. Please try again later.'),
-                                  backgroundColor: Colors.redAccent,
-                                ),
+                                SnackBar(
+                                  content: Text(context.localizations.channelNotFound),
+                                  behavior: SnackBarBehavior.floating,
+                                )
                               );
                             }
                           },

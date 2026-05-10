@@ -1320,6 +1320,12 @@ abstract class AppLocalizations {
   /// **'Counselor'**
   String get counselorLabel;
 
+  /// No description provided for @counselorChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Counselor Chat'**
+  String get counselorChat;
+
   /// No description provided for @reasonForRequest.
   ///
   /// In en, this message translates to:
@@ -3119,6 +3125,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter a valid email address.'**
   String get invalidEmailError;
+
+  /// No description provided for @callError.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Error'**
+  String get callError;
+
+  /// No description provided for @dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get dismiss;
+
+  /// No description provided for @unknownCaller.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Caller'**
+  String get unknownCaller;
+
+  /// No description provided for @calling.
+  ///
+  /// In en, this message translates to:
+  /// **'Calling...'**
+  String get calling;
+
+  /// No description provided for @endCall.
+  ///
+  /// In en, this message translates to:
+  /// **'End Call'**
+  String get endCall;
+
+  /// No description provided for @decline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get decline;
+
+  /// No description provided for @accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get accept;
+
+  /// No description provided for @connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get connected;
+
+  /// No description provided for @connecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting'**
+  String get connecting;
+
+  /// No description provided for @mute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get mute;
+
+  /// No description provided for @unmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get unmute;
+
+  /// No description provided for @camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get camera;
+
+  /// No description provided for @camOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Cam Off'**
+  String get camOff;
+
+  /// No description provided for @flip.
+  ///
+  /// In en, this message translates to:
+  /// **'Flip'**
+  String get flip;
+
+  /// No description provided for @speaker.
+  ///
+  /// In en, this message translates to:
+  /// **'Speaker'**
+  String get speaker;
+
+  /// No description provided for @insufficientData.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient data for analysis.'**
+  String get insufficientData;
+
+  /// No description provided for @micPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone permission is required to record voice messages.'**
+  String get micPermissionRequired;
+
+  /// No description provided for @failedToPickImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to pick image: {error}'**
+  String failedToPickImage(String error);
+
+  /// No description provided for @failedToPickVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to pick video: {error}'**
+  String failedToPickVideo(String error);
+
+  /// No description provided for @playVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Video'**
+  String get playVideo;
+
+  /// No description provided for @shareMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Media'**
+  String get shareMedia;
+
+  /// No description provided for @gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
+
+  /// No description provided for @cameraLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get cameraLabel;
+
+  /// No description provided for @videoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get videoLabel;
+
+  /// No description provided for @preparingMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing media...'**
+  String get preparingMedia;
+
+  /// No description provided for @tapToDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to download'**
+  String get tapToDownload;
+
+  /// No description provided for @voiceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice'**
+  String get voiceLabel;
+
+  /// No description provided for @contactLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get contactLabel;
+
+  /// No description provided for @emptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'(empty message)'**
+  String get emptyMessage;
+
+  /// No description provided for @attachmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment'**
+  String get attachmentLabel;
 }
 
 class _AppLocalizationsDelegate

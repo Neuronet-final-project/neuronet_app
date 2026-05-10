@@ -649,6 +649,9 @@ class AppLocalizationsOm extends AppLocalizations {
   String get counselorLabel => 'Kallattii';
 
   @override
+  String get counselorChat => 'Chatii Kallattii';
+
+  @override
   String get reasonForRequest => 'Sababii Fayyadamu';
 
   @override
@@ -1677,4 +1680,99 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get invalidEmailError => 'Mee teessoo iimeelii sirrii galchi';
+
+  @override
+  String get callError => 'Dogoggora Bilbilaa';
+
+  @override
+  String get dismiss => 'Dhaabi';
+
+  @override
+  String get unknownCaller => 'Nama hin beekamne';
+
+  @override
+  String get calling => 'Bilbilamaa jira...';
+
+  @override
+  String get endCall => 'Bilbila dhaabi';
+
+  @override
+  String get decline => 'Hin fudhatin';
+
+  @override
+  String get accept => 'Fudhadhu';
+
+  @override
+  String get connected => 'Wal qunnameera';
+
+  @override
+  String get connecting => 'Wal qunnamaa jira...';
+
+  @override
+  String get mute => 'Sagalee dhaabi';
+
+  @override
+  String get unmute => 'Sagalee ban';
+
+  @override
+  String get camera => 'Kaameraa';
+
+  @override
+  String get camOff => 'Kaameraa dhaabi';
+
+  @override
+  String get flip => 'Gari sadi';
+
+  @override
+  String get speaker => 'Ispiikara';
+
+  @override
+  String get insufficientData => 'Xiinxalaaf ragaan ga\'aan hin jiru.';
+
+  @override
+  String get micPermissionRequired =>
+      'Ergaa sagalee waraabuuf hayyamni maayikiroofoonii barbaachisaadha.';
+
+  @override
+  String failedToPickImage(String error) {
+    return 'Fakkii filachuu hin danda\'amne: $error';
+  }
+
+  @override
+  String failedToPickVideo(String error) {
+    return 'Viidiyoo filachuu hin danda\'amne: $error';
+  }
+
+  @override
+  String get playVideo => 'Viidiyoo taphachiisi';
+
+  @override
+  String get shareMedia => 'Miidiyaa qoodi';
+
+  @override
+  String get gallery => 'Gaalarii';
+
+  @override
+  String get cameraLabel => 'Kaameraa';
+
+  @override
+  String get videoLabel => 'Viidiyoo';
+
+  @override
+  String get preparingMedia => 'Miidiyaa qopheessaa jira...';
+
+  @override
+  String get tapToDownload => 'Buusuuf tuqi';
+
+  @override
+  String get voiceLabel => 'Sagalee';
+
+  @override
+  String get contactLabel => 'Nama qunnamtii';
+
+  @override
+  String get emptyMessage => '(ergaa duwwaa)';
+
+  @override
+  String get attachmentLabel => 'Ittisa';
 }

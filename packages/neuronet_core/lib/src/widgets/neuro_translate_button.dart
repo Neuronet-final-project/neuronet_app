@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/translation_service.dart';
 import '../l10n/l10n_extensions.dart';
-import '../theme/app_theme.dart';
 
 /// A button that handles translation of text using the backend translation service.
 /// 
@@ -36,7 +35,6 @@ class _NeuroTranslateButtonState extends ConsumerState<NeuroTranslateButton> {
   bool _isTranslating = false;
   bool _isTranslated = false;
   String? _originalText;
-  String? _translatedText;
 
   /// Simple heuristic for Ethiopian scripts or specific languages.
   String _detectLanguage(String text) {
@@ -79,7 +77,6 @@ class _NeuroTranslateButtonState extends ConsumerState<NeuroTranslateButton> {
       result.when(
         success: (response) {
           setState(() {
-            _translatedText = response.translatedText;
             _isTranslated = true;
           });
           widget.onTranslationDone(response.translatedText, false);

@@ -88,7 +88,7 @@ class _AIQuestScreenState extends State<AIQuestScreen> with SingleTickerProvider
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF7C4DFF).withOpacity(0.5),
+                            color: const Color(0xFF7C4DFF).withValues(alpha: 0.5),
                             blurRadius: 40,
                             spreadRadius: 5,
                           ),

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../l10n.dart';
 import 'neuro_shimmer.dart';
 import '../theme/app_theme.dart';
 import '../services/voice_recorder_service.dart';
@@ -96,9 +97,10 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
       final granted = await _recorder.startRecording();
       if (!granted) {
         if (mounted) {
+          final l10n = context.localizations;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Microphone permission is required to record voice messages.'),
+            SnackBar(
+              content: Text(l10n.micPermissionRequired),
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -133,6 +135,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
   /// Shows a bottom sheet with media attachment options.
   void _showAttachmentOptions() {
     final color = widget.accentColor ?? NeuroColors.adolescentPrimary;
+    final l10n = context.localizations;
 
     showModalBottomSheet(
       context: context,
@@ -156,7 +159,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
                   ),
                 ),
                 Text(
-                  'Share Media',
+                  l10n.shareMedia,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -167,7 +170,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
                   children: [
                     _buildAttachmentOption(
                       icon: Icons.photo_library_rounded,
-                      label: 'Gallery',
+                      label: l10n.gallery,
                       color: color,
                       onTap: () {
                         Navigator.pop(context);
@@ -176,7 +179,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
                     ),
                     _buildAttachmentOption(
                       icon: Icons.camera_alt_rounded,
-                      label: 'Camera',
+                      label: l10n.cameraLabel,
                       color: Colors.orange,
                       onTap: () {
                         Navigator.pop(context);
@@ -185,7 +188,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
                     ),
                     _buildAttachmentOption(
                       icon: Icons.videocam_rounded,
-                      label: 'Video',
+                      label: l10n.videoLabel,
                       color: Colors.purple,
                       onTap: () {
                         Navigator.pop(context);
@@ -239,6 +242,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
+    final l10n = context.localizations;
     try {
       final picked = await _imagePicker.pickImage(
         source: source,
@@ -256,7 +260,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
         setState(() => _isUploading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to pick image: $e'),
+            content: Text(l10n.failedToPickImage(e.toString())),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -265,6 +269,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
   }
 
   Future<void> _pickVideo() async {
+    final l10n = context.localizations;
     try {
       final picked = await _imagePicker.pickVideo(
         source: ImageSource.gallery,
@@ -280,7 +285,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
         setState(() => _isUploading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to pick video: $e'),
+            content: Text(l10n.failedToPickVideo(e.toString())),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -462,7 +467,7 @@ class _NeuroChatInputState extends State<NeuroChatInput> {
           ),
           const SizedBox(width: 16),
           Text(
-            'Preparing media...',
+            context.localizations.preparingMedia,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: color,
               fontWeight: FontWeight.w600,

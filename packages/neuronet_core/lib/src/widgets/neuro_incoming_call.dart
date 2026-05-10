@@ -195,19 +195,21 @@ class _NeuroIncomingCallScreenState extends ConsumerState<NeuroIncomingCallScree
   }
 
   String get _callerName {
+    final l10n = context.localizations;
     final call = widget.incomingCall ?? ref.read(callControllerProvider).value?.currentCall;
-    if (call == null) return 'Unknown Caller';
+    if (call == null) return l10n.unknownCaller;
 
     // Use callerName if available (from backend), otherwise derive from email
     if (call.callerName != null && call.callerName!.isNotEmpty) {
       return call.callerName!;
     }
     final email = call.callerEmail;
-    if (email == null) return 'Unknown Caller';
+    if (email == null) return l10n.unknownCaller;
     return email.split('@').first[0].toUpperCase() + email.split('@').first.substring(1);
   }
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     final callType = widget.incomingCall?.callType ?? CallType.voice;
 
     return Scaffold(
@@ -276,7 +278,7 @@ class _NeuroIncomingCallScreenState extends ConsumerState<NeuroIncomingCallScree
                         border: Border.all(color: const Color(0xFFE11D48).withValues(alpha: 0.3)),
                       ),
                       child: Text(
-                        callType.label.toUpperCase(),
+                        (callType == CallType.voice ? l10n.voiceCall : l10n.videoCall).toUpperCase(),
                         style: const TextStyle(
                           color: Color(0xFFE11D48),
                           fontSize: 12,
@@ -299,13 +301,13 @@ class _NeuroIncomingCallScreenState extends ConsumerState<NeuroIncomingCallScree
                   children: [
                     _CallActionButton(
                       icon: Icons.call_end_rounded,
-                      label: 'Decline',
+                      label: l10n.decline,
                       backgroundColor: const Color(0xFFE11D48),
                       onPressed: _declineCall,
                     ),
                     _CallActionButton(
                       icon: Icons.call_rounded,
-                      label: 'Accept',
+                      label: l10n.accept,
                       backgroundColor: const Color(0xFF22C55E),
                       onPressed: _acceptCall,
                     ),

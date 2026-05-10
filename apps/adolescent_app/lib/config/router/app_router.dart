@@ -17,7 +17,6 @@ import 'package:adolescent_app/features/journal/view/screens/new_journal_entry_s
 import 'package:adolescent_app/features/journal/view/screens/journal_search_screen.dart';
 import 'package:adolescent_app/features/journal/providers/journal_provider.dart';
 import 'package:adolescent_app/features/counselor_chat/providers/counselor_chat_provider.dart';
-import 'package:adolescent_app/features/profile/providers/profile_provider.dart';
 import 'package:adolescent_app/features/auth/view/screens/login_screen.dart';
 import 'package:adolescent_app/features/auth/view/screens/activation_screen.dart';
 import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
@@ -83,6 +82,10 @@ class _AuthChangeNotifier extends ChangeNotifier {
     _state = s;
     notifyListeners();
   }
+
+  void refresh() {
+    notifyListeners();
+  }
 }
 
 final adolescentRouterProvider = Provider<GoRouter>((ref) {
@@ -95,7 +98,7 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
 
   // Listen to onboarding status changes.
   ref.listen(onboardingStatusProvider, (_, __) {
-    authChangeNotifier.notifyListeners();
+    authChangeNotifier.refresh();
   });
 
 

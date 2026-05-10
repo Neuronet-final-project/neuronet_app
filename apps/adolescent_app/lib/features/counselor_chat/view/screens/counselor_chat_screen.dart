@@ -125,7 +125,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     final counselorEmail = chatState.value?.counselorEmail;
     final appBarTitle = counselorEmail != null
         ? _emailToDisplayName(counselorEmail)
-        : context.localizations.counselorLabel + ' Chat';
+        : context.localizations.counselorChat;
 
     final showIncomingCall =
         callState.value?.status == CallStatus.ringing &&

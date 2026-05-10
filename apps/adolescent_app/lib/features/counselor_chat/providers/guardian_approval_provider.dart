@@ -107,5 +107,16 @@ class GuardianApprovalController extends _$GuardianApprovalController {
     
     return currentState.approvalCache[cacheKey] ?? false;
   }
+
+  /// Update the approval cache for a specific counselor
+  void updateCache(String cacheKey, bool isApproved) {
+    state.whenData((data) {
+      state = AsyncValue.data(
+        data.copyWith(
+          approvalCache: {...data.approvalCache, cacheKey: isApproved},
+        ),
+      );
+    });
+  }
 }
 

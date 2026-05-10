@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../l10n.dart';
 import '../theme/app_theme.dart';
 import '../services/voice_recorder_service.dart';
 import '../models/conversation.dart';
@@ -109,9 +110,10 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     final accentColor = widget.userColor ?? NeuroColors.adolescentPrimary;
     final formattedTime = DateFormat('h:mm a').format(widget.timestamp);
-    final label = widget.senderLabel ?? (widget.isUser ? 'You' : 'Contact');
+    final label = widget.senderLabel ?? (widget.isUser ? l10n.youSenderLabel : l10n.contactLabel);
 
     final isVoice = widget.messageType == MessageContentType.audio;
 
@@ -177,6 +179,7 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
   }
 
   Widget _buildVoiceBubble(Color accentColor, String formattedTime, [String? audioUrl]) {
+    final l10n = context.localizations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -218,7 +221,7 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
             const SizedBox(width: 8),
             // Duration label
             Text(
-              '🎤 Voice',
+              '🎤 ${l10n.voiceLabel}',
               style: TextStyle(
                 color: widget.isUser
                     ? Colors.white.withValues(alpha: 0.9)
@@ -244,11 +247,12 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
   }
 
   Widget _buildTextBubble(Color accentColor, String formattedTime) {
+    final l10n = context.localizations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _displayContent.isEmpty ? '(empty message)' : _displayContent,
+          _displayContent.isEmpty ? l10n.emptyMessage : _displayContent,
           style: TextStyle(
             color: widget.isUser ? Colors.white : NeuroColors.onSurface,
             fontSize: 15,
@@ -327,6 +331,7 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
   }
 
   Widget _buildVideoBubble(BuildContext context, Color accentColor, String formattedTime, String? videoUrl) {
+    final l10n = context.localizations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -347,12 +352,12 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
                   color: accentColor,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.play_arrow, color: Colors.white, size: 16),
-                    SizedBox(width: 4),
-                    Text('Play Video', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                    const Icon(Icons.play_arrow, color: Colors.white, size: 16),
+                    const SizedBox(width: 4),
+                    Text(l10n.playVideo, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -385,6 +390,7 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
   }
 
   Widget _buildFileBubble(Color accentColor, String formattedTime, String? fileUrl) {
+    final l10n = context.localizations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -410,7 +416,7 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      fileUrl?.split('/').last ?? 'Attachment',
+                      fileUrl?.split('/').last ?? l10n.attachmentLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -420,7 +426,7 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
                       ),
                     ),
                     Text(
-                      'Tap to download',
+                      l10n.tapToDownload,
                       style: TextStyle(
                         color: widget.isUser ? Colors.white70 : NeuroColors.onSurfaceVariant,
                         fontSize: 12,
