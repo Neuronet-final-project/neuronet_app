@@ -118,7 +118,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                   SliverToBoxAdapter(child: _QuickActionGrid()),
                   SliverToBoxAdapter(child: _RecentJournals(ref: ref)),
                   SliverToBoxAdapter(child: _InsightsBanner(ref: ref)),
-                  SliverToBoxAdapter(child: _LearningCard(ref: ref)),
+                  SliverToBoxAdapter(child: const _LearningCard()),
                   const SliverToBoxAdapter(child: _PlayRelaxSection()),
                 ],
               ),
@@ -374,12 +374,16 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
                 child: const Icon(Icons.favorite_rounded, color: Colors.white, size: 14),
               ),
               const SizedBox(width: 8),
-              Text(
-                l10n.smallCheckIn,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF6B7280),
-                  fontWeight: FontWeight.w600,
+              Expanded(
+                child: Text(
+                  l10n.smallCheckIn,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -611,11 +615,14 @@ class _MoodCheckInRow extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(l10n.howAreYouFeeling,
-                  style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                      color: _kBody)),
+              Expanded(
+                child: Text(l10n.howAreYouFeeling,
+                    style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: _kBody)),
+              ),
+              const SizedBox(width: 12),
               GestureDetector(
                 onTap: () => context.go(AdolescentRoutes.mood),
                 child: Text(l10n.allMoods,
@@ -806,13 +813,17 @@ class _StatPillState extends State<_StatPill> with SingleTickerProviderStateMixi
                             fontSize: 28,
                             height: 1.0,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5)),
+                            letterSpacing: -0.5),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
                     Text(widget.label,
                         style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.95),
                             fontSize: 12,
-                            fontWeight: FontWeight.w700)),
+                            fontWeight: FontWeight.w700),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ],
@@ -1014,11 +1025,14 @@ class _RecentJournals extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(l10n.recentJournals,
-                      style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                          color: _kBody)),
+                  Expanded(
+                    child: Text(l10n.recentJournals,
+                        style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: _kBody)),
+                  ),
+                  const SizedBox(width: 12),
                   GestureDetector(
                     onTap: () => context.go(AdolescentRoutes.journal),
                     child: Text(l10n.viewAll,
@@ -1248,12 +1262,16 @@ class _InsightsBanner extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Text(context.localizations.personalInsight,
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 0.2)),
+                                Flexible(
+                                  child: Text(context.localizations.personalInsight,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.2),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis),
+                                ),
                                 const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -1304,8 +1322,7 @@ class _InsightsBanner extends ConsumerWidget {
 
 // ─── Learning Card ────────────────────────────────────────────────────────────
 class _LearningCard extends ConsumerWidget {
-  const _LearningCard({required this.ref});
-  final WidgetRef ref;
+  const _LearningCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1442,42 +1459,60 @@ class _LearningCard extends ConsumerWidget {
                             const SizedBox(height: 12),
                             Row(
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: _kSurfaceVariant,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.access_time_rounded,
-                                          size: 12, color: _kPurple),
-                                      const SizedBox(width: 4),
-                                      Text(context.localizations.minRead(2),
-                                          style: const TextStyle(
-                                              fontSize: 11, color: _kPurple, fontWeight: FontWeight.w700)),
-                                    ],
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: _kSurfaceVariant,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.access_time_rounded,
+                                            size: 12, color: _kPurple),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            context.localizations.minRead(2),
+                                            style: const TextStyle(
+                                                fontSize: 11, color: _kPurple, fontWeight: FontWeight.w700),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                                 const Spacer(),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFF66BB6A), Color(0xFFA5D6A7)],
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [Color(0xFF66BB6A), Color(0xFFA5D6A7)],
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(context.localizations.readNow,
-                                          style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w800)),
-                                      const SizedBox(width: 4),
-                                      const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
-                                    ],
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            context.localizations.readNow,
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w800),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
