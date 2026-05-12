@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:neuronet_core/neuronet_core.dart';
-import 'package:intl/intl.dart';
 import '../../../../config/router/app_router.dart';
 import '../../providers/mood_provider.dart';
+
+/// Safely formats a date with locale fallback.
+String _safeFormatDate(DateTime date, String pattern, String locale) {
+  try {
+    return intl.DateFormat(pattern, locale).format(date);
+  } on ArgumentError {
+    return intl.DateFormat(pattern, 'en').format(date);
+  }
+}
 
 class MoodScreen extends ConsumerWidget {
   const MoodScreen({super.key});
@@ -571,9 +580,9 @@ class MoodScreen extends ConsumerWidget {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               )
-                            else
-                              Text(
-                                DateFormat('MMMM d, y h:mm a').format(r.createdAt),
+                             else
+                               Text(
+                                 _safeFormatDate(r.createdAt, 'MMMM d, y h:mm a', 'en'),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,

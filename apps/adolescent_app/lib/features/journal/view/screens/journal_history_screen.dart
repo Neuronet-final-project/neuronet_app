@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../../../config/router/app_router.dart';
 import '../../providers/journal_provider.dart';
+
+/// Safely formats a date with locale fallback.
+/// Falls back to English if the current locale is not supported by intl.
+String _safeFormatDate(DateTime date, String pattern, String locale) {
+  try {
+    return intl.DateFormat(pattern, locale).format(date);
+  } on ArgumentError {
+    return intl.DateFormat(pattern, 'en').format(date);
+  }
+}
 
 /// Premium Purple Theme Journal History
 class JournalHistoryScreen extends ConsumerStatefulWidget {
@@ -220,7 +230,7 @@ class _JournalHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final monthYear = DateFormat.yMMMM(context.localizations.localeName).format(now);
+    final monthYear = _safeFormatDate(now, 'yMMMM', context.localizations.localeName);
 
     return SliverAppBar(
       expandedHeight: 152,
@@ -467,10 +477,10 @@ class _WeeklyActivityCard extends StatelessWidget {
                              day.month == today.month && 
                              day.year == today.year;
               
-              return Column(
-                children: [
-                  Text(
-                    DateFormat.E(context.localizations.localeName).format(day).substring(0, 1).toUpperCase(),
+               return Column(
+                 children: [
+                   Text(
+                     _safeFormatDate(day, 'E', context.localizations.localeName).substring(0, 1).toUpperCase(),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: isToday ? FontWeight.w900 : FontWeight.w700,
@@ -554,9 +564,9 @@ class _DayGroup extends StatelessWidget {
                       ? [NeuroShadows.adolescentGlow, BoxShadow(color: const Color(0xFF5A1BC7).withValues(alpha: 0.2), blurRadius: 12, offset: const Offset(0, 4))]
                       : null,
                 ),
-                child: Center(
-                  child: Text(
-                    DateFormat.d(context.localizations.localeName).format(date),
+                 child: Center(
+                   child: Text(
+                     _safeFormatDate(date, 'd', context.localizations.localeName),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -566,11 +576,11 @@ class _DayGroup extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isToday ? context.localizations.today : DateFormat.EEEE(context.localizations.localeName).format(date).toUpperCase(),
+               Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   Text(
+                     isToday ? context.localizations.today : _safeFormatDate(date, 'EEEE', context.localizations.localeName).toUpperCase(),
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w900,
@@ -578,8 +588,8 @@ class _DayGroup extends StatelessWidget {
                       letterSpacing: 1.2,
                     ),
                   ),
-                  Text(
-                    DateFormat.yMMM(context.localizations.localeName).format(date).toUpperCase(),
+                   Text(
+                     _safeFormatDate(date, 'yMMM', context.localizations.localeName).toUpperCase(),
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -715,10 +725,10 @@ class _EntryCardState extends State<_EntryCard> {
                             ),
                           ],
                           const Spacer(),
-                          const Icon(Icons.access_time_rounded, size: 12, color: Color(0xFF8A7DAC)),
-                          const SizedBox(width: 4),
-                          Text(
-                            DateFormat.jm(context.localizations.localeName).format(widget.entry.createdAt),
+                           const Icon(Icons.access_time_rounded, size: 12, color: Color(0xFF8A7DAC)),
+                           const SizedBox(width: 4),
+                           Text(
+                             _safeFormatDate(widget.entry.createdAt, 'jm', context.localizations.localeName),
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,

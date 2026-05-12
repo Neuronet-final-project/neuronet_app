@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:neuronet_core/neuronet_core.dart';
+import 'package:neuronet_core/neuronet_core.dart'; // Register Oromo date symbols
 import 'config/router/app_router.dart';
 
 import 'package:flutter/foundation.dart';
@@ -16,10 +16,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize date formatting for supported locales to prevent crashes in Journal tab
+  await initializeDateFormatting('en', null);
   await initializeDateFormatting('am', null);
   await initializeDateFormatting('om', null);
   await initializeDateFormatting('es', null);
-  await initializeDateFormatting('en', null);
 
   String baseUrl = ApiEndpoints.baseUrl;
   if (!kIsWeb) {
@@ -29,7 +29,7 @@ Future<void> main() async {
     } catch (_) {}
   }
   ApiEndpoints.init(baseUrl: baseUrl);
-  
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -40,11 +40,7 @@ Future<void> main() async {
     debugPrint('Firebase initialization failed: $e');
   }
 
-  runApp(
-    const ProviderScope(
-      child: AdolescentApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: AdolescentApp()));
 }
 
 class AdolescentApp extends ConsumerStatefulWidget {
@@ -73,13 +69,17 @@ class _AdolescentAppState extends ConsumerState<AdolescentApp> {
     // Global listener: Automatically redirect user to Counselor Chat when receiving a call
     ref.listen(callControllerProvider, (previous, next) {
       final state = next.value;
-      if (state != null && state.status == CallStatus.ringing && state.currentCall != null) {
+      if (state != null &&
+          state.status == CallStatus.ringing &&
+          state.currentCall != null) {
         final currentCallId = state.currentCall!.id;
         final prevCallId = previous?.value?.currentCall?.id;
 
         // Avoid multi-pushing by verifying this is a fresh ring notification
         if (currentCallId != prevCallId) {
-          debugPrint('[AdolescentApp] Incoming call from ${state.currentCall!.callerEmail}, navigating to chat...');
+          debugPrint(
+            '[AdolescentApp] Incoming call from ${state.currentCall!.callerEmail}, navigating to chat...',
+          );
           router.go('/counselor-chat');
         }
       }
@@ -91,7 +91,8 @@ class _AdolescentAppState extends ConsumerState<AdolescentApp> {
         title: 'NEURONET',
         debugShowCheckedModeBanner: false,
         useInheritedMediaQuery: true, // Required for DevicePreview
-        locale: currentLocale, // Driven by l10nProvider — in-app toggle is source of truth
+        locale:
+            currentLocale, // Driven by l10nProvider — in-app toggle is source of truth
         localizationsDelegates: neuroLocalizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         builder: DevicePreview.appBuilder,
@@ -101,4 +102,3 @@ class _AdolescentAppState extends ConsumerState<AdolescentApp> {
     );
   }
 }
-

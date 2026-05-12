@@ -2,12 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../config/router/app_router.dart';
 import '../../providers/journal_provider.dart';
+
+/// Safely formats a date with locale fallback.
+String _safeFormatDate(DateTime date, String pattern, String locale) {
+  try {
+    return intl.DateFormat(pattern, locale).format(date);
+  } on ArgumentError {
+    return intl.DateFormat(pattern, 'en').format(date);
+  }
+}
 
 class JournalDetailScreen extends ConsumerWidget {
   const JournalDetailScreen({super.key, required this.entryId});
@@ -111,8 +120,9 @@ void _popOrGoJournal(BuildContext context) {
 
 String _formatEntryForShare(JournalEntry entry) {
   final buf = StringBuffer();
-  final date = DateFormat.yMMMMd().format(entry.createdAt);
-  final time = DateFormat.jm().format(entry.createdAt);
+  // Use English for sharing to ensure consistent formatting
+  final date = intl.DateFormat('yMMMMd', 'en').format(entry.createdAt);
+  final time = intl.DateFormat('jm', 'en').format(entry.createdAt);
   buf.writeln('$date · $time');
   if (entry.title != null && entry.title!.trim().isNotEmpty) {
     buf.writeln();
@@ -374,7 +384,7 @@ class _DetailContentState extends State<_DetailContent> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              DateFormat.EEEE(context.localizations.localeName).format(entry.createdAt).toUpperCase(),
+                              _safeFormatDate(entry.createdAt, 'EEEE', context.localizations.localeName).toUpperCase(),
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.85),
                                 fontSize: 11,
@@ -384,7 +394,7 @@ class _DetailContentState extends State<_DetailContent> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              DateFormat.yMMMMd(context.localizations.localeName).format(entry.createdAt),
+                              _safeFormatDate(entry.createdAt, 'yMMMMd', context.localizations.localeName),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,
@@ -397,9 +407,9 @@ class _DetailContentState extends State<_DetailContent> {
                               children: [
                                 Icon(Icons.schedule_rounded, color: Colors.white.withValues(alpha: 0.9), size: 16),
                                 const SizedBox(width: 6),
-                                Flexible(
-                                  child: Text(
-                                    DateFormat.jm(context.localizations.localeName).format(entry.createdAt),
+                                 Flexible(
+                                   child: Text(
+                                     _safeFormatDate(entry.createdAt, 'jm', context.localizations.localeName),
                                     style: TextStyle(
                                       color: Colors.white.withValues(alpha: 0.92),
                                       fontSize: 14,

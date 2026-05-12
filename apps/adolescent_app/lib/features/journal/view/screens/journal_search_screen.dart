@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:neuronet_core/neuronet_core.dart';
 
 /// Editorial-style search & filter screen for journal entries.
+
+/// Safely formats a date with locale fallback.
+String _safeFormatDate(DateTime date, String pattern, String locale) {
+  try {
+    return intl.DateFormat(pattern, locale).format(date);
+  } on ArgumentError {
+    return intl.DateFormat(pattern, 'en').format(date);
+  }
+}
 class JournalSearchScreen extends StatefulWidget {
   final List<JournalEntry>? entries;
   final DateTime? initialDate;
@@ -217,9 +226,9 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
           _filterPill(context.localizations.filterAll, _dateFilter == _DateFilter.all, () => setState(() => _dateFilter = _DateFilter.all)),
           _filterPill(context.localizations.filterToday, _dateFilter == _DateFilter.today, () => setState(() => _dateFilter = _DateFilter.today)),
           _filterPill(context.localizations.filterThisWeek, _dateFilter == _DateFilter.thisWeek, () => setState(() => _dateFilter = _DateFilter.thisWeek)),
-          if (_selectedSpecificDate != null)
-            _filterPill(
-              DateFormat('d MMM').format(_selectedSpecificDate!),
+           if (_selectedSpecificDate != null)
+             _filterPill(
+               _safeFormatDate(_selectedSpecificDate!, 'd MMM', 'en'),
               _dateFilter == _DateFilter.specific,
               () => setState(() => _dateFilter = _DateFilter.specific),
             ),
@@ -314,9 +323,9 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                     shape: BoxShape.circle,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  DateFormat('d MMM, h:mm a').format(entry.createdAt),
+                 const SizedBox(width: 8),
+                 Text(
+                   _safeFormatDate(entry.createdAt, 'd MMM, h:mm a', 'en'),
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: NeuroColors.inkMuted),
                 ),
               ],
