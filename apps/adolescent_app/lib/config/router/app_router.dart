@@ -349,7 +349,7 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const MoodMatcherScreen(),
       ),
       GoRoute(
-        path: '/ai-quest', // Adding the new route
+        path: AdolescentRoutes.aiQuest,
         builder: (context, state) => const AIQuestScreen(),
       ),
     ],

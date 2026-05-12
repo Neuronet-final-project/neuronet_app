@@ -109,7 +109,13 @@ class _ActivityCardState extends State<_ActivityCard> {
           ),
           child: InkWell(
             onTap: () {
-              context.push('${AdolescentRoutes.activities}/${widget.activity.id}');
+              final route = switch (widget.activity.type) {
+                ActivityType.breathing => AdolescentRoutes.breathingExercise,
+                ActivityType.focus => AdolescentRoutes.focusGame,
+                ActivityType.moodMatch => AdolescentRoutes.moodMatcher,
+                ActivityType.aiQuest => AdolescentRoutes.aiQuest,
+              };
+              context.push(route);
             },
             borderRadius: BorderRadius.circular(24),
             child: Padding(
