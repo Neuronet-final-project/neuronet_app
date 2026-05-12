@@ -167,35 +167,38 @@ class DashboardScreen extends ConsumerWidget {
 
          return dashboardState.when(
            data: (state) {
-             // If error with no data, show error
-             if (state.error != null && state.data == null) {
-               return SliverFillRemaining(
-                 hasScrollBody: false,
-                 child: Center(
-                   child: Padding(
-                     padding: const EdgeInsets.all(16),
-                     child: NeuroErrorWidget(
-                       message: 'Dashboard data failed to load: ${state.error}',
-                       onRetry: () => ref
-                           .read(guardianDashboardControllerProvider.notifier)
-                           .refresh(),
-                     ),
-                   ),
-                 ),
-               );
-             }
+              // If error with no data, show error
+              if (state.error != null && state.data == null) {
+                debugPrint('DashboardScreen: showing error widget, error=${state.error}');
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: NeuroErrorWidget(
+                        message: 'Dashboard data failed to load: ${state.error}',
+                        onRetry: () => ref
+                            .read(guardianDashboardControllerProvider.notifier)
+                            .refresh(),
+                      ),
+                    ),
+                  ),
+                );
+              }
 
-             final data = state.data;
-             if (data == null) {
-               return const SliverFillRemaining(
-                 hasScrollBody: false,
-                 child: Center(child: Text('No dashboard data available.')),
-               );
-             }
+              final data = state.data;
+              if (data == null) {
+                debugPrint('DashboardScreen: data is null');
+                return const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: Text('No dashboard data available.')),
+                );
+              }
 
-             final isFallback =
-                 data.totalAdolescentsLinked == 0 &&
-                 data.moodDistribution.isEmpty;
+              debugPrint('DashboardScreen: received data - adolescents: ${data.totalAdolescentsLinked}, journals: ${data.totalJournalCount}, alerts: ${data.unviewedAlertsCount}, moodDist: ${data.moodDistribution}, trends: ${data.emotionalTrends.length}');
+              final isFallback =
+                  data.totalAdolescentsLinked == 0 &&
+                  data.moodDistribution.isEmpty;
 
              return SliverToBoxAdapter(
                child: Column(
@@ -240,20 +243,24 @@ class DashboardScreen extends ConsumerWidget {
                ],
              ),
            ),
-           error: (err, stack) => SliverFillRemaining(
-             hasScrollBody: false,
-             child: Center(
-               child: Padding(
-                 padding: const EdgeInsets.all(16),
-                 child: NeuroErrorWidget(
-                   message: 'Dashboard data failed to load: $err',
-                   onRetry: () => ref
-                       .read(guardianDashboardControllerProvider.notifier)
-                       .refresh(),
-                 ),
-               ),
-             ),
-           ),
+            error: (err, stack) {
+              debugPrint('DashboardScreen: provider error - $err');
+              debugPrint('DashboardScreen: stack trace - $stack');
+              return SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: NeuroErrorWidget(
+                      message: 'Dashboard data failed to load: $err',
+                      onRetry: () => ref
+                          .read(guardianDashboardControllerProvider.notifier)
+                          .refresh(),
+                    ),
+                  ),
+                ),
+              );
+            },
          );
        },
      );
@@ -281,14 +288,14 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         
-        // 2. Emotional Trends Card (Replace Mood Overview)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _buildTrendCard(context, ref, data)
-              .animate()
-              .fadeIn(delay: 400.ms)
-              .slideY(begin: 0.1),
-        ),
+        // 2. Emotional Trends Card (HIDDEN for debugging)
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 16),
+        //   child: _buildTrendCard(context, ref, data)
+        //       .animate()
+        //       .fadeIn(delay: 400.ms)
+        //       .slideY(begin: 0.1),
+        // ),
 
         // 3. Aggregated Insights Card (NEW)
         Padding(
@@ -445,17 +452,19 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   /// Builds the Aggregated Insights card showing cross-adolescent statistics
-  Widget _buildAggregatedInsightsCard(BuildContext context, WidgetRef ref, GuardianDashboardData data) {
-    final adolescents = data.adolescentRisks;
-    final alerts = data.alertList;
-    final currentPeriod = ref.watch(guardianDashboardControllerProvider).value?.period ?? '7d';
-    
-    // Calculate average mood sentiment from emotional trends (weighted average of sentimentScore)
-    double? averageSentiment;
-    if (data.emotionalTrends.isNotEmpty) {
-      final totalScore = data.emotionalTrends.fold<double>(0, (sum, trend) => sum + trend.sentimentScore);
-      averageSentiment = totalScore / data.emotionalTrends.length;
-    }
+   Widget _buildAggregatedInsightsCard(BuildContext context, WidgetRef ref, GuardianDashboardData data) {
+     debugPrint('_buildAggregatedInsightsCard: adolescentRisks=${data.adolescentRisks.length}, alertList=${data.alertList.length}');
+     final adolescents = data.adolescentRisks;
+     final alerts = data.alertList;
+     final currentPeriod = ref.watch(guardianDashboardControllerProvider).value?.period ?? '7d';
+     
+     // Calculate average mood sentiment from emotional trends (weighted average of sentimentScore)
+     double? averageSentiment;
+     if (data.emotionalTrends.isNotEmpty) {
+       final totalScore = data.emotionalTrends.fold<double>(0, (sum, trend) => sum + trend.sentimentScore);
+       averageSentiment = totalScore / data.emotionalTrends.length;
+       debugPrint('_buildAggregatedInsightsCard: averageSentiment=$averageSentiment');
+     }
 
     // Count alerts by severity
     final lowAlerts = alerts.where((a) => a.severityLevel.toLowerCase() == 'low').length;

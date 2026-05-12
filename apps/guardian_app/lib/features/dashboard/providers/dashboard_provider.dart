@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -29,16 +30,24 @@ class GuardianDashboardController extends _$GuardianDashboardController {
   @override
   FutureOr<GuardianDashboardState> build() async {
     final service = ref.watch(dashboardServiceProvider);
+    debugPrint('[DashboardProvider] build: fetching guardian dashboard');
     final result = await service.getGuardianDashboard(period: '7d'); // Default to 7 days
     
     return result.when(
-      success: (data) => GuardianDashboardState(data: data, isLoading: false, period: '7d'),
-      failure: (f) => GuardianDashboardState(isLoading: false, error: f.message, period: '7d'),
+      success: (data) {
+        debugPrint('[DashboardProvider] build success: got ${data.totalAdolescentsLinked} adolescents');
+        return GuardianDashboardState(data: data, isLoading: false, period: '7d');
+      },
+      failure: (f) {
+        debugPrint('[DashboardProvider] build failure: ${f.message} (type: ${f.runtimeType})');
+        return GuardianDashboardState(isLoading: false, error: f.message, period: '7d');
+      },
     );
   }
 
   Future<void> refresh({String? period}) async {
     final effectivePeriod = period ?? '7d';
+    debugPrint('[DashboardProvider] refresh(period=$effectivePeriod)');
     // Immediately update period and set loading flag
     state = AsyncValue.data(
       (state.value ?? const GuardianDashboardState()).copyWith(
@@ -54,6 +63,7 @@ class GuardianDashboardController extends _$GuardianDashboardController {
         failure: (f) => GuardianDashboardState(isLoading: false, error: f.message, period: effectivePeriod),
       );
     });
+    debugPrint('[DashboardProvider] refresh complete, state: ${state.value?.error != null ? "error: ${state.value?.error}" : "success"}');
   }
 }
 

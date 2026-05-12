@@ -14,34 +14,51 @@ class DashboardService {
   final ApiClient _client;
 
    /// Fetches the dashboard data for the currently authenticated guardian.
-   Future<Result<GuardianDashboardData>> getGuardianDashboard({
-     String? period, // e.g., '7d', '14d', '30d'
-   }) async {
-     try {
-       final queryParams = <String, dynamic>{};
-       if (period != null) {
-         queryParams['period'] = period;
-       }
-       final response = await _client.get(
-         ApiEndpoints.guardianDashboard,
-         queryParameters: queryParams.isNotEmpty ? queryParams : null,
-       );
-       if (response.data == null) {
-         return Result.success(GuardianDashboardData.empty());
-       }
-       if (response.data is! Map<String, dynamic>) {
-         return Result.failure(
-           const UnknownFailure(message: 'Unexpected response format'),
-         );
-       }
-       final data = GuardianDashboardData.fromJson(
-         response.data as Map<String, dynamic>,
-       );
-       return Result.success(data);
-     } catch (e) {
-       return Result.failure(failureFromException(e));
-     }
-   }
+    Future<Result<GuardianDashboardData>> getGuardianDashboard({
+      String? period, // e.g., '7d', '14d', '30d'
+    }) async {
+      try {
+        final queryParams = <String, dynamic>{};
+        if (period != null) {
+          queryParams['period'] = period;
+        }
+        debugPrint('[DashboardService] GET guardian dashboard, period=$period');
+        final response = await _client.get(
+          ApiEndpoints.guardianDashboard,
+          queryParameters: queryParams.isNotEmpty ? queryParams : null,
+        );
+        debugPrint('[DashboardService] Response status: ${response.statusCode}');
+        debugPrint('[DashboardService] Response data type: ${response.data?.runtimeType}');
+        debugPrint('[DashboardService] Response data keys: ${(response.data is Map) ? (response.data as Map).keys.toList() : 'N/A'}');
+        debugPrint('[DashboardService] Response data: ${response.data}');
+        if (response.data == null) {
+          debugPrint('[DashboardService] Response data is null, returning empty');
+          return Result.success(GuardianDashboardData.empty());
+        }
+        if (response.data is! Map<String, dynamic>) {
+          debugPrint('[DashboardService] ⚠ Type mismatch: expected Map<String, dynamic>, got ${response.data.runtimeType}');
+          return Result.failure(
+            const UnknownFailure(message: 'Unexpected response format'),
+          );
+        }
+        final dataMap = response.data as Map<String, dynamic>;
+        debugPrint('[DashboardService] JSON keys: ${dataMap.keys.join(', ')}');
+        for (final key in dataMap.keys) {
+          final value = dataMap[key];
+          debugPrint('[DashboardService]   $key: ${value?.runtimeType} = $value');
+        }
+        debugPrint('[DashboardService] Parsing GuardianDashboardData from JSON');
+        final data = GuardianDashboardData.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+        debugPrint('[DashboardService] ✓ Parsed successfully: totalAdolescents=${data.totalAdolescentsLinked}, totalJournals=${data.totalJournalCount}');
+        return Result.success(data);
+      } catch (e, stack) {
+        debugPrint('[DashboardService] ✗ getGuardianDashboard failed: $e');
+        debugPrint('[DashboardService] Stack trace: $stack');
+        return Result.failure(failureFromException(e));
+      }
+    }
 
   /// Fetches the dashboard data for the currently authenticated adolescent.
   Future<Result<DashboardData>> getAdolescentDashboard() async {

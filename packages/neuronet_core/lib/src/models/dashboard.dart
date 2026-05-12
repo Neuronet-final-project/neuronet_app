@@ -10,8 +10,9 @@ Map<String, int> _moodDistributionFromJson(dynamic json) {
   if (json is List) {
     return {
       for (final item in json)
-        (item as Map<String, dynamic>)['mood'] as String:
-            ((item['count']) as num).toInt(),
+        if (item['mood'] != null)
+          (item['mood'] as String):
+              ((item['count']) as num).toInt(),
     };
   }
   if (json is Map) {
@@ -41,10 +42,17 @@ abstract class EmotionalTrend with _$EmotionalTrend {
 
 /// Helper to convert emotional_trends from JSON, handling null → []
 List<EmotionalTrend> _emotionalTrendsFromJson(dynamic json) {
-  if (json == null) return const [];
-  if (json is List) {
-    return json.map((e) => EmotionalTrend.fromJson(e as Map<String, dynamic>)).toList();
+  print('[GuardianDashboardData] _emotionalTrendsFromJson: type=${json.runtimeType}, value=$json');
+  if (json == null) {
+    print('[GuardianDashboardData] _emotionalTrendsFromJson: json is null, returning empty list');
+    return const [];
   }
+  if (json is List) {
+    final result = json.map((e) => EmotionalTrend.fromJson(e as Map<String, dynamic>)).toList();
+    print('[GuardianDashboardData] _emotionalTrendsFromJson: parsed ${result.length} items');
+    return result;
+  }
+  print('[GuardianDashboardData] _emotionalTrendsFromJson: unexpected type, returning empty list');
   return const [];
 }
 
