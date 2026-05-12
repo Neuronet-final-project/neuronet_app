@@ -1775,4 +1775,33 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get attachmentLabel => 'Ittisa';
+
+  @override
+  String get mindfulFocusTip =>
+      'Mata kee osoo hin sochoosin qabxii sana hordofi.';
+
+  @override
+  String get supportGroup => 'Garee Deeggarsaa';
+
+  @override
+  String get educationalLabel => 'Barnoota';
+
+  @override
+  String get supportLabel => 'Deeggarsa';
+
+  @override
+  String get discussionLabel => 'Mari\'achuu';
+
+  @override
+  String get resourcesLabel => 'Madda';
+
+  @override
+  String get activeLabel => 'Dhaqaaqaa';
+
+  @override
+  String get postLabel => 'Baasii';
+
+  @override
+  String get safeSpaceCounselor =>
+      'Qajeelfama fi odeeffannoo gorsituu bakka nagaa.';
 }

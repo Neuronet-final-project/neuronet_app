@@ -1803,4 +1803,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get attachmentLabel => 'Attachment';
+
+  @override
+  String get mindfulFocusTip => 'Keep your head still and follow the dot.';
+
+  @override
+  String get supportGroup => 'Support Group';
+
+  @override
+  String get educationalLabel => 'Educational';
+
+  @override
+  String get supportLabel => 'Support';
+
+  @override
+  String get discussionLabel => 'Discussion';
+
+  @override
+  String get resourcesLabel => 'Resources';
+
+  @override
+  String get activeLabel => 'Active';
+
+  @override
+  String get postLabel => 'Post';
+
+  @override
+  String get safeSpaceCounselor =>
+      'Safe space for counselor guidance and updates.';
 }

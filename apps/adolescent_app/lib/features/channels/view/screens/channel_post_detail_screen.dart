@@ -56,14 +56,15 @@ class _ChannelPostDetailScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     return Scaffold(
       backgroundColor: NeuroColors.adolescentSurface,
       appBar: AppBar(
         backgroundColor: const Color(0xFF6A1FDB),
         foregroundColor: Colors.white,
-        title: const Text(
-          'Post',
-          style: TextStyle(fontWeight: FontWeight.w900),
+        title: Text(
+          l10n.postLabel,
+          style: const TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
       body: _isLoading
@@ -109,7 +110,7 @@ class _ChannelPostDetailScreenState
                                   backgroundColor:
                                       NeuroColors.adolescentPrimary.withValues(alpha: 0.2),
                                   child: Text(
-                                    (_post!.counselorName ?? 'C')
+                                    (_post!.counselorName ?? l10n.counselorLabel)
                                         .substring(0, 1)
                                         .toUpperCase(),
                                     style: const TextStyle(
@@ -124,7 +125,7 @@ class _ChannelPostDetailScreenState
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        _post!.counselorName ?? 'Counselor',
+                                        _post!.counselorName ?? l10n.counselorLabel,
                                         style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w800,

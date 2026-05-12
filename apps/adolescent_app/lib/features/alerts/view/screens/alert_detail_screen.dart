@@ -261,7 +261,7 @@ class AdolescentAlertDetailScreen extends ConsumerWidget {
 
                         return _ActionTile(
                           icon: Icons.group_rounded,
-                          title: map['channel_name'] as String? ?? 'Support Group',
+                          title: map['channel_name'] as String? ?? context.localizations.supportGroup,
                           subtitle: context.localizations.channelRecSubtitle,
                           onTap: () {
                             if (channelId != null) {

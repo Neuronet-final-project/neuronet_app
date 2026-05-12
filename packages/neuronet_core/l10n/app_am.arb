@@ -362,5 +362,14 @@
   "voiceLabel": "ድምጽ",
   "contactLabel": "እውቂያ",
   "emptyMessage": "(ባዶ መልዕክት)",
-  "attachmentLabel": "አባሪ"
+  "attachmentLabel": "አባሪ",
+  "mindfulFocusTip": "ጭንቅላትዎን ሳያንቀሳቅሱ ነጥቡን ይከተሉ።",
+  "supportGroup": "የድጋፍ ቡድን",
+  "educationalLabel": "ትምህርታዊ",
+  "supportLabel": "ድጋፍ",
+  "discussionLabel": "ውይይት",
+  "resourcesLabel": "ምንጮች",
+  "activeLabel": "ንቁ",
+  "postLabel": "ፖስት",
+  "safeSpaceCounselor": "ለአማካሪ መመሪያ እና ወቅታዊ መረጃዎች ደህንነቱ የተጠበቀ ቦታ።"
 }

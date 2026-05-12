@@ -366,5 +366,14 @@
   "voiceLabel": "Sagalee",
   "contactLabel": "Nama qunnamtii",
   "emptyMessage": "(ergaa duwwaa)",
-  "attachmentLabel": "Ittisa"
+  "attachmentLabel": "Ittisa",
+  "mindfulFocusTip": "Mata kee osoo hin sochoosin qabxii sana hordofi.",
+  "supportGroup": "Garee Deeggarsaa",
+  "educationalLabel": "Barnoota",
+  "supportLabel": "Deeggarsa",
+  "discussionLabel": "Mari'achuu",
+  "resourcesLabel": "Madda",
+  "activeLabel": "Dhaqaaqaa",
+  "postLabel": "Baasii",
+  "safeSpaceCounselor": "Qajeelfama fi odeeffannoo gorsituu bakka nagaa."
 }

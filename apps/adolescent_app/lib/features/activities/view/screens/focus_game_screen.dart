@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neuronet_core/neuronet_core.dart';
 import 'dart:math' as math;
 
 class FocusGameScreen extends StatefulWidget {
@@ -31,6 +32,7 @@ class _FocusGameScreenState extends State<FocusGameScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.localizations;
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
@@ -45,18 +47,18 @@ class _FocusGameScreenState extends State<FocusGameScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Mindful Focus',
-              style: TextStyle(
+            Text(
+              l10n.mindfulFocusTitle,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
-              'Follow the light with your eyes.',
-              style: TextStyle(color: Colors.white60, fontSize: 14),
+            Text(
+              l10n.mindfulFocusDesc,
+              style: const TextStyle(color: Colors.white60, fontSize: 14),
             ),
             const SizedBox(height: 60),
             AnimatedBuilder(
@@ -108,9 +110,9 @@ class _FocusGameScreenState extends State<FocusGameScreen>
               },
             ),
             const SizedBox(height: 100),
-            const Text(
-              'Keep your head still and follow the dot.',
-              style: TextStyle(color: Colors.white38, fontStyle: FontStyle.italic),
+            Text(
+              l10n.mindfulFocusTip,
+              style: const TextStyle(color: Colors.white38, fontStyle: FontStyle.italic),
             ),
           ],
         ),

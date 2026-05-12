@@ -840,6 +840,15 @@
   "voiceLabel": "Voice",
   "contactLabel": "Contact",
   "emptyMessage": "(empty message)",
-  "attachmentLabel": "Attachment"
+  "attachmentLabel": "Attachment",
+  "mindfulFocusTip": "Keep your head still and follow the dot.",
+  "supportGroup": "Support Group",
+  "educationalLabel": "Educational",
+  "supportLabel": "Support",
+  "discussionLabel": "Discussion",
+  "resourcesLabel": "Resources",
+  "activeLabel": "Active",
+  "postLabel": "Post",
+  "safeSpaceCounselor": "Safe space for counselor guidance and updates."
 }
 

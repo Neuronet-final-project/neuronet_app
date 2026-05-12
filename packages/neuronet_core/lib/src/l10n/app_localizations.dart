@@ -3305,6 +3305,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Attachment'**
   String get attachmentLabel;
+
+  /// No description provided for @mindfulFocusTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your head still and follow the dot.'**
+  String get mindfulFocusTip;
+
+  /// No description provided for @supportGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Support Group'**
+  String get supportGroup;
+
+  /// No description provided for @educationalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Educational'**
+  String get educationalLabel;
+
+  /// No description provided for @supportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get supportLabel;
+
+  /// No description provided for @discussionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion'**
+  String get discussionLabel;
+
+  /// No description provided for @resourcesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Resources'**
+  String get resourcesLabel;
+
+  /// No description provided for @activeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get activeLabel;
+
+  /// No description provided for @postLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postLabel;
+
+  /// No description provided for @safeSpaceCounselor.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe space for counselor guidance and updates.'**
+  String get safeSpaceCounselor;
 }
 
 class _AppLocalizationsDelegate

@@ -130,7 +130,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
              ],
            ),
           error: (err, stack) => NeuroErrorWidget(
-            message: 'Error loading channels: $err',
+            message: '${context.localizations.errorPrefix}: $err',
             onRetry: () => ref.read(channelsControllerProvider.notifier).refresh(),
           ),
         ),
@@ -328,7 +328,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
                     Text(
                       channel.description?.isNotEmpty == true
                           ? channel.description!
-                          : 'Safe space for counselor guidance and updates.',
+                          : context.localizations.safeSpaceCounselor,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -345,9 +345,9 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
                         _MetaBadge(icon: Icons.people_alt_rounded, text: '${channel.subscriberCount}'),
                         _MetaBadge(icon: Icons.sell_rounded, text: typeText),
                         if (channel.isActive)
-                          const _MetaBadge(
+                          _MetaBadge(
                             icon: Icons.schedule_rounded,
-                            text: 'Active',
+                            text: context.localizations.activeLabel,
                           ),
                       ],
                     ),
@@ -365,7 +365,7 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 ),
                 child: Text(
-                  channel.isFollowed ? 'Following' : 'Follow',
+                  channel.isFollowed ? context.localizations.following : context.localizations.follow,
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),

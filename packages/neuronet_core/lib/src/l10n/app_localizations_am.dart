@@ -1767,4 +1767,31 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get attachmentLabel => 'አባሪ';
+
+  @override
+  String get mindfulFocusTip => 'ጭንቅላትዎን ሳያንቀሳቅሱ ነጥቡን ይከተሉ።';
+
+  @override
+  String get supportGroup => 'የድጋፍ ቡድን';
+
+  @override
+  String get educationalLabel => 'ትምህርታዊ';
+
+  @override
+  String get supportLabel => 'ድጋፍ';
+
+  @override
+  String get discussionLabel => 'ውይይት';
+
+  @override
+  String get resourcesLabel => 'ምንጮች';
+
+  @override
+  String get activeLabel => 'ንቁ';
+
+  @override
+  String get postLabel => 'ፖስት';
+
+  @override
+  String get safeSpaceCounselor => 'ለአማካሪ መመሪያ እና ወቅታዊ መረጃዎች ደህንነቱ የተጠበቀ ቦታ።';
 }
