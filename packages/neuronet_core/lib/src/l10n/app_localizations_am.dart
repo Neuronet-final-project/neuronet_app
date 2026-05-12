@@ -757,7 +757,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get passwordsDoNotMatch => 'ፓስዋርዶች አይደለም';
 
   @override
-  String get discoverPages => 'ገዥ ገጽዎች';
+  String get discoverPages => 'ገጾችን ፈልግ';
 
   @override
   String get followedPages => 'የሚወዱ ገጾች';
@@ -866,7 +866,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get noCommentsYet => 'No comments yet.';
 
   @override
-  String get discover => 'Discover';
+  String get discover => 'ፈልግ';
 
   @override
   String get myInsights => 'My Insights';
@@ -1278,11 +1278,10 @@ class AppLocalizationsAm extends AppLocalizations {
   String get noChannelsYet => 'No channels yet';
 
   @override
-  String get noChannelsToDiscover => 'No channels to discover';
+  String get noChannelsToDiscover => 'የሚገኙ ቻናሎች የሉም';
 
   @override
-  String get followFromDiscoverNote =>
-      'Follow channels from the Discover tab to see them here.';
+  String get followFromDiscoverNote => 'ቻናሎችን ለማየት ከ\'ፈልግ\' ገጽ ይከተሉ።';
 
   @override
   String get checkBackLaterForChannels => 'Check back later for new channels!';

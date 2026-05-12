@@ -274,11 +274,12 @@ class _ChannelsScreenState extends ConsumerState<ChannelsScreen> {
     Channel channel,
   ) {
     final typeText = switch (channel.channelType) {
-      ChannelType.educational => 'Educational',
-      ChannelType.supportive => 'Support',
-      ChannelType.discussion => 'Discussion',
-      ChannelType.resourceLibrary => 'Resources',
+      ChannelType.educational => context.localizations.educationalLabel,
+      ChannelType.supportive => context.localizations.supportLabel,
+      ChannelType.discussion => context.localizations.discussionLabel,
+      ChannelType.resourceLibrary => context.localizations.resourcesLabel,
     };
+
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),

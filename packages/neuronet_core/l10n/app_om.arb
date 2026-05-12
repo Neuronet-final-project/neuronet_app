@@ -292,7 +292,7 @@
   "pleaseEnterPassword": "Paswaardii galchisi",
   "passwordMinLength": "Paswaardii 6+ fudhachu",
   "passwordsDoNotMatch": "Paswaardoota walitti makame",
-  "discoverPages": "Fuulessitoota Argamu",
+  "discoverPages": "Fuulota Barbaadi",
   "followedPages": "Fuulessitoota Eegalu",
   "pickedForYou": "Keessan Filame",
   "aiPicks": "AI Filate",
@@ -375,5 +375,8 @@
   "resourcesLabel": "Madda",
   "activeLabel": "Dhaqaaqaa",
   "postLabel": "Baasii",
-  "safeSpaceCounselor": "Qajeelfama fi odeeffannoo gorsituu bakka nagaa."
+  "safeSpaceCounselor": "Qajeelfama fi odeeffannoo gorsituu bakka nagaa.",
+  "discover": "Barbaadi",
+  "noChannelsToDiscover": "Qunnamtiin barbaadamu hin jiru",
+  "followFromDiscoverNote": "Qunnamtiiwwan asitti arguuf kuta 'Barbaadi' irraa hordofaa."
 }

@@ -288,7 +288,7 @@
   "pleaseEnterPassword": "ፓስዋርድ ይጻፉ",
   "passwordMinLength": "ፓስዋርድ በቤት አንድ 6 የበይሐ መረጃ ነው",
   "passwordsDoNotMatch": "ፓስዋርዶች አይደለም",
-  "discoverPages": "ገዥ ገጽዎች",
+  "discoverPages": "ገጾችን ፈልግ",
   "followedPages": "የሚወዱ ገጾች",
   "pickedForYou": "ለአንቺ ተመርጧል",
   "aiPicks": "AI ይመርጣል",
@@ -371,5 +371,8 @@
   "resourcesLabel": "ምንጮች",
   "activeLabel": "ንቁ",
   "postLabel": "ፖስት",
-  "safeSpaceCounselor": "ለአማካሪ መመሪያ እና ወቅታዊ መረጃዎች ደህንነቱ የተጠበቀ ቦታ።"
+  "safeSpaceCounselor": "ለአማካሪ መመሪያ እና ወቅታዊ መረጃዎች ደህንነቱ የተጠበቀ ቦታ።",
+  "discover": "ፈልግ",
+  "noChannelsToDiscover": "የሚገኙ ቻናሎች የሉም",
+  "followFromDiscoverNote": "ቻናሎችን ለማየት ከ'ፈልግ' ገጽ ይከተሉ።"
 }

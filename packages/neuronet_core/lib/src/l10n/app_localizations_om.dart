@@ -762,7 +762,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get passwordsDoNotMatch => 'Paswaardoota walitti makame';
 
   @override
-  String get discoverPages => 'Fuulessitoota Argamu';
+  String get discoverPages => 'Fuulota Barbaadi';
 
   @override
   String get followedPages => 'Fuulessitoota Eegalu';
@@ -872,7 +872,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get noCommentsYet => 'No comments yet.';
 
   @override
-  String get discover => 'Discover';
+  String get discover => 'Barbaadi';
 
   @override
   String get myInsights => 'My Insights';
@@ -1284,11 +1284,11 @@ class AppLocalizationsOm extends AppLocalizations {
   String get noChannelsYet => 'No channels yet';
 
   @override
-  String get noChannelsToDiscover => 'No channels to discover';
+  String get noChannelsToDiscover => 'Qunnamtiin barbaadamu hin jiru';
 
   @override
   String get followFromDiscoverNote =>
-      'Follow channels from the Discover tab to see them here.';
+      'Qunnamtiiwwan asitti arguuf kuta \'Barbaadi\' irraa hordofaa.';
 
   @override
   String get checkBackLaterForChannels => 'Check back later for new channels!';
