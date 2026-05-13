@@ -460,6 +460,35 @@ class MoodScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 48),
+          Container(
+            width: double.infinity,
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: NeuroGradients.adolescent,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () => context.go(AdolescentRoutes.home),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              ),
+              child: Text(
+                context.localizations.home.toUpperCase(),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.0),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           TextButton(
             onPressed: () {
               notifier.reset();

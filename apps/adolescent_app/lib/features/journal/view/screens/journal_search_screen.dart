@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:neuronet_core/neuronet_core.dart';
+
+import '../../../../config/router/app_router.dart';
 
 /// Editorial-style search & filter screen for journal entries.
 
@@ -301,7 +304,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
   Widget _resultCard(JournalEntry entry) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context), // Normally would navigate to detail
+      onTap: () => context.push('${AdolescentRoutes.journal}/${entry.id}'),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(20),
