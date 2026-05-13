@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -114,13 +115,25 @@ class CounselorChatController extends _$CounselorChatController {
     );
   }
 
-  /// Starts a timer to automatically refresh messages every 10 seconds
+  /// Starts a timer to automatically refresh messages
   void _startAutoRefresh() {
     _autoRefreshTimer?.cancel();
-    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      _silentRefresh();
+    _scheduleNextAutoRefresh();
+  }
+
+  void _scheduleNextAutoRefresh() {
+    if (!ref.mounted) return;
+
+    // 10s base + random jitter (-2s to +2s)
+    final jitterMs = math.Random().nextInt(4000) - 2000;
+    final duration = Duration(milliseconds: 10000 + jitterMs);
+
+    _autoRefreshTimer = Timer(duration, () async {
+      if (!ref.mounted) return;
+      await _silentRefresh();
+      _scheduleNextAutoRefresh();
     });
-    debugPrint('[CounselorChat] ✓ Auto-refresh started (every 10 seconds)');
+    debugPrint('[CounselorChat] ✓ Auto-refresh scheduled (approx. every 10 seconds)');
   }
 
   /// Silently refreshes messages without showing loading state

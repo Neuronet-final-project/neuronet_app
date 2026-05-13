@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'api_endpoints.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
+import 'interceptors/retry_interceptor.dart';
 
 /// Configured Dio instance for NEURONET API.
 class ApiClient {
@@ -22,6 +23,7 @@ class ApiClient {
           ),
         ) {
     _dio.interceptors.addAll([
+      RetryInterceptor(dio: _dio),
       AuthInterceptor(tokenStorage: tokenStorage ?? InMemoryTokenStorage()),
       AppLoggingInterceptor(),
     ]);

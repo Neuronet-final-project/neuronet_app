@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -134,21 +135,32 @@ class CallController extends _$CallController {
 
   void _startIncomingCallPolling() {
     _incomingCallPollTimer?.cancel();
-    _incomingCallPollTimer = Timer.periodic(const Duration(seconds: 10), (
-      _,
-    ) async {
+    _scheduleNextIncomingCallPoll();
+  }
+
+  void _scheduleNextIncomingCallPoll() {
+    if (!ref.mounted) return;
+
+    // 10s base + random jitter (-2s to +2s) to prevent thundering herd load
+    final jitterMs = math.Random().nextInt(4000) - 2000;
+    final duration = Duration(milliseconds: 10000 + jitterMs);
+
+    _incomingCallPollTimer = Timer(duration, () async {
       if (!ref.mounted) return;
-      
-      // Check for token before polling to avoid 401 spam when unauthenticated
+
       final storage = ref.read(tokenStorageProvider);
       final token = await storage.getAccessToken();
-      if (token == null) return;
+      if (token == null) {
+        _scheduleNextIncomingCallPoll();
+        return;
+      }
 
       final state = this.state.value;
-      // Only check if not already in a call
       if (state != null && !state.isInCall) {
         await checkIncomingCalls();
       }
+
+      _scheduleNextIncomingCallPoll();
     });
   }
 
@@ -748,12 +760,24 @@ class CallController extends _$CallController {
 
   void _startSignalPolling(String callId) {
     _pollTimer?.cancel();
-    _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      if (!ref.mounted) {
-        _pollTimer?.cancel();
-        return;
-      }
+    _scheduleNextSignalPoll(callId);
+  }
+
+  void _scheduleNextSignalPoll(String callId) {
+    if (!ref.mounted) return;
+
+    // 2s base + random jitter (-500ms to +500ms)
+    final jitterMs = math.Random().nextInt(1000) - 500;
+    final duration = Duration(milliseconds: 2000 + jitterMs);
+
+    _pollTimer = Timer(duration, () async {
+      if (!ref.mounted) return;
       await _pollSignals(callId);
+      
+      // Only reschedule if we still have a poll timer (meaning polling hasn't been stopped)
+      if (_pollTimer != null) {
+        _scheduleNextSignalPoll(callId);
+      }
     });
   }
 
