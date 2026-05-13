@@ -73,6 +73,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                 slivers: const [
                   _HeroAppBarSkeleton(),
                   SliverToBoxAdapter(child: _DailyCheckInCardSkeleton()),
+                  SliverToBoxAdapter(child: _EmotionalInsightsRowSkeleton()),
                   SliverToBoxAdapter(child: _MoodCheckInRowSkeleton()),
                   SliverToBoxAdapter(child: _StatsRowSkeleton()),
                   SliverToBoxAdapter(child: _QuickActionGridSkeleton()),
@@ -113,6 +114,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                 slivers: [
                   _HeroAppBar(ref: ref),
                   const SliverToBoxAdapter(child: _DailyCheckInCard()),
+                  SliverToBoxAdapter(child: _EmotionalInsightsRow(ref: ref)),
                   SliverToBoxAdapter(child: _MoodCheckInRow(ref: ref)),
                   SliverToBoxAdapter(child: _StatsRow(ref: ref)),
                   SliverToBoxAdapter(child: _QuickActionGrid()),
@@ -570,6 +572,469 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
   }
 }
 
+// ─── Emotional Insights Row ───────────────────────────────────────────────────
+class _EmotionalInsightsRow extends ConsumerWidget {
+  const _EmotionalInsightsRow({required this.ref});
+  final WidgetRef ref;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashAsync = ref.watch(adolescentDashboardControllerProvider);
+    final l10n = context.localizations;
+
+    return dashAsync.maybeWhen(
+      data: (state) {
+        final stats = state.data?.emotionalStats;
+        final distribution = state.data?.moodDistribution ?? {};
+        
+        if (stats == null && distribution.isEmpty) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Emotional Insights',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: _kBody,
+                    ),
+                  ),
+                  if (distribution.isNotEmpty)
+                    Text(
+                      'All time',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: _kSubtle,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              
+              // Dominant Emotions Row
+              if (stats != null)
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  child: Row(
+                    children: [
+                      if (stats.dominantToday != null)
+                        _InsightCard(
+                          label: 'Today',
+                          emotion: stats.dominantToday!,
+                          summary: stats.summaryToday,
+                          gradient: const [Color(0xFF8D53FF), Color(0xFFA875FF)],
+                          icon: Icons.today_rounded,
+                          onTap: () => _showEmotionalSummaryDetail(
+                            context,
+                            'Today\'s Insights',
+                            stats.dominantToday!,
+                            stats.summaryToday ?? 'Analysis pending...',
+                          ),
+                        ),
+                      if (stats.dominantThisWeek != null)
+                        _InsightCard(
+                          label: 'This Week',
+                          emotion: stats.dominantThisWeek!,
+                          summary: stats.summaryThisWeek,
+                          gradient: const [Color(0xFF4DB0F6), Color(0xFF38C7F0)],
+                          icon: Icons.calendar_view_week_rounded,
+                          onTap: () => _showEmotionalSummaryDetail(
+                            context,
+                            'Weekly Insights',
+                            stats.dominantThisWeek!,
+                            stats.summaryThisWeek ?? 'Analysis pending...',
+                          ),
+                        ),
+                      if (stats.dominantThisMonth != null)
+                        _InsightCard(
+                          label: 'This Month',
+                          emotion: stats.dominantThisMonth!,
+                          summary: stats.summaryThisMonth,
+                          gradient: const [Color(0xFFFF9F49), Color(0xFFFF8A49)],
+                          icon: Icons.calendar_month_rounded,
+                          onTap: () => _showEmotionalSummaryDetail(
+                            context,
+                            'Monthly Insights',
+                            stats.dominantThisMonth!,
+                            stats.summaryThisMonth ?? 'Analysis pending...',
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              
+              if (stats != null && distribution.isNotEmpty) const SizedBox(height: 24),
+
+              // Mood Distribution Bar
+              if (distribution.isNotEmpty) ...[
+                 Text(
+                    'Mood Distribution',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: _kBody.withValues(alpha: 0.8),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _MoodDistributionBar(distribution: distribution),
+              ],
+            ],
+          ),
+        );
+      },
+      orElse: () => const _EmotionalInsightsRowSkeleton(),
+    );
+  }
+}
+
+class _InsightCard extends StatelessWidget {
+  const _InsightCard({
+    required this.label,
+    required this.emotion,
+    this.summary,
+    required this.gradient,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final String emotion;
+  final String? summary;
+  final List<Color> gradient;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 170,
+        margin: const EdgeInsets.only(right: 14),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: _kSurfaceVariant),
+          boxShadow: [
+            BoxShadow(
+              color: gradient.first.withValues(alpha: 0.08),
+              blurRadius: 15,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: gradient.first.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, size: 14, color: gradient.first),
+                ),
+                Icon(Icons.north_east_rounded, size: 12, color: _kSubtle.withValues(alpha: 0.5)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2,
+                color: _kSubtle,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              emotion,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: _kBody,
+                height: 1.1,
+              ),
+            ),
+            if (summary != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                summary!,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: _kBody.withValues(alpha: 0.5),
+                  height: 1.3,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+void _showEmotionalSummaryDetail(
+  BuildContext context,
+  String title,
+  String emotion,
+  String summary,
+) {
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) {
+      return Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: _kSurfaceVariant,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: _kSubtle,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  icon: const Icon(Icons.close_rounded),
+                  style: IconButton.styleFrom(
+                    backgroundColor: _kSurfaceVariant.withValues(alpha: 0.3),
+                    foregroundColor: _kBody,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              emotion,
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                color: _kPurple,
+                height: 1.1,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: _kSurfaceVariant.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: _kSurfaceVariant.withValues(alpha: 0.5)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.auto_awesome_rounded, size: 20, color: Color(0xFFFFD54F)),
+                      const SizedBox(width: 8),
+                      Text(
+                        'AI SUMMARY',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: _kSubtle,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    summary,
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1.6,
+                      color: _kBody.withValues(alpha: 0.85),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () => Navigator.pop(ctx),
+                style: FilledButton.styleFrom(
+                  backgroundColor: _kPurple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: const Text(
+                  'Dismiss',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+class _MoodDistributionBar extends StatelessWidget {
+  const _MoodDistributionBar({required this.distribution});
+  final Map<String, int> distribution;
+
+  @override
+  Widget build(BuildContext context) {
+    final total = distribution.values.fold(0, (a, b) => a + b);
+    if (total == 0) return const SizedBox.shrink();
+
+    // Sort moods by frequency
+    final sortedMoods = distribution.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: SizedBox(
+            height: 12,
+            child: Row(
+              children: [
+                for (int i = 0; i < sortedMoods.length; i++)
+                  Expanded(
+                    flex: sortedMoods[i].value,
+                    child: Container(
+                      color: _getMoodColor(sortedMoods[i].key, i),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 16,
+          runSpacing: 8,
+          children: [
+            for (int i = 0; i < sortedMoods.take(4).length; i++)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _getMoodColor(sortedMoods[i].key, i),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${sortedMoods[i].key} (${sortedMoods[i].value})',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: _kBody.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Color _getMoodColor(String mood, int index) {
+    // Try to match with existing mood colors if possible, else use a fallback sequence
+    final m = MoodType.values.firstWhere(
+      (e) => e.name.toLowerCase() == mood.toLowerCase(),
+      orElse: () => MoodType.neutral,
+    );
+    
+    switch (m) {
+      case MoodType.happy: return const Color(0xFFFFD54F);
+      case MoodType.calm: return const Color(0xFF81C784);
+      case MoodType.sad: return const Color(0xFF64B5F6);
+      case MoodType.anxious: return const Color(0xFFFF8A65);
+      case MoodType.excited: return const Color(0xFFF06292);
+      case MoodType.angry: return const Color(0xFFE57373);
+      case MoodType.neutral: return const Color(0xFFBDBDBD);
+      default:
+        // Use a nice color palette for unknown moods based on index
+        final colors = [
+          const Color(0xFF9575CD),
+          const Color(0xFF4FC3F7),
+          const Color(0xFF81C784),
+          const Color(0xFFFFD54F),
+        ];
+        return colors[index % colors.length];
+    }
+  }
+}
+
+class _EmotionalInsightsRowSkeleton extends StatelessWidget {
+  const _EmotionalInsightsRowSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(width: 150, height: 20, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(4))),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Container(width: 160, height: 100, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(24))),
+              const SizedBox(width: 12),
+              Container(width: 160, height: 100, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(24))),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ─── Mood Check-in Row ────────────────────────────────────────────────────────
 class _MoodCheckInRow extends ConsumerWidget {
   const _MoodCheckInRow({required this.ref});
@@ -693,13 +1158,20 @@ class _StatsRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dashAsync = ref.watch(adolescentDashboardControllerProvider);
+    final historyAsync = ref.watch(moodHistoryControllerProvider);
 
     return dashAsync.maybeWhen(
       data: (state) {
         final l10n = context.localizations;
         final data = state.data;
         final journals = data?.totalJournals ?? 0;
-        final moods = data?.totalMoods ?? 0;
+        
+        // Use MoodHistory for count as requested, fallback to dashboard data field
+        final moodsCount = historyAsync.maybeWhen(
+          data: (h) => h.records.length,
+          orElse: () => data?.totalMoods ?? 0,
+        );
+        
         final recs = data?.educationalRecommendations.length ?? 0;
 
         return Padding(
@@ -709,7 +1181,7 @@ class _StatsRow extends ConsumerWidget {
               _StatPill(label: l10n.journals, value: '$journals', icon: Icons.menu_book_rounded,
                   gradient: const [Color(0xFFA875FF), Color(0xFF8D53FF)]),
               const SizedBox(width: 10),
-              _StatPill(label: l10n.moods, value: '$moods', icon: Icons.sentiment_very_satisfied_rounded,
+              _StatPill(label: l10n.moods, value: '$moodsCount', icon: Icons.sentiment_very_satisfied_rounded,
                   gradient: const [Color(0xFF38C7F0), Color(0xFF4DB0F6)]),
               const SizedBox(width: 10),
               _StatPill(label: l10n.forYou, value: '$recs', icon: Icons.school_rounded,

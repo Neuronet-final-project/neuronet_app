@@ -16,6 +16,7 @@ abstract class JournalEntry with _$JournalEntry {
     @JsonKey(name: 'mood', fromJson: _nullableMoodFromString, toJson: _nullableMoodToJson) MoodType? mood,
     @JsonKey(name: 'sentiment_score') double? sentimentScore,
     @JsonKey(name: 'risk_level') String? riskLevel,
+    String? emotion,
     @JsonKey(name: 'keywords_detected') List<String>? keywordsDetected,
     @JsonKey(name: 'translated_content') String? translatedContent,
   }) = _JournalEntry;

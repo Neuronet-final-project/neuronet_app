@@ -124,10 +124,27 @@ abstract class RecentJournal with _$RecentJournal {
     @JsonKey(name: 'created_at') required DateTime createdAt,
     MoodType? mood,
     String? title,
+    String? emotion,
+    String? summary,
   }) = _RecentJournal;
 
   factory RecentJournal.fromJson(Map<String, dynamic> json) =>
       _$RecentJournalFromJson(json);
+}
+
+@freezed
+abstract class EmotionalStats with _$EmotionalStats {
+  const factory EmotionalStats({
+    @JsonKey(name: 'dominant_today') String? dominantToday,
+    @JsonKey(name: 'dominant_this_week') String? dominantThisWeek,
+    @JsonKey(name: 'dominant_this_month') String? dominantThisMonth,
+    @JsonKey(name: 'summary_today') String? summaryToday,
+    @JsonKey(name: 'summary_this_week') String? summaryThisWeek,
+    @JsonKey(name: 'summary_this_month') String? summaryThisMonth,
+  }) = _EmotionalStats;
+
+  factory EmotionalStats.fromJson(Map<String, dynamic> json) =>
+      _$EmotionalStatsFromJson(json);
 }
 
 /// Matches AdolescentDashboardResponse from the production backend.
@@ -137,7 +154,8 @@ abstract class DashboardData with _$DashboardData {
     @JsonKey(name: 'recent_journals') required List<RecentJournal> recentJournals,
     @JsonKey(name: 'total_journals') @Default(0) int totalJournals,
     @JsonKey(name: 'mood_distribution', fromJson: _moodDistributionFromJson, toJson: _moodDistributionToJson) @Default({}) Map<String, int> moodDistribution,
-    @JsonKey(name: 'total_moods') @Default(0) int totalMoods,
+    @JsonKey(name: 'total_mood_tracker_entries') @Default(0) int totalMoods,
+    @JsonKey(name: 'emotional_stats') EmotionalStats? emotionalStats,
     @JsonKey(name: 'educational_recommendations') @Default([]) List<Map<String, dynamic>> educationalRecommendations,
     @JsonKey(name: 'generated_at') DateTime? generatedAt,
   }) = _DashboardData;

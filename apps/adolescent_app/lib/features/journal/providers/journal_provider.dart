@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:adolescent_app/features/dashboard/providers/dashboard_provider.dart';
 import 'package:adolescent_app/features/auth/providers/auth_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -152,6 +153,9 @@ class JournalController extends _$JournalController {
         error: current.error,
       ),
     );
+
+    // Refresh dashboard stats
+    ref.invalidate(adolescentDashboardControllerProvider);
 
     unawaited(_reconcileWithServer());
   }

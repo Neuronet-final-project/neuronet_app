@@ -17,7 +17,6 @@ class NewJournalEntryScreen extends ConsumerStatefulWidget {
 class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
-  MoodType? _selectedMood;
   bool _isSaving = false;
 
   List<String> get _sparks => [
@@ -57,7 +56,7 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
     ref.read(journalControllerProvider.notifier).beginSaveEntry(
       content,
       title: title.isEmpty ? null : title,
-      mood: _selectedMood ?? MoodType.neutral,
+      mood: MoodType.neutral,
     );
 
     if (!mounted) return;
@@ -166,11 +165,6 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
               ),
               const SizedBox(height: 8),
 
-              // 2. Mood Selector Strip (Enhanced for Premium Look)
-              JournalComposerMoodStrip(
-                selectedMood: _selectedMood,
-                onMoodSelected: (mood) => setState(() => _selectedMood = mood),
-              ),
               const SizedBox(height: 24),
               Expanded(
                 child: Container(
@@ -212,23 +206,23 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(color: const Color(0xFFE4DAF5)),
                               ),
-child: Row(
-                                 children: [
-                                   Icon(Icons.favorite_rounded, color: Color(0xFF6A1FDB), size: 20),
-                                   SizedBox(width: 10),
-                                   Expanded(
-                                     child: Text(
-                                       context.localizations.safeSpaceNote,
-                                       style: TextStyle(
-                                         fontSize: 15,
-                                         fontWeight: FontWeight.w700,
-                                         height: 1.35,
-                                         color: Color(0xFF5A4A8A),
-                                       ),
-                                     ),
-                                   ),
-                                 ],
-                               ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.favorite_rounded, color: Color(0xFF6A1FDB), size: 20),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      context.localizations.safeSpaceNote,
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.35,
+                                        color: Color(0xFF5A4A8A),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 24),
                             JournalComposerSparkStrip(

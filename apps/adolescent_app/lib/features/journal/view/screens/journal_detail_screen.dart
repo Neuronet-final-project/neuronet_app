@@ -43,72 +43,72 @@ class JournalDetailScreen extends ConsumerWidget {
           }
           return _DetailContent(entry: entry);
         },
-loading: () => Center(
-           child: Container(
-             padding: const EdgeInsets.all(32),
-             decoration: BoxDecoration(
-               color: Colors.white,
-               borderRadius: BorderRadius.circular(24),
-               border: Border.all(color: const Color(0xFFE8E0F5)),
-               boxShadow: [
-                 BoxShadow(
-                   color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
-                   blurRadius: 24,
-                   offset: const Offset(0, 12),
-                 ),
-               ],
-             ),
-             child: Column(
-               mainAxisSize: MainAxisSize.min,
-               children: [
-                 const SizedBox(
-                   width: 36,
-                   height: 36,
-                   child: CircularProgressIndicator(
-                     color: Color(0xFF6A1FDB),
-                     strokeWidth: 3,
-                   ),
-                 ),
-                 const SizedBox(height: 16),
-                 Text(
-                   context.localizations.openingYourEntry,
-                   style: const TextStyle(
-                     fontWeight: FontWeight.w800,
-                     fontSize: 14,
-                     color: Color(0xFF6A5C9A),
-                   ),
-                 ),
-               ],
-             ),
-           ),
-         ),
-                error: (error, stack) => _ErrorBody(
-                message: '$error',
-                onRetry: () => ref.read(journalControllerProvider.notifier).refresh(),
+        loading: () => Center(
+          child: Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFE8E0F5)),
+              boxShadow: [
+                BoxShadow(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
                 ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF6A1FDB),
+                    strokeWidth: 3,
+                  ),
                 ),
-                );
-                }
-                }
+                const SizedBox(height: 16),
+                Text(
+                  context.localizations.openingYourEntry,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    color: Color(0xFF6A5C9A),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        error: (error, stack) => _ErrorBody(
+          message: '$error',
+          onRetry: () => ref.read(journalControllerProvider.notifier).refresh(),
+        ),
+      ),
+    );
+  }
+}
 
-                class _ErrorBody extends StatelessWidget {
-                const _ErrorBody({required this.message, required this.onRetry});
-                final String message;
-                final VoidCallback onRetry;
+class _ErrorBody extends StatelessWidget {
+  const _ErrorBody({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
 
-                @override
-                Widget build(BuildContext context) {
-                return Center(
-                child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: NeuroErrorWidget(
-                message: '${context.localizations.failedToLoadJournals}: $message',
-                onRetry: onRetry,
-                ),
-                ),
-                );
-                }
-                }
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: NeuroErrorWidget(
+          message: '${context.localizations.failedToLoadJournals}: $message',
+          onRetry: onRetry,
+        ),
+      ),
+    );
+  }
+}
 
 void _popOrGoJournal(BuildContext context) {
   if (context.canPop()) {
@@ -131,22 +131,6 @@ String _formatEntryForShare(JournalEntry entry) {
   buf.writeln();
   buf.write(entry.content.trim());
   return buf.toString();
-}
-
-Color _journalEntryMoodAccent(MoodType? mood) {
-  if (mood == null) return const Color(0xFF6A1FDB);
-  return switch (mood) {
-    MoodType.happy => const Color(0xFFFFA726),
-    MoodType.calm => const Color(0xFF43A047),
-    MoodType.anxious => const Color(0xFFFF7043),
-    MoodType.sad => const Color(0xFF42A5F5),
-    MoodType.hopeful => const Color(0xFFAB47BC),
-    MoodType.excited => const Color(0xFFEC407A),
-    MoodType.tired => const Color(0xFF7E57C2),
-    MoodType.angry => const Color(0xFFEF5350),
-    MoodType.stressed => const Color(0xFFFF8A65),
-    MoodType.neutral => const Color(0xFF6A1FDB),
-  };
 }
 
 Future<void> _journalDetailShareFromAnchor(
@@ -278,9 +262,19 @@ class _DetailContentState extends State<_DetailContent> {
     final entry = widget.entry;
     final wordCount = entry.content.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).length;
     final readTime = wordCount == 0 ? 1 : (wordCount / 200).ceil();
-    final moodColor = _journalEntryMoodAccent(entry.mood);
-    final moodLabel = entry.mood?.localizedLabel(context.localizations) ?? context.localizations.moodNeutral;
-    final moodEmoji = entry.mood?.emoji ?? '😐';
+    
+    // Emotion and Sentiment logic
+    final emotion = entry.emotion ?? 'Analysis pending...';
+    final sentimentScore = entry.sentimentScore;
+    final sentimentLabel = sentimentScore == null
+        ? '---'
+        : (sentimentScore >= 0.5 ? 'Positive' : 'Negative');
+    final sentimentIcon = sentimentScore == null
+        ? Icons.analytics_outlined
+        : (sentimentScore >= 0.5 ? Icons.sentiment_very_satisfied_rounded : Icons.sentiment_very_dissatisfied_rounded);
+    final sentimentColor = sentimentScore == null
+        ? const Color(0xFF6A5C9A)
+        : (sentimentScore >= 0.5 ? const Color(0xFF43A047) : const Color(0xFFEF5350));
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
@@ -373,8 +367,8 @@ class _DetailContentState extends State<_DetailContent> {
                             ),
                           ],
                         ),
-                        child: Center(
-                          child: Text(moodEmoji, style: const TextStyle(fontSize: 44)),
+                        child: const Center(
+                          child: Icon(Icons.auto_stories_rounded, size: 44, color: Colors.white),
                         ),
                       ),
                       const SizedBox(width: 20),
@@ -456,10 +450,19 @@ class _DetailContentState extends State<_DetailContent> {
                         children: [
                           Expanded(
                             child: _StatColumn(
-                              icon: Icons.auto_awesome_rounded,
-                              iconColor: moodColor,
-                              value: moodLabel,
-                              caption: context.localizations.moodLabel,
+                              icon: Icons.face_retouching_natural_rounded,
+                              iconColor: const Color(0xFF6A1FDB),
+                              value: emotion,
+                              caption: 'EMOTION',
+                            ),
+                          ),
+                          _VerticalHairline(color: NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.35)),
+                          Expanded(
+                            child: _StatColumn(
+                              icon: sentimentIcon,
+                              iconColor: sentimentColor,
+                              value: sentimentLabel,
+                              caption: 'SENTIMENT',
                             ),
                           ),
                           _VerticalHairline(color: NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.35)),

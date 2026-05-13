@@ -1,3 +1,4 @@
+import 'package:adolescent_app/features/dashboard/providers/dashboard_provider.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
@@ -62,6 +63,10 @@ class MoodController extends _$MoodController {
         isSubmitting: false,
         showSuccess: true,
       );
+
+      // Refresh dashboard stats and mood history
+      ref.invalidate(adolescentDashboardControllerProvider);
+      ref.invalidate(moodHistoryControllerProvider);
     } catch (e) {
       state = state.copyWith(
         isSubmitting: false,
