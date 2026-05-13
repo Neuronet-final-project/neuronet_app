@@ -77,6 +77,13 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
       }
       if (next.status == AuthStatus.unauthenticated &&
           previous?.status == AuthStatus.activating) {
+        
+        // Clear all fields
+        _emailController.clear();
+        _codeController.clear();
+        _passwordController.clear();
+        _confirmPasswordController.clear();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.accountActivatedLogin),
@@ -86,6 +93,11 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
             margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
           ),
         );
+
+        // Auto-navigate back to login after showing success msg
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
       }
     });
 
