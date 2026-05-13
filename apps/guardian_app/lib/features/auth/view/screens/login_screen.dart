@@ -381,7 +381,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   alignment: Alignment.centerRight,
                                   child: TextButton(
                                     onPressed:
-                                        null, // TODO: add forgot password
+                                        () => context.push(GuardianRoutes.forgotPassword),
                                     style: TextButton.styleFrom(
                                       padding: const EdgeInsets.only(
                                           top: 4, bottom: 0),

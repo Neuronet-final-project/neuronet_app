@@ -31,6 +31,7 @@ import 'package:adolescent_app/features/educational/view/screens/recommendations
 import 'package:adolescent_app/features/educational/view/screens/discover_pages_screen.dart';
 import 'package:adolescent_app/features/educational/view/screens/followed_pages_screen.dart';
 import 'package:adolescent_app/features/auth/view/screens/splash_screen.dart';
+import 'package:adolescent_app/features/auth/view/screens/forgot_password_screen.dart';
 import 'package:adolescent_app/features/onboarding/view/screens/onboarding_screen.dart';
 import 'package:adolescent_app/features/activities/view/screens/activities_screen.dart';
 import 'package:adolescent_app/features/activities/view/screens/breathing_exercise_screen.dart';
@@ -69,6 +70,7 @@ class AdolescentRoutes {
   static const String aiQuest = '/ai-quest';
   static const String alerts = '/alerts';
   static const String searchJournal = '/journal/search';
+  static const String forgotPassword = '/forgot-password';
 }
 
 // Global ChangeNotifier for auth state changes.
@@ -159,7 +161,8 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      if (isLoggingIn || isActivating || isOnboarding) return null;
+      final isForgotPassword = currentLocation == AdolescentRoutes.forgotPassword;
+      if (isLoggingIn || isActivating || isOnboarding || isForgotPassword) return null;
       debugPrint('[Router] isUnauthenticated, redirecting to login');
       return AdolescentRoutes.login;
     },
@@ -180,6 +183,10 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AdolescentRoutes.activate,
         builder: (context, state) => const ActivationScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       // Bottom navigation shell
       StatefulShellRoute.indexedStack(

@@ -202,4 +202,44 @@ class AuthService {
       return Result.failure(failureFromException(e));
     }
   }
+
+  /// Request a password reset OTP for the given email
+  Future<Result<void>> requestPasswordReset(String email) async {
+    try {
+      await _apiClient.post(
+        ApiEndpoints.forgotPassword,
+        data: {'email': email},
+      );
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Verify the OTP and get a reset token
+  Future<Result<String>> verifyResetOtp(String email, String otp) async {
+    try {
+      final response = await _apiClient.post(
+        ApiEndpoints.verifyResetOtp,
+        data: {'email': email, 'otp': otp},
+      );
+      final token = (response.data as Map<String, dynamic>)['reset_token'] as String;
+      return Result.success(token);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Reset the password using the reset token
+  Future<Result<void>> resetPassword(String email, String token, String newPassword) async {
+    try {
+      await _apiClient.post(
+        ApiEndpoints.resetPassword,
+        data: {'email': email, 'token': token, 'new_password': newPassword},
+      );
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
 }

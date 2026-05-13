@@ -532,7 +532,7 @@ class _SuccessView extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.check_circle_rounded,
+                  Icons.mark_email_read_rounded,
                   size: 80,
                   color: Colors.green,
                 ),
@@ -549,7 +549,7 @@ class _SuccessView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Your adolescent has been successfully registered. Share this activation code with them to link their device.',
+                'Your adolescent has been successfully registered. We have sent an activation code to their email address. They can use it to link their device and seamlessly set up their account.',
                 style: TextStyle(
                   fontSize: 15,
                   color: NeuroColors.onSurfaceVariant,
@@ -557,8 +557,6 @@ class _SuccessView extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 48),
-              _buildCodeDisplay(context),
               const Spacer(),
               SizedBox(
                 width: double.infinity,
@@ -573,73 +571,6 @@ class _SuccessView extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCodeDisplay(BuildContext context) {
-    return Column(
-      children: [
-        const Text(
-          'ACTIVATION CODE',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2,
-            color: NeuroColors.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 16),
-        InkWell(
-          onTap: () {
-            Clipboard.setData(ClipboardData(text: activationCode));
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Activation code copied'),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          },
-          borderRadius: BorderRadius.circular(24),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: NeuroColors.guardianPrimary.withValues(alpha: 0.2),
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  activationCode,
-                  style: const TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 4,
-                    color: NeuroColors.guardianPrimary,
-                    fontFamily: 'Courier', // Mono feel
-                  ),
-                ),
-                const SizedBox(width: 20),
-                const Icon(
-                  Icons.copy_rounded,
-                  color: NeuroColors.guardianPrimary,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

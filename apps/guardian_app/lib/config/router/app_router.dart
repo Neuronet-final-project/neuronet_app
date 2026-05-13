@@ -18,6 +18,7 @@ import '../../features/auth/view/screens/login_screen.dart';
 import '../../features/auth/view/screens/sign_up_screen.dart';
 import '../../features/auth/view/screens/activation_screen.dart';
 import '../../features/auth/view/screens/splash_screen.dart';
+import '../../features/auth/view/screens/forgot_password_screen.dart';
 import '../../features/onboarding/view/screens/onboarding_screen.dart';
 import '../../features/adolescents/view/screens/adolescent_list_screen.dart';
 import '../../features/adolescents/view/screens/adolescent_detail_screen.dart';
@@ -56,6 +57,7 @@ class GuardianRoutes {
   static const String educationalPage = '/learn/:slug';
   static const String approvals = '/approvals';
   static const String adolescentFollows = '/adolescent/:adolescentId/follows';
+  static const String forgotPassword = '/forgot-password';
 }
 
 // Global ChangeNotifier for auth state changes.
@@ -145,7 +147,8 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       }
 
       // 5. Unauthenticated — send to login (even on error so user can retry)
-      if (isLoggingIn || isActivating || isSigningUp || isOnboarding)
+      final isForgotPassword = currentLocation == GuardianRoutes.forgotPassword;
+      if (isLoggingIn || isActivating || isSigningUp || isOnboarding || isForgotPassword)
         return null;
       return GuardianRoutes.login;
     },
@@ -170,6 +173,11 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: GuardianRoutes.activate,
         builder: (context, state) => const ActivationScreen(),
+      ),
+
+      GoRoute(
+        path: GuardianRoutes.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
 
       // Bottom navigation shell

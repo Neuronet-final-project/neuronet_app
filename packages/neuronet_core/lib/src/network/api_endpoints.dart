@@ -21,6 +21,9 @@ class ApiEndpoints {
   static const String createAdolescent = '/auth/guardian/create-adolescent';
   static const String pendingAdolescents = '/auth/guardian/pending-adolescents';
   static const String deviceToken = '/auth/device-token';
+  static const String forgotPassword = '/auth/forgot-password';
+  static const String verifyResetOtp = '/auth/verify-reset-otp';
+  static const String resetPassword = '/auth/reset-password';
 
   // Dashboard
   static const String guardianDashboard = '/dashboard/guardian';
