@@ -62,7 +62,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
       backgroundColor: _kSurface,
       body: RefreshIndicator(
         color: _kPurple,
-        onRefresh: () => ref.refresh(adolescentDashboardControllerProvider.future),
+        onRefresh: () async {
+          ref.invalidate(moodHistoryControllerProvider);
+          return ref.refresh(adolescentDashboardControllerProvider.future);
+        },
         child: Consumer(
           builder: (context, ref, _) {
             final dashboardState = ref.watch(adolescentDashboardControllerProvider);
@@ -1238,10 +1241,10 @@ class _StatsRow extends ConsumerWidget {
         final data = state.data;
         final journals = data?.totalJournals ?? 0;
         // Use only /moods/me endpoint length for Moods count.
-        final moodsCount = historyAsync.maybeWhen(
-          data: (h) => h.records.length,
-          orElse: () => 0,
-        );
+        int moodsCount = historyAsync.value?.records.length ?? 0;
+        if (moodsCount == 0) {
+          moodsCount = data?.totalMoods ?? 0;
+        }
         
         final recs = data?.educationalRecommendations.length ?? 0;
 
