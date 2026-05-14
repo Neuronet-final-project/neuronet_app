@@ -123,9 +123,18 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
 
     final isConsentGranted = consentAsync.value?.counselorChat ?? true;
     final counselorEmail = chatState.value?.counselorEmail;
-    final appBarTitle = counselorEmail != null
-        ? _emailToDisplayName(counselorEmail)
-        : context.localizations.counselorChat;
+    final stateCounselorName = chatState.value?.counselorName;
+    
+    // Priority: 
+    // 1. Name from state (fetched from assignment API)
+    // 2. Name derived from email (fallback)
+    // 3. Default "Counselor" label
+    final counselorName = stateCounselorName ?? 
+        (counselorEmail != null
+            ? _emailToDisplayName(counselorEmail)
+            : context.localizations.counselorLabel);
+            
+    final appBarTitle = counselorName;
 
     final showIncomingCall =
         callState.value?.status == CallStatus.ringing &&
@@ -247,7 +256,10 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                       itemCount: messages.length,
                       itemBuilder: (context, index) {
                         final message = messages[index];
-                        final isUser = message.senderRole == 'adolescent';
+                        final isCallLog = message.messageType == MessageContentType.callLog;
+                        final isUser = isCallLog 
+                            ? (message.content.toLowerCase().contains('you ') || message.content.toLowerCase().startsWith('you '))
+                            : message.senderRole == 'adolescent';
                         return NeuroChatBubble(
                           messageContent: message.content,
                           timestamp: message.createdAt,
@@ -256,6 +268,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                           userColor: theme.colorScheme.primary,
                           messageType: message.messageType,
                           attachmentUrl: message.attachmentUrl,
+                          onDelete: () => ref.read(counselorChatControllerProvider.notifier).deleteMessage(message.id),
                         );
                       },
                     );
@@ -315,7 +328,8 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
               ],
             ),
           ),
-          _buildMessageInput(context, theme, isConsentGranted),
+          if (!showActiveCall && !showIncomingCall)
+            _buildMessageInput(context, theme, isConsentGranted),
         ],
       ),
     );
@@ -398,29 +412,53 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
 
   Future<void> _startVoiceCall() async {
     final conversationId = ref.read(counselorChatControllerProvider.notifier).conversationId;
-    if (conversationId == null) return;
+    if (conversationId == null) {
+      debugPrint('[CounselorChat] Cannot start call: no conversationId');
+      return;
+    }
 
     final chatState = ref.read(counselorChatControllerProvider).value;
     final counselorEmail = chatState?.counselorEmail;
+    
+    if (counselorEmail == null || counselorEmail.isEmpty) {
+      debugPrint('[CounselorChat] Cannot start call: counselorEmail is null or empty');
+      return;
+    }
+
+    final stateCounselorName = chatState?.counselorName;
+    final displayName = stateCounselorName ?? _emailToDisplayName(counselorEmail);
 
     await ref.read(callControllerProvider.notifier).startCall(
           conversationId: conversationId,
           callType: CallType.voice,
           remotePeerEmail: counselorEmail,
+          remotePeerName: displayName,
         );
   }
 
   Future<void> _startVideoCall() async {
     final conversationId = ref.read(counselorChatControllerProvider.notifier).conversationId;
-    if (conversationId == null) return;
+    if (conversationId == null) {
+      debugPrint('[CounselorChat] Cannot start video call: no conversationId');
+      return;
+    }
 
     final chatState = ref.read(counselorChatControllerProvider).value;
     final counselorEmail = chatState?.counselorEmail;
+    
+    if (counselorEmail == null || counselorEmail.isEmpty) {
+      debugPrint('[CounselorChat] Cannot start video call: counselorEmail is null or empty');
+      return;
+    }
+
+    final stateCounselorName = chatState?.counselorName;
+    final displayName = stateCounselorName ?? _emailToDisplayName(counselorEmail);
 
     await ref.read(callControllerProvider.notifier).startCall(
           conversationId: conversationId,
           callType: CallType.video,
           remotePeerEmail: counselorEmail,
+          remotePeerName: displayName,
         );
   }
 }

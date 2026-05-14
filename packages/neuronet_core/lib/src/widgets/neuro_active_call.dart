@@ -55,10 +55,28 @@ class _NeuroActiveCallScreenState extends ConsumerState<NeuroActiveCallScreen> {
   }
 
   String get _remoteName {
-    // Use callerName from the Call model if available (from backend)
+    final state = ref.read(callControllerProvider).value;
+    
+    // 1. Check if we have a resolved name in the state
+    if (state?.remotePeerName != null && state!.remotePeerName!.isNotEmpty) {
+      return state.remotePeerName!;
+    }
+
+    // 2. Check Call model fields (checking both caller/callee based on who we are)
+    // If we are the caller (isOutgoingCaller), the "remote" is the callee.
+    // However, the widget doesn't know _isOutgoingCaller directly, but we can check
+    // if widget.call.calleeName is populated and different from ours.
+    // Or simpler: check calleeName first if we initiated, but the Call model doesn't always have it.
+    
+    if (widget.call.calleeName != null && widget.call.calleeName!.isNotEmpty) {
+       // If calleeName is present, it's likely the remote person if we started the call
+       return widget.call.calleeName!;
+    }
+
     if (widget.call.callerName != null && widget.call.callerName!.isNotEmpty) {
       return widget.call.callerName!;
     }
+
     final email = widget.remotePeerEmail;
     if (email == null) return context.localizations.unknownCaller;
     return email.split('@').first[0].toUpperCase() +

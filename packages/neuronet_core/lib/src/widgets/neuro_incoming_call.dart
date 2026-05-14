@@ -196,13 +196,22 @@ class _NeuroIncomingCallScreenState extends ConsumerState<NeuroIncomingCallScree
 
   String get _callerName {
     final l10n = context.localizations;
-    final call = widget.incomingCall ?? ref.read(callControllerProvider).value?.currentCall;
+    final state = ref.read(callControllerProvider).value;
+    
+    // 1. Check state for resolved name
+    if (state?.remotePeerName != null && state!.remotePeerName!.isNotEmpty) {
+      return state.remotePeerName!;
+    }
+
+    final call = widget.incomingCall ?? state?.currentCall;
     if (call == null) return l10n.unknownCaller;
 
-    // Use callerName if available (from backend), otherwise derive from email
+    // 2. Use callerName if available (from backend)
     if (call.callerName != null && call.callerName!.isNotEmpty) {
       return call.callerName!;
     }
+
+    // 3. Fallback to email derivation
     final email = call.callerEmail;
     if (email == null) return l10n.unknownCaller;
     return email.split('@').first[0].toUpperCase() + email.split('@').first.substring(1);

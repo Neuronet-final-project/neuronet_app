@@ -164,7 +164,13 @@ class MoodScreen extends ConsumerWidget {
           ),
           child: IconButton(
             icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF2C1C5F), size: 20),
-            onPressed: () => context.go(AdolescentRoutes.home),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go(AdolescentRoutes.home);
+              }
+            },
           ),
         ),
       ),
@@ -475,7 +481,7 @@ class MoodScreen extends ConsumerWidget {
               ],
             ),
             child: ElevatedButton(
-              onPressed: () => context.go(AdolescentRoutes.home),
+              onPressed: () => context.go(AdolescentRoutes.home), // Keep go here as it is a final success state
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 foregroundColor: Colors.white,

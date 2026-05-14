@@ -24,6 +24,7 @@ class NeuroChatBubble extends StatefulWidget {
     this.maxWidthFactor = 0.75,
     this.messageType = MessageContentType.text,
     this.attachmentUrl,
+    this.onDelete,
   });
 
   /// The message text to display.
@@ -49,6 +50,9 @@ class NeuroChatBubble extends StatefulWidget {
 
   /// URL or file path to the attached media file.
   final String? attachmentUrl;
+
+  /// Callback when user confirms message deletion.
+  final VoidCallback? onDelete;
 
   @override
   State<NeuroChatBubble> createState() => _NeuroChatBubbleState();
@@ -132,34 +136,64 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
             child: AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * widget.maxWidthFactor,
-                ),
-                decoration: BoxDecoration(
-                  color: widget.isUser ? accentColor : NeuroColors.surface,
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(20),
-                    topRight: const Radius.circular(20),
-                    bottomLeft: Radius.circular(widget.isUser ? 20 : 4),
-                    bottomRight: Radius.circular(widget.isUser ? 4 : 20),
+              child: GestureDetector(
+                onLongPress: (widget.isUser && widget.onDelete != null)
+                    ? () => _showDeleteConfirmation(context)
+                    : null,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * widget.maxWidthFactor,
                   ),
-                  boxShadow: [
-                    if (!widget.isUser)
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                  ],
+                  decoration: BoxDecoration(
+                    color: widget.isUser ? accentColor : NeuroColors.surface,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(20),
+                      topRight: const Radius.circular(20),
+                      bottomLeft: Radius.circular(widget.isUser ? 20 : 4),
+                      bottomRight: Radius.circular(widget.isUser ? 4 : 20),
+                    ),
+                    boxShadow: [
+                      if (!widget.isUser)
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                    ],
+                  ),
+                  child: _buildBubbleContent(context, accentColor, formattedTime),
                 ),
-                child: _buildBubbleContent(context, accentColor, formattedTime),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context) {
+    final l10n = context.localizations;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteMessageTitle),
+        content: Text(l10n.deleteMessageConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancelLabel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              widget.onDelete?.call();
+            },
+            style: TextButton.styleFrom(foregroundColor: NeuroColors.error),
+            child: Text(l10n.deleteLabel),
+          ),
+        ],
       ),
     );
   }
@@ -174,6 +208,7 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
       MessageContentType.image => _buildImageBubble(context, accentColor, formattedTime, effectiveUrl),
       MessageContentType.video => _buildVideoBubble(context, accentColor, formattedTime, effectiveUrl),
       MessageContentType.file => _buildFileBubble(accentColor, formattedTime, effectiveUrl),
+      MessageContentType.callLog => _buildCallLogBubble(accentColor, formattedTime),
       _ => _buildTextBubble(accentColor, formattedTime),
     };
   }
@@ -259,16 +294,18 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
             height: 1.4,
           ),
         ),
-        const SizedBox(height: 4),
-        NeuroTranslateButton(
-          text: widget.messageContent,
-          color: widget.isUser ? Colors.white.withValues(alpha: 0.9) : accentColor,
-          onTranslationDone: (translated, isOriginal) {
-            setState(() {
-              _displayContent = translated;
-            });
-          },
-        ),
+        if (widget.messageType == MessageContentType.text) ...[
+          const SizedBox(height: 4),
+          NeuroTranslateButton(
+            text: widget.messageContent,
+            color: widget.isUser ? Colors.white.withValues(alpha: 0.9) : accentColor,
+            onTranslationDone: (translated, isOriginal) {
+              setState(() {
+                _displayContent = translated;
+              });
+            },
+          ),
+        ],
         const SizedBox(height: 4),
         Text(
           formattedTime,
@@ -439,6 +476,53 @@ class _NeuroChatBubbleState extends State<NeuroChatBubble> with TickerProviderSt
           ),
         ),
         const SizedBox(height: 4),
+        Text(
+          formattedTime,
+          style: TextStyle(
+            color: widget.isUser
+                ? Colors.white.withValues(alpha: 0.7)
+                : NeuroColors.onSurfaceVariant,
+            fontSize: 10,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCallLogBubble(Color accentColor, String formattedTime) {
+    final isMissed = widget.messageContent.toLowerCase().contains('missed');
+    final isOutgoing = widget.isUser;
+
+    return Column(
+      crossAxisAlignment:
+          widget.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isMissed
+                  ? Icons.call_missed_rounded
+                  : (isOutgoing
+                      ? Icons.call_made_rounded
+                      : Icons.call_received_rounded),
+              size: 16,
+              color: widget.isUser
+                  ? Colors.white
+                  : (isMissed ? Colors.red : accentColor),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              widget.messageContent,
+              style: TextStyle(
+                color: widget.isUser ? Colors.white : NeuroColors.onSurface,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
         Text(
           formattedTime,
           style: TextStyle(

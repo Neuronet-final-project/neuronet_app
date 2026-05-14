@@ -28,7 +28,12 @@ class AdolescentDashboardController extends _$AdolescentDashboardController {
   }
 
   Future<void> refresh() async {
-    state = const AsyncValue.loading();
+    // If we already have data, don't set state to loading manually.
+    // Riverpod will automatically set state to 'isLoading: true' while keeping the data.
+    if (!state.hasValue) {
+      state = const AsyncValue.loading();
+    }
+    
     state = await AsyncValue.guard(() async {
       final service = ref.read(dashboardServiceProvider);
       final result = await service.getAdolescentDashboard();
