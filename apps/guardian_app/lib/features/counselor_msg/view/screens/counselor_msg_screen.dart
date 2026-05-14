@@ -5,6 +5,7 @@ import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/counselor_chat_provider.dart';
 import '../../../consent/providers/consent_provider.dart';
 import '../../../ui/bento_card.dart';
+import '../../../ui/l10n_utils.dart';
 
 class CounselorMsgScreen extends ConsumerStatefulWidget {
   final String adolescentId;
@@ -108,7 +109,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
     }
 
     if (state.error != null && state.messages.isEmpty) {
-      return Center(child: Text(state.error!));
+      return Center(child: Text(translateError(context, state.error)));
     }
 
     // Auto-scroll when new messages arrive
@@ -146,7 +147,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              state.error!,
+              translateError(context, state.error),
               style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ),

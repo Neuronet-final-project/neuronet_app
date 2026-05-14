@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:guardian_app/features/auth/providers/auth_provider.dart';
 import 'package:guardian_app/config/router/app_router.dart';
+import 'package:guardian_app/features/ui/l10n_utils.dart';
 
 // ─── Rotating taglines shown under the logo ────────────────────────────────
 final _taglines = [
@@ -130,7 +131,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              next.errorMessage ?? 'An error occurred',
+              translateError(context, next.errorMessage),
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.w500),
             ),

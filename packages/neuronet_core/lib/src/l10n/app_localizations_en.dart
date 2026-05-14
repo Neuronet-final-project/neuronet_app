@@ -24,6 +24,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
   String get profile => 'Profile';
 
   @override
@@ -37,6 +40,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alerts => 'Alerts';
+
+  @override
+  String get unknownDate => 'Unknown date';
+
+  @override
+  String get accountIsActive => 'This account is active.';
+
+  @override
+  String get activationCodeSharedInfo =>
+      'Activation code was shared during registration. Ensure the adolescent enters it on their device.';
+
+  @override
+  String get accountIsInactiveInfo =>
+      'This account is inactive. Profile editing is disabled.';
 
   @override
   String get retry => 'Retry';
@@ -861,9 +878,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordHint => 'Password';
-
-  @override
-  String get forgotPassword => 'Forgot password?';
 
   @override
   String get newToNeuroNet => 'New to NeuroNet?';
@@ -1861,6 +1875,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get highRisk => 'HIGH';
 
   @override
+  String severityRisk(String risk) {
+    return '$risk RISK';
+  }
+
+  @override
   String get viewAlerts => 'View Alerts';
 
   @override
@@ -2374,6 +2393,34 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get consentParticipationLabel => 'General Participation & AI Analysis';
+
+  @override
+  String get consentParticipationDesc =>
+      'Enable AI-driven emotional analysis and trend detection for all journals.';
+
+  @override
+  String get consentShareAiSummariesLabel => 'AI Summaries & Risk Levels';
+
+  @override
+  String get consentShareAiSummariesDesc =>
+      'Allow viewing of AI-generated emotional summaries and designated risk levels.';
+
+  @override
+  String get consentShareAlertsLabel => 'Security Alerts & Notifications';
+
+  @override
+  String get consentShareAlertsDesc =>
+      'Receive immediate notifications when critical emotional patterns or risks are detected.';
+
+  @override
+  String get consentCounselorChatLabel => 'Counselor Private Messaging';
+
+  @override
+  String get consentCounselorChatDesc =>
+      'Authorize private one-on-one communication with assigned counselors.';
+
+  @override
   String chattingAboutAdolescent(String name) {
     return 'Chatting about $name';
   }
@@ -2568,6 +2615,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get relationshipToAdolescent => 'Relationship to Adolescent';
 
   @override
+  String get pleaseFillRequiredFields => 'Please fill in all required fields';
+
+  @override
+  String get pleaseEnterValidEmail => 'Please enter a valid email address';
+
+  @override
+  String failedToRegisterAdolescent(Object error) {
+    return 'Failed to register adolescent: $error';
+  }
+
+  @override
   String get loginTaglineEmpathy => 'Oversight with Empathy ❤️';
 
   @override
@@ -2591,4 +2649,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dateOfBirth => 'Date of Birth';
+
+  @override
+  String get unauthorizedGuardianAccess =>
+      'Unauthorized access: This account does not have Guardian privileges.';
+
+  @override
+  String get parent => 'Parent';
+
+  @override
+  String get legalGuardian => 'Legal Guardian';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get notAvailable => 'N/A';
 }

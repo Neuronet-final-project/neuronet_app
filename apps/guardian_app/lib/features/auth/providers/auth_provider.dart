@@ -98,7 +98,7 @@ class AuthController extends _$AuthController {
 
       // SECURITY: Validate role matches the app
       if (response.role != UserRole.guardian) {
-        state = AuthState.error('Unauthorized access: This account does not have Guardian privileges.');
+        state = AuthState.error('unauthorizedGuardianAccess');
         return;
       }
 
@@ -116,7 +116,7 @@ class AuthController extends _$AuthController {
         // Double check role from profile
         if (user.role != UserRole.guardian) {
           await storage.clearTokens();
-          state = AuthState.error('Unauthorized access: Account role mismatch.');
+          state = AuthState.error('unauthorizedRoleMismatch');
           return;
         }
 

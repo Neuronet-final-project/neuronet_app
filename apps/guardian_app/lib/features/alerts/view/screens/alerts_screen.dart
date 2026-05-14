@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:intl/intl.dart';
 import '../../../dashboard/providers/dashboard_provider.dart';
 import '../../../ui/bento_card.dart';
+import '../../../ui/l10n_utils.dart';
 
 class AlertsScreen extends ConsumerStatefulWidget {
   const AlertsScreen({super.key});
@@ -39,7 +41,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
               IconButton(
                 icon: const Icon(Icons.filter_list_rounded),
                 onPressed: _showFilterDialog,
-                tooltip: 'Filter alerts',
+                tooltip: context.localizations.filterBySeverity,
               ),
             ],
           ),
@@ -167,7 +169,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
               },
             ),
             ...['Low', 'Medium', 'High'].map((s) => ListTile(
-                  title: Text(s),
+                  title: Text(translateAlertSeverity(context, s)),
                   leading: Radio<String?>(
                     value: s,
                     // ignore: deprecated_member_use
@@ -219,7 +221,7 @@ class _AlertCard extends StatelessWidget {
                      border: Border.all(color: color.withValues(alpha: 0.4)),
                    ),
                    child: Text(
-                     '${alert.severityLevel.toUpperCase()} RISK',
+                     context.localizations.severityRisk(translateAlertSeverity(context, alert.severityLevel).toUpperCase()),
                      style: TextStyle(
                        color: color,
                        fontWeight: FontWeight.w900,
@@ -230,7 +232,7 @@ class _AlertCard extends StatelessWidget {
                  ),
                  const Spacer(),
                  Text(
-                   _formatDate(alert.createdAt),
+                   _formatDate(context, alert.createdAt),
                    style: TextStyle(
                      fontSize: 11,
                      fontWeight: FontWeight.w600,
@@ -372,12 +374,13 @@ class _AlertCard extends StatelessWidget {
     return NeuroColors.alertLow;
   }
 
-   String _formatDate(DateTime date) {
+   String _formatDate(BuildContext context, DateTime date) {
      final now = DateTime.now();
      final diff = now.difference(date);
-     if (diff.inDays == 0) return 'Today';
-     if (diff.inDays == 1) return 'Yesterday';
-     return '${date.day}/${date.month}/${date.year}';
+     final l10n = context.localizations;
+     if (diff.inDays == 0) return l10n.today;
+     if (diff.inDays == 1) return l10n.yesterday;
+     return DateFormat('dd/MM/yyyy').format(date);
    }
  }
 

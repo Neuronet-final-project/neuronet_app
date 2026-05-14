@@ -142,9 +142,9 @@ class _PersonalInfoCard extends StatelessWidget {
             children: [
               Icon(Icons.person_outline_rounded, color: NeuroColors.guardianPrimary, size: 20),
               const SizedBox(width: 10),
-              const Text(
-                'Personal Information',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: NeuroColors.guardianPrimaryDark),
+              Text(
+                context.localizations.personalInfo,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: NeuroColors.guardianPrimaryDark),
               ),
             ],
           ),

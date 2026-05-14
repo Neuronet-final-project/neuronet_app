@@ -5,6 +5,7 @@ import '../../providers/consent_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:collection/collection.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
+import 'package:guardian_app/features/ui/l10n_utils.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
 
 class ConsentScreen extends ConsumerWidget {
@@ -349,7 +350,7 @@ class ConsentScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        consent.consentType.label,
+                        consent.consentType.localizedLabel(context.localizations),
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: isMaster ? FontWeight.w700 : FontWeight.w600,
@@ -360,7 +361,7 @@ class ConsentScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        consent.consentType.description,
+                        consent.consentType.localizedDescription(context.localizations),
                         style: TextStyle(
                           fontSize: 12,
                           color: NeuroColors.onSurfaceVariant,
@@ -399,7 +400,7 @@ class ConsentScreen extends ConsumerWidget {
       if (context.mounted) {
         NeuroToast.show(
           context,
-          '${consent.consentType.label} ${value ? context.localizations.granted : context.localizations.revoked}',
+          '${consent.consentType.localizedLabel(context.localizations)} ${value ? context.localizations.granted : context.localizations.revoked}',
           type: value ? NeuroToastType.success : NeuroToastType.info,
         );
       }

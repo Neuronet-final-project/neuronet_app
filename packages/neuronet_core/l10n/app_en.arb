@@ -14,6 +14,10 @@
   "chat": "Chat",
   "mood": "Mood",
   "alerts": "Alerts",
+  "unknownDate": "Unknown Date",
+  "accountIsActive": "This account is already active.",
+  "activationCodeSharedInfo": "An activation code has been sent to the adolescent's email.",
+  "accountIsInactiveInfo": "This account is currently inactive and needs manual review.",
   "retry": "Retry",
   "failedToLoadDashboard": "Failed to load dashboard",
   "goodMorning": "Good morning",
@@ -821,6 +825,14 @@
   "lowRisk": "LOW",
   "mediumRisk": "MEDIUM",
   "highRisk": "HIGH",
+  "severityRisk": "{risk} RISK",
+  "@severityRisk": {
+    "placeholders": {
+      "risk": {
+        "type": "String"
+      }
+    }
+  },
   "viewAlerts": "View Alerts",
   "viewAlertsSubtitle": "Check active alerts for your adolescents",
   "addAdolescent": "Add Adolescent",
@@ -1086,6 +1098,14 @@
     }
   },
   "settingsForAdolescent": "Settings for {email}",
+  "consentParticipationLabel": "General Participation & AI Analysis",
+  "consentParticipationDesc": "Enable AI-driven emotional analysis and trend detection for all journals.",
+  "consentShareAiSummariesLabel": "AI Summaries & Risk Levels",
+  "consentShareAiSummariesDesc": "Allow viewing of AI-generated emotional summaries and designated risk levels.",
+  "consentShareAlertsLabel": "Security Alerts & Notifications",
+  "consentShareAlertsDesc": "Receive immediate notifications when critical emotional patterns or risks are detected.",
+  "consentCounselorChatLabel": "Counselor Private Messaging",
+  "consentCounselorChatDesc": "Authorize private one-on-one communication with assigned counselors.",
   "@settingsForAdolescent": {
     "placeholders": {
       "email": {
@@ -1239,5 +1259,19 @@
   "next": "Next",
   "getStarted": "Get Started",
   "failedToLoadAlerts": "Failed to load alerts. Please try again.",
-  "dateOfBirth": "Date of Birth"
+  "dateOfBirth": "Date of Birth",
+  "unknownDate": "Unknown date",
+  "accountIsActive": "This account is active.",
+  "activationCodeSharedInfo": "Activation code was shared during registration. Ensure the adolescent enters it on their device.",
+  "accountIsInactiveInfo": "This account is inactive. Profile editing is disabled.",
+  "unauthorizedGuardianAccess": "Unauthorized access: This account does not have Guardian privileges.",
+  "unauthorizedRoleMismatch": "Unauthorized access: Account role mismatch.",
+  "parent": "Parent",
+  "legalGuardian": "Legal Guardian",
+  "other": "Other",
+  "statusActive": "Active",
+  "statusInactive": "Inactive",
+  "statusSuspended": "Suspended",
+  "statusPendingActivation": "Pending Activation",
+  "notAvailable": "N/A"
 }

@@ -24,6 +24,9 @@ class AppLocalizationsOm extends AppLocalizations {
   String get settings => 'Sirna';
 
   @override
+  String get forgotPassword => 'Jecha icciitii dagattee?';
+
+  @override
   String get profile => 'Eenyummeessaa';
 
   @override
@@ -37,6 +40,20 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get alerts => 'Beeksisa';
+
+  @override
+  String get unknownDate => 'Unknown date';
+
+  @override
+  String get accountIsActive => 'Herregni kun duraan hojii irra jira.';
+
+  @override
+  String get activationCodeSharedInfo =>
+      'Koodiin ittiin hojjechiisan yeroo galmee hiramaniiru. Dargaggeessi kee meeshaa isaa irratti galchuu isaa mirkaneessi.';
+
+  @override
+  String get accountIsInactiveInfo =>
+      'Herregni kun ammaaf hojii irra hin jiru. Eenyummeessaa haaromsuun hin danda\'amu.';
 
   @override
   String get retry => 'Deebisii yaali';
@@ -715,13 +732,13 @@ class AppLocalizationsOm extends AppLocalizations {
   String get errorPrefix => 'Dogoggora';
 
   @override
-  String get statusActive => 'Hojii irra';
+  String get statusActive => 'Hojii irra jira';
 
   @override
   String get statusInactive => 'Hojii irra hin jiru';
 
   @override
-  String get statusSuspended => 'Haqameera';
+  String get statusSuspended => 'Haggameera';
 
   @override
   String get statusPendingActivation => 'Eeggachaa jira';
@@ -862,9 +879,6 @@ class AppLocalizationsOm extends AppLocalizations {
   String get passwordHint => 'Jecha icciitii';
 
   @override
-  String get forgotPassword => 'Jecha icciitii dagattee?';
-
-  @override
   String get newToNeuroNet => 'NeuroNet\'f haaraadha?';
 
   @override
@@ -903,26 +917,25 @@ class AppLocalizationsOm extends AppLocalizations {
       'Koodii koflaa kee irraa argatte fayyadamuun adeemsa kee eegali.';
 
   @override
-  String get guardianOnboardingTitle1 => 'Guddina Cimsi';
+  String get guardianOnboardingTitle1 => 'Guddina Hordofi';
 
   @override
   String get guardianOnboardingDesc1 =>
-      'Dargaggeessi kee akka ofitti amanamummaan guddatu gargaari. NeuroNet deeggarsa fi walabummaa gidduutti madaallii nagaa uuma.';
+      'Guddina miiraa fi jijjiirama dargaggeessa keetii yeroo tokkotti hordofi.';
 
   @override
-  String get guardianOnboardingTitle2 => 'To\'annoo Eeyyamaan Hoatamu';
+  String get guardianOnboardingTitle2 => 'To\'annoo Amansiisaa';
 
   @override
   String get guardianOnboardingDesc2 =>
-      'Oodeeffannoon kam gorsitootatti akka hiramu ati murteessita. To\'annoon kee yeroo hunda eeyyama ati to\'attu irratti hunda\'a.';
+      'Oodeeffannoon kee teknooloojii ammayyaatiin eegumsa qaba.';
 
   @override
-  String get guardianOnboardingTitle3 =>
-      'Oodeeffannoo Argadhu, Dhuunfaummaa Kabaji';
+  String get guardianOnboardingTitle3 => 'Beeksisa Ariifachiisaa';
 
   @override
   String get guardianOnboardingDesc3 =>
-      'Barreeffama yadaannoo dhuunfaa dargaggeessa keetii osoo hin argin, guduunfaa fi beeksisa miiraa AI\'n qophaa\'e argadhu.';
+      'Jijjiirama miiraa fi nageenya dargaggeessa keetiif beeksisa ariifachiisaa argadhu.';
 
   @override
   String get noCommentsYet => 'Yaadni kenname hin jiru.';
@@ -1856,6 +1869,11 @@ class AppLocalizationsOm extends AppLocalizations {
   String get highRisk => 'GUDDAA';
 
   @override
+  String severityRisk(String risk) {
+    return 'BALAA $risk';
+  }
+
+  @override
   String get viewAlerts => 'Beeksisa Ilaali';
 
   @override
@@ -2361,6 +2379,36 @@ class AppLocalizationsOm extends AppLocalizations {
   }
 
   @override
+  String get consentParticipationLabel => 'Hirmaannaa Waligalaa fi Xiinxala AI';
+
+  @override
+  String get consentParticipationDesc =>
+      'Xiinxala miiraa AI dhaan hoogganamu fi argannoo dhangala\'aa jornaalota hundaa dandeessisi.';
+
+  @override
+  String get consentShareAiSummariesLabel =>
+      'Gabaasa Gabaabaa AI fi Sadarkaa Balaa';
+
+  @override
+  String get consentShareAiSummariesDesc =>
+      'Gabaasa gabaabaa miiraa AI dhaan uumaman fi sadarkaa balaa ramadaman ilaaluuf hayyami.';
+
+  @override
+  String get consentShareAlertsLabel =>
+      'Beeksisa Nageenyaa fi Akkaataa Itti Fayyadamaa';
+
+  @override
+  String get consentShareAlertsDesc =>
+      'Yeroo dhangala\'aan miiraa murteessaan ykn balaan mul\'atu beeksisa ariifachiisaa fudhadhu.';
+
+  @override
+  String get consentCounselorChatLabel => 'Ergaa Dhuunfaa Gorsituu';
+
+  @override
+  String get consentCounselorChatDesc =>
+      'Gorsitoota ramadaman waliin qunnamtii dhuunfaa tokkoo tokkoo hayyami.';
+
+  @override
   String chattingAboutAdolescent(String name) {
     return 'Waa\'ee $name mari\'achaa jirta';
   }
@@ -2558,27 +2606,56 @@ class AppLocalizationsOm extends AppLocalizations {
   String get relationshipToAdolescent => 'Firooma Dargaggeessa Waliin';
 
   @override
-  String get loginTaglineEmpathy => 'Oversight with Empathy ❤️';
+  String get pleaseFillRequiredFields => 'Maaloo bakka barbaachisu hunda guuti';
 
   @override
-  String get loginTaglineSupport => 'Secure Support for your Teens 🛡️';
+  String get pleaseEnterValidEmail => 'Maaloo iimeeyilii sirrii galchi';
 
   @override
-  String get loginTaglinePeace => 'Peace of mind, anytime ✨';
+  String failedToRegisterAdolescent(Object error) {
+    return 'Dargaggeessa galmeessuun hin danda\'amne: $error';
+  }
 
   @override
-  String get atLeast6Characters => 'At least 6 characters';
+  String get loginTaglineEmpathy => 'To\'annoo Gara-laafina Qabu ❤️';
 
   @override
-  String get activateCode => 'Activate Code';
+  String get loginTaglineSupport =>
+      'Deeggarsa Amansiisaa Dargaggoota Keetiif 🛡️';
+
+  @override
+  String get loginTaglinePeace => 'Sammuu Tasgabbii Qabu, Yeroo Hunda ✨';
+
+  @override
+  String get atLeast6Characters => 'Yoo xiqqaate loon 6';
+
+  @override
+  String get activateCode => 'Koodii Haaromsi';
 
   @override
   String get guardianDataEncrypted =>
-      'Guardian Data is Encrypted & HIPAA Compliant';
+      'Oodeeffannoon koflaa icciitiidhaan kan eegame dha';
 
   @override
-  String get failedToLoadAlerts => 'Failed to load alerts. Please try again.';
+  String get failedToLoadAlerts =>
+      'Beeksisa agarsiisuun hin danda\'amne. Maaloo deebisii yaali.';
 
   @override
-  String get dateOfBirth => 'Date of Birth';
+  String get dateOfBirth => 'Guyyaa Dhalootaa';
+
+  @override
+  String get unauthorizedGuardianAccess =>
+      'Seeninsi hin eeyyamamne: Herregni kun gahee koflaa hin qabu.';
+
+  @override
+  String get parent => 'Abbaa/Haadha';
+
+  @override
+  String get legalGuardian => 'Guddifachaa';
+
+  @override
+  String get other => 'Kan biroo';
+
+  @override
+  String get notAvailable => 'N/A';
 }

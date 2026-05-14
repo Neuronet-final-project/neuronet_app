@@ -3,9 +3,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:intl/intl.dart';
 import '../../../../config/theme/guardian_theme.dart';
 import '../../../dashboard/providers/dashboard_provider.dart';
 import '../../../ui/bento_card.dart';
+import '../../../ui/l10n_utils.dart';
 
 class AlertDetailsScreen extends ConsumerStatefulWidget {
   final String alertId;
@@ -163,7 +165,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  alert.severityLevel.toUpperCase(),
+                  context.localizations.severityRisk(translateAlertSeverity(context, alert.severityLevel).toUpperCase()),
                   style: TextStyle(
                     color: isHighSeverity 
                         ? NeuroColors.alertHigh 
@@ -181,7 +183,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
               .scale(begin: const Offset(1, 1), end: const Offset(1.05, 1.05)),
               const Spacer(),
               Text(
-                '${alert.createdAt.day}/${alert.createdAt.month}/${alert.createdAt.year}',
+                DateFormat('dd/MM/yyyy').format(alert.createdAt),
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 12,

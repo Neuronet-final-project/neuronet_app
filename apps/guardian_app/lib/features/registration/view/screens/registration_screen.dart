@@ -5,6 +5,7 @@ import 'package:neuronet_core/neuronet_core.dart';
 import 'package:intl/intl.dart';
 import 'package:guardian_app/features/registration/providers/registration_provider.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
+import 'package:guardian_app/features/ui/l10n_utils.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
 
 class RegistrationScreen extends ConsumerWidget {
@@ -68,7 +69,9 @@ class RegistrationScreen extends ConsumerWidget {
                       if (state.error != null)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: NeuroErrorWidget(message: state.error!),
+                          child: NeuroErrorWidget(
+                            message: translateError(context, state.error),
+                          ),
                         ),
                       const SizedBox(height: 48),
                     ],
@@ -363,7 +366,7 @@ class _RegistrationForm extends StatelessWidget {
           items: RelationshipType.values.map((type) {
             return DropdownMenuItem(
               value: type,
-              child: Text(type.name[0].toUpperCase() + type.name.substring(1)),
+              child: Text(type.localizedLabel(context.localizations)),
             );
           }).toList(),
           onChanged: (value) =>
@@ -413,14 +416,14 @@ class _ConsentSection extends StatelessWidget {
           const SizedBox(height: 16),
           ...ConsentType.values.map((type) {
             final isEnabled = state.consents.contains(type);
-            return _buildFeatureToggle(type, isEnabled);
+            return _buildFeatureToggle(context, type, isEnabled);
           }),
         ],
       ),
     );
   }
 
-  Widget _buildFeatureToggle(ConsentType type, bool isEnabled) {
+  Widget _buildFeatureToggle(BuildContext context, ConsentType type, bool isEnabled) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
@@ -457,7 +460,7 @@ class _ConsentSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        type.label,
+                        type.localizedLabel(context.localizations),
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -468,7 +471,7 @@ class _ConsentSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        type.description,
+                        type.localizedDescription(context.localizations),
                         style: TextStyle(
                           fontSize: 11,
                           color: NeuroColors.onSurfaceVariant,

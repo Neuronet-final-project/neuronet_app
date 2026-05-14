@@ -132,6 +132,12 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
   /// No description provided for @profile.
   ///
   /// In en, this message translates to:
@@ -161,6 +167,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Alerts'**
   String get alerts;
+
+  /// No description provided for @unknownDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown date'**
+  String get unknownDate;
+
+  /// No description provided for @accountIsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is active.'**
+  String get accountIsActive;
+
+  /// No description provided for @activationCodeSharedInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation code was shared during registration. Ensure the adolescent enters it on their device.'**
+  String get activationCodeSharedInfo;
+
+  /// No description provided for @accountIsInactiveInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is inactive. Profile editing is disabled.'**
+  String get accountIsInactiveInfo;
 
   /// No description provided for @retry.
   ///
@@ -1679,12 +1709,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password'**
   String get passwordHint;
-
-  /// No description provided for @forgotPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'Forgot password?'**
-  String get forgotPassword;
 
   /// No description provided for @newToNeuroNet.
   ///
@@ -3408,6 +3432,12 @@ abstract class AppLocalizations {
   /// **'HIGH'**
   String get highRisk;
 
+  /// No description provided for @severityRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'{risk} RISK'**
+  String severityRisk(String risk);
+
   /// No description provided for @viewAlerts.
   ///
   /// In en, this message translates to:
@@ -4314,6 +4344,54 @@ abstract class AppLocalizations {
   /// **'Settings for {email}'**
   String settingsForAdolescent(String email);
 
+  /// No description provided for @consentParticipationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'General Participation & AI Analysis'**
+  String get consentParticipationLabel;
+
+  /// No description provided for @consentParticipationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable AI-driven emotional analysis and trend detection for all journals.'**
+  String get consentParticipationDesc;
+
+  /// No description provided for @consentShareAiSummariesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Summaries & Risk Levels'**
+  String get consentShareAiSummariesLabel;
+
+  /// No description provided for @consentShareAiSummariesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow viewing of AI-generated emotional summaries and designated risk levels.'**
+  String get consentShareAiSummariesDesc;
+
+  /// No description provided for @consentShareAlertsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Alerts & Notifications'**
+  String get consentShareAlertsLabel;
+
+  /// No description provided for @consentShareAlertsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive immediate notifications when critical emotional patterns or risks are detected.'**
+  String get consentShareAlertsDesc;
+
+  /// No description provided for @consentCounselorChatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Counselor Private Messaging'**
+  String get consentCounselorChatLabel;
+
+  /// No description provided for @consentCounselorChatDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Authorize private one-on-one communication with assigned counselors.'**
+  String get consentCounselorChatDesc;
+
   /// No description provided for @chattingAboutAdolescent.
   ///
   /// In en, this message translates to:
@@ -4632,6 +4710,24 @@ abstract class AppLocalizations {
   /// **'Relationship to Adolescent'**
   String get relationshipToAdolescent;
 
+  /// No description provided for @pleaseFillRequiredFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all required fields'**
+  String get pleaseFillRequiredFields;
+
+  /// No description provided for @pleaseEnterValidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get pleaseEnterValidEmail;
+
+  /// No description provided for @failedToRegisterAdolescent.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to register adolescent: {error}'**
+  String failedToRegisterAdolescent(Object error);
+
   /// No description provided for @loginTaglineEmpathy.
   ///
   /// In en, this message translates to:
@@ -4679,6 +4775,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Date of Birth'**
   String get dateOfBirth;
+
+  /// No description provided for @unauthorizedGuardianAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Unauthorized access: This account does not have Guardian privileges.'**
+  String get unauthorizedGuardianAccess;
+
+  /// No description provided for @parent.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get parent;
+
+  /// No description provided for @legalGuardian.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal Guardian'**
+  String get legalGuardian;
+
+  /// No description provided for @other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get other;
+
+  /// No description provided for @notAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'N/A'**
+  String get notAvailable;
 }
 
 class _AppLocalizationsDelegate
