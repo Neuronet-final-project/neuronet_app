@@ -48,10 +48,20 @@ class ChannelService {
     }
   }
 
-  /// Subscribes/unsubscribes the user to a channel.
+  /// Subscribes the user to a channel.
   Future<Result<void>> subscribeToChannel(String channelId) async {
     try {
       await _client.post(ApiEndpoints.channelSubscribe(channelId));
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Unsubscribes the user from a channel.
+  Future<Result<void>> unsubscribeFromChannel(String channelId) async {
+    try {
+      await _client.post(ApiEndpoints.channelUnsubscribe(channelId));
       return const Result.success(null);
     } catch (e) {
       return Result.failure(failureFromException(e));

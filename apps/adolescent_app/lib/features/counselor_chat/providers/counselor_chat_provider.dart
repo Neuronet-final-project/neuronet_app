@@ -16,6 +16,7 @@ abstract class CounselorChatState with _$CounselorChatState {
     Conversation? conversation,
     /// Counselor email extracted from conversation participants.
     String? counselorEmail,
+    String? counselorName,
     @Default([]) List<ConversationMessage> messages,
   }) = _CounselorChatState;
 }

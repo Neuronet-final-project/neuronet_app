@@ -38,7 +38,7 @@ class ApiEndpoints {
   static const String moods = '/moods/';
   static const String myMoods = '/moods/me';
 
-  // Alerts
+  
   static const String guardianAlerts = '/alerts/guardian/me';
   static const String counselorAlerts = '/alerts/counselor/me';
   static String alertsByAdolescent(String id) => '/alerts/adolescent/$id';
