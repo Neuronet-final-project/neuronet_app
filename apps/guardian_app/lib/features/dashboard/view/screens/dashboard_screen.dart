@@ -178,7 +178,7 @@ class DashboardScreen extends ConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: NeuroErrorWidget(
-                        message: 'Dashboard data failed to load: ${state.error}',
+                        message: context.localizations.dashboardDataFailedToLoad(state.error!),
                         onRetry: () => ref
                             .read(guardianDashboardControllerProvider.notifier)
                             .refresh(),
@@ -253,7 +253,7 @@ class DashboardScreen extends ConsumerWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: NeuroErrorWidget(
-                      message: 'Dashboard data failed to load: $err',
+                      message: context.localizations.dashboardDataFailedToLoad(err.toString()),
                       onRetry: () => ref
                           .read(guardianDashboardControllerProvider.notifier)
                           .refresh(),
@@ -289,6 +289,7 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         
+        /* 
         // 2. Emotional Trends Card
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -297,6 +298,7 @@ class DashboardScreen extends ConsumerWidget {
               .fadeIn(delay: 400.ms)
               .slideY(begin: 0.1),
         ),
+        */
 
         // 3. Aggregated Insights Card (NEW)
         Padding(

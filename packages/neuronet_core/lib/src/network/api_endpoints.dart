@@ -81,7 +81,7 @@ class ApiEndpoints {
   static const String myChannels = '/channels/me';
   static const String channels = '/channels';
   static String channelSubscribe(String id) => '/channels/$id/subscribe';
-  static String channelUnsubscribe(String id) => '/channels/$id/subscribe';
+  static String channelUnsubscribe(String id) => '/channels/$id/unsubscribe';
   // Channel Posts & Interactions
   static String channelPosts(String id) => '/channels/$id/posts';
   static String channelPost(String channelId, String postId) => '/channels/$channelId/posts/$postId';

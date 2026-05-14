@@ -185,24 +185,6 @@ class AdolescentDetailScreen extends ConsumerWidget {
           .fadeIn(delay: 700.ms)
           .slideY(begin: 0.2, curve: Curves.easeOutQuad),
         
-        const SizedBox(height: 48),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.link_off_rounded, size: 20),
-              label: Text(context.localizations.unlinkAccount),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                foregroundColor: NeuroColors.error,
-                side: const BorderSide(color: NeuroColors.error, width: 1),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-            ),
-          ),
-        ).animate(delay: 800.ms).fadeIn(),
         const SizedBox(height: 40),
       ],
     );

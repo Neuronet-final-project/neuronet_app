@@ -358,7 +358,14 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String filterResults(int count) {
-    return 'BU\'AA ($count)';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bu\'aa $count',
+      one: 'Bu\'aa 1',
+      zero: 'Bu\'aan hin argamne',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -736,7 +743,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get accountActivatedLogin => 'Herregni kee hojjeteera! Maaloo seeni.';
 
   @override
-  String get activateAccount => 'Activate Account';
+  String get activateAccount => 'Herrega Hojjechiisi';
 
   @override
   String get activateAccountTitle => 'Herrega Hojjechiisi';
@@ -896,25 +903,26 @@ class AppLocalizationsOm extends AppLocalizations {
       'Koodii koflaa kee irraa argatte fayyadamuun adeemsa kee eegali.';
 
   @override
-  String get guardianOnboardingTitle1 => 'Empower Growth';
+  String get guardianOnboardingTitle1 => 'Guddina Cimsi';
 
   @override
   String get guardianOnboardingDesc1 =>
-      'Help your child grow with confidence. NeuroNet provides a safe balance between support and independence.';
+      'Dargaggeessi kee akka ofitti amanamummaan guddatu gargaari. NeuroNet deeggarsa fi walabummaa gidduutti madaallii nagaa uuma.';
 
   @override
-  String get guardianOnboardingTitle2 => 'Consent-Driven Oversight';
+  String get guardianOnboardingTitle2 => 'To\'annoo Eeyyamaan Hoatamu';
 
   @override
   String get guardianOnboardingDesc2 =>
-      'You decide what information is shared with counselors. Your oversight is always based on the consents you manage.';
+      'Oodeeffannoon kam gorsitootatti akka hiramu ati murteessita. To\'annoon kee yeroo hunda eeyyama ati to\'attu irratti hunda\'a.';
 
   @override
-  String get guardianOnboardingTitle3 => 'Stay Informed, Respect Privacy';
+  String get guardianOnboardingTitle3 =>
+      'Oodeeffannoo Argadhu, Dhuunfaummaa Kabaji';
 
   @override
   String get guardianOnboardingDesc3 =>
-      'Receive AI-generated summaries and alerts about emotional trends, without ever exposing your child\'s private journal text.';
+      'Barreeffama yadaannoo dhuunfaa dargaggeessa keetii osoo hin argin, guduunfaa fi beeksisa miiraa AI\'n qophaa\'e argadhu.';
 
   @override
   String get noCommentsYet => 'Yaadni kenname hin jiru.';
@@ -1223,10 +1231,10 @@ class AppLocalizationsOm extends AppLocalizations {
   String get aiPickLabel => 'FILANNOO AI';
 
   @override
-  String get smartPickLabel => 'FILANNOO QALBII';
+  String get smartPickLabel => 'smart pick';
 
   @override
-  String get relatedArticle => 'Barreeffama Wal-qabatu:';
+  String get relatedArticle => 'smart pick';
 
   @override
   String errorLabel(String message) {
@@ -1631,7 +1639,7 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get alertDisclaimer =>
-      'These insights are patterns we noticed based on your activity. They aren\'t a diagnosis or medical advice. We\'re just here to help you understand your emotional journey.';
+      'Hubannoon kun gocha kee irratti hunda\'uun kan kenname dha. Kun gorsa yaalaa miti. Adeemsa miira keetii akka hubattu si gargaaruuf as jirra.';
 
   @override
   String get moodPattern => 'Haala Miiraa';
@@ -1800,7 +1808,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get attachmentLabel => 'Miiltoo';
 
   @override
-  String get mindfulFocusTip => 'Keep your head still and follow the dot.';
+  String get mindfulFocusTip => 'Mataa kee gadi qabiitii tuqaa sana hordofi.';
 
   @override
   String get supportGroup => 'Garee Deeggarsaa';
@@ -2035,19 +2043,19 @@ class AppLocalizationsOm extends AppLocalizations {
   String get noAlertsFound => 'Beeksisni argame hin jiru';
 
   @override
-  String get noAlertsYet => 'No alerts yet';
+  String get noAlertsYet => 'Beeksisni argame hin jiru';
 
   @override
   String get noAlertsYetDesc =>
-      'We will notify you if any concerning patterns appear.';
+      'Yeroo haalli addaa uumamu beeksisa siif ergina.';
 
   @override
   String noAlertsFoundDescFiltered(String severity) {
-    return 'No alerts match the \"$severity\" severity filter.';
+    return 'Maallaattoo \"$severity\" kanaan beeksisni argame hin jiru.';
   }
 
   @override
-  String get clearFilter => 'Clear Filter';
+  String get clearFilter => 'Maallaattoo Haqi';
 
   @override
   String get securityAlerts => 'Beeksisa Nageenyaa';
@@ -2114,7 +2122,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get empowerParentingJourney => 'Adeemsa guddisa ijoollee kee cimsi';
 
   @override
-  String get alreadyGuardian => 'Already a Guardian?';
+  String get alreadyGuardian => 'Koflaa dha?';
 
   @override
   String get dataAndPrivacy => 'Oodeeffannoo fi Dhuunfaummaa';
@@ -2454,5 +2462,123 @@ class AppLocalizationsOm extends AppLocalizations {
   String get you => 'Ati';
 
   @override
-  String get decline => 'Hamdadhu';
+  String get decline => 'Didu';
+
+  @override
+  String get editProfile => 'Eenyummeessaa Haaromsi';
+
+  @override
+  String get profileUpdatedSuccess => 'Eenyummeessaan milkaa\'inaan haaromeera';
+
+  @override
+  String get enrollAdolescent => 'Dargaggeessa Galmeessi';
+
+  @override
+  String get newEnrollment => 'Galmeessa Haaraa';
+
+  @override
+  String get newEnrollmentDesc =>
+      'Dargaggeessa kee Neuronet waliin wal-qunnamsiisuun nageenya miiraa isaa hordofuu eegali.';
+
+  @override
+  String get enrollmentSuccess => 'Galmeessi milkaa\'eera!';
+
+  @override
+  String get enrollmentSuccessDesc =>
+      'Galmeessi xumurameera. Koodii kana dargaggeessa keetiif kenni.';
+
+  @override
+  String get copyCode => 'Koodii Waraabi';
+
+  @override
+  String get finish => 'Xumuri';
+
+  @override
+  String get saveUpper => 'OLKA\'I';
+
+  @override
+  String get personalInfo => 'Oodeeffannoo Dhuunfaa';
+
+  @override
+  String get changePassword => 'Jecha Icciitii Jijjiiri';
+
+  @override
+  String get changePasswordDesc =>
+      'Jecha icciitii amma jiru tursiisuuf duwwaa dhiisi';
+
+  @override
+  String get confirmNewPassword => 'Jecha Icciitii Haaraa Mirkaneessi';
+
+  @override
+  String get registrationComplete => 'Galmeessi Xumurameera';
+
+  @override
+  String get loginSecurely => 'Nagaadhaan Seeni';
+
+  @override
+  String dashboardDataFailedToLoad(String error) {
+    return 'Oodeeffannoo daashboordii agarsiisuun hin danda\'amne: $error';
+  }
+
+  @override
+  String get emailAddressNonEditable =>
+      'Teessoo iimeeyilii (kan hin jijjiiramne)';
+
+  @override
+  String get security => 'Nageenya';
+
+  @override
+  String get passwordProtectionAdvice =>
+      'Herrega kee fi oodeeffannoo fayyummaa miiraa hordofutu eeguuf jecha icciitii cimaa fayyadami.';
+
+  @override
+  String get initialCapabilities => 'Dandeettii Jalqabaa';
+
+  @override
+  String get initialCapabilitiesDesc =>
+      'Dandeettiiwwan jalqaba irratti hojjechuu barbaaddu filadhu. Erga galmooftee booda sirna kana tokko tokkoon jijjiiru dandeessa.';
+
+  @override
+  String get enrollmentComplete => 'Galmeessi Xumurameera!';
+
+  @override
+  String get enrollmentCompleteDesc =>
+      'Dargaggeessi kee milkaa\'inaan galmaa\'eera. Koodii kana isaanii waliin hiraa.';
+
+  @override
+  String get activationCodeUpper => 'KOODII HAAROMSAA';
+
+  @override
+  String get invalidEmailFormat => 'Iimeeyiliin sirrii miti';
+
+  @override
+  String get selectDate => 'Guyyaa Fili';
+
+  @override
+  String get relationshipToAdolescent => 'Firooma Dargaggeessa Waliin';
+
+  @override
+  String get loginTaglineEmpathy => 'Oversight with Empathy ❤️';
+
+  @override
+  String get loginTaglineSupport => 'Secure Support for your Teens 🛡️';
+
+  @override
+  String get loginTaglinePeace => 'Peace of mind, anytime ✨';
+
+  @override
+  String get atLeast6Characters => 'At least 6 characters';
+
+  @override
+  String get activateCode => 'Activate Code';
+
+  @override
+  String get guardianDataEncrypted =>
+      'Guardian Data is Encrypted & HIPAA Compliant';
+
+  @override
+  String get failedToLoadAlerts => 'Failed to load alerts. Please try again.';
+
+  @override
+  String get dateOfBirth => 'Date of Birth';
 }

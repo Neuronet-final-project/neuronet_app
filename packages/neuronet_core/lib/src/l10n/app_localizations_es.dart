@@ -778,7 +778,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pleaseEnterActivationCode => 'Please enter the activation code';
 
   @override
-  String get pleaseEnterPassword => 'Please enter a password';
+  String get pleaseEnterPassword => 'Please enter your password';
 
   @override
   String get passwordMinLength => 'Password must be at least 6 characters';
@@ -894,25 +894,25 @@ class AppLocalizationsEs extends AppLocalizations {
       'Usa el código de activación proporcionado por tu tutor para desbloquear tu viaje emocional personal.';
 
   @override
-  String get guardianOnboardingTitle1 => 'Empower Growth';
+  String get guardianOnboardingTitle1 => 'Track Progress';
 
   @override
   String get guardianOnboardingDesc1 =>
-      'Help your child grow with confidence. NeuroNet provides a safe balance between support and independence.';
+      'Monitor your child\'s emotional growth and developmental milestones in real-time.';
 
   @override
-  String get guardianOnboardingTitle2 => 'Consent-Driven Oversight';
+  String get guardianOnboardingTitle2 => 'Secure Oversight';
 
   @override
   String get guardianOnboardingDesc2 =>
-      'You decide what information is shared with counselors. Your oversight is always based on the consents you manage.';
+      'Your data is protected with state-of-the-art encryption and HIPAA compliance.';
 
   @override
-  String get guardianOnboardingTitle3 => 'Stay Informed, Respect Privacy';
+  String get guardianOnboardingTitle3 => 'Instant Alerts';
 
   @override
   String get guardianOnboardingDesc3 =>
-      'Receive AI-generated summaries and alerts about emotional trends, without ever exposing your child\'s private journal text.';
+      'Receive immediate notifications for critical emotional shifts and safety concerns.';
 
   @override
   String get noCommentsYet => 'No comments yet.';
@@ -2113,7 +2113,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get backToLogin => 'Back to Login';
 
   @override
-  String get createAccount => 'Create Account';
+  String get createAccount => 'Create account';
 
   @override
   String get empowerParentingJourney => 'Empower your parenting journey';
@@ -2466,4 +2466,120 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get decline => 'Rechazar';
+
+  @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get profileUpdatedSuccess => 'Profile updated successfully';
+
+  @override
+  String get enrollAdolescent => 'Enroll Adolescent';
+
+  @override
+  String get newEnrollment => 'New Enrollment';
+
+  @override
+  String get newEnrollmentDesc =>
+      'Connect your child to the Neuronet platform to begin monitoring their emotional health and guiding their developmental journey.';
+
+  @override
+  String get enrollmentSuccess => 'Enrollment Successful!';
+
+  @override
+  String get enrollmentSuccessDesc =>
+      'Registration complete. Please share this activation code with your adolescent. They will need it to link their device to your account.';
+
+  @override
+  String get copyCode => 'Copy Code';
+
+  @override
+  String get finish => 'Finish';
+
+  @override
+  String get saveUpper => 'SAVE';
+
+  @override
+  String get personalInfo => 'Personal Information';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get changePasswordDesc => 'Leave blank to keep current password';
+
+  @override
+  String get confirmNewPassword => 'Confirm New Password';
+
+  @override
+  String get registrationComplete => 'Registration Complete';
+
+  @override
+  String get loginSecurely => 'Login Securely';
+
+  @override
+  String dashboardDataFailedToLoad(String error) {
+    return 'Dashboard data failed to load: $error';
+  }
+
+  @override
+  String get emailAddressNonEditable => 'Email Address (Non-editable)';
+
+  @override
+  String get security => 'Security';
+
+  @override
+  String get passwordProtectionAdvice =>
+      'Use a strong password to protect your account and the sensitive emotional health data you monitor.';
+
+  @override
+  String get initialCapabilities => 'Initial Capabilities';
+
+  @override
+  String get initialCapabilitiesDesc =>
+      'Select the features you want to enable initially. You can adjust these granularly after enrollment.';
+
+  @override
+  String get enrollmentComplete => 'Enrollment Complete!';
+
+  @override
+  String get enrollmentCompleteDesc =>
+      'Your adolescent has been successfully registered. Share this activation code with them to link their device.';
+
+  @override
+  String get activationCodeUpper => 'ACTIVATION CODE';
+
+  @override
+  String get invalidEmailFormat => 'Invalid email format';
+
+  @override
+  String get selectDate => 'Select Date';
+
+  @override
+  String get relationshipToAdolescent => 'Relationship to Adolescent';
+
+  @override
+  String get loginTaglineEmpathy => 'Oversight with Empathy ❤️';
+
+  @override
+  String get loginTaglineSupport => 'Secure Support for your Teens 🛡️';
+
+  @override
+  String get loginTaglinePeace => 'Peace of mind, anytime ✨';
+
+  @override
+  String get atLeast6Characters => 'At least 6 characters';
+
+  @override
+  String get activateCode => 'Activate Code';
+
+  @override
+  String get guardianDataEncrypted =>
+      'Guardian Data is Encrypted & HIPAA Compliant';
+
+  @override
+  String get failedToLoadAlerts => 'Failed to load alerts. Please try again.';
+
+  @override
+  String get dateOfBirth => 'Date of Birth';
 }

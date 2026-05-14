@@ -334,7 +334,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get sparkChallenge => 'ፈተናን እንዴት እንደተወጣሁ';
 
   @override
-  String get discoverHeader => 'DISCOVER';
+  String get discoverHeader => 'ያስሱ';
 
   @override
   String get searchMemoriesHint => 'ትዝታዎችን ይፈልጉ...';
@@ -486,7 +486,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get strongLabel => 'ከፍተኛ';
 
   @override
-  String get moodReasonPrompt => 'እንዲህ እንዲሰማዎት ያደረገው ምንድን ነው?';
+  String get moodReasonPrompt => 'እንዲህ እንዲሰማዎት ያደረው ምንድን ነው?';
 
   @override
   String get moodNoteHint => 'አጭር ማስታወሻ ያክሉ... (አማራጭ)';
@@ -718,7 +718,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get accountActivatedLogin => 'መለያው ገብሯል! እባክዎን ይግቡ።';
 
   @override
-  String get activateAccount => 'Activate Account';
+  String get activateAccount => 'መለያን አግብር';
 
   @override
   String get activateAccountTitle => 'መለያን አግብር';
@@ -856,7 +856,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get onboardingDesc2 =>
-      'አርቲፊሻል ኢንተለጀንሳችን በጊዜ ሂደት በስሜታዊ ጉዞዎ ውስጥ ያሉ ንድፎችን እንዲያዩ ይረዳዎታል፣ ይህም በራስዎ ግንዛቤ እንዲያድጉ ይረዳዎታል።';
+      'የእኛ AI በጊዜ ሂደት በስሜታዊ ጉዞዎ ውስጥ ያሉ ንድፎችን እንዲያዩ ይረዳዎታል፣ ይህም በራስዎ ግንዛቤ እንዲያድጉ ይረዳዎታል።';
 
   @override
   String get onboardingTitle3 => 'ድጋፍ እንጂ ምርመራ አይደለም';
@@ -873,25 +873,25 @@ class AppLocalizationsAm extends AppLocalizations {
       'የግል ስሜታዊ ጉዞዎን ለመክፈት በአሳዳጊዎ የተሰጠውን የማግበሪያ ኮድ ይጠቀሙ።';
 
   @override
-  String get guardianOnboardingTitle1 => 'Empower Growth';
+  String get guardianOnboardingTitle1 => 'እድገትን ያጠናክሩ';
 
   @override
   String get guardianOnboardingDesc1 =>
-      'Help your child grow with confidence. NeuroNet provides a safe balance between support and independence.';
+      'ልጅዎ በልበ ሙሉነት እንዲያድግ እርዱት። NeuroNet በድጋፍ እና በነፃነት መካከል ደህንነቱ የተጠበቀ ሚዛን ይሰጣል።';
 
   @override
-  String get guardianOnboardingTitle2 => 'Consent-Driven Oversight';
+  String get guardianOnboardingTitle2 => 'በፍቃድ ላይ የተመሰረተ ክትትል';
 
   @override
   String get guardianOnboardingDesc2 =>
-      'You decide what information is shared with counselors. Your oversight is always based on the consents you manage.';
+      'የትኛው መረጃ ለአማካሪዎች እንደሚጋራ እርስዎ ይወስናሉ። የእርስዎ ክትትል ሁልጊዜ እርስዎ በሚያስተዳድሩት ፈቃድ ላይ የተመሰረተ ነው።';
 
   @override
-  String get guardianOnboardingTitle3 => 'Stay Informed, Respect Privacy';
+  String get guardianOnboardingTitle3 => 'መረጃ ያግኙ፣ ግላዊነትን ያክብሩ';
 
   @override
   String get guardianOnboardingDesc3 =>
-      'Receive AI-generated summaries and alerts about emotional trends, without ever exposing your child\'s private journal text.';
+      'የልጅዎን የግል ጆርናል ጽሑፍ ሳያዩ፣ ስለ ስሜታዊ አዝማሚያዎች በAI የተዘጋጁ ማጠቃለያዎችን እና ማሳወቂያዎችን ያግኙ።';
 
   @override
   String get noCommentsYet => 'ገና ምንም አስተያየቶች የሉም።';
@@ -942,7 +942,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get viewDetails => 'ዝርዝሮችን ይመልከቱ';
 
   @override
-  String get yesterday => 'Yesterday';
+  String get yesterday => 'ትናንት';
 
   @override
   String failedToUploadVoice(String error) {
@@ -1014,7 +1014,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get aiQuestTitle => 'የAI ነጸብራቅ ተልዕኮ';
 
   @override
-  String get aiQuestDesc => 'በአርቲፊሻል ኢንተለጀንስ የተደገፈ የግል ራስን የማግኘት ጉዞ ይጀምሩ።';
+  String get aiQuestDesc => 'በAI የተደገፈ የግል ራስን የማግኘት ጉዞ ይጀምሩ።';
 
   @override
   String minCount(int count) {
@@ -1185,7 +1185,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get aiPicksDesc =>
-      'ጆርናል መጻፍ እና ማሰስዎን ይቀጥሉ! አርቲፊሻል ኢንተለጀንሳችን ጉዞዎን ይተነትናል እና ግላዊ ይዘትን ይጠቁማል።';
+      'ጆርናል መጻፍ እና ማሰስዎን ይቀጥሉ! የእኛ AI ጉዞዎን ይተነትናል እና ግላዊ ይዘትን ይጠቁማል።';
 
   @override
   String get couldNotLoadAiRecs => 'የAI ምክሮችን መጫን አልተቻለም።';
@@ -1280,7 +1280,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get aiAnalysisDescription =>
-      'አርቲፊሻል ኢንተለጀንስ ጠቃሚ ግንዛቤዎችን ለመስጠት የእርስዎን ንድፎች ይተነትናል።';
+      'AI ጠቃሚ ግንዛቤዎችን ለመስጠት የእርስዎን ንድፎች ይተነትናል።';
 
   @override
   String get activitySharingTitle => 'የእንቅስቃሴ ማጋራት';
@@ -1467,7 +1467,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get quest3 =>
-      'ሙሉ በሙሉ ሰላም የሆነ የራስ የወደፊት ስሪት ያስቡ። የሚሰጥዎ አንድ ምክር ምንድን ነው?';
+      'ሙሉ በሙሉ ሰላም የሆነ የራስዎን የወደፊት ስሪት ያስቡ። የሚሰጥዎ አንድ ምክር ምንድን ነው?';
 
   @override
   String get quest4 =>
@@ -1602,7 +1602,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get alertDisclaimer =>
-      'እነዚህ ግንዛቤዎች በእንቅስቃሴዎ ላይ ተመስርተን ያስተዋልናቸው ንድፎች ናቸው። ምርመራ ወይም የህክምና ምክር አይደሉም። እዚህ ያለነው የእርስዎን ስሜታዊ ጉዞ እንዲረዱ ለመርዳት ብቻ ነው።';
+      'እነዚህ ግንዛቤዎች በእንቅስቃሴዎ ላይ ተመስርተን ያስተዋልናቸው ንድፎች ናቸው። ምርመራ ወይም የህክምና ምክር አይዴሉም። እዚህ ያለነው የእርስዎን ስሜታዊ ጉዞ እንዲረዱ ለመርዳት ብቻ ነው።';
 
   @override
   String get moodPattern => 'የስሜት ንድፍ';
@@ -1693,7 +1693,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get endCall => 'ጥሪ አቁም';
 
   @override
-  String get accept => 'ቀበል';
+  String get accept => 'ተቀበል';
 
   @override
   String get connected => 'ተገናኝቷል';
@@ -1953,7 +1953,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get unlinkAccount => 'ይህንን መለያ ያላቅቁ';
 
   @override
-  String get personalAccountTag => 'የግል መለያ';
+  String get personalAccountTag => 'PERSONAL ACCOUNT';
 
   @override
   String get aiGuide => 'የAI መመሪያ';
@@ -1992,25 +1992,24 @@ class AppLocalizationsAm extends AppLocalizations {
   String get alertsHistory => 'የማሳወቂያዎች ታሪክ';
 
   @override
-  String get filterBySeverity => 'Filter by Severity';
+  String get filterBySeverity => 'በክብደት ይለዩ';
 
   @override
   String get noAlertsFound => 'ምንም ማሳወቂያዎች አልተገኙም';
 
   @override
-  String get noAlertsYet => 'No alerts yet';
+  String get noAlertsYet => 'ገና ምንም ማሳወቂያዎች የሉም';
 
   @override
-  String get noAlertsYetDesc =>
-      'We will notify you if any concerning patterns appear.';
+  String get noAlertsYetDesc => 'አሳሳቢ ንድፎች ከታዩ እናሳውቅዎታለን።';
 
   @override
   String noAlertsFoundDescFiltered(String severity) {
-    return 'No alerts match the \"$severity\" severity filter.';
+    return 'ከ \"$severity\" የክብደት ማጣሪያ ጋር የሚዛመድ ምንም ማሳወቂያ የለም።';
   }
 
   @override
-  String get clearFilter => 'Clear Filter';
+  String get clearFilter => 'ማጣሪያውን አጽዳ';
 
   @override
   String get securityAlerts => 'የደህንነት ማሳወቂያዎች';
@@ -2401,8 +2400,124 @@ class AppLocalizationsAm extends AppLocalizations {
   String get cancelLabel => 'ተው';
 
   @override
-  String get you => 'አንተ';
+  String get you => 'እርስዎ';
 
   @override
-  String get decline => 'አትቀበል';
+  String get decline => 'ውድቅ አድርግ';
+
+  @override
+  String get editProfile => 'መገለጫን አዘምን';
+
+  @override
+  String get profileUpdatedSuccess => 'መገለጫ በተሳካ ሁኔታ ተዘምኗል';
+
+  @override
+  String get enrollAdolescent => 'ታዳጊን ይመዝግቡ';
+
+  @override
+  String get newEnrollment => 'አዲስ ምዝገባ';
+
+  @override
+  String get newEnrollmentDesc =>
+      'የልጅዎን ስሜታዊ ጤንነት ለመከታተል እና የእድገት ጉዟቸውን ለመምራት ልጅዎን ከNeuronet መድረክ ጋር ያገናኙ።';
+
+  @override
+  String get enrollmentSuccess => 'ምዝገባው ተሳክቷል!';
+
+  @override
+  String get enrollmentSuccessDesc =>
+      'ምዝገባው ተጠናቅቋል። እባክዎን ይህንን የማግበሪያ ኮድ ለታዳጊዎ ያጋሩ። መሣሪያቸውን ከመለያዎ ጋር ለማገናኘት ያስፈልጋቸዋል።';
+
+  @override
+  String get copyCode => 'ኮዱን ቅዳ';
+
+  @override
+  String get finish => 'ጨርስ';
+
+  @override
+  String get saveUpper => 'አስቀምጥ';
+
+  @override
+  String get personalInfo => 'የግል መረጃ';
+
+  @override
+  String get changePassword => 'የይለፍ ቃል ቀይር';
+
+  @override
+  String get changePasswordDesc => 'የአሁኑን የይለፍ ቃል ለማቆየት ባዶ ይተውት';
+
+  @override
+  String get confirmNewPassword => 'አዲሱን የይለፍ ቃል ያረጋግጡ';
+
+  @override
+  String get registrationComplete => 'ምዝገባ ተጠናቋል';
+
+  @override
+  String get loginSecurely => 'በደህንነት ይግቡ';
+
+  @override
+  String dashboardDataFailedToLoad(String error) {
+    return 'የዳሽቦርድ መረጃን መጫን አልተቻለም: $error';
+  }
+
+  @override
+  String get emailAddressNonEditable => 'ኢሜይል አድራሻ (ሊለወጥ የማይችል)';
+
+  @override
+  String get security => 'ደህንነት';
+
+  @override
+  String get passwordProtectionAdvice =>
+      'መለያዎን እና የሚከታተሉትን ስሜታዊ የጤና መረጃ ለመጠበቅ ጠንካራ የይለፍ ቃል ይጠቀሙ።';
+
+  @override
+  String get initialCapabilities => 'Initial Capabilities';
+
+  @override
+  String get initialCapabilitiesDesc =>
+      'Select the features you want to enable initially. You can adjust these granularly after enrollment.';
+
+  @override
+  String get enrollmentComplete => 'Enrollment Complete!';
+
+  @override
+  String get enrollmentCompleteDesc =>
+      'Your adolescent has been successfully registered. Share this activation code with them to link their device.';
+
+  @override
+  String get activationCodeUpper => 'ACTIVATION CODE';
+
+  @override
+  String get invalidEmailFormat => 'Invalid email format';
+
+  @override
+  String get selectDate => 'Select Date';
+
+  @override
+  String get relationshipToAdolescent => 'Relationship to Adolescent';
+
+  @override
+  String get loginTaglineEmpathy => 'Oversight with Empathy ❤️';
+
+  @override
+  String get loginTaglineSupport => 'Secure Support for your Teens 🛡️';
+
+  @override
+  String get loginTaglinePeace => 'Peace of mind, anytime ✨';
+
+  @override
+  String get atLeast6Characters => 'At least 6 characters';
+
+  @override
+  String get activateCode => 'Activate Code';
+
+  @override
+  String get guardianDataEncrypted =>
+      'Guardian Data is Encrypted & HIPAA Compliant';
+
+  @override
+  String get failedToLoadAlerts => 'Failed to load alerts. Please try again.';
+
+  @override
+  String get dateOfBirth => 'Date of Birth';
 }

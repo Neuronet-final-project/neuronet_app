@@ -217,8 +217,8 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
       setState(() => _isResponding = false);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Approval revoked successfully'),
+          SnackBar(
+            content: Text(context.localizations.approvalRevokedSuccess),
             backgroundColor: Colors.orange,
           ),
         );

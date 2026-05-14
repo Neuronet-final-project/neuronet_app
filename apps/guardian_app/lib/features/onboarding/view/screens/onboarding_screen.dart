@@ -17,22 +17,22 @@ class GuardianOnboardingScreen extends ConsumerWidget {
           context.go(GuardianRoutes.login);
         }
       },
-      pages: const [
+      pages: [
         OnboardingPageData(
-          title: 'Empower Growth',
-          description: "Help your child grow with confidence. NeuroNet provides a safe balance between support and independence.",
-          icon: Icons.family_restroom_rounded,
-          color: NeuroColors.guardianPrimary,
+          title: context.localizations.guardianOnboardingTitle1,
+          description: context.localizations.guardianOnboardingDesc1,
+          icon: Icons.auto_graph_rounded,
+          color: const Color(0xFF6366F1),
         ),
         OnboardingPageData(
-          title: 'Consent-Driven Oversight',
-          description: 'You decide what information is shared with counselors. Your oversight is always based on the consents you manage.',
+          title: context.localizations.guardianOnboardingTitle2,
+          description: context.localizations.guardianOnboardingDesc2,
           icon: Icons.verified_user_rounded,
-          color: NeuroColors.guardianPrimary,
+          color: const Color(0xFF8B5CF6),
         ),
         OnboardingPageData(
-          title: 'Stay Informed, Respect Privacy',
-          description: "Receive AI-generated summaries and alerts about emotional trends, without ever exposing your child's private journal text.",
+          title: context.localizations.guardianOnboardingTitle3,
+          description: context.localizations.guardianOnboardingDesc3,
           icon: Icons.notifications_active_rounded,
           color: NeuroColors.guardianPrimary,
         ),

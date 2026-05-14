@@ -1533,7 +1533,7 @@ abstract class AppLocalizations {
   /// No description provided for @pleaseEnterPassword.
   ///
   /// In en, this message translates to:
-  /// **'Please enter a password'**
+  /// **'Please enter your password'**
   String get pleaseEnterPassword;
 
   /// No description provided for @passwordMinLength.
@@ -1755,37 +1755,37 @@ abstract class AppLocalizations {
   /// No description provided for @guardianOnboardingTitle1.
   ///
   /// In en, this message translates to:
-  /// **'Empower Growth'**
+  /// **'Track Progress'**
   String get guardianOnboardingTitle1;
 
   /// No description provided for @guardianOnboardingDesc1.
   ///
   /// In en, this message translates to:
-  /// **'Help your child grow with confidence. NeuroNet provides a safe balance between support and independence.'**
+  /// **'Monitor your child\'s emotional growth and developmental milestones in real-time.'**
   String get guardianOnboardingDesc1;
 
   /// No description provided for @guardianOnboardingTitle2.
   ///
   /// In en, this message translates to:
-  /// **'Consent-Driven Oversight'**
+  /// **'Secure Oversight'**
   String get guardianOnboardingTitle2;
 
   /// No description provided for @guardianOnboardingDesc2.
   ///
   /// In en, this message translates to:
-  /// **'You decide what information is shared with counselors. Your oversight is always based on the consents you manage.'**
+  /// **'Your data is protected with state-of-the-art encryption and HIPAA compliance.'**
   String get guardianOnboardingDesc2;
 
   /// No description provided for @guardianOnboardingTitle3.
   ///
   /// In en, this message translates to:
-  /// **'Stay Informed, Respect Privacy'**
+  /// **'Instant Alerts'**
   String get guardianOnboardingTitle3;
 
   /// No description provided for @guardianOnboardingDesc3.
   ///
   /// In en, this message translates to:
-  /// **'Receive AI-generated summaries and alerts about emotional trends, without ever exposing your child\'s private journal text.'**
+  /// **'Receive immediate notifications for critical emotional shifts and safety concerns.'**
   String get guardianOnboardingDesc3;
 
   /// No description provided for @noCommentsYet.
@@ -3885,7 +3885,7 @@ abstract class AppLocalizations {
   /// No description provided for @createAccount.
   ///
   /// In en, this message translates to:
-  /// **'Create Account'**
+  /// **'Create account'**
   String get createAccount;
 
   /// No description provided for @empowerParentingJourney.
@@ -4463,6 +4463,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Decline'**
   String get decline;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfile;
+
+  /// No description provided for @profileUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdatedSuccess;
+
+  /// No description provided for @enrollAdolescent.
+  ///
+  /// In en, this message translates to:
+  /// **'Enroll Adolescent'**
+  String get enrollAdolescent;
+
+  /// No description provided for @newEnrollment.
+  ///
+  /// In en, this message translates to:
+  /// **'New Enrollment'**
+  String get newEnrollment;
+
+  /// No description provided for @newEnrollmentDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your child to the Neuronet platform to begin monitoring their emotional health and guiding their developmental journey.'**
+  String get newEnrollmentDesc;
+
+  /// No description provided for @enrollmentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Enrollment Successful!'**
+  String get enrollmentSuccess;
+
+  /// No description provided for @enrollmentSuccessDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration complete. Please share this activation code with your adolescent. They will need it to link their device to your account.'**
+  String get enrollmentSuccessDesc;
+
+  /// No description provided for @copyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Code'**
+  String get copyCode;
+
+  /// No description provided for @finish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get finish;
+
+  /// No description provided for @saveUpper.
+  ///
+  /// In en, this message translates to:
+  /// **'SAVE'**
+  String get saveUpper;
+
+  /// No description provided for @personalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInfo;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get changePassword;
+
+  /// No description provided for @changePasswordDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank to keep current password'**
+  String get changePasswordDesc;
+
+  /// No description provided for @confirmNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New Password'**
+  String get confirmNewPassword;
+
+  /// No description provided for @registrationComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration Complete'**
+  String get registrationComplete;
+
+  /// No description provided for @loginSecurely.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Securely'**
+  String get loginSecurely;
+
+  /// No description provided for @dashboardDataFailedToLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard data failed to load: {error}'**
+  String dashboardDataFailedToLoad(String error);
+
+  /// No description provided for @emailAddressNonEditable.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address (Non-editable)'**
+  String get emailAddressNonEditable;
+
+  /// No description provided for @security.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get security;
+
+  /// No description provided for @passwordProtectionAdvice.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a strong password to protect your account and the sensitive emotional health data you monitor.'**
+  String get passwordProtectionAdvice;
+
+  /// No description provided for @initialCapabilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial Capabilities'**
+  String get initialCapabilities;
+
+  /// No description provided for @initialCapabilitiesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the features you want to enable initially. You can adjust these granularly after enrollment.'**
+  String get initialCapabilitiesDesc;
+
+  /// No description provided for @enrollmentComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Enrollment Complete!'**
+  String get enrollmentComplete;
+
+  /// No description provided for @enrollmentCompleteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your adolescent has been successfully registered. Share this activation code with them to link their device.'**
+  String get enrollmentCompleteDesc;
+
+  /// No description provided for @activationCodeUpper.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVATION CODE'**
+  String get activationCodeUpper;
+
+  /// No description provided for @invalidEmailFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email format'**
+  String get invalidEmailFormat;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get selectDate;
+
+  /// No description provided for @relationshipToAdolescent.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship to Adolescent'**
+  String get relationshipToAdolescent;
+
+  /// No description provided for @loginTaglineEmpathy.
+  ///
+  /// In en, this message translates to:
+  /// **'Oversight with Empathy ❤️'**
+  String get loginTaglineEmpathy;
+
+  /// No description provided for @loginTaglineSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure Support for your Teens 🛡️'**
+  String get loginTaglineSupport;
+
+  /// No description provided for @loginTaglinePeace.
+  ///
+  /// In en, this message translates to:
+  /// **'Peace of mind, anytime ✨'**
+  String get loginTaglinePeace;
+
+  /// No description provided for @atLeast6Characters.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 6 characters'**
+  String get atLeast6Characters;
+
+  /// No description provided for @activateCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate Code'**
+  String get activateCode;
+
+  /// No description provided for @guardianDataEncrypted.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian Data is Encrypted & HIPAA Compliant'**
+  String get guardianDataEncrypted;
+
+  /// No description provided for @failedToLoadAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load alerts. Please try again.'**
+  String get failedToLoadAlerts;
+
+  /// No description provided for @dateOfBirth.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth'**
+  String get dateOfBirth;
 }
 
 class _AppLocalizationsDelegate

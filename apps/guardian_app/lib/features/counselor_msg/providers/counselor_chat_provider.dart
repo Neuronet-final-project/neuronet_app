@@ -14,6 +14,8 @@ abstract class CounselorChatState with _$CounselorChatState {
     Conversation? conversation,
     /// Counselor email extracted from conversation participants.
     String? counselorEmail,
+    /// Counselor display name (if available).
+    String? counselorName,
     @Default([]) List<ConversationMessage> messages,
     @Default(false) bool isLoading,
     String? error,
@@ -31,7 +33,10 @@ class CounselorChatController extends _$CounselorChatController {
       debugPrint('[GuardianCounselorChat] 📨 FCM chat event received — refreshing immediately');
       _silentRefresh();
     });
-    ref.onDispose(fcmSub.cancel);
+    // Clean up FCM subscription when provider is disposed
+    ref.onDispose(() {
+      fcmSub.cancel();
+    });
 
     try {
       final messagingService = ref.watch(messagingServiceProvider);
@@ -87,11 +92,11 @@ class CounselorChatController extends _$CounselorChatController {
         debugPrint('[GuardianCounselorChat]   [$i] ${m.senderRole} | ${m.createdAt} | "$preview"');
       }
 
-      return CounselorChatState(
-        conversation: conversation,
-        counselorEmail: counselorEmail,
-        messages: messagesResult.value,
-      );
+        return CounselorChatState(
+          conversation: conversation,
+          counselorEmail: counselorEmail,
+          messages: messagesResult.value,
+        );
     } catch (e) {
       if (e.toString().contains('no_assigned_counselor')) {
         debugPrint('[GuardianCounselorChat] ✗ No counselor assigned (exception path)');

@@ -63,7 +63,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: NeuroErrorWidget(
-                        message: 'Error: ${state.error}',
+                        message: '${context.localizations.errorPrefix}: ${state.error}',
                         onRetry: () => ref.read(guardianAlertsControllerProvider.notifier).refresh(),
                       ),
                     ),
@@ -82,13 +82,13 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: NeuroEmptyState(
-                        title: _filterSeverity == null ? 'No alerts yet' : 'No alerts found',
+                        title: _filterSeverity == null ? context.localizations.noAlertsYet : context.localizations.noAlertsFound,
                         message: _filterSeverity == null 
-                            ? 'We will notify you if any concerning patterns appear.'
-                            : 'No alerts match the "$_filterSeverity" severity filter.',
+                            ? context.localizations.noAlertsYetDesc
+                            : context.localizations.noAlertsFoundDescFiltered(_filterSeverity!),
                         icon: Icons.notifications_off_outlined,
                         color: NeuroColors.onSurfaceVariant,
-                        actionLabel: _filterSeverity != null ? 'Clear Filter' : null,
+                        actionLabel: _filterSeverity != null ? context.localizations.clearFilter : null,
                         onActionPressed: _filterSeverity != null ? () => setState(() => _filterSeverity = null) : null,
                       ),
                     ),
@@ -128,7 +128,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: NeuroErrorWidget(
-                    message: 'Failed to load alerts.',
+                    message: context.localizations.failedToLoadAlerts,
                     onRetry: () => ref.read(guardianAlertsControllerProvider.notifier).refresh(),
                   ),
                 ),
@@ -144,13 +144,13 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter by Severity'),
+        title: Text(context.localizations.filterBySeverity),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // ignore: deprecated_member_use
             ListTile(
-              title: const Text('All'),
+              title: Text(context.localizations.filterAll),
               leading: Radio<String?>(
                 value: null,
                 // ignore: deprecated_member_use

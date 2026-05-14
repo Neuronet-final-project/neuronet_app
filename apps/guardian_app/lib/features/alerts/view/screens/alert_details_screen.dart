@@ -125,7 +125,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: NeuroButton(
                             onPressed: () => _resolveAlert(alert),
-                            label: 'Mark as Resolved',
+                            label: context.localizations.markAsResolved,
                             borderRadius: 16,
                           ),
                         ).animate(delay: 750.ms).fadeIn().scale(begin: const Offset(0.9, 0.9)),
@@ -137,7 +137,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text('${context.localizations.errorPrefix}: $err')),
       ),
     );
   }
