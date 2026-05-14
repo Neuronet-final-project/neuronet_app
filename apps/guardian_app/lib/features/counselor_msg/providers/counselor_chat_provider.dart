@@ -14,7 +14,11 @@ abstract class CounselorChatState with _$CounselorChatState {
     Conversation? conversation,
     /// Counselor email extracted from conversation participants.
     String? counselorEmail,
+<<<<<<< HEAD
     /// Counselor name for display (from assigned counselors list)
+=======
+    /// Counselor display name (if available).
+>>>>>>> e9ba7f7f6f9ea0c2c384abf5f5ca95832bf9face
     String? counselorName,
     @Default([]) List<ConversationMessage> messages,
     @Default(false) bool isLoading,
@@ -36,6 +40,7 @@ class CounselorChatController extends _$CounselorChatController {
       debugPrint('[GuardianCounselorChat] 📨 FCM chat event received — refreshing immediately');
       _silentRefresh();
     });
+<<<<<<< HEAD
 
     // Add aggressive periodic polling every 2 seconds as a fallback and to match web dashboard behavior
     final pollTimer = Timer.periodic(const Duration(seconds: 2), (_) {
@@ -45,6 +50,11 @@ class CounselorChatController extends _$CounselorChatController {
     ref.onDispose(() {
       fcmSub.cancel();
       pollTimer.cancel();
+=======
+    // Clean up FCM subscription when provider is disposed
+    ref.onDispose(() {
+      fcmSub.cancel();
+>>>>>>> e9ba7f7f6f9ea0c2c384abf5f5ca95832bf9face
     });
 
     try {
@@ -122,6 +132,7 @@ class CounselorChatController extends _$CounselorChatController {
         counselorName: counselorName,
         messages: messagesResult.value,
       );
+
     } catch (e) {
       if (e.toString().contains('no_assigned_counselor')) {
         debugPrint('[GuardianCounselorChat] ✗ No counselor assigned (exception path)');

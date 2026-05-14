@@ -5,6 +5,7 @@ import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/counselor_chat_provider.dart';
 import '../../../consent/providers/consent_provider.dart';
 import '../../../ui/bento_card.dart';
+import '../../../ui/l10n_utils.dart';
 
 class CounselorMsgScreen extends ConsumerStatefulWidget {
   final String adolescentId;
@@ -56,7 +57,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to upload voice message: ${uploadResult.failure.message}'),
+            content: Text(context.localizations.failedToUploadVoice(uploadResult.failure.message)),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -80,7 +81,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to upload ${type.name}: ${uploadResult.failure.message}'),
+            content: Text(context.localizations.failedToUploadMedia(type.name, uploadResult.failure.message)),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -108,7 +109,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
     }
 
     if (state.error != null && state.messages.isEmpty) {
-      return Center(child: Text(state.error!));
+      return Center(child: Text(translateError(context, state.error)));
     }
 
     // Auto-scroll when new messages arrive
@@ -125,7 +126,10 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                   itemCount: state.messages.length,
                   itemBuilder: (context, index) {
                     final message = state.messages[index];
-                    final isMe = message.senderRole == 'guardian';
+                    final isCallLog = message.messageType == MessageContentType.callLog;
+                    final isMe = isCallLog
+                        ? (message.content.toLowerCase().contains('you ') || message.content.toLowerCase().startsWith('you '))
+                        : message.senderRole == 'guardian';
 
                     return NeuroChatBubble(
                       messageContent: message.content,
@@ -143,19 +147,20 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              state.error!,
+              translateError(context, state.error),
               style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ),
-        _ChatInputSection(
-          controller: _messageController,
-          onSend: (content) {
-            ref.read(counselorChatControllerProvider(widget.adolescentId).notifier).sendMessage(content);
-            _messageController.clear();
-          },
-          onSendVoice: _sendVoiceMessage,
-          onSendMedia: _sendMediaMessage,
-        ),
+        if (!showActiveCall && !showIncomingCall)
+          _ChatInputSection(
+            controller: _messageController,
+            onSend: (content) {
+              ref.read(counselorChatControllerProvider(widget.adolescentId).notifier).sendMessage(content);
+              _messageController.clear();
+            },
+            onSendVoice: _sendVoiceMessage,
+            onSendMedia: _sendMediaMessage,
+          ),
       ],
     );
   }
@@ -310,7 +315,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                     showIncomingCall,
                   ),
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, st) => Center(child: Text('Error: $e')),
+                  error: (e, st) => Center(child: Text('${context.localizations.errorPrefix}: $e')),
                 ),
                 if (showIncomingCall)
                   NeuroIncomingCallScreen(
@@ -439,10 +444,10 @@ class _NoCounselorView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'No Counselor Assigned',
+              Text(
+                context.localizations.noCounselorAssigned,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
                   color: NeuroColors.guardianPrimaryDark,
@@ -451,7 +456,7 @@ class _NoCounselorView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'An assigned counselor is required to start a conversation. Please wait for the school administration to assign a professional to $adolescentName.',
+                context.localizations.noCounselorAssignedDesc(adolescentName),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,

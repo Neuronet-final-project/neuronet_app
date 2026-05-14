@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:collection/collection.dart';
+import 'package:intl/intl.dart';
 import 'package:guardian_app/config/router/app_router.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../../ui/bento_card.dart';
 import '../../providers/adolescent_provider.dart';
+import '../../../ui/l10n_utils.dart';
 
 class AdolescentDetailScreen extends ConsumerWidget {
   final String adolescentId;
@@ -125,17 +127,23 @@ class AdolescentDetailScreen extends ConsumerWidget {
           const Divider(height: 24, thickness: 0.5),
           _buildDetailRow(
             context.localizations.relationship,
-            profile.relationship?.name.toUpperCase() ?? 'N/A',
+            profile.relationship != null
+                ? profile.relationship!.localizedLabel(context.localizations)
+                : context.localizations.notAvailable,
           ),
           const Divider(height: 24, thickness: 0.5),
           _buildDetailRow(
             context.localizations.accountStatus,
-            profile.accountStatus?.name.toUpperCase() ?? context.localizations.activeStatus,
+            profile.accountStatus != null
+                ? profile.accountStatus!.localizedLabel(context.localizations)
+                : context.localizations.statusActive,
           ),
           const Divider(height: 24, thickness: 0.5),
           _buildDetailRow(
             context.localizations.linkedSince,
-            profile.createdAt?.toIso8601String().split('T')[0] ?? 'N/A',
+            profile.createdAt != null 
+                ? DateFormat('MMM d, yyyy').format(profile.createdAt!) 
+                : context.localizations.unknownDate,
           ),
         ]).animate()
           .fadeIn(delay: 500.ms)
@@ -160,7 +168,8 @@ class AdolescentDetailScreen extends ConsumerWidget {
                 children: [
                   if (index > 0) const Divider(height: 24, thickness: 0.5),
                   _buildConsentEntry(
-                    c.consentType.label,
+                    context,
+                    c.consentType.localizedLabel(context.localizations),
                     c.consentStatus == ConsentStatus.granted,
                   ),
                 ],
@@ -185,24 +194,6 @@ class AdolescentDetailScreen extends ConsumerWidget {
           .fadeIn(delay: 700.ms)
           .slideY(begin: 0.2, curve: Curves.easeOutQuad),
         
-        const SizedBox(height: 48),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.link_off_rounded, size: 20),
-              label: Text(context.localizations.unlinkAccount),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                foregroundColor: NeuroColors.error,
-                side: const BorderSide(color: NeuroColors.error, width: 1),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-            ),
-          ),
-        ).animate(delay: 800.ms).fadeIn(),
         const SizedBox(height: 40),
       ],
     );
@@ -440,7 +431,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildConsentEntry(String title, bool isEnabled) {
+  Widget _buildConsentEntry(BuildContext context, String title, bool isEnabled) {
     return Row(
       children: [
         Container(
@@ -478,7 +469,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            isEnabled ? 'ACTIVE' : 'DISABLED',
+            isEnabled ? context.localizations.activeStatus : context.localizations.disabledStatus,
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w900,

@@ -24,6 +24,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settings => 'Ajustes';
 
   @override
+  String get forgotPassword => '¿Olvidaste tu contraseña?';
+
+  @override
   String get profile => 'Perfil';
 
   @override
@@ -37,6 +40,20 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get alerts => 'Alertas';
+
+  @override
+  String get unknownDate => 'Unknown date';
+
+  @override
+  String get accountIsActive => 'This account is active.';
+
+  @override
+  String get activationCodeSharedInfo =>
+      'Activation code was shared during registration. Ensure the adolescent enters it on their device.';
+
+  @override
+  String get accountIsInactiveInfo =>
+      'This account is inactive. Profile editing is disabled.';
 
   @override
   String get retry => 'Reintentar';
@@ -778,7 +795,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pleaseEnterActivationCode => 'Please enter the activation code';
 
   @override
-  String get pleaseEnterPassword => 'Please enter a password';
+  String get pleaseEnterPassword => 'Please enter your password';
 
   @override
   String get passwordMinLength => 'Password must be at least 6 characters';
@@ -853,9 +870,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get passwordHint => 'Contraseña';
 
   @override
-  String get forgotPassword => '¿Olvidaste tu contraseña?';
-
-  @override
   String get newToNeuroNet => '¿Nuevo en NeuroNet?';
 
   @override
@@ -894,25 +908,25 @@ class AppLocalizationsEs extends AppLocalizations {
       'Usa el código de activación proporcionado por tu tutor para desbloquear tu viaje emocional personal.';
 
   @override
-  String get guardianOnboardingTitle1 => 'Empower Growth';
+  String get guardianOnboardingTitle1 => 'Track Progress';
 
   @override
   String get guardianOnboardingDesc1 =>
-      'Help your child grow with confidence. NeuroNet provides a safe balance between support and independence.';
+      'Monitor your child\'s emotional growth and developmental milestones in real-time.';
 
   @override
-  String get guardianOnboardingTitle2 => 'Consent-Driven Oversight';
+  String get guardianOnboardingTitle2 => 'Secure Oversight';
 
   @override
   String get guardianOnboardingDesc2 =>
-      'You decide what information is shared with counselors. Your oversight is always based on the consents you manage.';
+      'Your data is protected with state-of-the-art encryption and HIPAA compliance.';
 
   @override
-  String get guardianOnboardingTitle3 => 'Stay Informed, Respect Privacy';
+  String get guardianOnboardingTitle3 => 'Instant Alerts';
 
   @override
   String get guardianOnboardingDesc3 =>
-      'Receive AI-generated summaries and alerts about emotional trends, without ever exposing your child\'s private journal text.';
+      'Receive immediate notifications for critical emotional shifts and safety concerns.';
 
   @override
   String get noCommentsYet => 'No comments yet.';
@@ -1325,6 +1339,37 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get inThisTabLabel => 'In this tab';
+
+  @override
+  String get emotionalInsights => 'Emotional Insights';
+
+  @override
+  String get moodDistribution => 'Mood Distribution';
+
+  @override
+  String get allTime => 'All time';
+
+  @override
+  String get thisMonth => 'This Month';
+
+  @override
+  String get todaysInsights => 'Today\'s Insights';
+
+  @override
+  String get weeklyInsights => 'Weekly Insights';
+
+  @override
+  String get monthlyInsights => 'Monthly Insights';
+
+  @override
+  String get analysisPending => 'Analysis pending...';
+
+  @override
+  String get nameCannotContainNumbers => 'Full name cannot contain numbers';
+
+  @override
+  String get nameCannotContainSpecialCharacters =>
+      'Full name cannot contain special characters';
 
   @override
   String get noChannelsYet => 'No channels yet';
@@ -1852,6 +1897,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get highRisk => 'HIGH';
 
   @override
+  String severityRisk(String risk) {
+    return '$risk RISK';
+  }
+
+  @override
   String get viewAlerts => 'View Alerts';
 
   @override
@@ -2113,7 +2163,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get backToLogin => 'Back to Login';
 
   @override
-  String get createAccount => 'Create Account';
+  String get createAccount => 'Create account';
 
   @override
   String get empowerParentingJourney => 'Empower your parenting journey';
@@ -2365,6 +2415,34 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get consentParticipationLabel => 'General Participation & AI Analysis';
+
+  @override
+  String get consentParticipationDesc =>
+      'Enable AI-driven emotional analysis and trend detection for all journals.';
+
+  @override
+  String get consentShareAiSummariesLabel => 'AI Summaries & Risk Levels';
+
+  @override
+  String get consentShareAiSummariesDesc =>
+      'Allow viewing of AI-generated emotional summaries and designated risk levels.';
+
+  @override
+  String get consentShareAlertsLabel => 'Security Alerts & Notifications';
+
+  @override
+  String get consentShareAlertsDesc =>
+      'Receive immediate notifications when critical emotional patterns or risks are detected.';
+
+  @override
+  String get consentCounselorChatLabel => 'Counselor Private Messaging';
+
+  @override
+  String get consentCounselorChatDesc =>
+      'Authorize private one-on-one communication with assigned counselors.';
+
+  @override
   String chattingAboutAdolescent(String name) {
     return 'Chatting about $name';
   }
@@ -2466,4 +2544,147 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get decline => 'Rechazar';
+
+  @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get profileUpdatedSuccess => 'Profile updated successfully';
+
+  @override
+  String get enrollAdolescent => 'Enroll Adolescent';
+
+  @override
+  String get newEnrollment => 'New Enrollment';
+
+  @override
+  String get newEnrollmentDesc =>
+      'Connect your child to the Neuronet platform to begin monitoring their emotional health and guiding their developmental journey.';
+
+  @override
+  String get enrollmentSuccess => 'Enrollment Successful!';
+
+  @override
+  String get enrollmentSuccessDesc =>
+      'Registration complete. Please share this activation code with your adolescent. They will need it to link their device to your account.';
+
+  @override
+  String get copyCode => 'Copy Code';
+
+  @override
+  String get finish => 'Finish';
+
+  @override
+  String get saveUpper => 'SAVE';
+
+  @override
+  String get personalInfo => 'Personal Information';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get changePasswordDesc => 'Leave blank to keep current password';
+
+  @override
+  String get confirmNewPassword => 'Confirm New Password';
+
+  @override
+  String get registrationComplete => 'Registration Complete';
+
+  @override
+  String get loginSecurely => 'Login Securely';
+
+  @override
+  String dashboardDataFailedToLoad(String error) {
+    return 'Dashboard data failed to load: $error';
+  }
+
+  @override
+  String get emailAddressNonEditable => 'Email Address (Non-editable)';
+
+  @override
+  String get security => 'Security';
+
+  @override
+  String get passwordProtectionAdvice =>
+      'Use a strong password to protect your account and the sensitive emotional health data you monitor.';
+
+  @override
+  String get initialCapabilities => 'Initial Capabilities';
+
+  @override
+  String get initialCapabilitiesDesc =>
+      'Select the features you want to enable initially. You can adjust these granularly after enrollment.';
+
+  @override
+  String get enrollmentComplete => 'Enrollment Complete!';
+
+  @override
+  String get enrollmentCompleteDesc =>
+      'Your adolescent has been successfully registered. Share this activation code with them to link their device.';
+
+  @override
+  String get activationCodeUpper => 'ACTIVATION CODE';
+
+  @override
+  String get invalidEmailFormat => 'Invalid email format';
+
+  @override
+  String get selectDate => 'Select Date';
+
+  @override
+  String get relationshipToAdolescent => 'Relationship to Adolescent';
+
+  @override
+  String get pleaseFillRequiredFields => 'Please fill in all required fields';
+
+  @override
+  String get pleaseEnterValidEmail => 'Please enter a valid email address';
+
+  @override
+  String failedToRegisterAdolescent(Object error) {
+    return 'Failed to register adolescent: $error';
+  }
+
+  @override
+  String get loginTaglineEmpathy => 'Oversight with Empathy ❤️';
+
+  @override
+  String get loginTaglineSupport => 'Secure Support for your Teens 🛡️';
+
+  @override
+  String get loginTaglinePeace => 'Peace of mind, anytime ✨';
+
+  @override
+  String get atLeast6Characters => 'At least 6 characters';
+
+  @override
+  String get activateCode => 'Activate Code';
+
+  @override
+  String get guardianDataEncrypted =>
+      'Guardian Data is Encrypted & HIPAA Compliant';
+
+  @override
+  String get failedToLoadAlerts => 'Failed to load alerts. Please try again.';
+
+  @override
+  String get dateOfBirth => 'Date of Birth';
+
+  @override
+  String get unauthorizedGuardianAccess =>
+      'Unauthorized access: This account does not have Guardian privileges.';
+
+  @override
+  String get parent => 'Parent';
+
+  @override
+  String get legalGuardian => 'Legal Guardian';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get notAvailable => 'N/A';
 }

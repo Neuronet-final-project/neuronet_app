@@ -7,7 +7,8 @@ part 'translation.g.dart';
 abstract class TranslationRequest with _$TranslationRequest {
   const factory TranslationRequest({
     required String text,
-    @JsonKey(name: 'source_lang') required String sourceLang,
+    @JsonKey(name: 'source_lang') @Default('auto') String sourceLang,
+    @JsonKey(name: 'target_lang') required String targetLang,
   }) = _TranslationRequest;
 
   factory TranslationRequest.fromJson(Map<String, dynamic> json) =>

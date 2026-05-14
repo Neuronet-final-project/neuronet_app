@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
+import 'package:guardian_app/features/ui/l10n_utils.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
 import '../../providers/adolescent_provider.dart';
 
@@ -255,7 +256,7 @@ class _PendingAdolescentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final createdDate = adolescent.createdAt != null
         ? DateFormat('MMM d, yyyy').format(adolescent.createdAt!)
-        : 'Unknown date';
+        : context.localizations.unknownDate;
     
     final status = adolescent.accountStatus;
     final isPending = status == AccountStatus.pendingActivation;
@@ -321,7 +322,7 @@ class _PendingAdolescentCard extends StatelessWidget {
               if (adolescent.relationship != null)
                 _buildInfoTag(
                   icon: Icons.family_restroom_rounded,
-                  label: adolescent.relationship!.name.toUpperCase(),
+                  label: adolescent.relationship!.localizedLabel(context.localizations).toUpperCase(),
                 ),
             ],
           ),
@@ -371,7 +372,7 @@ class _PendingAdolescentCard extends StatelessWidget {
         ),
       ),
       child: Text(
-        isPending ? context.localizations.pending.toUpperCase() : status?.name.toUpperCase() ?? 'UNKNOWN',
+        isPending ? context.localizations.pending.toUpperCase() : (status?.localizedLabel(context.localizations) ?? context.localizations.statusInactive).toUpperCase(),
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w800,
@@ -410,11 +411,11 @@ class _PendingAdolescentCard extends StatelessWidget {
   }
 
   void _showActivationInfo(BuildContext context, AccountStatus? status) {
-    String message = 'This account is active.';
+    String message = context.localizations.accountIsActive;
     if (status == AccountStatus.pendingActivation) {
-      message = 'Activation code was shared during registration. Ensure the adolescent enters it on their device.';
+      message = context.localizations.activationCodeSharedInfo;
     } else if (status == AccountStatus.inactive) {
-      message = 'This account is inactive. Profile editing is disabled.';
+      message = context.localizations.accountIsInactiveInfo;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(

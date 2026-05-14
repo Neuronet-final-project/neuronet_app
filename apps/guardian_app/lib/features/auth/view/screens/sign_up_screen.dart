@@ -285,6 +285,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                       )),
                                   const SizedBox(height: 32),
 
+<<<<<<< HEAD
                                   if (!isVerificationStep) ...[
                                     // Full Name
                                     _GuardianTextField(
@@ -295,75 +296,92 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                       textInputAction: TextInputAction.next,
                                       validator: (v) => (v == null || v.isEmpty) ? context.localizations.enterFullName : null,
                                       onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
-                                    ),
-                                    const SizedBox(height: 12),
+=======
+                                // Full Name
+                                _GuardianTextField(
+                                  controller: _fullNameController,
+                                  focusNode: _fullNameFocus,
+                                  label: context.localizations.fullName,
+                                  icon: Icons.person_outline_rounded,
+                                  textInputAction: TextInputAction.next,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return context.localizations.enterFullName;
+                                    if (RegExp(r'[0-9]').hasMatch(v)) return context.localizations.nameCannotContainNumbers;
+                                    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(v)) {
+                                      return context.localizations.nameCannotContainSpecialCharacters;
+                                    }
+                                    return null;
+                                  },
+                                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
+                                ),
+                                const SizedBox(height: 12),
 
-                                    // Email
-                                    _GuardianTextField(
-                                      controller: _emailController,
-                                      focusNode: _emailFocus,
-                                      label: context.localizations.guardianEmail,
-                                      icon: Icons.alternate_email_rounded,
-                                      keyboardType: TextInputType.emailAddress,
-                                      textInputAction: TextInputAction.next,
-                                      validator: (v) {
-                                        if (v == null || v.isEmpty) return context.localizations.pleaseEnterEmail;
-                                        if (!v.contains('@')) return context.localizations.invalidEmail;
-                                        return null;
-                                      },
-                                      onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
-                                    ),
-                                    const SizedBox(height: 12),
+                                // Email
+                                _GuardianTextField(
+                                  controller: _emailController,
+                                  focusNode: _emailFocus,
+                                  label: context.localizations.guardianEmail,
+                                  icon: Icons.alternate_email_rounded,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return context.localizations.pleaseEnterEmail;
+                                    if (!v.contains('@')) return context.localizations.invalidEmail;
+                                    return null;
+                                  },
+                                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
+                                ),
+                                const SizedBox(height: 12),
 
-                                    // Password
-                                    _GuardianTextField(
-                                      controller: _passwordController,
-                                      focusNode: _passwordFocus,
-                                      label: context.localizations.createPassword,
-                                      icon: Icons.lock_outline_rounded,
-                                      obscureText: _obscurePassword,
-                                      textInputAction: TextInputAction.next,
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                          color: NeuroColors.guardianPrimary,
-                                          size: 20,
-                                        ),
-                                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                                      ),
-                                      validator: (v) => (v == null || v.length < 6) ? context.localizations.min6Characters : null,
-                                      onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_confirmPasswordFocus),
-                                    ),
-                                    const SizedBox(height: 12),
+                                // Password
+                                _GuardianTextField(
+                                  controller: _passwordController,
+                                  focusNode: _passwordFocus,
+                                  label: context.localizations.createPassword,
+                                  icon: Icons.lock_outline_rounded,
+                                  obscureText: _obscurePassword,
+                                  textInputAction: TextInputAction.next,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                      color: NeuroColors.guardianPrimary,
+                                      size: 20,
+                                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                  ),
+                                  validator: (v) => (v == null || v.length < 6) ? context.localizations.min6Characters : null,
+                                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_confirmPasswordFocus),
+                                ),
+                                const SizedBox(height: 12),
 
-                                    // Confirm Password
-                                    _GuardianTextField(
-                                      controller: _confirmPasswordController,
-                                      focusNode: _confirmPasswordFocus,
-                                      label: context.localizations.confirmPassword,
-                                      icon: Icons.lock_reset_rounded,
-                                      obscureText: _obscureConfirmPassword,
-                                      textInputAction: TextInputAction.done,
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                          color: NeuroColors.guardianPrimary,
-                                          size: 20,
-                                        ),
-                                        onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
-                                      ),
-                                      validator: (v) => (v != _passwordController.text) ? context.localizations.passwordsDoNotMatch : null,
-                                      onFieldSubmitted: (_) => _handleSignUp(),
+                                // Confirm Password
+                                _GuardianTextField(
+                                  controller: _confirmPasswordController,
+                                  focusNode: _confirmPasswordFocus,
+                                  label: context.localizations.confirmPassword,
+                                  icon: Icons.lock_reset_rounded,
+                                  obscureText: _obscureConfirmPassword,
+                                  textInputAction: TextInputAction.done,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                      color: NeuroColors.guardianPrimary,
+                                      size: 20,
                                     ),
-                                    const SizedBox(height: 24),
+                                    onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                                  ),
+                                  validator: (v) => (v != _passwordController.text) ? context.localizations.passwordsDoNotMatch : null,
+                                  onFieldSubmitted: (_) => _handleSignUp(),
+                                ),
+                                const SizedBox(height: 24),
 
-                                    // Sign Up button
-                                    _GradientButton(
-                                      onPressed: authState.status == AuthStatus.loading ? null : _handleSignUp,
-                                      isLoading: authState.status == AuthStatus.loading,
-                                      label: context.localizations.signUpNow,
-                                    ),
-                                  ] else ...[
+                                // Sign Up button
+                                _GradientButton(
+                                  onPressed: authState.status == AuthStatus.loading ? null : _handleSignUp,
+                                  isLoading: authState.status == AuthStatus.loading,
+                                  label: context.localizations.signUpNow,
+                                ),
+                              ] else ...[
+
                                     // OTP Verification UI
                                     TextFormField(
                                       controller: _otpController,

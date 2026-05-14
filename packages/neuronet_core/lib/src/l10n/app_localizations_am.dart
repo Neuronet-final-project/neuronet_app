@@ -24,6 +24,9 @@ class AppLocalizationsAm extends AppLocalizations {
   String get settings => 'ቅንብሮች';
 
   @override
+  String get forgotPassword => 'የይለፍ ቃል ረሱ?';
+
+  @override
   String get profile => 'መገለጫ';
 
   @override
@@ -37,6 +40,19 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get alerts => 'ማሳወቂያዎች';
+
+  @override
+  String get unknownDate => 'Unknown date';
+
+  @override
+  String get accountIsActive => 'ይህ መለያ አስቀድሞ ንቁ ነው።';
+
+  @override
+  String get activationCodeSharedInfo =>
+      'የማግበሪያ ኮድ በምዝገባ ወቅት ተጋርቷል። ታዳጊው በመሳሪያው ላይ ማስገባቱን ያረጋግጡ።';
+
+  @override
+  String get accountIsInactiveInfo => 'ይህ መለያ ንቁ አይደለም። መገለጫ ማስተካከል ተሰናክሏል።';
 
   @override
   String get retry => 'ድጋሚ ሞክር';
@@ -334,7 +350,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get sparkChallenge => 'ፈተናን እንዴት እንደተወጣሁ';
 
   @override
-  String get discoverHeader => 'DISCOVER';
+  String get discoverHeader => 'ያስሱ';
 
   @override
   String get searchMemoriesHint => 'ትዝታዎችን ይፈልጉ...';
@@ -459,7 +475,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get moodNeutral => 'መካከለኛ';
 
   @override
-  String get moodExcited => 'የተደሰተ';
+  String get moodExcited => 'በጣም የተደሰተ';
 
   @override
   String get moodTired => 'የደከመ';
@@ -499,13 +515,13 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get thanksCheckingIn =>
-      'ስለፈተሹ እናመሰግናለን።\nስሜትዎን መከታተል እራስዎን በተሻለ ሁኔታ ለመረዳት ይረዳዎታል።';
+      'ስለተከታተሉ እናመሰግናለን።\nስሜትዎን መከታተል እራስዎን በተሻለ ሁኔታ ለመረዳት ይረዳዎታል።';
 
   @override
   String get logAnotherMood => 'ሌላ ስሜት መዝግብ';
 
   @override
-  String get pastCheckInsHeader => 'ያለፉ ምርመራዎች';
+  String get pastCheckInsHeader => 'ያለፉ ክትትሎች';
 
   @override
   String get failedToLoadHistory => 'ታሪክን መጫን አልተቻለም';
@@ -718,7 +734,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get accountActivatedLogin => 'መለያው ገብሯል! እባክዎን ይግቡ።';
 
   @override
-  String get activateAccount => 'Activate Account';
+  String get activateAccount => 'መለያን አግብር';
 
   @override
   String get activateAccountTitle => 'መለያን አግብር';
@@ -833,9 +849,6 @@ class AppLocalizationsAm extends AppLocalizations {
   String get passwordHint => 'የይለፍ ቃል';
 
   @override
-  String get forgotPassword => 'የይለፍ ቃል ረሱ?';
-
-  @override
   String get newToNeuroNet => 'ለNeuroNet አዲስ ነዎት?';
 
   @override
@@ -856,7 +869,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get onboardingDesc2 =>
-      'አርቲፊሻል ኢንተለጀንሳችን በጊዜ ሂደት በስሜታዊ ጉዞዎ ውስጥ ያሉ ንድፎችን እንዲያዩ ይረዳዎታል፣ ይህም በራስዎ ግንዛቤ እንዲያድጉ ይረዳዎታል።';
+      'የእኛ AI በጊዜ ሂደት በስሜታዊ ጉዞዎ ውስጥ ያሉ ንድፎችን እንዲያዩ ይረዳዎታል፣ ይህም በራስዎ ግንዛቤ እንዲያድጉ ይረዳዎታል።';
 
   @override
   String get onboardingTitle3 => 'ድጋፍ እንጂ ምርመራ አይደለም';
@@ -873,25 +886,25 @@ class AppLocalizationsAm extends AppLocalizations {
       'የግል ስሜታዊ ጉዞዎን ለመክፈት በአሳዳጊዎ የተሰጠውን የማግበሪያ ኮድ ይጠቀሙ።';
 
   @override
-  String get guardianOnboardingTitle1 => 'Empower Growth';
+  String get guardianOnboardingTitle1 => 'እድገትን ይከታተሉ';
 
   @override
   String get guardianOnboardingDesc1 =>
-      'Help your child grow with confidence. NeuroNet provides a safe balance between support and independence.';
+      'የልጅዎን ስሜታዊ እድገት እና የለውጥ ደረጃዎች በቅጽበት ይከታተሉ።';
 
   @override
-  String get guardianOnboardingTitle2 => 'Consent-Driven Oversight';
+  String get guardianOnboardingTitle2 => 'ደህንነቱ የተጠበቀ ክትትል';
 
   @override
   String get guardianOnboardingDesc2 =>
-      'You decide what information is shared with counselors. Your oversight is always based on the consents you manage.';
+      'መረጃዎ በዘመናዊ ምስጠራ እና በHIPAA ደንቦች የተጠበቀ ነው።';
 
   @override
-  String get guardianOnboardingTitle3 => 'Stay Informed, Respect Privacy';
+  String get guardianOnboardingTitle3 => 'ፈጣን ማሳወቂያዎች';
 
   @override
   String get guardianOnboardingDesc3 =>
-      'Receive AI-generated summaries and alerts about emotional trends, without ever exposing your child\'s private journal text.';
+      'ለከባድ ስሜታዊ ለውጦች እና ለደህንነት ስጋቶች ፈጣን ማሳወቂያዎችን ያግኙ።';
 
   @override
   String get noCommentsYet => 'ገና ምንም አስተያየቶች የሉም።';
@@ -942,7 +955,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get viewDetails => 'ዝርዝሮችን ይመልከቱ';
 
   @override
-  String get yesterday => 'Yesterday';
+  String get yesterday => 'ትናንት';
 
   @override
   String failedToUploadVoice(String error) {
@@ -1014,7 +1027,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get aiQuestTitle => 'የAI ነጸብራቅ ተልዕኮ';
 
   @override
-  String get aiQuestDesc => 'በአርቲፊሻል ኢንተለጀንስ የተደገፈ የግል ራስን የማግኘት ጉዞ ይጀምሩ።';
+  String get aiQuestDesc => 'በAI የተደገፈ የግል ራስን የማግኘት ጉዞ ይጀምሩ።';
 
   @override
   String minCount(int count) {
@@ -1185,7 +1198,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get aiPicksDesc =>
-      'ጆርናል መጻፍ እና ማሰስዎን ይቀጥሉ! አርቲፊሻል ኢንተለጀንሳችን ጉዞዎን ይተነትናል እና ግላዊ ይዘትን ይጠቁማል።';
+      'ጆርናል መጻፍ እና ማሰስዎን ይቀጥሉ! የእኛ AI ጉዞዎን ይተነትናል እና ግላዊ ይዘትን ይጠቁማል።';
 
   @override
   String get couldNotLoadAiRecs => 'የAI ምክሮችን መጫን አልተቻለም።';
@@ -1280,7 +1293,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get aiAnalysisDescription =>
-      'አርቲፊሻል ኢንተለጀንስ ጠቃሚ ግንዛቤዎችን ለመስጠት የእርስዎን ንድፎች ይተነትናል።';
+      'AI ጠቃሚ ግንዛቤዎችን ለመስጠት የእርስዎን ንድፎች ይተነትናል።';
 
   @override
   String get activitySharingTitle => 'የእንቅስቃሴ ማጋራት';
@@ -1297,6 +1310,36 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get inThisTabLabel => 'በዚህ ትር ውስጥ';
+
+  @override
+  String get emotionalInsights => 'የስሜት ግንዛቤዎች';
+
+  @override
+  String get moodDistribution => 'የስሜት ስርጭት';
+
+  @override
+  String get allTime => 'ሁልጊዜ';
+
+  @override
+  String get thisMonth => 'በዚህ ወር';
+
+  @override
+  String get todaysInsights => 'የዛሬ ግንዛቤዎች';
+
+  @override
+  String get weeklyInsights => 'የሳምንታዊ ግንዛቤዎች';
+
+  @override
+  String get monthlyInsights => 'የወርሃዊ ግንዛቤዎች';
+
+  @override
+  String get analysisPending => 'ትንታኔ በመጠባበቅ ላይ...';
+
+  @override
+  String get nameCannotContainNumbers => 'ሙሉ ስም ቁጥሮችን መያዝ አይችልም';
+
+  @override
+  String get nameCannotContainSpecialCharacters => 'ሙሉ ስም ልዩ ቁምፊዎችን መያዝ አይችልም';
 
   @override
   String get noChannelsYet => 'ገና ምንም ቻናሎች የሉም';
@@ -1467,7 +1510,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get quest3 =>
-      'ሙሉ በሙሉ ሰላም የሆነ የራስ የወደፊት ስሪት ያስቡ። የሚሰጥዎ አንድ ምክር ምንድን ነው?';
+      'ሙሉ በሙሉ ሰላም የሆነ የራስዎን የወደፊት ስሪት ያስቡ። የሚሰጥዎ አንድ ምክር ምንድን ነው?';
 
   @override
   String get quest4 =>
@@ -1602,7 +1645,7 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get alertDisclaimer =>
-      'እነዚህ ግንዛቤዎች በእንቅስቃሴዎ ላይ ተመስርተን ያስተዋልናቸው ንድፎች ናቸው። ምርመራ ወይም የህክምና ምክር አይደሉም። እዚህ ያለነው የእርስዎን ስሜታዊ ጉዞ እንዲረዱ ለመርዳት ብቻ ነው።';
+      'እነዚህ ግንዛቤዎች በእንቅስቃሴዎ ላይ ተመስርተን ያስተዋልናቸው ንድፎች ናቸው። ምርመራ ወይም የህክምና ምክር አይዴሉም። እዚህ ያለነው የእርስዎን ስሜታዊ ጉዞ እንዲረዱ ለመርዳት ብቻ ነው።';
 
   @override
   String get moodPattern => 'የስሜት ንድፍ';
@@ -1693,7 +1736,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get endCall => 'ጥሪ አቁም';
 
   @override
-  String get accept => 'ቀበል';
+  String get accept => 'ተቀበል';
 
   @override
   String get connected => 'ተገናኝቷል';
@@ -1816,6 +1859,11 @@ class AppLocalizationsAm extends AppLocalizations {
   String get highRisk => 'ከፍተኛ';
 
   @override
+  String severityRisk(String risk) {
+    return '$risk ስጋት';
+  }
+
+  @override
   String get viewAlerts => 'ማሳወቂያዎችን ይመልከቱ';
 
   @override
@@ -1883,7 +1931,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get aggregatedInsights => 'የተጠቃለለ ግንዛቤዎች';
 
   @override
-  String get averageMoodSentiment => 'አማካኝ የስሜት ስሜት';
+  String get averageMoodSentiment => 'አማካኝ ስሜት';
 
   @override
   String allAdolescentsSubtitle(String period) {
@@ -1953,7 +2001,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get unlinkAccount => 'ይህንን መለያ ያላቅቁ';
 
   @override
-  String get personalAccountTag => 'የግል መለያ';
+  String get personalAccountTag => 'PERSONAL ACCOUNT';
 
   @override
   String get aiGuide => 'የAI መመሪያ';
@@ -1992,25 +2040,24 @@ class AppLocalizationsAm extends AppLocalizations {
   String get alertsHistory => 'የማሳወቂያዎች ታሪክ';
 
   @override
-  String get filterBySeverity => 'Filter by Severity';
+  String get filterBySeverity => 'በክብደት ይለዩ';
 
   @override
   String get noAlertsFound => 'ምንም ማሳወቂያዎች አልተገኙም';
 
   @override
-  String get noAlertsYet => 'No alerts yet';
+  String get noAlertsYet => 'ገና ምንም ማሳወቂያዎች የሉም';
 
   @override
-  String get noAlertsYetDesc =>
-      'We will notify you if any concerning patterns appear.';
+  String get noAlertsYetDesc => 'አሳሳቢ ንድፎች ከታዩ እናሳውቅዎታለን።';
 
   @override
   String noAlertsFoundDescFiltered(String severity) {
-    return 'No alerts match the \"$severity\" severity filter.';
+    return 'ከ \"$severity\" የክብደት ማጣሪያ ጋር የሚዛመድ ምንም ማሳወቂያ የለም።';
   }
 
   @override
-  String get clearFilter => 'Clear Filter';
+  String get clearFilter => 'ማጣሪያውን አጽዳ';
 
   @override
   String get securityAlerts => 'የደህንነት ማሳወቂያዎች';
@@ -2307,6 +2354,34 @@ class AppLocalizationsAm extends AppLocalizations {
   }
 
   @override
+  String get consentParticipationLabel => 'አጠቃላይ ተሳትፎ እና የAI ትንተና';
+
+  @override
+  String get consentParticipationDesc =>
+      'ለሁሉም የጆርናል መዝገቦች በAI የሚመራ ስሜታዊ ትንተና እና የአዝማሚያ ፍለጋን ያንቁ።';
+
+  @override
+  String get consentShareAiSummariesLabel => 'የAI ማጠቃለያዎች እና የስጋት ደረጃዎች';
+
+  @override
+  String get consentShareAiSummariesDesc =>
+      'በAI የተመነጩ ስሜታዊ ማጠቃለያዎችን እና የተሰየሙ የስጋት ደረጃዎችን ለማየት ይፍቀዱ።';
+
+  @override
+  String get consentShareAlertsLabel => 'የደህንነት ማንቂያዎች እና ማሳወቂያዎች';
+
+  @override
+  String get consentShareAlertsDesc =>
+      'ወሳኝ ስሜታዊ ቅጦች ወይም ስጋቶች ሲገኙ ፈጣን ማሳወቂያዎችን ይቀበሉ።';
+
+  @override
+  String get consentCounselorChatLabel => 'የአማካሪ የግል መልእክት';
+
+  @override
+  String get consentCounselorChatDesc =>
+      'ከተመደቡ አማካሪዎች ጋር የግል የፊት ለፊት ግንኙነትን ይፍቀዱ።';
+
+  @override
   String chattingAboutAdolescent(String name) {
     return 'ስለ $name እየተወያዩ ነው';
   }
@@ -2401,8 +2476,150 @@ class AppLocalizationsAm extends AppLocalizations {
   String get cancelLabel => 'ተው';
 
   @override
-  String get you => 'አንተ';
+  String get you => 'እርስዎ';
 
   @override
-  String get decline => 'አትቀበል';
+  String get decline => 'ውድቅ አድርግ';
+
+  @override
+  String get editProfile => 'መገለጫን አዘምን';
+
+  @override
+  String get profileUpdatedSuccess => 'መገለጫ በተሳካ ሁኔታ ተዘምኗል';
+
+  @override
+  String get enrollAdolescent => 'ታዳጊን ይመዝግቡ';
+
+  @override
+  String get newEnrollment => 'አዲስ ምዝገባ';
+
+  @override
+  String get newEnrollmentDesc =>
+      'የልጅዎን ስሜታዊ ጤንነት ለመከታተል እና የእድገት ጉዟቸውን ለመምራት ልጅዎን ከNeuronet መድረክ ጋር ያገናኙ።';
+
+  @override
+  String get enrollmentSuccess => 'ምዝገባው ተሳክቷል!';
+
+  @override
+  String get enrollmentSuccessDesc =>
+      'ምዝገባው ተጠናቅቋል። እባክዎን ይህንን የማግበሪያ ኮድ ለታዳጊዎ ያጋሩ። መሣሪያቸውን ከመለያዎ ጋር ለማገናኘት ያስፈልጋቸዋል።';
+
+  @override
+  String get copyCode => 'ኮዱን ቅዳ';
+
+  @override
+  String get finish => 'ጨርስ';
+
+  @override
+  String get saveUpper => 'አስቀምጥ';
+
+  @override
+  String get personalInfo => 'የግል መረጃ';
+
+  @override
+  String get changePassword => 'የይለፍ ቃል ቀይር';
+
+  @override
+  String get changePasswordDesc => 'የአሁኑን የይለፍ ቃል ለማቆየት ባዶ ይተውት';
+
+  @override
+  String get confirmNewPassword => 'አዲሱን የይለፍ ቃል ያረጋግጡ';
+
+  @override
+  String get registrationComplete => 'ምዝገባ ተጠናቋል';
+
+  @override
+  String get loginSecurely => 'በደህንነት ይግቡ';
+
+  @override
+  String dashboardDataFailedToLoad(String error) {
+    return 'የዳሽቦርድ መረጃን መጫን አልተቻለም: $error';
+  }
+
+  @override
+  String get emailAddressNonEditable => 'ኢሜይል አድራሻ (ሊለወጥ የማይችል)';
+
+  @override
+  String get security => 'ደህንነት';
+
+  @override
+  String get passwordProtectionAdvice =>
+      'መለያዎን እና የሚከታተሉትን ስሜታዊ የጤና መረጃ ለመጠበቅ ጠንካራ የይለፍ ቃል ይጠቀሙ።';
+
+  @override
+  String get initialCapabilities => 'Initial Capabilities';
+
+  @override
+  String get initialCapabilitiesDesc =>
+      'Select the features you want to enable initially. You can adjust these granularly after enrollment.';
+
+  @override
+  String get enrollmentComplete => 'Enrollment Complete!';
+
+  @override
+  String get enrollmentCompleteDesc =>
+      'Your adolescent has been successfully registered. Share this activation code with them to link their device.';
+
+  @override
+  String get activationCodeUpper => 'ACTIVATION CODE';
+
+  @override
+  String get invalidEmailFormat => 'Invalid email format';
+
+  @override
+  String get selectDate => 'Select Date';
+
+  @override
+  String get relationshipToAdolescent => 'Relationship to Adolescent';
+
+  @override
+  String get pleaseFillRequiredFields => 'እባክዎን ሁሉንም አስፈላጊ ቦታዎች ይሙሉ';
+
+  @override
+  String get pleaseEnterValidEmail => 'እባክዎን ትክክለኛ የኢሜይል አድራሻ ያስገቡ';
+
+  @override
+  String failedToRegisterAdolescent(Object error) {
+    return 'ታዳጊውን መመዝገብ አልተቻለም: $error';
+  }
+
+  @override
+  String get loginTaglineEmpathy => 'በመተሳሰብ የተሞላ ክትትል ❤️';
+
+  @override
+  String get loginTaglineSupport => 'ለታዳጊዎችዎ አስተማማኝ ድጋፍ 🛡️';
+
+  @override
+  String get loginTaglinePeace => 'ሁልጊዜም የአእምሮ ሰላም ✨';
+
+  @override
+  String get atLeast6Characters => 'ቢያንስ 6 ቁምፊዎች';
+
+  @override
+  String get activateCode => 'ኮድ አግብር';
+
+  @override
+  String get guardianDataEncrypted => 'የአሳዳጊ መረጃ የተመሰጠረ እና ከHIPAA ጋር የተጣጣመ ነው';
+
+  @override
+  String get failedToLoadAlerts => 'ማሳወቂያዎችን መጫን አልተቻለም። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String get dateOfBirth => 'የትውልድ ቀን';
+
+  @override
+  String get unauthorizedGuardianAccess =>
+      'ያልተፈቀደ መዳረሻ፡ ይህ መለያ የአሳዳጊ መብቶች የሉትም።';
+
+  @override
+  String get parent => 'ወላጅ';
+
+  @override
+  String get legalGuardian => 'ህጋዊ አሳዳጊ';
+
+  @override
+  String get other => 'ሌላ';
+
+  @override
+  String get notAvailable => 'N/A';
 }

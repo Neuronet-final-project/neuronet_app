@@ -18,15 +18,20 @@ class TranslationService {
     sendTimeout: const Duration(seconds: 60),
   );
 
-  /// Translates text from Amharic or Afaan Oromo to English.
+  /// Translates text to a specific [targetLang].
   /// 
-  /// Supported [sourceLang] values: 'am', 'om', 'Amharic', 'Afaan Oromo'.
+  /// [sourceLang] defaults to 'auto' for automatic language detection.
   Future<Result<TranslationResponse>> translate({
     required String text,
-    required String sourceLang,
+    required String targetLang,
+    String sourceLang = 'auto',
   }) async {
     try {
-      final request = TranslationRequest(text: text, sourceLang: sourceLang);
+      final request = TranslationRequest(
+        text: text,
+        sourceLang: sourceLang,
+        targetLang: targetLang,
+      );
       final response = await _client.post(
         ApiEndpoints.translate,
         data: request.toJson(),

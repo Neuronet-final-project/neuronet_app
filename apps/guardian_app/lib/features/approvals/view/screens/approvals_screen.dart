@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/approval_provider.dart';
+import '../../../ui/l10n_utils.dart';
 
 class ApprovalsScreen extends ConsumerWidget {
   const ApprovalsScreen({super.key});
@@ -26,7 +27,7 @@ class ApprovalsScreen extends ConsumerWidget {
           if (state.error != null) {
             return Center(
               child: NeuroErrorWidget(
-                message: state.error!,
+                message: translateError(context, state.error),
                 onRetry: () => ref.read(guardianApprovalControllerProvider.notifier).refresh(),
               ),
             );
@@ -176,13 +177,14 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(approved ? 'Request approved' : 'Request denied'),
+            content: Text(approved
+                ? context.localizations.requestApproved
+                : context.localizations.requestDenied),
             backgroundColor: approved ? Colors.green : Colors.red,
           ),
         );
       }
-    }
-  }
+    }  }
 
   Future<void> _revoke() async {
     // Show confirmation dialog
@@ -217,8 +219,8 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
       setState(() => _isResponding = false);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Approval revoked successfully'),
+          SnackBar(
+            content: Text(context.localizations.approvalRevokedSuccess),
             backgroundColor: Colors.orange,
           ),
         );
@@ -280,7 +282,7 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      widget.approval.status.toUpperCase(),
+                      translateApprovalStatus(context, widget.approval.status).toUpperCase(),
                       style: TextStyle(
                         color: widget.approval.status == 'approved' ? Colors.green : Colors.red,
                         fontSize: 12,

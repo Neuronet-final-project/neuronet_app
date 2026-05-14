@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/adolescent_provider.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
+import 'package:guardian_app/features/ui/l10n_utils.dart';
 
 class AdolescentListScreen extends ConsumerWidget {
   const AdolescentListScreen({super.key});
@@ -113,7 +114,9 @@ class _AdolescentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = _getStatusColor(adolescent.accountStatus);
-    final statusLabel = adolescent.accountStatus?.name.toUpperCase() ?? 'UNKNOWN';
+    final statusLabel = adolescent.accountStatus != null
+        ? adolescent.accountStatus!.localizedLabel(context.localizations)
+        : 'UNKNOWN';
     final riskLevel = adolescent.currentRiskLevel?.toLowerCase() ?? 'low';
     final hasAlerts = (adolescent.unresolvedAlertsCount ?? 0) > 0;
 

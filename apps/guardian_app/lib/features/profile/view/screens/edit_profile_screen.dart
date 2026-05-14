@@ -35,17 +35,27 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _handleUpdate() async {
     final notifier = ref.read(guardianProfileControllerProvider.notifier);
     
+    final name = _nameController.text.trim();
+    if (RegExp(r'[0-9]').hasMatch(name)) {
+      NeuroToast.show(context, context.localizations.nameCannotContainNumbers, type: NeuroToastType.error);
+      return;
+    }
+    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(name)) {
+      NeuroToast.show(context, context.localizations.nameCannotContainSpecialCharacters, type: NeuroToastType.error);
+      return;
+    }
+
     final result = await notifier.updateProfile(
-      fullName: _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null,
+      fullName: name.isNotEmpty ? name : null,
       password: _passwordController.text.trim().isNotEmpty ? _passwordController.text.trim() : null,
     );
 
     if (mounted) {
       if (result.isSuccess) {
-        NeuroToast.show(context, 'Profile updated successfully', type: NeuroToastType.success);
+        NeuroToast.show(context, context.localizations.profileUpdatedSuccess, type: NeuroToastType.success);
         Navigator.of(context).pop();
       } else {
-        NeuroToast.show(context, 'Update failed: ${result.failure.message}', type: NeuroToastType.error);
+        NeuroToast.show(context, '${context.localizations.errorPrefix}: ${result.failure.message}', type: NeuroToastType.error);
       }
     }
   }
@@ -69,9 +79,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               onPressed: () => Navigator.of(context).pop(),
               color: NeuroColors.guardianPrimaryDark,
             ),
-            title: const Text(
-              'Edit Profile',
-              style: TextStyle(
+            title: Text(
+              context.localizations.editProfile,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: NeuroColors.guardianPrimaryDark,
@@ -81,7 +91,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               TextButton(
                 onPressed: isLoading ? null : _handleUpdate,
                 child: Text(
-                  'SAVE',
+                  context.localizations.saveUpper,
                   style: TextStyle(
                     color: isLoading ? Colors.grey : NeuroColors.guardianPrimary,
                     fontWeight: FontWeight.w900,
@@ -111,7 +121,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   width: double.infinity,
                   child: NeuroButton(
                     onPressed: _handleUpdate,
-                    label: 'Update Profile',
+                    label: context.localizations.updateProfile,
                     isLoading: isLoading,
                   ).animate().fadeIn(delay: 200.ms, duration: 400.ms).scale(begin: const Offset(0.98, 0.98)),
                 ),
@@ -142,22 +152,22 @@ class _PersonalInfoCard extends StatelessWidget {
             children: [
               Icon(Icons.person_outline_rounded, color: NeuroColors.guardianPrimary, size: 20),
               const SizedBox(width: 10),
-              const Text(
-                'Personal Information',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: NeuroColors.guardianPrimaryDark),
+              Text(
+                context.localizations.personalInfo,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: NeuroColors.guardianPrimaryDark),
               ),
             ],
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Full Name',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: NeuroColors.onSurfaceVariant),
+          Text(
+            context.localizations.fullName,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: NeuroColors.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: nameController,
             decoration: InputDecoration(
-              hintText: 'Enter your full name',
+              hintText: context.localizations.enterFullName,
               filled: true,
               fillColor: const Color(0xFFF3F4F6),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -166,9 +176,9 @@ class _PersonalInfoCard extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'Email Address (Non-editable)',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: NeuroColors.onSurfaceVariant),
+          Text(
+            context.localizations.emailAddressNonEditable,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: NeuroColors.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
           Container(
@@ -208,23 +218,23 @@ class _SecurityCard extends StatelessWidget {
             children: [
               Icon(Icons.lock_outline_rounded, color: NeuroColors.guardianPrimary, size: 20),
               const SizedBox(width: 10),
-              const Text(
-                'Security',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: NeuroColors.guardianPrimaryDark),
+              Text(
+                context.localizations.security,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: NeuroColors.guardianPrimaryDark),
               ),
             ],
           ),
           const SizedBox(height: 24),
-          const Text(
-            'New Password',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: NeuroColors.onSurfaceVariant),
+          Text(
+            context.localizations.newPassword,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: NeuroColors.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: passwordController,
             obscureText: obscurePassword,
             decoration: InputDecoration(
-              hintText: 'Leave empty to keep current',
+              hintText: context.localizations.changePasswordDesc,
               filled: true,
               fillColor: const Color(0xFFF3F4F6),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -238,7 +248,7 @@ class _SecurityCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Use a strong password to protect your account and the sensitive emotional health data you monitor.',
+            context.localizations.passwordProtectionAdvice,
             style: TextStyle(fontSize: 11, color: Colors.grey[500], height: 1.4),
           ),
         ],

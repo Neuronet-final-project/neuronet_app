@@ -5,12 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:guardian_app/features/auth/providers/auth_provider.dart';
 import 'package:guardian_app/config/router/app_router.dart';
+import 'package:guardian_app/features/ui/l10n_utils.dart';
 
 // ─── Rotating taglines shown under the logo ────────────────────────────────
-const _taglines = [
-  'Oversight with Empathy ❤️',
-  'Secure Support for your Teens 🛡️',
-  'Peace of mind, anytime ✨',
+final _taglines = [
+  (BuildContext context) => context.localizations.loginTaglineEmpathy,
+  (BuildContext context) => context.localizations.loginTaglineSupport,
+  (BuildContext context) => context.localizations.loginTaglinePeace,
 ];
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -130,7 +131,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              next.errorMessage ?? 'An error occurred',
+              translateError(context, next.errorMessage),
               style: const TextStyle(
                   color: Colors.white, fontWeight: FontWeight.w500),
             ),
@@ -260,7 +261,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           FadeTransition(
                             opacity: _taglineFade,
                             child: Text(
-                              _taglines[_taglineIndex],
+                              _taglines[_taglineIndex](context),
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.white.withValues(alpha: 0.85),
@@ -330,16 +331,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 _GuardianTextField(
                                   controller: _emailController,
                                   focusNode: _emailFocus,
-                                  label: 'Guardian Email',
+                                  label: context.localizations.guardianEmail,
                                   icon: Icons.alternate_email_rounded,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
-                                      return 'Please enter your email';
+                                      return context.localizations.pleaseEnterEmail;
                                     }
                                     if (!v.contains('@')) {
-                                      return 'Enter a valid email';
+                                      return context.localizations.invalidEmail;
                                     }
                                     return null;
                                   },
@@ -352,7 +353,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 _GuardianTextField(
                                   controller: _passwordController,
                                   focusNode: _passwordFocus,
-                                  label: 'Password',
+                                  label: context.localizations.passwordHint,
                                   icon: Icons.lock_outline_rounded,
                                   obscureText: _obscurePassword,
                                   textInputAction: TextInputAction.done,
@@ -369,10 +370,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   ),
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
-                                      return 'Please enter your password';
+                                      return context.localizations.pleaseEnterPassword;
                                     }
                                     if (v.length < 6) {
-                                      return 'At least 6 characters';
+                                      return context.localizations.atLeast6Characters;
                                     }
                                     return null;
                                   },
@@ -391,9 +392,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       tapTargetSize:
                                           MaterialTapTargetSize.shrinkWrap,
                                     ),
-                                    child: const Text(
-                                      'Forgot password?',
-                                      style: TextStyle(
+                                    child: Text(
+                                      context.localizations.forgotPassword,
+                                      style: const TextStyle(
                                         color: NeuroColors.guardianPrimary,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
@@ -411,7 +412,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           : _handleLogin,
                                   isLoading:
                                       authState.status == AuthStatus.loading,
-                                  label: 'Login Securely',
+                                  label: context.localizations.loginSecurely,
                                 ),
                                 const SizedBox(height: 20),
 
@@ -438,60 +439,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ),
                                 const SizedBox(height: 14),
 
-                                // Activation & Sign Up
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        onPressed: () => context
-                                            .push(GuardianRoutes.signup),
-                                        style: OutlinedButton.styleFrom(
-                                          side: const BorderSide(
-                                              color:
-                                                  NeuroColors.guardianPrimary,
-                                              width: 1.2),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(14)),
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 12),
-                                        ),
-                                        child: const Text(
-                                          'Create account',
-                                          style: TextStyle(
-                                            color: NeuroColors.guardianPrimary,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 13,
-                                          ),
-                                        ),
+                                // Sign Up
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton(
+                                    onPressed: () =>
+                                        context.push(GuardianRoutes.signup),
+                                    style: OutlinedButton.styleFrom(
+                                      side: const BorderSide(
+                                          color: NeuroColors.guardianPrimary,
+                                          width: 1.2),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(14)),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 16),
+                                    ),
+                                    child: Text(
+                                      context.localizations.createAccount,
+                                      style: const TextStyle(
+                                        color: NeuroColors.guardianPrimary,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
                                       ),
                                     ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: TextButton(
-                                        onPressed: () => context
-                                            .push(GuardianRoutes.activate),
-                                        style: TextButton.styleFrom(
-                                          backgroundColor: NeuroColors
-                                              .guardianPrimary
-                                              .withValues(alpha: 0.1),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(14)),
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 12),
-                                        ),
-                                        child: const Text(
-                                          'Activate Code',
-                                          style: TextStyle(
-                                            color: NeuroColors.guardianPrimary,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -507,7 +479,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   color: Colors.white.withValues(alpha: 0.7)),
                               const SizedBox(width: 5),
                               Text(
-                                'Guardian Data is Encrypted & HIPAA Compliant',
+                                context.localizations.guardianDataEncrypted,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.7),
                                   fontSize: 11.5,
@@ -518,6 +490,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         ],
                       ),
                     ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // ── Language Toggle (Moved to end to be on top) ─────────────────
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12, right: 16),
+                child: Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.35),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const LanguagePickerDropdown(
+                    textColor: Colors.white,
+                    iconColor: Colors.white,
+                    dropdownColor: NeuroColors.guardianPrimary,
+                    itemTextColor: Colors.white,
                   ),
                 ),
               ),

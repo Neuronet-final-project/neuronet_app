@@ -607,7 +607,7 @@ class _EmotionalInsightsRow extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Emotional Insights',
+                    context.localizations.emotionalInsights,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -616,7 +616,7 @@ class _EmotionalInsightsRow extends ConsumerWidget {
                   ),
                   if (distribution.isNotEmpty)
                     Text(
-                      'All time',
+                      context.localizations.allTime,
                       style: TextStyle(
                         fontSize: 12,
                         color: _kSubtle,
@@ -636,44 +636,44 @@ class _EmotionalInsightsRow extends ConsumerWidget {
                     children: [
                       if (stats.dominantToday != null)
                         _InsightCard(
-                          label: 'Today',
+                          label: context.localizations.today,
                           emotion: stats.dominantToday!,
                           summary: stats.summaryToday,
                           gradient: const [Color(0xFF8D53FF), Color(0xFFA875FF)],
                           icon: Icons.today_rounded,
                           onTap: () => _showEmotionalSummaryDetail(
                             context,
-                            'Today\'s Insights',
+                            context.localizations.todaysInsights,
                             stats.dominantToday!,
-                            stats.summaryToday ?? 'Analysis pending...',
+                            stats.summaryToday ?? context.localizations.analysisPending,
                           ),
                         ),
                       if (stats.dominantThisWeek != null)
                         _InsightCard(
-                          label: 'This Week',
+                          label: context.localizations.thisWeek,
                           emotion: stats.dominantThisWeek!,
                           summary: stats.summaryThisWeek,
                           gradient: const [Color(0xFF4DB0F6), Color(0xFF38C7F0)],
                           icon: Icons.calendar_view_week_rounded,
                           onTap: () => _showEmotionalSummaryDetail(
                             context,
-                            'Weekly Insights',
+                            context.localizations.weeklyInsights,
                             stats.dominantThisWeek!,
-                            stats.summaryThisWeek ?? 'Analysis pending...',
+                            stats.summaryThisWeek ?? context.localizations.analysisPending,
                           ),
                         ),
                       if (stats.dominantThisMonth != null)
                         _InsightCard(
-                          label: 'This Month',
+                          label: context.localizations.thisMonth,
                           emotion: stats.dominantThisMonth!,
                           summary: stats.summaryThisMonth,
                           gradient: const [Color(0xFFFF9F49), Color(0xFFFF8A49)],
                           icon: Icons.calendar_month_rounded,
                           onTap: () => _showEmotionalSummaryDetail(
                             context,
-                            'Monthly Insights',
+                            context.localizations.monthlyInsights,
                             stats.dominantThisMonth!,
-                            stats.summaryThisMonth ?? 'Analysis pending...',
+                            stats.summaryThisMonth ?? context.localizations.analysisPending,
                           ),
                         ),
                     ],
@@ -685,7 +685,7 @@ class _EmotionalInsightsRow extends ConsumerWidget {
               // Mood Distribution Bar
               if (distribution.isNotEmpty) ...[
                  Text(
-                    'Mood Distribution',
+                    context.localizations.moodDistribution,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
