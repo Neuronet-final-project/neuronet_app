@@ -235,6 +235,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                   validator: (v) {
                                     if (v == null || v.isEmpty) return context.localizations.enterFullName;
                                     if (RegExp(r'[0-9]').hasMatch(v)) return context.localizations.nameCannotContainNumbers;
+                                    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(v)) {
+                                      return context.localizations.nameCannotContainSpecialCharacters;
+                                    }
                                     return null;
                                   },
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),

@@ -2544,6 +2544,12 @@ abstract class AppLocalizations {
   /// **'Full name cannot contain numbers'**
   String get nameCannotContainNumbers;
 
+  /// No description provided for @nameCannotContainSpecialCharacters.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name cannot contain special characters'**
+  String get nameCannotContainSpecialCharacters;
+
   /// No description provided for @noChannelsYet.
   ///
   /// In en, this message translates to:

@@ -1367,6 +1367,10 @@ class AppLocalizationsOm extends AppLocalizations {
       'Maqaan guutuun lakkoofsa of keessaa qabaachuu hin danda\'u';
 
   @override
+  String get nameCannotContainSpecialCharacters =>
+      'Maqaan guutuun mallattoolee addaa of keessaa qabaachuu hin danda\'u';
+
+  @override
   String get noChannelsYet => 'Chaanaaliin argame hin jiru';
 
   @override

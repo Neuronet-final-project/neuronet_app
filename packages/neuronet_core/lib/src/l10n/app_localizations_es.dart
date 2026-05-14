@@ -1368,6 +1368,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get nameCannotContainNumbers => 'Full name cannot contain numbers';
 
   @override
+  String get nameCannotContainSpecialCharacters =>
+      'Full name cannot contain special characters';
+
+  @override
   String get noChannelsYet => 'No channels yet';
 
   @override

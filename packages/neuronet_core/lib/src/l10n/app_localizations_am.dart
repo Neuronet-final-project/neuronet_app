@@ -1339,6 +1339,9 @@ class AppLocalizationsAm extends AppLocalizations {
   String get nameCannotContainNumbers => 'ሙሉ ስም ቁጥሮችን መያዝ አይችልም';
 
   @override
+  String get nameCannotContainSpecialCharacters => 'ሙሉ ስም ልዩ ቁምፊዎችን መያዝ አይችልም';
+
+  @override
   String get noChannelsYet => 'ገና ምንም ቻናሎች የሉም';
 
   @override

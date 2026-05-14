@@ -40,6 +40,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       NeuroToast.show(context, context.localizations.nameCannotContainNumbers, type: NeuroToastType.error);
       return;
     }
+    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(name)) {
+      NeuroToast.show(context, context.localizations.nameCannotContainSpecialCharacters, type: NeuroToastType.error);
+      return;
+    }
 
     final result = await notifier.updateProfile(
       fullName: name.isNotEmpty ? name : null,

@@ -22,6 +22,8 @@ String translateError(BuildContext context, String? error) {
       return l10n.unauthorizedRoleMismatch;
     case 'nameCannotContainNumbers':
       return l10n.nameCannotContainNumbers;
+    case 'nameCannotContainSpecialCharacters':
+      return l10n.nameCannotContainSpecialCharacters;
     default:
       return error;
   }

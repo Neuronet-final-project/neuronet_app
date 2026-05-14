@@ -60,6 +60,10 @@ class RegistrationController extends _$RegistrationController {
       state = state.copyWith(error: 'nameCannotContainNumbers');
       return;
     }
+    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(state.name)) {
+      state = state.copyWith(error: 'nameCannotContainSpecialCharacters');
+      return;
+    }
 
     state = state.copyWith(isLoading: true, error: null);
 

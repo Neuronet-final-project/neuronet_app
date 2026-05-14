@@ -406,6 +406,7 @@
   "monthlyInsights": "Hubannoo Ji'aa",
   "analysisPending": "Xiinxalli eeggamaa jira...",
   "nameCannotContainNumbers": "Maqaan guutuun lakkoofsa of keessaa qabaachuu hin danda'u",
+  "nameCannotContainSpecialCharacters": "Maqaan guutuun mallattoolee addaa of keessaa qabaachuu hin danda'u",
   "noChannelsYet": "Chaanaaliin argame hin jiru",
   "noChannelsToDiscover": "Chaanaaliin sakatta'amu hin jiru",
   "followFromDiscoverNote": "Chaanaalota asitti arguuf 'Sakatta'i' jalatti hordofi.",

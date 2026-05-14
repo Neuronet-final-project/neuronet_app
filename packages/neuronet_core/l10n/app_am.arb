@@ -408,6 +408,7 @@
   "monthlyInsights": "የወርሃዊ ግንዛቤዎች",
   "analysisPending": "ትንታኔ በመጠባበቅ ላይ...",
   "nameCannotContainNumbers": "ሙሉ ስም ቁጥሮችን መያዝ አይችልም",
+  "nameCannotContainSpecialCharacters": "ሙሉ ስም ልዩ ቁምፊዎችን መያዝ አይችልም",
   "noChannelsYet": "ገና ምንም ቻናሎች የሉም",
   "noChannelsToDiscover": "የሚታሰሱ ቻናሎች የሉም",
   "followFromDiscoverNote": "እዚህ ለማየት ከ'ያስሱ' ትር ቻናሎችን ይከተሉ።",
