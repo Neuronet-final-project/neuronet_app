@@ -20,6 +20,8 @@ String translateError(BuildContext context, String? error) {
       return l10n.unauthorizedGuardianAccess;
     case 'unauthorizedRoleMismatch':
       return l10n.unauthorizedRoleMismatch;
+    case 'nameCannotContainNumbers':
+      return l10n.nameCannotContainNumbers;
     default:
       return error;
   }

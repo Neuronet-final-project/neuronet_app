@@ -2538,6 +2538,12 @@ abstract class AppLocalizations {
   /// **'Analysis pending...'**
   String get analysisPending;
 
+  /// No description provided for @nameCannotContainNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name cannot contain numbers'**
+  String get nameCannotContainNumbers;
+
   /// No description provided for @noChannelsYet.
   ///
   /// In en, this message translates to:

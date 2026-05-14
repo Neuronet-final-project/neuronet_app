@@ -1336,6 +1336,9 @@ class AppLocalizationsAm extends AppLocalizations {
   String get analysisPending => 'ትንታኔ በመጠባበቅ ላይ...';
 
   @override
+  String get nameCannotContainNumbers => 'ሙሉ ስም ቁጥሮችን መያዝ አይችልም';
+
+  @override
   String get noChannelsYet => 'ገና ምንም ቻናሎች የሉም';
 
   @override

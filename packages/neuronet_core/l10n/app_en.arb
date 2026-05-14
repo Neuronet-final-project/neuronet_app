@@ -606,6 +606,7 @@
   "weeklyInsights": "Weekly Insights",
   "monthlyInsights": "Monthly Insights",
   "analysisPending": "Analysis pending...",
+  "nameCannotContainNumbers": "Full name cannot contain numbers",
   "noChannelsYet": "No channels yet",
   "noChannelsToDiscover": "No channels to discover",
   "followFromDiscoverNote": "Follow channels from the Discover tab to see them here.",

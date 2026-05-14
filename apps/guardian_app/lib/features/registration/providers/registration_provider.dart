@@ -56,6 +56,10 @@ class RegistrationController extends _$RegistrationController {
       state = state.copyWith(error: 'pleaseEnterValidEmail');
       return;
     }
+    if (RegExp(r'[0-9]').hasMatch(state.name)) {
+      state = state.copyWith(error: 'nameCannotContainNumbers');
+      return;
+    }
 
     state = state.copyWith(isLoading: true, error: null);
 

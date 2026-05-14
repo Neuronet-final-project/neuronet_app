@@ -35,8 +35,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _handleUpdate() async {
     final notifier = ref.read(guardianProfileControllerProvider.notifier);
     
+    final name = _nameController.text.trim();
+    if (RegExp(r'[0-9]').hasMatch(name)) {
+      NeuroToast.show(context, context.localizations.nameCannotContainNumbers, type: NeuroToastType.error);
+      return;
+    }
+
     final result = await notifier.updateProfile(
-      fullName: _nameController.text.trim().isNotEmpty ? _nameController.text.trim() : null,
+      fullName: name.isNotEmpty ? name : null,
       password: _passwordController.text.trim().isNotEmpty ? _passwordController.text.trim() : null,
     );
 

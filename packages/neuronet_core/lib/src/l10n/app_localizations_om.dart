@@ -1363,6 +1363,10 @@ class AppLocalizationsOm extends AppLocalizations {
   String get analysisPending => 'Xiinxalli eeggamaa jira...';
 
   @override
+  String get nameCannotContainNumbers =>
+      'Maqaan guutuun lakkoofsa of keessaa qabaachuu hin danda\'u';
+
+  @override
   String get noChannelsYet => 'Chaanaaliin argame hin jiru';
 
   @override

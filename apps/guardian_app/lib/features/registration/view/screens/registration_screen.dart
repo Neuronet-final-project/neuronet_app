@@ -189,6 +189,9 @@ class _RegistrationForm extends StatelessWidget {
             label: context.localizations.adolescentFullName,
             icon: Icons.person_outline,
             onChanged: controller.updateName,
+            errorText: state.name.isNotEmpty && RegExp(r'[0-9]').hasMatch(state.name)
+                ? context.localizations.nameCannotContainNumbers
+                : null,
           ),
           const SizedBox(height: 16),
           _buildDatePicker(context),

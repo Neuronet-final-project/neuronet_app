@@ -1374,6 +1374,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analysisPending => 'Analysis pending...';
 
   @override
+  String get nameCannotContainNumbers => 'Full name cannot contain numbers';
+
+  @override
   String get noChannelsYet => 'No channels yet';
 
   @override
