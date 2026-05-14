@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../mood/providers/mood_provider.dart';
+
 part 'auth_provider.g.dart';
 
 // Wraps the global ValueNotifier so Riverpod can watch it.
@@ -159,6 +161,10 @@ class AuthController extends _$AuthController {
     state = AuthState.loading();
     final storage = ref.read(tokenStorageProvider);
     await storage.clearTokens();
+    
+    // Invalidate keepAlive providers to prevent state leakage between users
+    ref.invalidate(moodHistoryControllerProvider);
+    
     state = AuthState.unauthenticated();
   }
 }
