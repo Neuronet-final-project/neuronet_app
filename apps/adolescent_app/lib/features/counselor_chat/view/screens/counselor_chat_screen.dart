@@ -145,6 +145,8 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
             callState.value!.status == CallStatus.answered ||
             callState.value!.status == CallStatus.initiated);
 
+    final hasCounselor = counselorEmail != null && counselorEmail.isNotEmpty;
+
     return Scaffold(
       appBar: (showActiveCall || showIncomingCall)
           ? null
@@ -156,12 +158,12 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
               actions: [
                 IconButton(
                   icon: const Icon(Icons.phone),
-                  onPressed: _startVoiceCall,
+                  onPressed: hasCounselor ? _startVoiceCall : null,
                   tooltip: context.localizations.voiceCall,
                 ),
                 IconButton(
                   icon: const Icon(Icons.videocam),
-                  onPressed: _startVideoCall,
+                  onPressed: hasCounselor ? _startVideoCall : null,
                   tooltip: context.localizations.videoCall,
                 ),
                 IconButton(
@@ -176,7 +178,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
       body: Column(
         children: [
           // Consent status banner — always visible
-          if (!showActiveCall && !showIncomingCall)
+          if (!showActiveCall && !showIncomingCall && hasCounselor)
             consentAsync.when(
               data: (consentState) {
                 final granted = consentState.counselorChat;
@@ -354,7 +356,7 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
               ],
             ),
           ),
-          if (!showActiveCall && !showIncomingCall)
+          if (!showActiveCall && !showIncomingCall && hasCounselor)
             _buildMessageInput(context, theme, isConsentGranted),
         ],
       ),
