@@ -217,5 +217,37 @@
   "skip": "Omitir",
   "next": "Siguiente",
   "getStarted": "Empezar",
-  "yesterday": "Ayer"
-}
+  "yesterday": "Ayer",
+  "deleteMessageTitle": "Eliminar mensaje",
+  "deleteMessageConfirm": "¿Estás seguro de que quieres eliminar este mensaje? Esta acción no se puede deshacer.",
+  "deleteLabel": "Eliminar",
+  "cancelLabel": "Cancelar",
+  "checkingApprovalStatus": "Comprobando el estado de aprobación...",
+  "approvalRequired": "Aprobación requerida",
+  "needGuardianApprovalDesc": "Necesitas la aprobación de tu tutor para chatear con este consejero.",
+  "checking": "Comprobando...",
+  "requestApproval": "Solicitar aprobación",
+  "approvalPending": "Aprobación pendiente",
+  "alertTriggeredRequest": "Solicitud activada por alerta",
+  "aiAlertDetails": "Detalles de la alerta de IA",
+  "riskLevelLabel": "Nivel de riesgo: ",
+  "riskScoreLabel": "Puntuación de riesgo: {score}",
+  "@riskScoreLabel": {
+    "placeholders": {
+      "score": {
+        "type": "double"
+      }
+    }
+  },
+  "guardianReviewingMessage": "Tu tutor está revisando tu solicitud.",
+  "approvedByGuardian": "Aprobado por tu tutor",
+  "approvalRevoked": "Aprobación revocada",
+  "guardianRevokedApprovalDesc": "Tu tutor ha revocado la aprobación para este chat.",
+  "requestApprovalAgain": "Solicitar aprobación de nuevo",
+  "requestDenied": "Solicitud denegada",
+  "guardianDeniedRequestDesc": "Tu tutor ha denegado tu solicitud de chat.",
+  "requestAgain": "Solicitar de nuevo",
+  "accept": "Aceptar",
+  "decline": "Rechazar",
+  "you": "Tú"
+}

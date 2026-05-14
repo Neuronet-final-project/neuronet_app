@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,9 +21,9 @@ class AdolescentListScreen extends ConsumerWidget {
             backgroundColor: const Color(0xFFF9FAFB),
             surfaceTintColor: const Color(0xFFF9FAFB),
             elevation: 0,
-            title: const Text(
-              'Adolescent Profiles',
-              style: TextStyle(
+            title: Text(
+              context.localizations.adolescentProfiles,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: NeuroColors.guardianPrimaryDark,
@@ -43,9 +42,9 @@ class AdolescentListScreen extends ConsumerWidget {
                   children: [
                     const Icon(Icons.error_outline, size: 64, color: NeuroColors.error),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Failed to load adolescents',
-                      style: TextStyle(
+                    Text(
+                      context.localizations.failedToLoadAdolescents,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: NeuroColors.guardianPrimaryDark,
@@ -60,7 +59,7 @@ class AdolescentListScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     NeuroButton(
                       onPressed: () => ref.invalidate(linkedAdolescentsProvider),
-                      label: 'Retry',
+                      label: context.localizations.retry,
                       width: 120,
                     ),
                   ],
@@ -75,10 +74,10 @@ class AdolescentListScreen extends ConsumerWidget {
 
   Widget _buildSliverContent(BuildContext context, List<AdolescentResponse> adolescents) {
     if (adolescents.isEmpty) {
-      return const SliverFillRemaining(
+      return SliverFillRemaining(
         child: NeuroEmptyState(
-          title: 'No Adolescents Linked',
-          message: 'Register an adolescent to get started.',
+          title: context.localizations.noAdolescentsLinked,
+          message: context.localizations.registerAdolescentGetStarted,
           icon: Icons.person_add_outlined,
           color: NeuroColors.guardianPrimary,
         ),

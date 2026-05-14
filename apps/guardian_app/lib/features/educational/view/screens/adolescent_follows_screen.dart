@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
-import 'package:guardian_app/config/theme/guardian_theme.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
 
 class AdolescentFollowsScreen extends ConsumerStatefulWidget {
@@ -83,9 +82,9 @@ class _AdolescentFollowsScreenState extends ConsumerState<AdolescentFollowsScree
               onPressed: () => Navigator.pop(context),
               color: NeuroColors.onSurface,
             ),
-            title: const Text(
-              'Followed Pages',
-              style: TextStyle(
+            title: Text(
+              context.localizations.followedPages,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: NeuroColors.guardianPrimaryDark,
@@ -119,8 +118,8 @@ class _AdolescentFollowsScreenState extends ConsumerState<AdolescentFollowsScree
             SliverFillRemaining(
               child: Center(
                 child: NeuroEmptyState(
-                  title: 'No Followed Pages',
-                  message: '${widget.adolescentName} hasn\'t followed any educational pages yet',
+                  title: context.localizations.noFollowsFound,
+                  message: context.localizations.noFollowsFoundDesc(widget.adolescentName),
                   icon: Icons.bookmark_border,
                   color: NeuroColors.guardianPrimary,
                 ),
@@ -231,7 +230,7 @@ class _FollowCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'By ${follow.counselorName}',
+                            context.localizations.byAuthor(follow.counselorName!),
                             style: const TextStyle(
                               fontSize: 11,
                               color: NeuroColors.onSurfaceVariant,
@@ -260,9 +259,9 @@ class _FollowCard extends StatelessWidget {
                       color: Colors.white,
                     ),
                     const SizedBox(width: 4),
-                    const Text(
-                      'Following',
-                      style: TextStyle(
+                    Text(
+                      context.localizations.following,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -284,7 +283,7 @@ class _FollowCard extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                'Followed ${_formatDate(follow.followedAt)}',
+                context.localizations.followedDateLabel(_formatDate(context, follow.followedAt)),
                 style: const TextStyle(
                   fontSize: 12,
                   color: NeuroColors.onSurfaceVariant,
@@ -298,18 +297,19 @@ class _FollowCard extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
 
     if (diff.inDays > 7) {
-      return '${(diff.inDays / 7).floor()} week${diff.inDays > 14 ? 's' : ''} ago';
+      final weeks = (diff.inDays / 7).floor();
+      return context.localizations.weeksAgo(weeks);
     } else if (diff.inDays > 0) {
-      return '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
+      return context.localizations.daysAgo(diff.inDays);
     } else if (diff.inHours > 0) {
-      return '${diff.inHours} hour${diff.inHours > 1 ? 's' : ''} ago';
+      return context.localizations.hoursAgo(diff.inHours);
     } else {
-      return 'Recently';
+      return context.localizations.recently;
     }
   }
 }

@@ -23,9 +23,9 @@ class DashboardScreen extends ConsumerWidget {
               backgroundColor: const Color(0xFFF9FAFB),
               surfaceTintColor: const Color(0xFFF9FAFB),
               elevation: 0,
-              title: const Text(
-                'Guardian Overview',
-                style: TextStyle(
+              title: Text(
+                context.localizations.guardianOverview,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: NeuroColors.guardianPrimaryDark,
@@ -61,9 +61,9 @@ class DashboardScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Linked Adolescents',
-                              style: TextStyle(
+                            Text(
+                              context.localizations.linkedAdolescents,
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: NeuroColors.onSurface,
@@ -73,8 +73,10 @@ class DashboardScreen extends ConsumerWidget {
                             ...list.map(
                               (adolescent) => _QuickActionCard(
                                 title: adolescent.fullName,
-                                subtitle:
-                                    'Risk Level: ${adolescent.currentRiskLevel ?? "LOW"}',
+                                subtitle: context.localizations.riskLevel(
+                                  adolescent.currentRiskLevel?.toUpperCase() ??
+                                      context.localizations.lowRisk,
+                                ),
                                 icon: Icons.face,
                                 onTap: () => context.push(
                                   '/adolescent/${adolescent.effectiveId}',
@@ -97,23 +99,23 @@ class DashboardScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Quick Actions',
-                      style: TextStyle(
+                    Text(
+                      context.localizations.quickActions,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 12),
                     _QuickActionCard(
-                      title: 'View Alerts',
-                      subtitle: 'Check active alerts for your adolescents',
+                      title: context.localizations.viewAlerts,
+                      subtitle: context.localizations.viewAlertsSubtitle,
                       icon: Icons.notifications_active_outlined,
                       onTap: () => context.push('/alerts'),
                     ),
                     _QuickActionCard(
-                      title: 'Add Adolescent',
-                      subtitle: 'Link a new account to your command center',
+                      title: context.localizations.addAdolescent,
+                      subtitle: context.localizations.addAdolescentSubtitle,
                       icon: Icons.person_add_outlined,
                       onTap: () => context.push('/register-adolescent'),
                     ),
@@ -126,10 +128,10 @@ class DashboardScreen extends ConsumerWidget {
                           data: (pending) {
                             // Always show the card, even with 0 pending
                             return _QuickActionCard(
-                              title: 'Pending Activations',
+                              title: context.localizations.pendingActivations,
                               subtitle: pending.isEmpty
-                                  ? 'No adolescents awaiting activation'
-                                  : '${pending.length} adolescent(s) awaiting activation',
+                                  ? context.localizations.noAdolescentsAwaitingActivation
+                                  : context.localizations.adolescentsAwaitingActivation(pending.length),
                               icon: Icons.hourglass_top,
                               badge: pending.isEmpty
                                   ? '0'
@@ -145,8 +147,8 @@ class DashboardScreen extends ConsumerWidget {
                       },
                     ),
                     _QuickActionCard(
-                      title: 'Counselor Approvals',
-                      subtitle: 'Manage counselor communication requests',
+                      title: context.localizations.counselorApprovals,
+                      subtitle: context.localizations.counselorApprovalsSubtitle,
                       icon: Icons.verified_user_outlined,
                       onTap: () => context.push('/approvals'),
                     ),
@@ -189,9 +191,9 @@ class DashboardScreen extends ConsumerWidget {
               final data = state.data;
               if (data == null) {
                 debugPrint('DashboardScreen: data is null');
-                return const SliverFillRemaining(
+                return SliverFillRemaining(
                   hasScrollBody: false,
-                  child: Center(child: Text('No dashboard data available.')),
+                  child: Center(child: Text(context.localizations.noDashboardData)),
                 );
               }
 
@@ -204,16 +206,15 @@ class DashboardScreen extends ConsumerWidget {
                child: Column(
                  children: [
                    if (isFallback)
-                     const Padding(
-                       padding: EdgeInsets.symmetric(
+                     Padding(
+                       padding: const EdgeInsets.symmetric(
                          horizontal: 16,
                          vertical: 8,
                        ),
                        child: NeuroEmptyState(
                          isMini: true,
-                         title: 'Data Unavailable',
-                         message:
-                             'Guardian activity data is temporarily unavailable. Quick Actions are active.',
+                         title: context.localizations.dataUnavailable,
+                         message: context.localizations.guardianDataUnavailableDesc,
                          icon: Icons.cloud_off,
                          color: NeuroColors.moodAnxious,
                        ),
@@ -288,14 +289,14 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         
-        // 2. Emotional Trends Card (HIDDEN for debugging)
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 16),
-        //   child: _buildTrendCard(context, ref, data)
-        //       .animate()
-        //       .fadeIn(delay: 400.ms)
-        //       .slideY(begin: 0.1),
-        // ),
+        // 2. Emotional Trends Card
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: _buildTrendCard(context, ref, data)
+              .animate()
+              .fadeIn(delay: 400.ms)
+              .slideY(begin: 0.1),
+        ),
 
         // 3. Aggregated Insights Card (NEW)
         Padding(
@@ -316,7 +317,7 @@ class DashboardScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Good Morning,',
+              '${context.localizations.goodMorning},',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
                   ),
@@ -325,8 +326,8 @@ class DashboardScreen extends ConsumerWidget {
               builder: (context, ref, child) {
                 final profileAsync = ref.watch(guardianProfileControllerProvider);
                 final name = profileAsync.maybeWhen(
-                  data: (state) => state.user?.fullName.split(' ')[0] ?? 'Guardian',
-                  orElse: () => 'Guardian',
+                  data: (state) => state.user?.fullName.split(' ')[0] ?? context.localizations.guardian,
+                  orElse: () => context.localizations.guardian,
                 );
                 return Text(
                   name,
@@ -360,19 +361,19 @@ class DashboardScreen extends ConsumerWidget {
         children: [
           _buildQuickStat(
             context: context,
-            label: 'Adolescents',
+            label: context.localizations.adolescentsLabel,
             value: data.totalAdolescentsLinked,
             color: Colors.white,
           ),
           _buildQuickStat(
             context: context,
-            label: 'Total Journals',
+            label: context.localizations.totalJournalsLabel,
             value: data.totalJournalCount,
             color: Colors.white,
           ),
           _buildQuickStat(
             context: context,
-            label: 'Alerts',
+            label: context.localizations.alerts,
             value: data.unviewedAlertsCount,
             color: data.unviewedAlertsCount > 0 ? Colors.orangeAccent : Colors.white,
           ),
@@ -391,7 +392,7 @@ class DashboardScreen extends ConsumerWidget {
          crossAxisAlignment: CrossAxisAlignment.start,
          children: [
            Text(
-             'Emotional Trends',
+             context.localizations.emotionalTrends,
              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                    fontWeight: FontWeight.w900,
                    color: NeuroColors.guardianPrimaryDark,
@@ -399,13 +400,13 @@ class DashboardScreen extends ConsumerWidget {
                  ),
            ),
            const SizedBox(height: 12),
-           _buildPeriodSelector(ref, currentPeriod),
+           _buildPeriodSelector(context, ref, currentPeriod),
            const SizedBox(height: 24),
            if (trends.isEmpty)
-             const NeuroEmptyState(
+             NeuroEmptyState(
                isMini: true,
-               title: 'No Trend Data Yet',
-               message: 'Trend visualization will appear once mood entries are recorded by linked adolescents. Data typically appears within 24 hours of a journal entry.',
+               title: context.localizations.noTrendDataYet,
+               message: context.localizations.noTrendDataDesc,
                icon: Icons.show_chart,
              )
            else
@@ -423,20 +424,20 @@ class DashboardScreen extends ConsumerWidget {
     }
 
   /// Period selector widget (7d / 14d / 30d)
-  Widget _buildPeriodSelector(WidgetRef ref, String currentPeriod) {
+  Widget _buildPeriodSelector(BuildContext context, WidgetRef ref, String currentPeriod) {
     return SegmentedButton<String>(
-      segments: const [
+      segments: [
         ButtonSegment(
           value: '7d',
-          label: Text('7d', style: TextStyle(fontSize: 12)),
+          label: Text(context.localizations.sevenDays, style: const TextStyle(fontSize: 12)),
         ),
         ButtonSegment(
           value: '14d',
-          label: Text('14d', style: TextStyle(fontSize: 12)),
+          label: Text(context.localizations.fourteenDays, style: const TextStyle(fontSize: 12)),
         ),
         ButtonSegment(
           value: '30d',
-          label: Text('30d', style: TextStyle(fontSize: 12)),
+          label: Text(context.localizations.thirtyDays, style: const TextStyle(fontSize: 12)),
         ),
       ],
       selected: {currentPeriod},
@@ -485,7 +486,7 @@ class DashboardScreen extends ConsumerWidget {
               Icon(Icons.insights, color: NeuroColors.guardianPrimary, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Aggregated Insights',
+                context.localizations.aggregatedInsights,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w900,
                       color: NeuroColors.guardianPrimaryDark,
@@ -500,9 +501,9 @@ class DashboardScreen extends ConsumerWidget {
           if (averageSentiment != null) ...[
             _buildInsightRow(
               context,
-              label: 'Average Mood Sentiment',
+              label: context.localizations.averageMoodSentiment,
               value: '${(averageSentiment * 100).toStringAsFixed(0)}%',
-              subtitle: 'Across all linked adolescents (last $currentPeriod)',
+              subtitle: context.localizations.allAdolescentsSubtitle(currentPeriod),
               color: _getSentimentColor(averageSentiment),
             ),
             const SizedBox(height: 16),
@@ -511,9 +512,9 @@ class DashboardScreen extends ConsumerWidget {
           // Alert Summary
           _buildInsightRow(
             context,
-            label: 'Alerts Summary',
-            value: '${alerts.length} total',
-            subtitle: 'Low: $lowAlerts, Medium: $mediumAlerts, High: $highAlerts',
+            label: context.localizations.alertsSummary,
+            value: context.localizations.totalCount(alerts.length),
+            subtitle: context.localizations.alertsSeverityBreakdown(lowAlerts, mediumAlerts, highAlerts),
             color: NeuroColors.alertMedium,
           ),
           const SizedBox(height: 16),
@@ -521,9 +522,9 @@ class DashboardScreen extends ConsumerWidget {
           // Activity Stats
           _buildInsightRow(
             context,
-            label: 'Activity Stats',
-            value: '$totalJournalCount journals, $totalMoodEntries mood entries',
-            subtitle: '${adolescents.length} adolescent(s) linked',
+            label: context.localizations.activityStats,
+            value: context.localizations.journalMoodStats(totalJournalCount, totalMoodEntries),
+            subtitle: context.localizations.adolescentsLinked(adolescents.length),
             color: NeuroColors.alertLow, // Using alertLow (green) for positive activity
           ),
         ],

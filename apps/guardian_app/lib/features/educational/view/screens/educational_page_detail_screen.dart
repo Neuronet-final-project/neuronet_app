@@ -10,17 +10,16 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
 
   final EducationalPage page;
 
-  Color _getDifficultyColor(String difficulty) {
-    switch (difficulty.toLowerCase()) {
-      case 'beginner':
-        return Colors.green;
-      case 'intermediate':
-        return Colors.orange;
-      case 'advanced':
-        return Colors.red;
-      default:
-        return NeuroColors.guardianPrimary;
+  Color _getDifficultyColor(BuildContext context, String difficulty) {
+    final d = difficulty.toLowerCase();
+    if (d == context.localizations.beginner.toLowerCase()) {
+      return Colors.green;
+    } else if (d == context.localizations.intermediate.toLowerCase()) {
+      return Colors.orange;
+    } else if (d == context.localizations.advanced.toLowerCase()) {
+      return Colors.red;
     }
+    return NeuroColors.guardianPrimary;
   }
 
   @override
@@ -77,8 +76,8 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          page.category?.toUpperCase() ?? 'LEARN',
-                          style: TextStyle(
+                          page.category?.toUpperCase() ?? context.localizations.learnAndGrow.toUpperCase(),
+                          style: const TextStyle(
                             color: NeuroColors.guardianPrimary,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.5,
@@ -91,7 +90,7 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: _getDifficultyColor(page.difficultyLevel!),
+                            color: _getDifficultyColor(context, page.difficultyLevel!),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -143,7 +142,7 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${page.estimatedReadTime} min read',
+                          context.localizations.minRead(page.estimatedReadTime),
                           style: const TextStyle(
                             fontSize: 12,
                             color: NeuroColors.onSurfaceVariant,
@@ -158,7 +157,7 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${page.viewCount} views',
+                        context.localizations.viewsCountLabel(page.viewCount),
                         style: const TextStyle(
                           fontSize: 12,
                           color: NeuroColors.onSurfaceVariant,
@@ -172,7 +171,7 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${page.followCount} followers',
+                        context.localizations.followerCountLabel(page.followCount),
                         style: const TextStyle(
                           fontSize: 12,
                           color: NeuroColors.onSurfaceVariant,
@@ -316,7 +315,7 @@ class GuardianEducationalPageDetailScreen extends StatelessWidget {
                 child: TextButton.icon(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.check_circle_outline_rounded),
-                  label: const Text('I\'ve read this!'),
+                  label: Text(context.localizations.iveReadThis),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     backgroundColor: NeuroColors.guardianPrimary.withValues(alpha: 0.1),

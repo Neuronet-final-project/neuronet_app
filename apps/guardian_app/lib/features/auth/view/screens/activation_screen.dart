@@ -92,7 +92,6 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
-    final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
 
     if (!_isInitialized) {
@@ -110,7 +109,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
           previous?.status != AuthStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.errorMessage ?? 'An error occurred'),
+            content: Text(next.errorMessage ?? context.localizations.anErrorOccurred),
             backgroundColor: NeuroColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -119,8 +118,8 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
       if (next.status == AuthStatus.unauthenticated &&
           previous?.status == AuthStatus.loading) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account activated! Please login.'),
+          SnackBar(
+            content: Text(context.localizations.activationSuccess),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
@@ -223,18 +222,18 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                const Text('Activate Account',
+                                Text(context.localizations.activateAccount,
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w900,
                                       color: Color(0xFF4A0E1C),
                                       letterSpacing: -0.5,
                                     )),
                                 const SizedBox(height: 8),
-                                const Text('Secure your access with your code',
+                                Text(context.localizations.secureAccessWithCode,
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 13,
                                       color: Color(0xFF8A6E75),
                                     )),
@@ -244,11 +243,11 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                                 _GuardianTextField(
                                   controller: _emailController,
                                   focusNode: _emailFocus,
-                                  label: 'Account Email',
+                                  label: context.localizations.accountEmail,
                                   icon: Icons.alternate_email_rounded,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
-                                  validator: (v) => (v == null || !v.contains('@')) ? 'Invalid email' : null,
+                                  validator: (v) => (v == null || !v.contains('@')) ? context.localizations.invalidEmail : null,
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_codeFocus),
                                 ),
                                 const SizedBox(height: 12),
@@ -257,10 +256,10 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                                 _GuardianTextField(
                                   controller: _codeController,
                                   focusNode: _codeFocus,
-                                  label: 'Activation Code',
+                                  label: context.localizations.activationCode,
                                   icon: Icons.vpn_key_outlined,
                                   textInputAction: TextInputAction.next,
-                                  validator: (v) => (v == null || v.isEmpty) ? 'Enter activation code' : null,
+                                  validator: (v) => (v == null || v.isEmpty) ? context.localizations.enterActivationCode : null,
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
                                 ),
                                 const SizedBox(height: 12),
@@ -269,7 +268,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                                 _GuardianTextField(
                                   controller: _passwordController,
                                   focusNode: _passwordFocus,
-                                  label: 'New Password',
+                                  label: context.localizations.newPassword,
                                   icon: Icons.lock_outline_rounded,
                                   obscureText: _obscurePassword,
                                   textInputAction: TextInputAction.next,
@@ -281,7 +280,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                                     ),
                                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                   ),
-                                  validator: (v) => (v == null || v.length < 6) ? 'Min 6 characters' : null,
+                                  validator: (v) => (v == null || v.length < 6) ? context.localizations.min6Characters : null,
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_confirmPasswordFocus),
                                 ),
                                 const SizedBox(height: 12),
@@ -290,7 +289,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                                 _GuardianTextField(
                                   controller: _confirmPasswordController,
                                   focusNode: _confirmPasswordFocus,
-                                  label: 'Confirm Password',
+                                  label: context.localizations.confirmPassword,
                                   icon: Icons.lock_reset_rounded,
                                   obscureText: _obscureConfirmPassword,
                                   textInputAction: TextInputAction.done,
@@ -302,7 +301,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                                     ),
                                     onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                                   ),
-                                  validator: (v) => (v != _passwordController.text) ? 'Passwords do not match' : null,
+                                  validator: (v) => (v != _passwordController.text) ? context.localizations.passwordsDoNotMatch : null,
                                   onFieldSubmitted: (_) => _handleActivate(),
                                 ),
                                 const SizedBox(height: 24),
@@ -311,15 +310,15 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen>
                                 _GradientButton(
                                   onPressed: authState.status == AuthStatus.loading ? null : _handleActivate,
                                   isLoading: authState.status == AuthStatus.loading,
-                                  label: 'Activate Account',
+                                  label: context.localizations.activateAccount,
                                 ),
                                 const SizedBox(height: 20),
 
                                 // Back button
                                 TextButton(
                                   onPressed: () => context.pop(),
-                                  child: const Text('Back to Login',
-                                      style: TextStyle(
+                                  child: Text(context.localizations.backToLogin,
+                                      style: const TextStyle(
                                         color: NeuroColors.guardianPrimary,
                                         fontWeight: FontWeight.w700,
                                         fontSize: 13,

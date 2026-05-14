@@ -25,6 +25,14 @@ abstract class CounselorChatState with _$CounselorChatState {
 class CounselorChatController extends _$CounselorChatController {
   @override
   FutureOr<CounselorChatState> build(String adolescentId) async {
+    // Listen to FCM chat events for instant refresh
+    final notifService = ref.read(notificationServiceProvider.notifier);
+    final fcmSub = notifService.onChatMessage.listen((_) {
+      debugPrint('[GuardianCounselorChat] 📨 FCM chat event received — refreshing immediately');
+      _silentRefresh();
+    });
+    ref.onDispose(fcmSub.cancel);
+
     try {
       final messagingService = ref.watch(messagingServiceProvider);
 
@@ -91,6 +99,32 @@ class CounselorChatController extends _$CounselorChatController {
       }
       debugPrint('[GuardianCounselorChat] ✗ Unexpected error: $e');
       return CounselorChatState(error: e.toString());
+    }
+  }
+
+  // ── Silent refresh triggered by FCM ──────────────────────────────────────────
+
+  Future<void> _silentRefresh() async {
+    final currentConversation = state.value?.conversation;
+    if (currentConversation == null) return;
+
+    try {
+      final result = await ref.read(messagingServiceProvider).getMessages(currentConversation.id);
+      if (result.isSuccess) {
+        final currentState = state.value;
+        if (currentState != null) {
+          final newMsgs = result.value;
+          final oldMsgs = currentState.messages;
+          final latestNewId = newMsgs.isNotEmpty ? newMsgs.last.id : null;
+          final latestOldId = oldMsgs.isNotEmpty ? oldMsgs.last.id : null;
+          if (newMsgs.length != oldMsgs.length || latestNewId != latestOldId) {
+            debugPrint('[GuardianCounselorChat] 🔄 Refreshed: ${oldMsgs.length} → ${newMsgs.length} messages');
+            state = AsyncValue.data(currentState.copyWith(messages: newMsgs));
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[GuardianCounselorChat] ⚠ Silent refresh failed: $e');
     }
   }
 
