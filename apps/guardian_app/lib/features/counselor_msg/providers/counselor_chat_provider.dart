@@ -14,6 +14,8 @@ abstract class CounselorChatState with _$CounselorChatState {
     Conversation? conversation,
     /// Counselor email extracted from conversation participants.
     String? counselorEmail,
+    /// Counselor name for display (from assigned counselors list)
+    String? counselorName,
     @Default([]) List<ConversationMessage> messages,
     @Default(false) bool isLoading,
     String? error,
@@ -47,6 +49,7 @@ class CounselorChatController extends _$CounselorChatController {
 
     try {
       final messagingService = ref.watch(messagingServiceProvider);
+      final authService = ref.watch(authServiceProvider);
 
       // Get guardian email from auth to filter out from participants
       final authState = ref.watch(authControllerProvider);
@@ -79,7 +82,20 @@ class CounselorChatController extends _$CounselorChatController {
       final counselorEmail = conversation.participants
           .where((p) => p.toLowerCase() != guardianEmail)
           .firstOrNull;
-      debugPrint('[GuardianCounselorChat]   Counselor: $counselorEmail');
+      debugPrint('[GuardianCounselorChat]   Counselor email: $counselorEmail');
+
+      // Fetch counselor name
+      String? counselorName;
+      if (counselorEmail != null) {
+        final counselorsResult = await authService.getAssignedCounselors(adolescentId);
+        if (counselorsResult.isSuccess) {
+          final matched = counselorsResult.value.where((c) => 
+            (c['email'] as String).toLowerCase() == counselorEmail.toLowerCase()
+          ).firstOrNull;
+          counselorName = matched?['full_name'] as String?;
+          debugPrint('[GuardianCounselorChat]   Counselor name: $counselorName');
+        }
+      }
 
       debugPrint('[GuardianCounselorChat] Step 2: Fetching messages');
       final messagesResult = await messagingService.getMessages(conversation.id);
@@ -88,6 +104,7 @@ class CounselorChatController extends _$CounselorChatController {
         return CounselorChatState(
           conversation: conversation,
           counselorEmail: counselorEmail,
+          counselorName: counselorName,
           error: messagesResult.failure.message,
         );
       }
@@ -102,6 +119,7 @@ class CounselorChatController extends _$CounselorChatController {
       return CounselorChatState(
         conversation: conversation,
         counselorEmail: counselorEmail,
+        counselorName: counselorName,
         messages: messagesResult.value,
       );
     } catch (e) {

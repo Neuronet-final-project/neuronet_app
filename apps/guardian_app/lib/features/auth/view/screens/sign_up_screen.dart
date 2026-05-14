@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,7 +35,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
 
   // Countdown for resend
   int _resendCountdown = 0;
-  math.Timer? _resendTimer;
+  Timer? _resendTimer;
 
   // Entrance animation
   late AnimationController _enterCtrl;
@@ -91,7 +92,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
   void _startResendTimer() {
     setState(() => _resendCountdown = 60);
     _resendTimer?.cancel();
-    _resendTimer = math.Timer.periodic(const Duration(seconds: 1), (timer) {
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_resendCountdown == 0) {
         timer.cancel();
       } else {
