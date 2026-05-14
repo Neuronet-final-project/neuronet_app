@@ -39,84 +39,123 @@ class MoodScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: NeuroColors.adolescentSurface,
+      backgroundColor: const Color(0xFFFBF9FF),
       body: state.showSuccess
           ? _buildSuccessView(context, notifier, ref)
           : Stack(
               children: [
+                // Premium Mesh Gradient Background
                 Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color(0xFFF2ECFF),
-                          NeuroColors.adolescentSurface,
-                          const Color(0xFFE7DDFC).withValues(alpha: 0.35),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: const [0.0, 0.38, 1.0],
+                  child: Stack(
+                    children: [
+                      Container(color: const Color(0xFFFBF9FF)),
+                      Positioned(
+                        top: -100,
+                        right: -50,
+                        child: Container(
+                          width: 400,
+                          height: 400,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                const Color(0xFFD8C2FF).withOpacity(0.4),
+                                const Color(0xFFD8C2FF).withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      Positioned(
+                        top: 200,
+                        left: -100,
+                        child: Container(
+                          width: 350,
+                          height: 350,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                const Color(0xFFB388FF).withOpacity(0.2),
+                                const Color(0xFFB388FF).withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
                   slivers: [
-                    _buildHeader(context, notifier, ref),
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      sliver: SliverList(
-                        delegate: SliverChildListDelegate([
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEFE8FF),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              context.localizations.dailyCheckInTag,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.2,
-                                color: Color(0xFF6A1FDB),
+                    _buildHeader(context, notifier, ref, moodHistoryAsync),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6A1FDB).withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                context.localizations.dailyCheckInTag,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.5,
+                                  color: Color(0xFF6A1FDB),
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 14),
-                          Text(
-                            context.localizations.howAreYouFeelingNow,
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFF2C1C5F),
-                              letterSpacing: -0.6,
+                            const SizedBox(height: 20),
+                            Text(
+                              context.localizations.howAreYouFeelingNow,
+                              style: const TextStyle(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF1A123D),
+                                letterSpacing: -0.8,
+                                height: 1.1,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            context.localizations.tapEmojiPrompt,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF6A5C9A),
-                              height: 1.5,
+                            const SizedBox(height: 12),
+                            Text(
+                              context.localizations.tapEmojiPrompt,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF7B6FAD),
+                                height: 1.5,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 28),
-                          _buildMoodGrid(context, state, notifier),
-                          const SizedBox(height: 40),
-                          if (state.selectedMood != null) ...[
-                            _buildIntensitySection(context, state, notifier),
                             const SizedBox(height: 32),
-                            _buildNotesSection(context, state, notifier),
-                            const SizedBox(height: 48),
-                            _buildSubmitButton(state, notifier, context),
-                            const SizedBox(height: 32),
+                            _buildMoodGrid(context, state, notifier),
+                            const SizedBox(height: 40),
+                            AnimatedSize(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOutCubic,
+                              child: state.selectedMood != null
+                                  ? Column(
+                                      children: [
+                                        _buildIntensitySection(context, state, notifier),
+                                        const SizedBox(height: 32),
+                                        _buildNotesSection(context, state, notifier),
+                                        const SizedBox(height: 48),
+                                        _buildSubmitButton(state, notifier, context),
+                                        const SizedBox(height: 40),
+                                      ],
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                            _buildMoodHistory(context, ref, moodHistoryAsync),
+                            const SizedBox(height: 100),
                           ],
-                          _buildMoodHistory(context, ref, moodHistoryAsync),
-                          const SizedBox(height: 80),
-                        ]),
+                        ),
                       ),
                     ),
                   ],
@@ -126,7 +165,7 @@ class MoodScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, MoodController notifier, WidgetRef ref) {
+  Widget _buildHeader(BuildContext context, MoodController notifier, WidgetRef ref, AsyncValue<MoodHistoryState> moodHistoryAsync) {
     return SliverAppBar(
       expandedHeight: 132,
       pinned: true,
@@ -138,12 +177,12 @@ class MoodScreen extends ConsumerWidget {
             Positioned(
               top: -40,
               right: -30,
-              child: Icon(Icons.circle, size: 140, color: const Color(0xFF9E8CD8).withValues(alpha: 0.16)),
+              child: Icon(Icons.circle, size: 140, color: const Color(0xFF9E8CD8).withOpacity(0.16)),
             ),
             Positioned(
               left: -28,
               bottom: -36,
-              child: Icon(Icons.circle, size: 120, color: const Color(0xFFB388FF).withValues(alpha: 0.12)),
+              child: Icon(Icons.circle, size: 120, color: const Color(0xFFB388FF).withOpacity(0.12)),
             ),
           ],
         ),
@@ -189,12 +228,27 @@ class MoodScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            child: IconButton(
-              icon: const Icon(Icons.refresh_rounded, color: NeuroColors.adolescentPrimaryDark, size: 20),
-              onPressed: () {
-                notifier.reset();
-                ref.read(moodHistoryControllerProvider.notifier).refresh();
-              },
+            child: moodHistoryAsync.when(
+              data: (hState) => hState.isLoading 
+                ? const SizedBox(
+                    width: 20, height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: NeuroColors.adolescentPrimaryDark),
+                  )
+                : IconButton(
+                    icon: const Icon(Icons.refresh_rounded, color: NeuroColors.adolescentPrimaryDark, size: 20),
+                    onPressed: () {
+                      notifier.reset();
+                      ref.read(moodHistoryControllerProvider.notifier).refresh();
+                    },
+                  ),
+              loading: () => const SizedBox(
+                width: 20, height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: NeuroColors.adolescentPrimaryDark),
+              ),
+              error: (_, __) => IconButton(
+                icon: const Icon(Icons.refresh_rounded, color: NeuroColors.adolescentPrimaryDark, size: 20),
+                onPressed: () => ref.read(moodHistoryControllerProvider.notifier).refresh(),
+              ),
             ),
           ),
         ),
@@ -211,7 +265,7 @@ class MoodScreen extends ConsumerWidget {
         crossAxisCount: 3,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.9,
+        childAspectRatio: 0.85,
       ),
       itemCount: MoodType.values.length,
       itemBuilder: (context, index) {
@@ -222,43 +276,48 @@ class MoodScreen extends ConsumerWidget {
         return GestureDetector(
           onTap: () => notifier.selectMood(mood),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOutCubic,
             decoration: BoxDecoration(
-              color: isSelected ? color : Colors.white,
-              borderRadius: BorderRadius.circular(24),
+              color: isSelected ? color : Colors.white.withValues(alpha: 0.85),
+              borderRadius: BorderRadius.circular(28),
               border: Border.all(
-                color: isSelected ? color : NeuroColors.adolescentPrimary.withValues(alpha: 0.1),
+                color: isSelected ? color : const Color(0xFF6A1FDB).withValues(alpha: 0.08),
                 width: 2,
               ),
               boxShadow: isSelected ? [
                 BoxShadow(
-                  color: color.withValues(alpha: 0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
+                  color: color.withValues(alpha: 0.35),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 )
               ] : [
                 BoxShadow(
-                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  color: const Color(0xFF6A1FDB).withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
                 )
               ],
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  _getMoodEmoji(mood),
-                  style: TextStyle(fontSize: isSelected ? 36 : 28),
+                AnimatedScale(
+                  duration: const Duration(milliseconds: 250),
+                  scale: isSelected ? 1.25 : 1.0,
+                  child: Text(
+                    _getMoodEmoji(mood),
+                    style: const TextStyle(fontSize: 32),
+                  ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Text(
                   mood.localizedLabel(context.localizations).toUpperCase(),
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 10.5,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
-                    color: isSelected ? Colors.white : const Color(0xFF8A7DAC),
+                    letterSpacing: 1.5,
+                    color: isSelected ? Colors.white : const Color(0xFF7B6FAD),
                   ),
                 ),
               ],
@@ -271,15 +330,16 @@ class MoodScreen extends ConsumerWidget {
 
   Widget _buildIntensitySection(BuildContext context, MoodState state, MoodController notifier) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        color: Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: const Color(0xFF6A1FDB).withValues(alpha: 0.05)),
         boxShadow: [
           BoxShadow(
-            color: NeuroColors.adolescentPrimary.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: const Color(0xFF6A1FDB).withValues(alpha: 0.06),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
@@ -292,39 +352,50 @@ class MoodScreen extends ConsumerWidget {
               Text(
                 context.localizations.intensityLabel,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 19,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF2C1C5F),
+                  color: Color(0xFF1A123D),
+                  letterSpacing: -0.5,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   gradient: NeuroGradients.adolescent,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: NeuroColors.adolescentPrimary.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Text(
-                  context.localizations.intensityLevel(state.intensity),
+                  context.localizations.intensityLevel(state.intensity).toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
-                    fontSize: 12,
+                    fontSize: 11,
+                    letterSpacing: 1.0,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           SliderTheme(
             data: SliderThemeData(
               activeTrackColor: NeuroColors.adolescentPrimary,
-              inactiveTrackColor: NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.3),
-              thumbColor: NeuroColors.adolescentPrimaryDark,
-              overlayColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.2),
-              trackHeight: 8,
+              inactiveTrackColor: const Color(0xFFE0DAF0),
+              thumbColor: Colors.white,
+              overlayColor: NeuroColors.adolescentPrimary.withValues(alpha: 0.15),
+              trackHeight: 10,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14, elevation: 4),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 24),
               tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 4),
-              activeTickMarkColor: Colors.white.withValues(alpha: 0.5),
-              inactiveTickMarkColor: NeuroColors.adolescentPrimaryLight.withValues(alpha: 0.5),
+              activeTickMarkColor: Colors.white.withValues(alpha: 0.3),
+              inactiveTickMarkColor: const Color(0xFFB4A8D3),
             ),
             child: Slider(
               value: state.intensity.toDouble(),
@@ -334,13 +405,20 @@ class MoodScreen extends ConsumerWidget {
               onChanged: (value) => notifier.updateIntensity(value),
             ),
           ),
+          const SizedBox(height: 4),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(context.localizations.mildLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC))),
-                Text(context.localizations.strongLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC))),
+                Text(
+                  context.localizations.mildLabel.toUpperCase(),
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFFB4A8D3), letterSpacing: 1.0),
+                ),
+                Text(
+                  context.localizations.strongLabel.toUpperCase(),
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFFB4A8D3), letterSpacing: 1.0),
+                ),
               ],
             ),
           ),
@@ -356,33 +434,34 @@ class MoodScreen extends ConsumerWidget {
         Text(
           context.localizations.moodReasonPrompt,
           style: const TextStyle(
-            fontSize: 18,
+            fontSize: 19,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF2C1C5F),
+            color: Color(0xFF1A123D),
+            letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: NeuroColors.adolescentPrimary.withValues(alpha: 0.15)),
+            color: Colors.white.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: const Color(0xFF6A1FDB).withValues(alpha: 0.08)),
             boxShadow: [
               BoxShadow(
-                color: NeuroColors.adolescentPrimary.withValues(alpha: 0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: const Color(0xFF6A1FDB).withValues(alpha: 0.03),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
           child: TextField(
             onChanged: (value) => notifier.updateNotes(value),
-            style: const TextStyle(fontSize: 16, color: Color(0xFF53477D), fontWeight: FontWeight.w500),
+            style: const TextStyle(fontSize: 16, color: Color(0xFF1A123D), fontWeight: FontWeight.w500),
             decoration: InputDecoration(
               hintText: context.localizations.moodNoteHint,
-              hintStyle: const TextStyle(color: Color(0xFFB4A8D3)),
+              hintStyle: const TextStyle(color: Color(0xFFB4A8D3), fontWeight: FontWeight.w500),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.all(20),
+              contentPadding: const EdgeInsets.all(24),
             ),
             maxLines: 4,
           ),
@@ -394,11 +473,17 @@ class MoodScreen extends ConsumerWidget {
   Widget _buildSubmitButton(MoodState state, MoodController notifier, BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 60,
+      height: 64,
       decoration: BoxDecoration(
         gradient: NeuroGradients.adolescent,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: const [NeuroShadows.adolescentGlow],
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: NeuroColors.adolescentPrimary.withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: ElevatedButton(
         onPressed: state.isSubmitting ? null : () => notifier.submitMood(),
@@ -406,7 +491,7 @@ class MoodScreen extends ConsumerWidget {
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
         ),
         child: state.isSubmitting
             ? const SizedBox(
@@ -415,8 +500,8 @@ class MoodScreen extends ConsumerWidget {
                 child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
               )
             : Text(
-                context.localizations.logMoodButton,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                context.localizations.logMoodButton.toUpperCase(),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.5),
               ),
       ),
     );
@@ -583,22 +668,22 @@ class MoodScreen extends ConsumerWidget {
                                 Text(
                                   r.mood.localizedLabel(context.localizations).toUpperCase(),
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 10,
                                     fontWeight: FontWeight.w900,
                                     color: _getMoodColor(r.mood),
-                                    letterSpacing: 1.0,
+                                    letterSpacing: 1.2,
                                   ),
                                 ),
                                 if (r.intensity != null) ...[
                                   const SizedBox(width: 8),
                                   Container(
-                                    width: 4, height: 4,
-                                    decoration: const BoxDecoration(color: Color(0xFF8A7DAC), shape: BoxShape.circle),
+                                    width: 3, height: 3,
+                                    decoration: BoxDecoration(color: const Color(0xFFB4A8D3), shape: BoxShape.circle),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${context.localizations.levelAbbr} ${r.intensity}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF8A7DAC)),
+                                    '${context.localizations.levelAbbr} ${r.intensity}'.toUpperCase(),
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFFB4A8D3), letterSpacing: 0.5),
                                   ),
                                 ]
                               ],
@@ -609,19 +694,20 @@ class MoodScreen extends ConsumerWidget {
                                 r.note!,
                                 style: const TextStyle(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF53477D),
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF1A123D),
+                                  height: 1.3,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               )
                              else
                                Text(
-                                 _safeFormatDate(r.createdAt, 'MMMM d, y h:mm a', 'en'),
+                                 _safeFormatDate(r.createdAt.toLocal(), 'MMMM d, h:mm a', 'en'),
                                 style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF8A7DAC),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF7B6FAD),
                                 ),
                               ),
                           ],
@@ -632,8 +718,9 @@ class MoodScreen extends ConsumerWidget {
                         _formatTimeAgo(r.createdAt, context),
                         style: const TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w900,
                           color: Color(0xFFB4A8D3),
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ],
@@ -641,6 +728,25 @@ class MoodScreen extends ConsumerWidget {
                 );
               },
             ),
+            if (records.length > 5) ...[
+              const SizedBox(height: 24),
+              Center(
+                child: TextButton.icon(
+                  onPressed: () => context.push(AdolescentRoutes.moodHistory),
+                  icon: const Icon(Icons.history_rounded, size: 18),
+                  label: Text(
+                    context.localizations.allMoods.toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.2, fontSize: 13),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFF6A1FDB),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    backgroundColor: const Color(0xFF6A1FDB).withValues(alpha: 0.05),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                ),
+              ),
+            ],
           ],
         );
       },
@@ -653,8 +759,16 @@ class MoodScreen extends ConsumerWidget {
   }
 
   String _formatTimeAgo(DateTime dt, BuildContext context) {
-    final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return context.localizations.now;
+    // CRITICAL: Force treat server time as UTC if it's not marked as such.
+    // This fixes the bug where server UTC is parsed as local (creating a 3h offset in UTC+3).
+    final serverTime = dt.isUtc 
+        ? dt 
+        : DateTime.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.millisecond, dt.microsecond);
+    
+    final now = DateTime.now().toUtc();
+    final diff = now.difference(serverTime);
+    
+    if (diff.isNegative || diff.inMinutes < 1) return context.localizations.now;
     if (diff.inMinutes < 60) return '${diff.inMinutes}${context.localizations.minAbbr}';
     if (diff.inHours < 24) return '${diff.inHours}${context.localizations.hourAbbr}';
     return '${diff.inDays}${context.localizations.dayAbbr}';

@@ -47,6 +47,28 @@ class MoodController extends _$MoodController {
 
     try {
       final service = ref.read(journalServiceProvider);
+      
+      // Enforce 12-hour gap: Max 2 moods per 12-hour rotating window
+      final history = ref.read(moodHistoryControllerProvider);
+      if (history.hasValue) {
+        final records = history.value!.records;
+        if (records.length >= 2) {
+          final secondLast = records[1].createdAt.toUtc();
+          final now = DateTime.now().toUtc();
+          final diff = now.difference(secondLast);
+          
+          if (diff < const Duration(hours: 12)) {
+            final remaining = const Duration(hours: 12) - diff;
+            final waitHours = remaining.inHours;
+            final waitMins = remaining.inMinutes % 60;
+            String waitMsg = waitHours > 0 
+                ? '$waitHours hours and $waitMins minutes' 
+                : '$waitMins minutes';
+                
+            throw Exception('You can only log 2 moods every 12 hours. Please wait $waitMsg before logging another.');
+          }
+        }
+      }
 
       final request = CreateMoodRequest(
         mood: state.selectedMood!,

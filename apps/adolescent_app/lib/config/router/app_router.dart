@@ -12,6 +12,7 @@ import 'package:adolescent_app/features/channels/view/screens/channel_detail_scr
 import 'package:adolescent_app/features/channels/view/screens/channel_post_detail_screen.dart';
 import 'package:adolescent_app/features/counselor_chat/view/screens/counselor_chat_screen.dart';
 import 'package:adolescent_app/features/counselor_chat/view/screens/request_approval_screen.dart';
+import 'package:adolescent_app/features/mood/view/screens/mood_history_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/new_journal_entry_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/journal_search_screen.dart';
 import 'package:adolescent_app/features/journal/providers/journal_provider.dart';
@@ -70,6 +71,7 @@ class AdolescentRoutes {
   static const String alerts = '/alerts';
   static const String searchJournal = '/journal/search';
   static const String forgotPassword = '/forgot-password';
+  static const String moodHistory = '/mood/history';
 }
 
 // Global ChangeNotifier for auth state changes.
@@ -274,6 +276,10 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AdolescentRoutes.mood,
         builder: (context, state) => const MoodScreen(),
+      ),
+      GoRoute(
+        path: AdolescentRoutes.moodHistory,
+        builder: (context, state) => const MoodHistoryScreen(),
       ),
       GoRoute(
         path: AdolescentRoutes.requestApproval,
