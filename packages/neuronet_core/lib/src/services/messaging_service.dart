@@ -118,6 +118,26 @@ class MessagingService {
     }
   }
 
+  /// Deletes a message from a conversation.
+  Future<Result<void>> deleteMessage({
+    required String conversationId,
+    required String messageId,
+  }) async {
+    try {
+      debugPrint('[MessagingService] DELETE message: $messageId in conversation: $conversationId');
+      
+      await _apiClient.delete(
+        ApiEndpoints.deleteConversationMessage(conversationId, messageId),
+      );
+      
+      debugPrint('[MessagingService] ✓ Message deleted');
+      return const Result.success(null);
+    } catch (e) {
+      debugPrint('[MessagingService] Failed to delete message: $e');
+      return Result.failure(failureFromException(e));
+    }
+  }
+
   /// Uploads a media file (voice, image, video) to the backend.
   /// Returns the URL of the uploaded file.
   Future<Result<String>> uploadMedia(File file) async {

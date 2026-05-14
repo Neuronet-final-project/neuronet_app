@@ -68,7 +68,12 @@ class ChannelsController extends _$ChannelsController {
     
     state = AsyncValue.data(currentState.copyWith(channels: updatedChannels));
 
-    final result = await ref.read(channelServiceProvider).subscribeToChannel(channelId);
+    // Call appropriate endpoint based on desired state
+    final service = ref.read(channelServiceProvider);
+    final result = newFollowed
+        ? await service.subscribeToChannel(channelId)
+        : await service.unsubscribeFromChannel(channelId);
+    
     if (result.isFailure) {
       // For web/CORS-like network-layer failures, backend may still process the request.
       // Keep optimistic UI and reconcile from server in background.

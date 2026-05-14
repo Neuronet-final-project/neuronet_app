@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-// Feature screens (placeholder imports)
 // Feature screens
 import 'package:adolescent_app/features/journal/view/screens/journal_history_screen.dart';
 import 'package:adolescent_app/features/mood/view/screens/mood_screen.dart';
@@ -13,6 +12,7 @@ import 'package:adolescent_app/features/channels/view/screens/channel_detail_scr
 import 'package:adolescent_app/features/channels/view/screens/channel_post_detail_screen.dart';
 import 'package:adolescent_app/features/counselor_chat/view/screens/counselor_chat_screen.dart';
 import 'package:adolescent_app/features/counselor_chat/view/screens/request_approval_screen.dart';
+import 'package:adolescent_app/features/mood/view/screens/mood_history_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/new_journal_entry_screen.dart';
 import 'package:adolescent_app/features/journal/view/screens/journal_search_screen.dart';
 import 'package:adolescent_app/features/journal/providers/journal_provider.dart';
@@ -71,6 +71,7 @@ class AdolescentRoutes {
   static const String alerts = '/alerts';
   static const String searchJournal = '/journal/search';
   static const String forgotPassword = '/forgot-password';
+  static const String moodHistory = '/mood/history';
 }
 
 // Global ChangeNotifier for auth state changes.
@@ -89,6 +90,19 @@ class _AuthChangeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+/// Provider to track the currently active tab index.
+/// Using a manual Notifier for compatibility with Riverpod V3/V2 without generator dependencies.
+class ActiveTabNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void update(int index) {
+    state = index;
+  }
+}
+
+final activeAdolescentTabProvider = NotifierProvider<ActiveTabNotifier, int>(ActiveTabNotifier.new);
 
 final adolescentRouterProvider = Provider<GoRouter>((ref) {
   // Listen to auth changes WITHOUT rebuilding this provider.
@@ -264,6 +278,10 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const MoodScreen(),
       ),
       GoRoute(
+        path: AdolescentRoutes.moodHistory,
+        builder: (context, state) => const MoodHistoryScreen(),
+      ),
+      GoRoute(
         path: AdolescentRoutes.requestApproval,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
@@ -306,15 +324,15 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AdolescentAlertsScreen(),
       ),
       GoRoute(
-        path: AdolescentRoutes.consentStatus,
-        builder: (context, state) => const ConsentStatusScreen(),
-      ),
-      GoRoute(
         path: '${AdolescentRoutes.alerts}/:id',
         builder: (context, state) {
           final alertId = state.pathParameters['id']!;
           return AdolescentAlertDetailScreen(alertId: alertId);
         },
+      ),
+      GoRoute(
+        path: AdolescentRoutes.consentStatus,
+        builder: (context, state) => const ConsentStatusScreen(),
       ),
       GoRoute(
         path: AdolescentRoutes.learn,
@@ -375,17 +393,14 @@ class AdolescentShell extends ConsumerStatefulWidget {
 
 class _AdolescentShellState extends ConsumerState<AdolescentShell> {
   int _getUnreadCount() {
-    // Use the totalUnreadMessageCount provider
-    final totalUnreadAsync = ref.watch(totalUnreadMessageCountProvider);
-    
-    return totalUnreadAsync.when(
-      data: (count) => count,
-      loading: () => 0,
-      error: (_, __) => 0,
-    );
+    // Watch the stable persistent notifier for badge updates
+    return ref.watch(unreadCountProvider);
   }
 
   void _onDestinationSelected(int index) {
+    // Update the active tab provider so screens know if they are visible
+    ref.read(activeAdolescentTabProvider.notifier).update(index);
+
     // If navigating to counselor chat (index 2), mark messages as read
     if (index == 2) {
       final controller = ref.read(counselorChatControllerProvider.notifier);
@@ -393,14 +408,15 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
     }
     widget.navigationShell.goBranch(index);
   }
-
   @override
   Widget build(BuildContext context) {
     final unreadCount = _getUnreadCount();
-    
+    final callState = ref.watch(callControllerProvider);
+    final isInCall = callState.value?.currentCall != null;
+
     return Scaffold(
       body: SafeArea(child: widget.navigationShell),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: isInCall ? null : NavigationBar(
         selectedIndex: widget.navigationShell.currentIndex,
         onDestinationSelected: _onDestinationSelected,
         destinations: [

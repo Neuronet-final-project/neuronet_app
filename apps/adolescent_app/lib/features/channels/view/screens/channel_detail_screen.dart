@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../../../config/router/app_router.dart';
 import '../../providers/channels_provider.dart';
+import '../../../auth/providers/auth_provider.dart';
 
 class ChannelDetailScreen extends ConsumerStatefulWidget {
   final String channelId;
@@ -21,6 +22,30 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
   final Map<String, String> _commentInputs = {};
   String? _expandedPostId;
   String? _errorMessage;
+  String? _editingCommentId;
+  final TextEditingController _commentEditorController = TextEditingController();
+  Map<String, TextEditingController>? _postCommentControllersMap;
+  Map<String, TextEditingController> get _postCommentControllers {
+    _postCommentControllersMap ??= {};
+    return _postCommentControllersMap!;
+  }
+
+  TextEditingController _getCommentController(String postId) {
+    final controllers = _postCommentControllers;
+    if (!controllers.containsKey(postId)) {
+      controllers[postId] = TextEditingController();
+    }
+    return controllers[postId]!;
+  }
+
+  @override
+  void dispose() {
+    _commentEditorController.dispose();
+    for (var controller in _postCommentControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -71,15 +96,14 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
   }
 
   Future<void> _handleComment(String postId) async {
-    final text = _commentInputs[postId]?.trim();
-    if (text == null || text.isEmpty) return;
+    final controller = _getCommentController(postId);
+    final text = controller.text.trim();
+    if (text.isEmpty) return;
 
     final service = ref.read(channelServiceProvider);
     final result = await service.commentOnPost(widget.channelId, postId, text);
     if (result.isSuccess) {
-      setState(() {
-        _commentInputs[postId] = '';
-      });
+      controller.clear();
       await _loadInteractions(postId);
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -105,10 +129,51 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
     });
   }
 
+  Future<void> _handleDeleteComment(String postId, String interactionId) async {
+    final service = ref.read(channelServiceProvider);
+    final result = await service.deleteInteraction(widget.channelId, postId, interactionId);
+    if (result.isSuccess) {
+      await _loadInteractions(postId);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.failure.message),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleUpdateComment(String postId, String interactionId) async {
+    final text = _commentEditorController.text.trim();
+    if (text.isEmpty) return;
+
+    final service = ref.read(channelServiceProvider);
+    final result = await service.updateComment(widget.channelId, postId, interactionId, text);
+    if (result.isSuccess) {
+      setState(() {
+        _editingCommentId = null;
+        _commentEditorController.clear();
+      });
+      await _loadInteractions(postId);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.failure.message),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.localizations;
     final channelsAsync = ref.watch(channelsControllerProvider);
+    final authState = ref.watch(authControllerProvider);
+    final currentUserId = authState.user?.id;
 
     final channel = channelsAsync.value?.channels.firstWhere(
       (c) => c.channelId == widget.channelId,
@@ -141,12 +206,12 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
             onPressed: () => ref
                 .read(channelsControllerProvider.notifier)
                 .toggleFollow(widget.channelId),
-            tooltip: channel?.isFollowed == true ? l10n.followingTooltip : l10n.followTooltip,
+            tooltip: channel?.isFollowed == true ? 'Following' : 'Follow',
           ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: _loadData,
-            tooltip: l10n.refreshPostsTooltip,
+            tooltip: 'Refresh',
           ),
         ],
       ),
@@ -258,8 +323,8 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                   if (_posts.isEmpty)
                     SliverFillRemaining(
                       child: Center(
-                        child: Text(
-                          '${l10n.noPostsYet}\n${l10n.counselorUpdatesNote}',
+                        child: const Text(
+                          'No posts yet\nStay tuned for updates from your counselor.',
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: Colors.grey),
                         ),
@@ -270,7 +335,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final post = _posts[index];
-                          return _buildPostCard(post);
+                          return _buildPostCard(post, authState, currentUserId);
                         },
                         childCount: _posts.length,
                       ),
@@ -283,7 +348,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
     );
   }
 
-  Widget _buildPostCard(ChannelPost post) {
+  Widget _buildPostCard(ChannelPost post, AuthState authState, String? currentUserId) {
     final l10n = context.localizations;
     final isExpanded = _expandedPostId == post.id;
     final postInteractions = _interactions[post.id] ?? [];
@@ -425,7 +490,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                 const Spacer(),
                 
                 Text(
-                    '${l10n.reactionsCount(post.reactionCount)} • ${l10n.commentsCount(post.commentCount)}',
+                  '${post.reactionCount} Reactions • ${post.commentCount} Comments',
                   style: const TextStyle(
                     fontSize: 11,
                     color: Color(0xFF7B6AAB),
@@ -453,7 +518,7 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    isExpanded ? l10n.hideComments : l10n.viewComments,
+                    isExpanded ? 'Hide Comments' : 'View Comments',
                     style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                 ],
@@ -475,50 +540,110 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                       child: Text(l10n.noCommentsYet, style: const TextStyle(color: Colors.grey, fontSize: 13)),
                     ),
                   
-                  ...comments.map((c) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 12,
-                          backgroundColor: Colors.grey[300],
-                          child: Text(
-                            (c.userName ?? 'U')[0].toUpperCase(),
-                            style: const TextStyle(fontSize: 10, color: Colors.black54),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                  ...comments.map((c) {
+                    final isEditing = _editingCommentId == c.id;
+                    final isOwner = currentUserId != null && c.userId == currentUserId;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            radius: 12,
+                            backgroundColor: Colors.grey[300],
+                            child: Text(
+                              (c.userName ?? 'U')[0].toUpperCase(),
+                              style: const TextStyle(fontSize: 10, color: Colors.black54),
                             ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  c.userName ?? 'User',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(c.content ?? '', style: const TextStyle(fontSize: 13)),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Flexible(
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                                          ),
+                                          child: isEditing
+                                              ? TextField(
+                                                  controller: _commentEditorController,
+                                                  style: const TextStyle(fontSize: 13),
+                                                  decoration: InputDecoration(
+                                                    isDense: true,
+                                                    contentPadding: EdgeInsets.zero,
+                                                    border: InputBorder.none,
+                                                    suffixIcon: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        IconButton(
+                                                          icon: const Icon(Icons.check, size: 16, color: Colors.green),
+                                                          onPressed: () => _handleUpdateComment(post.id, c.id),
+                                                        ),
+                                                        IconButton(
+                                                          icon: const Icon(Icons.close, size: 16, color: Colors.red),
+                                                          onPressed: () => setState(() => _editingCommentId = null),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                )
+                                              : Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      c.userName ?? 'User',
+                                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                                                    ),
+                                                    const SizedBox(height: 2),
+                                                    Text(c.content ?? '', style: const TextStyle(fontSize: 13)),
+                                                  ],
+                                                ),
+                                        ),
+                                      ),
+                                      if (isOwner && !isEditing) ...[
+                                        const SizedBox(width: 8),
+                                        InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              _editingCommentId = c.id;
+                                              _commentEditorController.text = c.content ?? '';
+                                            });
+                                          },
+                                          child: const Text('Edit', 
+                                            style: TextStyle(fontSize: 11, color: NeuroColors.adolescentPrimary, fontWeight: FontWeight.bold)),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        InkWell(
+                                          onTap: () => _handleDeleteComment(post.id, c.id),
+                                          child: const Text('Delete', 
+                                            style: TextStyle(fontSize: 11, color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                               ],
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  )),
+                        ],
+                      ),
+                    );
+                  }),
                   
                   if (post.allowComments)
                     Row(
                       children: [
                         Expanded(
                           child: TextField(
+                            controller: _getCommentController(post.id),
                             decoration: InputDecoration(
                               hintText: l10n.addCommentHint,
                               hintStyle: const TextStyle(fontSize: 13),
@@ -534,9 +659,6 @@ class _ChannelDetailScreenState extends ConsumerState<ChannelDetailScreen> {
                                 borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
                               ),
                             ),
-                            onChanged: (val) {
-                              _commentInputs[post.id] = val;
-                            },
                           ),
                         ),
                         IconButton(

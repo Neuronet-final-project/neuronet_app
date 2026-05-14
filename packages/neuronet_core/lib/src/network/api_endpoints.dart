@@ -24,6 +24,8 @@ class ApiEndpoints {
   static const String forgotPassword = '/auth/forgot-password';
   static const String verifyResetOtp = '/auth/verify-reset-otp';
   static const String resetPassword = '/auth/reset-password';
+  static const String verifyRegistration = '/auth/verify-registration';
+  static const String resendRegistrationOtp = '/auth/resend-registration-otp';
 
   // Dashboard
   static const String guardianDashboard = '/dashboard/guardian';
@@ -38,7 +40,7 @@ class ApiEndpoints {
   static const String moods = '/moods/';
   static const String myMoods = '/moods/me';
 
-  // Alerts
+  
   static const String guardianAlerts = '/alerts/guardian/me';
   static const String counselorAlerts = '/alerts/counselor/me';
   static String alertsByAdolescent(String id) => '/alerts/adolescent/$id';
@@ -60,6 +62,8 @@ class ApiEndpoints {
   static const String conversations = '/messaging/conversations';
   static String conversationMessages(String id) => '/messaging/conversations/$id/messages';
   static String sendConversationMessage(String id) => '/messaging/conversations/$id/messages'; // POST
+  static String deleteConversationMessage(String conversationId, String messageId) =>
+      '/messaging/conversations/$conversationId/messages/$messageId';
   static String markConversationAsRead(String id) => '/messaging/conversations/$id/mark-read'; // POST
   static String conversationUnreadCount(String id) => '/messaging/conversations/$id/unread-count';
   static const String totalUnreadCount = '/messaging/unread-count/total';
@@ -82,6 +86,7 @@ class ApiEndpoints {
   static const String myChannels = '/channels/me';
   static const String channels = '/channels';
   static String channelSubscribe(String id) => '/channels/$id/subscribe';
+  static String channelUnsubscribe(String id) => '/channels/$id/unsubscribe';
   // Channel Posts & Interactions
   static String channelPosts(String id) => '/channels/$id/posts';
   static String channelPost(String channelId, String postId) => '/channels/$channelId/posts/$postId';
@@ -89,6 +94,8 @@ class ApiEndpoints {
   static String channelInteract(String channelId, String postId) => '/channels/$channelId/posts/$postId/interact';
   static String channelModerate(String channelId, String postId, String interactionId) =>
       '/channels/$channelId/posts/$postId/interactions/$interactionId/moderate';
+  static String channelInteractionDetail(String channelId, String postId, String interactionId) =>
+      '/channels/$channelId/posts/$postId/interactions/$interactionId';
 
 
   // Educational Pages

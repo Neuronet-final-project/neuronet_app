@@ -7,6 +7,7 @@ import 'package:neuronet_core/neuronet_core.dart';
 import 'package:guardian_app/features/auth/providers/auth_provider.dart';
 import 'package:guardian_app/features/profile/providers/profile_provider.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
+import 'package:guardian_app/features/ui/l10n_utils.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -316,7 +317,7 @@ class _ProfileHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    user.accountStatus.name.toUpperCase(),
+                    user.accountStatus.localizedLabel(context.localizations).toUpperCase(),
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,

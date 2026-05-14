@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../providers/approval_provider.dart';
+import '../../../ui/l10n_utils.dart';
 
 class ApprovalsScreen extends ConsumerWidget {
   const ApprovalsScreen({super.key});
@@ -13,7 +14,7 @@ class ApprovalsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Approval Requests'),
+        title: Text(context.localizations.approvalRequests),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -26,7 +27,7 @@ class ApprovalsScreen extends ConsumerWidget {
           if (state.error != null) {
             return Center(
               child: NeuroErrorWidget(
-                message: state.error!,
+                message: translateError(context, state.error),
                 onRetry: () => ref.read(guardianApprovalControllerProvider.notifier).refresh(),
               ),
             );
@@ -35,8 +36,8 @@ class ApprovalsScreen extends ConsumerWidget {
           if (state.pendingApprovals.isEmpty && state.historyApprovals.isEmpty) {
             return Center(
               child: NeuroEmptyState(
-                title: 'No Approval Requests',
-                message: 'Approval requests from your adolescents will appear here',
+                title: context.localizations.noApprovalRequests,
+                message: context.localizations.noApprovalRequestsDesc,
                 icon: Icons.check_circle_outline,
                 color: theme.colorScheme.primary,
               ),
@@ -53,7 +54,7 @@ class ApprovalsScreen extends ConsumerWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Pending'),
+                          Text(context.localizations.pending),
                           if (state.pendingApprovals.isNotEmpty) ...[
                             const SizedBox(width: 8),
                             Container(
@@ -75,14 +76,14 @@ class ApprovalsScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    const Tab(text: 'History'),
+                    Tab(text: context.localizations.history),
                   ],
                 ),
                 Expanded(
                   child: TabBarView(
                     children: [
-                      _buildPendingList(state.pendingApprovals, theme, ref),
-                      _buildHistoryList(state.historyApprovals, theme),
+                      _buildPendingList(context, state.pendingApprovals, theme, ref),
+                      _buildHistoryList(context, state.historyApprovals, theme),
                     ],
                   ),
                 ),
@@ -93,7 +94,7 @@ class ApprovalsScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(
           child: NeuroErrorWidget(
-            message: 'Failed to load approval requests',
+            message: context.localizations.failedToLoadApprovals,
             onRetry: () => ref.read(guardianApprovalControllerProvider.notifier).refresh(),
           ),
         ),
@@ -101,12 +102,12 @@ class ApprovalsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPendingList(List<GuardianApproval> approvals, ThemeData theme, WidgetRef ref) {
+  Widget _buildPendingList(BuildContext context, List<GuardianApproval> approvals, ThemeData theme, WidgetRef ref) {
     if (approvals.isEmpty) {
       return Center(
         child: NeuroEmptyState(
-          title: 'No Pending Requests',
-          message: 'All approval requests have been reviewed',
+          title: context.localizations.noPendingRequests,
+          message: context.localizations.noPendingRequestsDesc,
           icon: Icons.done_all,
           color: theme.colorScheme.primary,
         ),
@@ -124,12 +125,12 @@ class ApprovalsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHistoryList(List<GuardianApproval> approvals, ThemeData theme) {
+  Widget _buildHistoryList(BuildContext context, List<GuardianApproval> approvals, ThemeData theme) {
     if (approvals.isEmpty) {
       return Center(
         child: NeuroEmptyState(
-          title: 'No History',
-          message: 'Reviewed approval requests will appear here',
+          title: context.localizations.noHistory,
+          message: context.localizations.noHistoryDesc,
           icon: Icons.history,
           color: theme.colorScheme.primary,
         ),
@@ -176,32 +177,31 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(approved ? 'Request approved' : 'Request denied'),
+            content: Text(approved
+                ? context.localizations.requestApproved
+                : context.localizations.requestDenied),
             backgroundColor: approved ? Colors.green : Colors.red,
           ),
         );
       }
-    }
-  }
+    }  }
 
   Future<void> _revoke() async {
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Revoke Approval'),
-        content: const Text(
-          'Are you sure you want to revoke this approval? The adolescent will no longer be able to communicate with this counselor, but can request approval again.',
-        ),
+        title: Text(context.localizations.revokeApproval),
+        content: Text(context.localizations.revokeApprovalDesc),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.localizations.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Revoke'),
+            child: Text(context.localizations.revoke),
           ),
         ],
       ),
@@ -219,8 +219,8 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
       setState(() => _isResponding = false);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Approval revoked successfully'),
+          SnackBar(
+            content: Text(context.localizations.approvalRevokedSuccess),
             backgroundColor: Colors.orange,
           ),
         );
@@ -258,13 +258,13 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.approval.adolescentName ?? 'Adolescent',
+                        widget.approval.adolescentName ?? context.localizations.adolescent,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        'wants to communicate with counselor',
+                        context.localizations.wantsToCommunicate,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -282,7 +282,7 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      widget.approval.status.toUpperCase(),
+                      translateApprovalStatus(context, widget.approval.status).toUpperCase(),
                       style: TextStyle(
                         color: widget.approval.status == 'approved' ? Colors.green : Colors.red,
                         fontSize: 12,
@@ -311,7 +311,7 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Counselor',
+                        context.localizations.counselorLabel,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -351,7 +351,7 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Reason',
+                          context.localizations.reasonLabel,
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: theme.colorScheme.onSecondaryContainer,
                           ),
@@ -369,7 +369,7 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
             ],
             const SizedBox(height: 12),
             Text(
-              'Requested ${_formatDate(widget.approval.createdAt)}',
+              context.localizations.requestedDateLabel(_formatDate(context, widget.approval.createdAt)),
               style: theme.textTheme.labelSmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -382,7 +382,7 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
                     child: OutlinedButton.icon(
                       onPressed: _isResponding ? null : () => _respond(false),
                       icon: const Icon(Icons.close),
-                      label: const Text('Deny'),
+                      label: Text(context.localizations.deny),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: theme.colorScheme.error,
                         side: BorderSide(color: theme.colorScheme.error),
@@ -394,7 +394,7 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
                     child: FilledButton.icon(
                       onPressed: _isResponding ? null : () => _respond(true),
                       icon: const Icon(Icons.check),
-                      label: const Text('Approve'),
+                      label: Text(context.localizations.approve),
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.green,
                       ),
@@ -409,7 +409,7 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
                 child: OutlinedButton.icon(
                   onPressed: _isResponding ? null : _revoke,
                   icon: const Icon(Icons.block),
-                  label: const Text('Revoke Approval'),
+                  label: Text(context.localizations.revokeApproval),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.orange,
                     side: const BorderSide(color: Colors.orange),
@@ -423,18 +423,18 @@ class _ApprovalCardState extends ConsumerState<_ApprovalCard> {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
 
     if (diff.inDays > 0) {
-      return '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
+      return context.localizations.daysAgo(diff.inDays);
     } else if (diff.inHours > 0) {
-      return '${diff.inHours} hour${diff.inHours > 1 ? 's' : ''} ago';
+      return context.localizations.hoursAgo(diff.inHours);
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes} minute${diff.inMinutes > 1 ? 's' : ''} ago';
+      return context.localizations.minutesAgo(diff.inMinutes);
     } else {
-      return 'Just now';
+      return context.localizations.justNow;
     }
   }
 }

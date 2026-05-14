@@ -25,6 +25,13 @@ class NotificationService extends _$NotificationService {
   Completer<void>? _initCompleter;
   final List<StreamSubscription> _subscriptions = [];
 
+  /// Broadcasts FCM data payloads whenever a foreground chat message arrives.
+  /// Chat providers can listen to this to refresh immediately.
+  final StreamController<Map<String, dynamic>> _chatMessageController =
+      StreamController<Map<String, dynamic>>.broadcast();
+
+  Stream<Map<String, dynamic>> get onChatMessage => _chatMessageController.stream;
+
   @override
   FutureOr<void> build() async {
     // We don't await here to keep build() sync-like, but it starts the process
@@ -36,6 +43,7 @@ class NotificationService extends _$NotificationService {
         sub.cancel();
       }
       _subscriptions.clear();
+      _chatMessageController.close();
       _initialized = false;
       _initCompleter = null;
     });
@@ -168,6 +176,12 @@ class NotificationService extends _$NotificationService {
         title = 'System Update';
         body = 'You have a new notification';
       }
+    }
+
+    // 🔔 Fire chat stream so chat providers refresh immediately
+    if (message.data['type'] == 'chat' || message.data.containsKey('conversation_id')) {
+      debugPrint('[NotificationService] 📨 Chat FCM received — notifying chat providers');
+      _chatMessageController.add(message.data);
     }
 
     if (title != null && _localNotifications != null) {

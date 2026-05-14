@@ -3,9 +3,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:neuronet_core/neuronet_core.dart';
+import 'package:intl/intl.dart';
 import '../../../../config/theme/guardian_theme.dart';
 import '../../../dashboard/providers/dashboard_provider.dart';
 import '../../../ui/bento_card.dart';
+import '../../../ui/l10n_utils.dart';
 
 class AlertDetailsScreen extends ConsumerStatefulWidget {
   final String alertId;
@@ -48,9 +50,9 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                   onPressed: () => context.pop(),
                   color: NeuroColors.onSurface,
                 ),
-                title: const Text(
-                  'Alert Analysis',
-                  style: TextStyle(
+                title: Text(
+                  context.localizations.alertAnalysis,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: NeuroColors.guardianPrimaryDark,
@@ -65,17 +67,17 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                 SliverFillRemaining(
                   child: Center(
                     child: NeuroErrorWidget(
-                      message: 'Error: ${state.error}',
+                      message: '${context.localizations.errorPrefix}: ${state.error}',
                       onRetry: () => ref.read(guardianAlertsControllerProvider.notifier).refresh(),
                     ),
                   ),
                 )
               else if (alert == null)
-                const SliverFillRemaining(
+                SliverFillRemaining(
                   child: Center(
                     child: NeuroEmptyState(
-                      title: 'Alert Not Found',
-                      message: 'This alert may have been resolved or deleted.',
+                      title: context.localizations.alertNotFound,
+                      message: context.localizations.alertNotFoundDesc,
                       icon: Icons.warning_amber_outlined,
                       color: NeuroColors.onSurfaceVariant,
                     ),
@@ -125,7 +127,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: NeuroButton(
                             onPressed: () => _resolveAlert(alert),
-                            label: 'Mark as Resolved',
+                            label: context.localizations.markAsResolved,
                             borderRadius: 16,
                           ),
                         ).animate(delay: 750.ms).fadeIn().scale(begin: const Offset(0.9, 0.9)),
@@ -137,7 +139,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text('${context.localizations.errorPrefix}: $err')),
       ),
     );
   }
@@ -163,7 +165,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  alert.severityLevel.toUpperCase(),
+                  context.localizations.severityRisk(translateAlertSeverity(context, alert.severityLevel).toUpperCase()),
                   style: TextStyle(
                     color: isHighSeverity 
                         ? NeuroColors.alertHigh 
@@ -181,7 +183,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
               .scale(begin: const Offset(1, 1), end: const Offset(1.05, 1.05)),
               const Spacer(),
               Text(
-                '${alert.createdAt.day}/${alert.createdAt.month}/${alert.createdAt.year}',
+                DateFormat('dd/MM/yyyy').format(alert.createdAt),
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 12,
@@ -201,7 +203,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            alert.mainConcern.isNotEmpty ? alert.mainConcern : 'General Behavioral Check',
+            alert.mainConcern.isNotEmpty ? alert.mainConcern : context.localizations.generalBehavioralCheck,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.9),
               fontSize: 16,
@@ -225,7 +227,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
               const Icon(Icons.psychology_outlined, color: NeuroColors.guardianPrimary, size: 22),
               const SizedBox(width: 10),
               Text(
-                'AI Analysis'.toUpperCase(),
+                context.localizations.aiInsight.toUpperCase(),
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
@@ -260,7 +262,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Emotional Context'.toUpperCase(),
+            context.localizations.emotionalContext.toUpperCase(),
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w900,
@@ -304,7 +306,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Trigger Pattern'.toUpperCase(),
+            context.localizations.triggerPattern.toUpperCase(),
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w900,
@@ -313,7 +315,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildDetailRow('Type', alert.alertType.replaceAll('_', ' ').toUpperCase()),
+          _buildDetailRow(context.localizations.role, alert.alertType.replaceAll('_', ' ').toUpperCase()),
           const Divider(height: 24, thickness: 0.5),
           Text(
             alert.triggerDescription,
@@ -359,9 +361,9 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Resolution & Guardrail',
-            style: TextStyle(
+          Text(
+            context.localizations.resolutionGuardrail,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
             ),
@@ -371,7 +373,7 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
             controller: _notesController,
             maxLines: 4,
             decoration: InputDecoration(
-              hintText: 'Enter observations or actions taken...',
+              hintText: context.localizations.enterObservations,
               hintStyle: TextStyle(color: NeuroColors.onSurface.withValues(alpha: 0.3)),
               filled: true,
               fillColor: Colors.white,
@@ -411,14 +413,14 @@ class _AlertDetailsScreenState extends ConsumerState<AlertDetailsScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Alert resolved successfully')),
+          SnackBar(content: Text(context.localizations.alertResolvedSuccess)),
         );
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to resolve alert: $e')),
+          SnackBar(content: Text(context.localizations.failedToResolveAlert(e.toString()))),
         );
       }
     }

@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:collection/collection.dart';
+import 'package:intl/intl.dart';
 import 'package:guardian_app/config/router/app_router.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import '../../../ui/bento_card.dart';
 import '../../providers/adolescent_provider.dart';
+import '../../../ui/l10n_utils.dart';
 
 class AdolescentDetailScreen extends ConsumerWidget {
   final String adolescentId;
@@ -33,9 +35,9 @@ class AdolescentDetailScreen extends ConsumerWidget {
               onPressed: () => context.pop(),
               color: NeuroColors.onSurface,
             ),
-            title: const Text(
-              'Adolescent Profile',
-              style: TextStyle(
+            title: Text(
+              context.localizations.adolescentProfile,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: NeuroColors.guardianPrimaryDark,
@@ -59,7 +61,11 @@ class AdolescentDetailScreen extends ConsumerWidget {
               final profile = state.profile;
               if (profile == null) {
                 return SliverFillRemaining(
-                  child: _buildErrorState(ref, 'Profile not found', adolescentId),
+                  child: _buildErrorState(
+                    ref,
+                    context.localizations.profileNotFound,
+                    adolescentId,
+                  ),
                 );
               }
 
@@ -73,7 +79,11 @@ class AdolescentDetailScreen extends ConsumerWidget {
               child: Center(child: CircularProgressIndicator()),
             ),
             error: (err, stack) => SliverFillRemaining(
-              child: _buildErrorState(ref, 'Error: $err', adolescentId),
+              child: _buildErrorState(
+                ref,
+                '${context.localizations.errorPrefix}: $err',
+                adolescentId,
+              ),
             ),
           ),
         ],
@@ -98,7 +108,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
             .slideY(begin: 0.1, curve: Curves.easeOutQuad),
         const SizedBox(height: 24),
         
-        _buildSectionTitle('Intervention Hub')
+        _buildSectionTitle(context.localizations.interventionHub)
             .animate()
             .fadeIn(delay: 200.ms),
         _buildActionGrid(context, profile)
@@ -107,42 +117,48 @@ class AdolescentDetailScreen extends ConsumerWidget {
             .slideY(begin: 0.2, curve: Curves.easeOutQuad),
         const SizedBox(height: 32),
 
-        _buildSectionTitle('Registration Details')
+        _buildSectionTitle(context.localizations.registrationDetails)
             .animate()
             .fadeIn(delay: 400.ms),
         _buildSectionCard([
-          _buildDetailRow('Full Name', profile.fullName),
+          _buildDetailRow(context.localizations.fullName, profile.fullName),
           const Divider(height: 24, thickness: 0.5),
-          _buildDetailRow('Email', profile.email),
+          _buildDetailRow(context.localizations.emailAddress, profile.email),
           const Divider(height: 24, thickness: 0.5),
           _buildDetailRow(
-            'Relationship',
-            profile.relationship?.name.toUpperCase() ?? 'N/A',
+            context.localizations.relationship,
+            profile.relationship != null
+                ? profile.relationship!.localizedLabel(context.localizations)
+                : context.localizations.notAvailable,
           ),
           const Divider(height: 24, thickness: 0.5),
           _buildDetailRow(
-            'Account Status',
-            profile.accountStatus?.name.toUpperCase() ?? 'ACTIVE',
+            context.localizations.accountStatus,
+            profile.accountStatus != null
+                ? profile.accountStatus!.localizedLabel(context.localizations)
+                : context.localizations.statusActive,
           ),
           const Divider(height: 24, thickness: 0.5),
           _buildDetailRow(
-            'Linked Since',
-            profile.createdAt?.toIso8601String().split('T')[0] ?? 'N/A',
+            context.localizations.linkedSince,
+            profile.createdAt != null 
+                ? DateFormat('MMM d, yyyy').format(profile.createdAt!) 
+                : context.localizations.unknownDate,
           ),
         ]).animate()
           .fadeIn(delay: 500.ms)
           .slideY(begin: 0.2, curve: Curves.easeOutQuad),
         const SizedBox(height: 32),
 
-        _buildSectionTitle('Active Permissions')
+        _buildSectionTitle(context.localizations.activePermissions)
             .animate()
             .fadeIn(delay: 600.ms),
         _buildSectionCard([
           if (consents.isEmpty)
-            const NeuroEmptyState(
+            NeuroEmptyState(
               isMini: true,
-              title: 'No Consents Found',
-              message: 'No consents record found for this account.',
+              title: context.localizations.noConsentsFound,
+              message: context.localizations.noConsentsFoundDesc,
               icon: Icons.assignment_late_outlined,
               color: NeuroColors.guardianPrimary,
             )
@@ -152,7 +168,8 @@ class AdolescentDetailScreen extends ConsumerWidget {
                 children: [
                   if (index > 0) const Divider(height: 24, thickness: 0.5),
                   _buildConsentEntry(
-                    c.consentType.label,
+                    context,
+                    c.consentType.localizedLabel(context.localizations),
                     c.consentStatus == ConsentStatus.granted,
                   ),
                 ],
@@ -164,7 +181,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
             child: TextButton.icon(
               onPressed: () => context.go(GuardianRoutes.consent),
               icon: const Icon(Icons.settings_outlined, size: 18),
-              label: const Text('Manage All Consents'),
+              label: Text(context.localizations.manageAllConsents),
               style: TextButton.styleFrom(
                 foregroundColor: NeuroColors.guardianPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -177,24 +194,6 @@ class AdolescentDetailScreen extends ConsumerWidget {
           .fadeIn(delay: 700.ms)
           .slideY(begin: 0.2, curve: Curves.easeOutQuad),
         
-        const SizedBox(height: 48),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.link_off_rounded, size: 20),
-              label: const Text('Unlink This Account'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                foregroundColor: NeuroColors.error,
-                side: const BorderSide(color: NeuroColors.error, width: 1),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-            ),
-          ),
-        ).animate(delay: 800.ms).fadeIn(),
         const SizedBox(height: 40),
       ],
     );
@@ -262,9 +261,9 @@ class AdolescentDetailScreen extends ConsumerWidget {
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    'PERSONAL ACCOUNT',
-                    style: TextStyle(
+                  child: Text(
+                    context.localizations.personalAccountTag,
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -296,8 +295,8 @@ class AdolescentDetailScreen extends ConsumerWidget {
                     );
                   },
                   icon: Icons.chat_bubble_outline_rounded,
-                  label: 'Counselor',
-                  subtitle: 'Send message',
+                  label: context.localizations.counselorLabel,
+                  subtitle: context.localizations.sendMessage,
                   color: NeuroColors.guardianPrimary,
                 ),
               ),
@@ -311,8 +310,8 @@ class AdolescentDetailScreen extends ConsumerWidget {
                     );
                   },
                   icon: Icons.auto_awesome_outlined,
-                  label: 'AI Guide',
-                  subtitle: 'View tips',
+                  label: context.localizations.aiGuide,
+                  subtitle: context.localizations.viewTips,
                   color: const Color(0xFF8B5CF6),
                 ),
               ),
@@ -330,8 +329,8 @@ class AdolescentDetailScreen extends ConsumerWidget {
                     );
                   },
                   icon: Icons.library_books_outlined,
-                  label: 'Follows',
-                  subtitle: 'Educational pages',
+                  label: context.localizations.followsLabel,
+                  subtitle: context.localizations.educationalPagesSubtitle,
                   color: const Color(0xFF10B981),
                 ),
               ),
@@ -432,7 +431,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildConsentEntry(String title, bool isEnabled) {
+  Widget _buildConsentEntry(BuildContext context, String title, bool isEnabled) {
     return Row(
       children: [
         Container(
@@ -470,7 +469,7 @@ class AdolescentDetailScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            isEnabled ? 'ACTIVE' : 'DISABLED',
+            isEnabled ? context.localizations.activeStatus : context.localizations.disabledStatus,
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w900,

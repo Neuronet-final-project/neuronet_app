@@ -14,6 +14,12 @@ abstract class CounselorChatState with _$CounselorChatState {
     Conversation? conversation,
     /// Counselor email extracted from conversation participants.
     String? counselorEmail,
+<<<<<<< HEAD
+    /// Counselor name for display (from assigned counselors list)
+=======
+    /// Counselor display name (if available).
+>>>>>>> e9ba7f7f6f9ea0c2c384abf5f5ca95832bf9face
+    String? counselorName,
     @Default([]) List<ConversationMessage> messages,
     @Default(false) bool isLoading,
     String? error,
@@ -23,10 +29,37 @@ abstract class CounselorChatState with _$CounselorChatState {
 
 @riverpod
 class CounselorChatController extends _$CounselorChatController {
+  bool _isRefreshing = false;
+  bool _isSending = false;
+
   @override
   FutureOr<CounselorChatState> build(String adolescentId) async {
+    // Listen to FCM chat events for instant refresh
+    final notifService = ref.read(notificationServiceProvider.notifier);
+    final fcmSub = notifService.onChatMessage.listen((_) {
+      debugPrint('[GuardianCounselorChat] 📨 FCM chat event received — refreshing immediately');
+      _silentRefresh();
+    });
+<<<<<<< HEAD
+
+    // Add aggressive periodic polling every 2 seconds as a fallback and to match web dashboard behavior
+    final pollTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      _silentRefresh();
+    });
+
+    ref.onDispose(() {
+      fcmSub.cancel();
+      pollTimer.cancel();
+=======
+    // Clean up FCM subscription when provider is disposed
+    ref.onDispose(() {
+      fcmSub.cancel();
+>>>>>>> e9ba7f7f6f9ea0c2c384abf5f5ca95832bf9face
+    });
+
     try {
       final messagingService = ref.watch(messagingServiceProvider);
+      final authService = ref.watch(authServiceProvider);
 
       // Get guardian email from auth to filter out from participants
       final authState = ref.watch(authControllerProvider);
@@ -59,7 +92,20 @@ class CounselorChatController extends _$CounselorChatController {
       final counselorEmail = conversation.participants
           .where((p) => p.toLowerCase() != guardianEmail)
           .firstOrNull;
-      debugPrint('[GuardianCounselorChat]   Counselor: $counselorEmail');
+      debugPrint('[GuardianCounselorChat]   Counselor email: $counselorEmail');
+
+      // Fetch counselor name
+      String? counselorName;
+      if (counselorEmail != null) {
+        final counselorsResult = await authService.getAssignedCounselors(adolescentId);
+        if (counselorsResult.isSuccess) {
+          final matched = counselorsResult.value.where((c) => 
+            (c['email'] as String).toLowerCase() == counselorEmail.toLowerCase()
+          ).firstOrNull;
+          counselorName = matched?['full_name'] as String?;
+          debugPrint('[GuardianCounselorChat]   Counselor name: $counselorName');
+        }
+      }
 
       debugPrint('[GuardianCounselorChat] Step 2: Fetching messages');
       final messagesResult = await messagingService.getMessages(conversation.id);
@@ -68,6 +114,7 @@ class CounselorChatController extends _$CounselorChatController {
         return CounselorChatState(
           conversation: conversation,
           counselorEmail: counselorEmail,
+          counselorName: counselorName,
           error: messagesResult.failure.message,
         );
       }
@@ -82,8 +129,10 @@ class CounselorChatController extends _$CounselorChatController {
       return CounselorChatState(
         conversation: conversation,
         counselorEmail: counselorEmail,
+        counselorName: counselorName,
         messages: messagesResult.value,
       );
+
     } catch (e) {
       if (e.toString().contains('no_assigned_counselor')) {
         debugPrint('[GuardianCounselorChat] ✗ No counselor assigned (exception path)');
@@ -94,9 +143,60 @@ class CounselorChatController extends _$CounselorChatController {
     }
   }
 
+  // ── Silent refresh triggered by FCM ──────────────────────────────────────────
+
+  Future<void> _silentRefresh() async {
+    final currentConversation = state.value?.conversation;
+    if (currentConversation == null || _isRefreshing || _isSending) return;
+
+    _isRefreshing = true;
+    try {
+      final result = await ref.read(messagingServiceProvider).getMessages(currentConversation.id);
+      if (result.isSuccess) {
+        final currentState = state.value;
+        if (currentState != null) {
+          final newMsgs = result.value;
+          final oldMsgs = currentState.messages;
+          final latestNewId = newMsgs.isNotEmpty ? newMsgs.last.id : null;
+          final latestOldId = oldMsgs.isNotEmpty ? oldMsgs.last.id : null;
+          if (true) { // Force update whenever new data arrives for real-time feel
+            debugPrint('[GuardianCounselorChat] 🔄 Aggressive refresh: ${oldMsgs.length} → ${newMsgs.length} messages');
+            state = AsyncValue.data(currentState.copyWith(
+              messages: _mergeAndSortMessages(oldMsgs, newMsgs),
+            ));
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[GuardianCounselorChat] ⚠ Silent refresh failed: $e');
+    } finally {
+      _isRefreshing = false;
+    }
+  }
+
+  List<ConversationMessage> _mergeAndSortMessages(
+    List<ConversationMessage> existing,
+    List<ConversationMessage> incoming,
+  ) {
+    final Map<String, ConversationMessage> messageMap = {
+      for (var m in existing) m.id: m,
+    };
+
+    // Incoming messages from server always win
+    for (var m in incoming) {
+      messageMap[m.id] = m;
+    }
+
+    final sortedList = messageMap.values.toList();
+    sortedList.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return sortedList;
+  }
+
   Future<void> sendMessage(String content) async {
     final currentConversation = state.value?.conversation;
-    if (currentConversation == null || content.trim().isEmpty) return;
+    if (currentConversation == null || content.trim().isEmpty || _isSending) return;
+
+    _isSending = true;
 
     debugPrint('[GuardianCounselorChat] ── Sending message ──');
     debugPrint('[GuardianCounselorChat]   - Conversation ID: ${currentConversation.id}');
@@ -134,22 +234,16 @@ class CounselorChatController extends _$CounselorChatController {
       final sentMessage = sendResult.value;
       debugPrint('[GuardianCounselorChat] ✓ Message sent successfully');
       debugPrint('[GuardianCounselorChat]   - Message ID: ${sentMessage.id}');
-      debugPrint('[GuardianCounselorChat]   - Sender: ${sentMessage.senderRole}');
-      debugPrint('[GuardianCounselorChat]   - Timestamp: ${sentMessage.createdAt}');
 
-      // Refresh messages to get the real one from backend
-      debugPrint('[GuardianCounselorChat] Step 3: Refreshing messages to replace optimistic update');
-      final messagesResult = await messagingService.getMessages(currentConversation.id);
-      if (messagesResult.isSuccess) {
-        debugPrint('[GuardianCounselorChat] ✓ Refreshed ${messagesResult.value.length} message(s)');
-        state = AsyncData(previousState.copyWith(messages: messagesResult.value));
-      } else {
-        debugPrint('[GuardianCounselorChat] ✗ Refresh failed: ${messagesResult.failure.message}');
-      }
+      state = AsyncData(previousState.copyWith(
+        messages: _mergeAndSortMessages(previousState.messages, [sentMessage]),
+      ));
       debugPrint('[GuardianCounselorChat] ── Guardian message send complete ──');
     } catch (e) {
       debugPrint('[GuardianCounselorChat] ✗ Send exception: $e');
       state = AsyncData(previousState.copyWith(error: 'Failed to send message: $e'));
+    } finally {
+      _isSending = false;
     }
   }
 
@@ -175,14 +269,13 @@ class CounselorChatController extends _$CounselorChatController {
         return;
       }
 
+      final sentMessage = sendResult.value;
       debugPrint('[GuardianCounselorChat] ✓ Voice message sent successfully');
 
-      // Refresh messages to get the real one from backend
-      final messagesResult = await messagingService.getMessages(currentConversation.id);
-      if (messagesResult.isSuccess) {
-        final previousState = state.value!;
-        state = AsyncData(previousState.copyWith(messages: messagesResult.value));
-      }
+      final previousState = state.value!;
+      state = AsyncData(previousState.copyWith(
+        messages: _mergeAndSortMessages(previousState.messages, [sentMessage]),
+      ));
     } catch (e) {
       debugPrint('[GuardianCounselorChat] ✗ Send exception: $e');
       final previousState = state.value!;
@@ -212,14 +305,13 @@ class CounselorChatController extends _$CounselorChatController {
         return;
       }
 
+      final sentMessage = sendResult.value;
       debugPrint('[GuardianCounselorChat] ✓ ${messageType.name} message sent successfully');
 
-      // Refresh messages to get the real one from backend
-      final messagesResult = await messagingService.getMessages(currentConversation.id);
-      if (messagesResult.isSuccess) {
-        final previousState = state.value!;
-        state = AsyncData(previousState.copyWith(messages: messagesResult.value));
-      }
+      final previousState = state.value!;
+      state = AsyncData(previousState.copyWith(
+        messages: _mergeAndSortMessages(previousState.messages, [sentMessage]),
+      ));
     } catch (e) {
       debugPrint('[GuardianCounselorChat] ✗ Send exception: $e');
       final previousState = state.value!;

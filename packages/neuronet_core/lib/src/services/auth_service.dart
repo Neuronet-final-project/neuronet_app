@@ -38,13 +38,13 @@ class AuthService {
     }
   }
 
-  Future<Result<void>> register(GuardianRegisterRequest request) async {
+  Future<Result<Map<String, dynamic>>> register(GuardianRegisterRequest request) async {
     try {
-      await _apiClient.post(
+      final response = await _apiClient.post(
         ApiEndpoints.register,
         data: request.toJson(),
       );
-      return const Result.success(null);
+      return Result.success(response.data as Map<String, dynamic>);
     } catch (e) {
       return Result.failure(failureFromException(e));
     }
@@ -236,6 +236,32 @@ class AuthService {
       await _apiClient.post(
         ApiEndpoints.resetPassword,
         data: {'email': email, 'token': token, 'new_password': newPassword},
+      );
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Verify the 6-digit OTP sent during guardian registration
+  Future<Result<void>> verifyRegistration(String email, String otp) async {
+    try {
+      await _apiClient.post(
+        ApiEndpoints.verifyRegistration,
+        data: {'email': email, 'otp': otp},
+      );
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Resend the registration verification OTP
+  Future<Result<void>> resendRegistrationOtp(String email) async {
+    try {
+      await _apiClient.post(
+        ApiEndpoints.resendRegistrationOtp,
+        data: {'email': email},
       );
       return const Result.success(null);
     } catch (e) {

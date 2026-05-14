@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 
 // Feature screens
@@ -308,63 +307,70 @@ final guardianRouterProvider = Provider<GoRouter>((ref) {
 });
 
 /// Shell widget with bottom navigation for the Guardian app.
-class GuardianShell extends StatelessWidget {
+class GuardianShell extends ConsumerWidget {
   const GuardianShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
+    final callState = ref.watch(callControllerProvider);
+    final isInCall = callState.value?.currentCall != null;
 
     return Scaffold(
       body: SafeArea(child: navigationShell),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 20,
-              color: Colors.black.withValues(alpha: 0.05),
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
-            child: GNav(
-              rippleColor: primaryColor.withValues(alpha: 0.1),
-              hoverColor: primaryColor.withValues(alpha: 0.05),
-              gap: 8,
-              activeColor: Colors.white, // Active icon is now white
-              iconSize: 20,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              duration: const Duration(milliseconds: 400),
-              tabBackgroundColor: primaryColor, // Brand color for the pill
-              color: NeuroColors.onSurfaceVariant, // Unselected icon color
-              selectedIndex: navigationShell.currentIndex,
-              onTabChange: (index) {
-                navigationShell.goBranch(
-                  index,
-                  initialLocation: index == navigationShell.currentIndex,
-                );
-              },
-              tabs: const [
-                GButton(icon: Icons.dashboard_rounded, text: 'Dashboard'),
-                GButton(
-                  icon: Icons.notifications_active_rounded,
-                  text: 'Alerts',
+      bottomNavigationBar: isInCall
+          ? null
+          : Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 20,
+                    color: Colors.black.withValues(alpha: 0.05),
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
+                  child: GNav(
+                    rippleColor: primaryColor.withValues(alpha: 0.1),
+                    hoverColor: primaryColor.withValues(alpha: 0.05),
+                    gap: 8,
+                    activeColor: Colors.white, // Active icon is now white
+                    iconSize: 20,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    duration: const Duration(milliseconds: 400),
+                    tabBackgroundColor: primaryColor, // Brand color for the pill
+                    color:
+                        NeuroColors.onSurfaceVariant, // Unselected icon color
+                    selectedIndex: navigationShell.currentIndex,
+                    onTabChange: (index) {
+                      navigationShell.goBranch(
+                        index,
+                        initialLocation: index == navigationShell.currentIndex,
+                      );
+                    },
+                    tabs: const [
+                      GButton(icon: Icons.dashboard_rounded, text: 'Dashboard'),
+                      GButton(
+                        icon: Icons.notifications_active_rounded,
+                        text: 'Alerts',
+                      ),
+                      GButton(icon: Icons.forum_rounded, text: 'Message'),
+                      GButton(icon: Icons.shield_rounded, text: 'Privacy'),
+                      GButton(icon: Icons.person_rounded, text: 'Profile'),
+                    ],
+                  ),
                 ),
-                GButton(icon: Icons.forum_rounded, text: 'Message'),
-                GButton(icon: Icons.shield_rounded, text: 'Privacy'),
-                GButton(icon: Icons.person_rounded, text: 'Profile'),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

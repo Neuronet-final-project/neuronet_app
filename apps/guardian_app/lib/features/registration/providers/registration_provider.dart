@@ -49,11 +49,19 @@ class RegistrationController extends _$RegistrationController {
   Future<void> submit() async {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (state.name.isEmpty || state.email.isEmpty || state.dateOfBirth == null) {
-      state = state.copyWith(error: 'Please fill in all required fields');
+      state = state.copyWith(error: 'pleaseFillRequiredFields');
       return;
     }
     if (!emailRegex.hasMatch(state.email)) {
-      state = state.copyWith(error: 'Please enter a valid email address');
+      state = state.copyWith(error: 'pleaseEnterValidEmail');
+      return;
+    }
+    if (RegExp(r'[0-9]').hasMatch(state.name)) {
+      state = state.copyWith(error: 'nameCannotContainNumbers');
+      return;
+    }
+    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(state.name)) {
+      state = state.copyWith(error: 'nameCannotContainSpecialCharacters');
       return;
     }
 
@@ -82,7 +90,7 @@ class RegistrationController extends _$RegistrationController {
 
       state = state.copyWith(isLoading: false, activationCode: result.value);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Failed to register adolescent. ${e.toString()}');
+      state = state.copyWith(isLoading: false, error: 'failedToRegisterAdolescent|${e.toString()}');
     }
   }
 

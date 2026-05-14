@@ -5,6 +5,7 @@ import 'package:neuronet_core/neuronet_core.dart';
 import 'package:intl/intl.dart';
 import 'package:guardian_app/features/registration/providers/registration_provider.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
+import 'package:guardian_app/features/ui/l10n_utils.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
 
 class RegistrationScreen extends ConsumerWidget {
@@ -37,9 +38,9 @@ class RegistrationScreen extends ConsumerWidget {
               onPressed: () => Navigator.of(context).pop(),
               color: NeuroColors.guardianPrimaryDark,
             ),
-            title: const Text(
-              'Enroll Adolescent',
-              style: TextStyle(
+            title: Text(
+              context.localizations.enrollAdolescent,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: NeuroColors.guardianPrimaryDark,
@@ -68,7 +69,9 @@ class RegistrationScreen extends ConsumerWidget {
                       if (state.error != null)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: NeuroErrorWidget(message: state.error!),
+                          child: NeuroErrorWidget(
+                            message: translateError(context, state.error),
+                          ),
                         ),
                       const SizedBox(height: 48),
                     ],
@@ -93,7 +96,7 @@ class _SubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return NeuroButton(
       onPressed: controller.submit,
-      label: 'Complete Registration',
+      label: context.localizations.completeRegistration,
       isLoading: state.isLoading,
       borderRadius: 20,
       padding: const EdgeInsets.symmetric(vertical: 20),
@@ -128,9 +131,9 @@ class _HeaderSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              const Text(
-                'New Enrollment',
-                style: TextStyle(
+              Text(
+                context.localizations.newEnrollment,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
@@ -140,9 +143,9 @@ class _HeaderSection extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'Connect your child to the Neuronet platform to begin monitoring their emotional health and guiding their developmental journey.',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9),
+            context.localizations.newEnrollmentDesc,
+            style: const TextStyle(
+              color: Colors.white,
               fontSize: 14,
               height: 1.5,
               fontWeight: FontWeight.w500,
@@ -175,23 +178,30 @@ class _RegistrationForm extends StatelessWidget {
                 color: NeuroColors.guardianPrimary,
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Personal Information',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              Text(
+                context.localizations.personalInfo,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
             ],
           ),
           const SizedBox(height: 24),
           _buildField(
-            label: "Adolescent's Full Name",
+            label: context.localizations.adolescentFullName,
             icon: Icons.person_outline,
             onChanged: controller.updateName,
+            errorText: state.name.isNotEmpty
+                ? (RegExp(r'[0-9]').hasMatch(state.name)
+                    ? context.localizations.nameCannotContainNumbers
+                    : (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(state.name)
+                        ? context.localizations.nameCannotContainSpecialCharacters
+                        : null))
+                : null,
           ),
           const SizedBox(height: 16),
           _buildDatePicker(context),
           const SizedBox(height: 16),
           _buildField(
-            label: 'Support Email (Required)',
+            label: context.localizations.supportEmailRequired,
             icon: Icons.alternate_email_rounded,
             keyboardType: TextInputType.emailAddress,
             onChanged: controller.updateEmail,
@@ -200,7 +210,7 @@ class _RegistrationForm extends StatelessWidget {
                     !RegExp(
                       r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                     ).hasMatch(state.email)
-                ? 'Invalid email format'
+                ? context.localizations.invalidEmailFormat
                 : null,
           ),
           const SizedBox(height: 16),
@@ -268,11 +278,11 @@ class _RegistrationForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            'Date of Birth',
-            style: TextStyle(
+            context.localizations.dateOfBirth,
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: NeuroColors.onSurfaceVariant,
@@ -310,7 +320,7 @@ class _RegistrationForm extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   state.dateOfBirth == null
-                      ? 'Select Date'
+                      ? context.localizations.selectDate
                       : DateFormat('MMM d, yyyy').format(state.dateOfBirth!),
                   style: TextStyle(
                     color: state.dateOfBirth == null
@@ -330,11 +340,11 @@ class _RegistrationForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            'Relationship to Adolescent',
-            style: TextStyle(
+            context.localizations.relationshipToAdolescent,
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: NeuroColors.onSurfaceVariant,
@@ -342,7 +352,7 @@ class _RegistrationForm extends StatelessWidget {
           ),
         ),
         DropdownButtonFormField<RelationshipType>(
-          value: state.relationship,
+          initialValue: state.relationship,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.family_restroom_rounded, size: 20),
             filled: true,
@@ -363,7 +373,7 @@ class _RegistrationForm extends StatelessWidget {
           items: RelationshipType.values.map((type) {
             return DropdownMenuItem(
               value: type,
-              child: Text(type.name[0].toUpperCase() + type.name.substring(1)),
+              child: Text(type.localizedLabel(context.localizations)),
             );
           }).toList(),
           onChanged: (value) =>
@@ -395,15 +405,15 @@ class _ConsentSection extends StatelessWidget {
                 color: NeuroColors.guardianPrimary,
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Initial Capabilities',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              Text(
+                context.localizations.initialCapabilities,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Select the features you want to enable initially. You can adjust these granularly after enrollment.',
+            context.localizations.initialCapabilitiesDesc,
             style: TextStyle(
               fontSize: 13,
               color: NeuroColors.onSurfaceVariant,
@@ -413,14 +423,14 @@ class _ConsentSection extends StatelessWidget {
           const SizedBox(height: 16),
           ...ConsentType.values.map((type) {
             final isEnabled = state.consents.contains(type);
-            return _buildFeatureToggle(type, isEnabled);
+            return _buildFeatureToggle(context, type, isEnabled);
           }),
         ],
       ),
     );
   }
 
-  Widget _buildFeatureToggle(ConsentType type, bool isEnabled) {
+  Widget _buildFeatureToggle(BuildContext context, ConsentType type, bool isEnabled) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
@@ -457,7 +467,7 @@ class _ConsentSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        type.label,
+                        type.localizedLabel(context.localizations),
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -468,7 +478,7 @@ class _ConsentSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        type.description,
+                        type.localizedDescription(context.localizations),
                         style: TextStyle(
                           fontSize: 11,
                           color: NeuroColors.onSurfaceVariant,
@@ -538,9 +548,9 @@ class _SuccessView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              const Text(
-                'Enrollment Complete!',
-                style: TextStyle(
+              Text(
+                context.localizations.enrollmentComplete,
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
                   color: NeuroColors.guardianPrimaryDark,
@@ -549,20 +559,22 @@ class _SuccessView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Your adolescent has been successfully registered. We have sent an activation code to their email address. They can use it to link their device and seamlessly set up their account.',
-                style: TextStyle(
+                context.localizations.enrollmentCompleteDesc,
+                style: const TextStyle(
                   fontSize: 15,
                   color: NeuroColors.onSurfaceVariant,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 32),
+              _buildCodeDisplay(context),
               const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: NeuroButton(
                   onPressed: onFinish,
-                  label: 'Return to Dashboard',
+                  label: context.localizations.returnToDashboard,
                   backgroundColor: NeuroColors.guardianPrimaryDark,
                   borderRadius: 20,
                 ),
@@ -571,6 +583,73 @@ class _SuccessView extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCodeDisplay(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          context.localizations.activationCodeUpper,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+            color: NeuroColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 16),
+        InkWell(
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: activationCode));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(context.localizations.activationCodeCopied),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: NeuroColors.guardianPrimary.withValues(alpha: 0.2),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  activationCode,
+                  style: const TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 4,
+                    color: NeuroColors.guardianPrimary,
+                    fontFamily: 'Courier', // Mono feel
+                  ),
+                ),
+                const SizedBox(width: 20),
+                const Icon(
+                  Icons.copy_rounded,
+                  color: NeuroColors.guardianPrimary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

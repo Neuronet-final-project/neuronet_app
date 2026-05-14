@@ -79,11 +79,12 @@ class _NeuroTranslateButtonState extends ConsumerState<NeuroTranslateButton> {
       _isTranslating = true;
     });
 
-    final sourceLang = _detectLanguage(widget.text, context);
-
+    final targetLang = Localizations.localeOf(context).languageCode;
+    
     final result = await ref.read(translationServiceProvider).translate(
       text: widget.text,
-      sourceLang: sourceLang,
+      targetLang: targetLang,
+      sourceLang: 'auto',
     );
 
     if (mounted) {

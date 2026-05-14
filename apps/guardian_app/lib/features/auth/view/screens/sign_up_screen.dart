@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,16 +20,22 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _otpController = TextEditingController();
   
   final _fullNameFocus = FocusNode();
   final _emailFocus = FocusNode();
   final _passwordFocus = FocusNode();
   final _confirmPasswordFocus = FocusNode();
+  final _otpFocus = FocusNode();
   
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isInitialized = false;
+
+  // Countdown for resend
+  int _resendCountdown = 0;
+  Timer? _resendTimer;
 
   // Entrance animation
   late AnimationController _enterCtrl;
@@ -66,17 +73,32 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
 
   @override
   void dispose() {
+    _resendTimer?.cancel();
     _enterCtrl.dispose();
     _pulseCtrl.dispose();
     _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _otpController.dispose();
     _fullNameFocus.dispose();
     _emailFocus.dispose();
     _passwordFocus.dispose();
     _confirmPasswordFocus.dispose();
+    _otpFocus.dispose();
     super.dispose();
+  }
+
+  void _startResendTimer() {
+    setState(() => _resendCountdown = 60);
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_resendCountdown == 0) {
+        timer.cancel();
+      } else {
+        setState(() => _resendCountdown--);
+      }
+    });
   }
 
   void _handleSignUp() {
@@ -89,10 +111,33 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
     }
   }
 
+  void _handleVerifyOtp() {
+    if (_otpController.text.length == 6) {
+      ref.read(authControllerProvider.notifier).verifyRegistration(
+            _emailController.text.trim(),
+            _otpController.text.trim(),
+          );
+    }
+  }
+
+  void _handleResendOtp() {
+    if (_resendCountdown == 0) {
+      ref.read(authControllerProvider.notifier).resendRegistrationOtp(
+            _emailController.text.trim(),
+          );
+      _startResendTimer();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('A new verification code has been sent'),
+          backgroundColor: NeuroColors.guardianPrimary,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
-    final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
 
     if (!_isInitialized) {
@@ -109,22 +154,27 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
       if (next.status == AuthStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.errorMessage ?? 'An error occurred during signup'),
+            content: Text(next.errorMessage ?? context.localizations.errorDuringSignUp),
             backgroundColor: NeuroColors.error,
           ),
         );
       } else if (previous?.status == AuthStatus.loading && next.status == AuthStatus.unauthenticated) {
-        // Success! Redirect to login
+        // Success! Redirect to login (either from signup without verification or after OTP success)
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful! Please login.'),
+          SnackBar(
+            content: Text(next.errorMessage ?? context.localizations.signUpSuccess),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
         );
         context.go(GuardianRoutes.login);
+      } else if (previous?.status == AuthStatus.loading && next.status == AuthStatus.verificationRequired) {
+        // Just transitioned to verification step
+        _startResendTimer();
       }
     });
+
+    final isVerificationStep = authState.status == AuthStatus.verificationRequired;
 
     return Scaffold(
       body: Stack(
@@ -170,7 +220,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                   child: SlideTransition(
                     position: _slideAnim,
                     child: Form(
-                      key: _formKey,
+                      key: isVerificationStep ? null : _formKey,
                       child: Column(
                         children: [
                           // ── Pulsing Brand Icon ────────────────────────────────
@@ -187,7 +237,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 shape: BoxShape.circle,
                                 border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 2),
                               ),
-                              child: const Icon(Icons.shield_rounded, size: 38, color: Colors.white),
+                              child: Icon(
+                                isVerificationStep ? Icons.mark_email_read_rounded : Icons.shield_rounded, 
+                                size: 38, 
+                                color: Colors.white
+                              ),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -206,34 +260,58 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 ),
                               ],
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                const Text('Create Account',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w900,
-                                      color: Color(0xFF4A0E1C),
-                                      letterSpacing: -0.5,
-                                    )),
-                                const SizedBox(height: 8),
-                                const Text('Empower your parenting journey',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Color(0xFF8A6E75),
-                                    )),
-                                const SizedBox(height: 32),
+                            child: AnimatedSize(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(isVerificationStep ? 'Verify Email' : context.localizations.createAccount,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFF4A0E1C),
+                                        letterSpacing: -0.5,
+                                      )),
+                                  const SizedBox(height: 8),
+                                  Text(isVerificationStep 
+                                      ? 'Enter the 6-digit code sent to\n${_emailController.text}'
+                                      : context.localizations.empowerParentingJourney,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Color(0xFF8A6E75),
+                                      )),
+                                  const SizedBox(height: 32),
 
+<<<<<<< HEAD
+                                  if (!isVerificationStep) ...[
+                                    // Full Name
+                                    _GuardianTextField(
+                                      controller: _fullNameController,
+                                      focusNode: _fullNameFocus,
+                                      label: context.localizations.fullName,
+                                      icon: Icons.person_outline_rounded,
+                                      textInputAction: TextInputAction.next,
+                                      validator: (v) => (v == null || v.isEmpty) ? context.localizations.enterFullName : null,
+                                      onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
+=======
                                 // Full Name
                                 _GuardianTextField(
                                   controller: _fullNameController,
                                   focusNode: _fullNameFocus,
-                                  label: 'Full Name',
+                                  label: context.localizations.fullName,
                                   icon: Icons.person_outline_rounded,
                                   textInputAction: TextInputAction.next,
-                                  validator: (v) => (v == null || v.isEmpty) ? 'Enter your full name' : null,
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return context.localizations.enterFullName;
+                                    if (RegExp(r'[0-9]').hasMatch(v)) return context.localizations.nameCannotContainNumbers;
+                                    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(v)) {
+                                      return context.localizations.nameCannotContainSpecialCharacters;
+                                    }
+                                    return null;
+                                  },
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
                                 ),
                                 const SizedBox(height: 12),
@@ -242,13 +320,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 _GuardianTextField(
                                   controller: _emailController,
                                   focusNode: _emailFocus,
-                                  label: 'Guardian Email',
+                                  label: context.localizations.guardianEmail,
                                   icon: Icons.alternate_email_rounded,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
                                   validator: (v) {
-                                    if (v == null || v.isEmpty) return 'Enter your email';
-                                    if (!v.contains('@')) return 'Invalid email';
+                                    if (v == null || v.isEmpty) return context.localizations.pleaseEnterEmail;
+                                    if (!v.contains('@')) return context.localizations.invalidEmail;
                                     return null;
                                   },
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
@@ -259,7 +337,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 _GuardianTextField(
                                   controller: _passwordController,
                                   focusNode: _passwordFocus,
-                                  label: 'Create Password',
+                                  label: context.localizations.createPassword,
                                   icon: Icons.lock_outline_rounded,
                                   obscureText: _obscurePassword,
                                   textInputAction: TextInputAction.next,
@@ -268,10 +346,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                       _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                                       color: NeuroColors.guardianPrimary,
                                       size: 20,
-                                    ),
                                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                   ),
-                                  validator: (v) => (v == null || v.length < 6) ? 'Min 6 characters' : null,
+                                  validator: (v) => (v == null || v.length < 6) ? context.localizations.min6Characters : null,
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_confirmPasswordFocus),
                                 ),
                                 const SizedBox(height: 12),
@@ -280,7 +357,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 _GuardianTextField(
                                   controller: _confirmPasswordController,
                                   focusNode: _confirmPasswordFocus,
-                                  label: 'Confirm Password',
+                                  label: context.localizations.confirmPassword,
                                   icon: Icons.lock_reset_rounded,
                                   obscureText: _obscureConfirmPassword,
                                   textInputAction: TextInputAction.done,
@@ -292,7 +369,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                     ),
                                     onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                                   ),
-                                  validator: (v) => (v != _passwordController.text) ? 'Passwords do not match' : null,
+                                  validator: (v) => (v != _passwordController.text) ? context.localizations.passwordsDoNotMatch : null,
                                   onFieldSubmitted: (_) => _handleSignUp(),
                                 ),
                                 const SizedBox(height: 24),
@@ -301,28 +378,114 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 _GradientButton(
                                   onPressed: authState.status == AuthStatus.loading ? null : _handleSignUp,
                                   isLoading: authState.status == AuthStatus.loading,
-                                  label: 'Sign Up Now',
+                                  label: context.localizations.signUpNow,
                                 ),
-                                const SizedBox(height: 24),
+                              ] else ...[
 
-                                // Back to login
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text('Already a Guardian?',
-                                        style: TextStyle(fontSize: 13, color: Color(0xFF8A6E75))),
-                                    TextButton(
-                                      onPressed: () => context.go(GuardianRoutes.login),
-                                      child: const Text('Login',
+                                    // OTP Verification UI
+                                    TextFormField(
+                                      controller: _otpController,
+                                      focusNode: _otpFocus,
+                                      keyboardType: TextInputType.number,
+                                      style: const TextStyle(
+                                        fontSize: 32, 
+                                        fontWeight: FontWeight.w900, 
+                                        letterSpacing: 20,
+                                        color: Color(0xFF4A0E1C),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLength: 6,
+                                      decoration: InputDecoration(
+                                        counterText: '',
+                                        hintText: '000000',
+                                        hintStyle: TextStyle(color: const Color(0xFF8A6E75).withValues(alpha: 0.3)),
+                                        filled: true,
+                                        fillColor: const Color(0xFFFFF7F8),
+                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(20), 
+                                          borderSide: const BorderSide(color: Color(0xFFF0DCE0), width: 1.5)
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(20), 
+                                          borderSide: const BorderSide(color: NeuroColors.guardianPrimary, width: 2.0)
+                                        ),
+                                      ),
+                                      onChanged: (v) {
+                                        if (v.length == 6) _handleVerifyOtp();
+                                      },
+                                    ),
+                                    const SizedBox(height: 24),
+                                    
+                                    _GradientButton(
+                                      onPressed: authState.status == AuthStatus.loading || _otpController.text.length < 6 
+                                          ? null 
+                                          : _handleVerifyOtp,
+                                      isLoading: authState.status == AuthStatus.loading,
+                                      label: 'Verify Code',
+                                    ),
+
+                                    const SizedBox(height: 20),
+                                    
+                                    Center(
+                                      child: TextButton(
+                                        onPressed: _resendCountdown == 0 ? _handleResendOtp : null,
+                                        child: Text(
+                                          _resendCountdown == 0 
+                                              ? 'Resend code' 
+                                              : 'Resend code in ${_resendCountdown}s',
                                           style: TextStyle(
-                                            color: NeuroColors.guardianPrimary,
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 13,
-                                          )),
+                                            color: _resendCountdown == 0 
+                                                ? NeuroColors.guardianPrimary 
+                                                : const Color(0xFF8A6E75),
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 10),
+
+                                    Center(
+                                      child: TextButton(
+                                        onPressed: () {
+                                           // Allow going back to fix registration details
+                                           ref.read(authControllerProvider.notifier).logout(); // This clears state
+                                        },
+                                        child: const Text(
+                                          'Change email address',
+                                          style: TextStyle(
+                                            color: Color(0xFF8A6E75),
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ],
+
+                                  const SizedBox(height: 24),
+
+                                  // Back to login (only on first step)
+                                  if (!isVerificationStep)
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(context.localizations.alreadyGuardian,
+                                            style: const TextStyle(fontSize: 13, color: Color(0xFF8A6E75))),
+                                        TextButton(
+                                          onPressed: () => context.go(GuardianRoutes.login),
+                                          child: Text(context.localizations.login,
+                                              style: const TextStyle(
+                                                color: NeuroColors.guardianPrimary,
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 13,
+                                              )),
+                                        ),
+                                      ],
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                         ],

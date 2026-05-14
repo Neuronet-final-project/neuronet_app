@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
+import 'package:guardian_app/features/ui/l10n_utils.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
 import '../../providers/adolescent_provider.dart';
 
@@ -28,9 +29,9 @@ class PendingAdolescentsScreen extends ConsumerWidget {
               onPressed: () => Navigator.of(context).pop(),
               color: NeuroColors.guardianPrimaryDark,
             ),
-            title: const Text(
-              'Pending Activations',
-              style: TextStyle(
+            title: Text(
+              context.localizations.pendingActivations,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: NeuroColors.guardianPrimaryDark,
@@ -89,10 +90,6 @@ class PendingAdolescentsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return const _HeaderSection();
-  }
-
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object err) {
     return Center(
       child: Padding(
@@ -102,9 +99,9 @@ class PendingAdolescentsScreen extends ConsumerWidget {
           children: [
             const Icon(Icons.error_outline_rounded, size: 64, color: Colors.red),
             const SizedBox(height: 16),
-            const Text(
-              'Unable to Load Pending Activations',
-              style: TextStyle(
+            Text(
+              context.localizations.failedToLoadAdolescents,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: NeuroColors.guardianPrimaryDark,
@@ -121,7 +118,7 @@ class PendingAdolescentsScreen extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(pendingAdolescentsProvider),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(context.localizations.retry),
             ),
           ],
         ),
@@ -153,19 +150,19 @@ class PendingAdolescentsScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'No Pending Activations',
-                    style: TextStyle(
+                  Text(
+                    context.localizations.noPendingRequests,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
                       color: NeuroColors.guardianPrimaryDark,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'All adolescents you\'ve added have been activated or there are no pending activations currently.',
+                  Text(
+                    context.localizations.noPendingRequestsDesc,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: NeuroColors.onSurfaceVariant,
                       height: 1.5,
@@ -177,7 +174,7 @@ class PendingAdolescentsScreen extends ConsumerWidget {
                     child: ElevatedButton.icon(
                       onPressed: () => context.push('/register-adolescent'),
                       icon: const Icon(Icons.person_add_rounded),
-                      label: const Text('Register New Adolescent'),
+                      label: Text(context.localizations.registerNewAdolescent),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: NeuroColors.guardianPrimary,
                         foregroundColor: Colors.white,
@@ -224,9 +221,9 @@ class _HeaderSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Waiting for Connection',
-                style: TextStyle(
+              Text(
+                context.localizations.waitingForConnection,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -236,7 +233,7 @@ class _HeaderSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Ensure your adolescent enters the activation code on their device to establish the encrypted emotional health monitoring link.',
+            context.localizations.waitingForConnectionDesc,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.9),
               fontSize: 13,
@@ -259,7 +256,7 @@ class _PendingAdolescentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final createdDate = adolescent.createdAt != null
         ? DateFormat('MMM d, yyyy').format(adolescent.createdAt!)
-        : 'Unknown date';
+        : context.localizations.unknownDate;
     
     final status = adolescent.accountStatus;
     final isPending = status == AccountStatus.pendingActivation;
@@ -277,7 +274,7 @@ class _PendingAdolescentCard extends StatelessWidget {
                   color: NeuroColors.guardianPrimary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.person_outline_rounded,
                   color: NeuroColors.guardianPrimary,
                   size: 20,
@@ -311,7 +308,7 @@ class _PendingAdolescentCard extends StatelessWidget {
                   ],
                 ),
               ),
-              _buildStatusBadge(status),
+              _buildStatusBadge(context, status),
             ],
           ),
           const SizedBox(height: 20),
@@ -319,13 +316,13 @@ class _PendingAdolescentCard extends StatelessWidget {
             children: [
               _buildInfoTag(
                 icon: Icons.calendar_today_rounded,
-                label: 'Added $createdDate',
+                label: context.localizations.addedDateLabel(createdDate),
               ),
               const SizedBox(width: 12),
               if (adolescent.relationship != null)
                 _buildInfoTag(
                   icon: Icons.family_restroom_rounded,
-                  label: adolescent.relationship!.name.toUpperCase(),
+                  label: adolescent.relationship!.localizedLabel(context.localizations).toUpperCase(),
                 ),
             ],
           ),
@@ -339,7 +336,7 @@ class _PendingAdolescentCard extends StatelessWidget {
                 size: 18,
               ),
               label: Text(
-                isPending ? 'View Activation Info' : 'Account Details',
+                isPending ? context.localizations.viewActivationInfo : context.localizations.accountDetails,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               style: OutlinedButton.styleFrom(
@@ -359,7 +356,7 @@ class _PendingAdolescentCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(AccountStatus? status) {
+  Widget _buildStatusBadge(BuildContext context, AccountStatus? status) {
     final isPending = status == AccountStatus.pendingActivation;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -375,7 +372,7 @@ class _PendingAdolescentCard extends StatelessWidget {
         ),
       ),
       child: Text(
-        isPending ? 'PENDING' : status?.name.toUpperCase() ?? 'UNKNOWN',
+        isPending ? context.localizations.pending.toUpperCase() : (status?.localizedLabel(context.localizations) ?? context.localizations.statusInactive).toUpperCase(),
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w800,
@@ -414,11 +411,11 @@ class _PendingAdolescentCard extends StatelessWidget {
   }
 
   void _showActivationInfo(BuildContext context, AccountStatus? status) {
-    String message = 'This account is active.';
+    String message = context.localizations.accountIsActive;
     if (status == AccountStatus.pendingActivation) {
-      message = 'Activation code was shared during registration. Ensure the adolescent enters it on their device.';
+      message = context.localizations.activationCodeSharedInfo;
     } else if (status == AccountStatus.inactive) {
-      message = 'This account is inactive. Profile editing is disabled.';
+      message = context.localizations.accountIsInactiveInfo;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(

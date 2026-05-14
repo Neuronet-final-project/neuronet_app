@@ -40,3 +40,32 @@ extension AccountStatusL10n on AccountStatus {
         AccountStatus.pendingActivation => l10n.statusPendingActivation,
       };
 }
+
+/// Extension to provide localized labels for [ConsentType].
+extension ConsentTypeL10n on ConsentType {
+  /// Returns the localized label for this consent type.
+  String localizedLabel(AppLocalizations l10n) => switch (this) {
+        ConsentType.shareAiSummaries => l10n.aiInsightsSummaries,
+        ConsentType.shareAlerts => l10n.safetyAlerts,
+        ConsentType.participation => l10n.generalParticipation,
+        ConsentType.counselorChat => l10n.directMessaging,
+      };
+
+  /// Returns the localized description for this consent type.
+  String localizedDescription(AppLocalizations l10n) => switch (this) {
+        ConsentType.shareAiSummaries => l10n.aiInsightsSummariesDesc,
+        ConsentType.shareAlerts => l10n.safetyAlertsDesc,
+        ConsentType.participation => l10n.generalParticipationDesc,
+        ConsentType.counselorChat => l10n.directMessagingDesc,
+      };
+}
+
+/// Extension to provide localized labels for [RelationshipType].
+extension RelationshipTypeL10n on RelationshipType {
+  /// Returns the localized label for this relationship type.
+  String localizedLabel(AppLocalizations l10n) => switch (this) {
+        RelationshipType.parent => l10n.parent,
+        RelationshipType.legalGuardian => l10n.legalGuardian,
+        RelationshipType.other => l10n.other,
+      };
+}
