@@ -238,6 +238,32 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
                 chatState.when(
                   data: (data) {
                     final messages = data.messages;
+                    if (data.counselorEmail == null) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.person_off_rounded,
+                                size: 80,
+                                color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                "no counselor is assigned for you please wait",
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
                     if (messages.isEmpty) {
                       return _buildEmptyState(context, theme);
                     }

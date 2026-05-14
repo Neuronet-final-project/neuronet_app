@@ -1175,11 +1175,10 @@ class _StatsRow extends ConsumerWidget {
         final l10n = context.localizations;
         final data = state.data;
         final journals = data?.totalJournals ?? 0;
-        
-        // Use MoodHistory for count as requested, fallback to dashboard data field
+        // Use only /moods/me endpoint length for Moods count.
         final moodsCount = historyAsync.maybeWhen(
           data: (h) => h.records.length,
-          orElse: () => data?.totalMoods ?? 0,
+          orElse: () => 0,
         );
         
         final recs = data?.educationalRecommendations.length ?? 0;
