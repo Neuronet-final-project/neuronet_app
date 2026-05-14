@@ -14,11 +14,7 @@ abstract class CounselorChatState with _$CounselorChatState {
     Conversation? conversation,
     /// Counselor email extracted from conversation participants.
     String? counselorEmail,
-<<<<<<< HEAD
     /// Counselor name for display (from assigned counselors list)
-=======
-    /// Counselor display name (if available).
->>>>>>> e9ba7f7f6f9ea0c2c384abf5f5ca95832bf9face
     String? counselorName,
     @Default([]) List<ConversationMessage> messages,
     @Default(false) bool isLoading,
@@ -40,8 +36,6 @@ class CounselorChatController extends _$CounselorChatController {
       debugPrint('[GuardianCounselorChat] 📨 FCM chat event received — refreshing immediately');
       _silentRefresh();
     });
-<<<<<<< HEAD
-
     // Add aggressive periodic polling every 2 seconds as a fallback and to match web dashboard behavior
     final pollTimer = Timer.periodic(const Duration(seconds: 2), (_) {
       _silentRefresh();
@@ -50,11 +44,6 @@ class CounselorChatController extends _$CounselorChatController {
     ref.onDispose(() {
       fcmSub.cancel();
       pollTimer.cancel();
-=======
-    // Clean up FCM subscription when provider is disposed
-    ref.onDispose(() {
-      fcmSub.cancel();
->>>>>>> e9ba7f7f6f9ea0c2c384abf5f5ca95832bf9face
     });
 
     try {
@@ -99,9 +88,10 @@ class CounselorChatController extends _$CounselorChatController {
       if (counselorEmail != null) {
         final counselorsResult = await authService.getAssignedCounselors(adolescentId);
         if (counselorsResult.isSuccess) {
-          final matched = counselorsResult.value.where((c) => 
-            (c['email'] as String).toLowerCase() == counselorEmail.toLowerCase()
-          ).firstOrNull;
+          final matched = counselorsResult.value.where((c) {
+            final email = c['email'] as String?;
+            return email != null && email.toLowerCase() == counselorEmail.toLowerCase();
+          }).firstOrNull;
           counselorName = matched?['full_name'] as String?;
           debugPrint('[GuardianCounselorChat]   Counselor name: $counselorName');
         }
@@ -122,7 +112,8 @@ class CounselorChatController extends _$CounselorChatController {
       debugPrint('[GuardianCounselorChat] ✓ ${messagesResult.value.length} message(s)');
       for (int i = 0; i < messagesResult.value.length; i++) {
         final m = messagesResult.value[i];
-        final preview = m.content.substring(0, m.content.length.clamp(0, 60));
+        final content = m.content ?? ''; // Safely default null content to prevent exception cascades
+        final preview = content.substring(0, content.length.clamp(0, 60));
         debugPrint('[GuardianCounselorChat]   [$i] ${m.senderRole} | ${m.createdAt} | "$preview"');
       }
 

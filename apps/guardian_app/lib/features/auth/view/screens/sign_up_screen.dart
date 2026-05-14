@@ -285,7 +285,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                       )),
                                   const SizedBox(height: 32),
 
-<<<<<<< HEAD
                                   if (!isVerificationStep) ...[
                                     // Full Name
                                     _GuardianTextField(
@@ -294,27 +293,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                       label: context.localizations.fullName,
                                       icon: Icons.person_outline_rounded,
                                       textInputAction: TextInputAction.next,
-                                      validator: (v) => (v == null || v.isEmpty) ? context.localizations.enterFullName : null,
+                                      validator: (v) {
+                                        if (v == null || v.isEmpty) return context.localizations.enterFullName;
+                                        if (RegExp(r'[0-9]').hasMatch(v)) return context.localizations.nameCannotContainNumbers;
+                                        if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(v)) {
+                                          return context.localizations.nameCannotContainSpecialCharacters;
+                                        }
+                                        return null;
+                                      },
                                       onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
-=======
-                                // Full Name
-                                _GuardianTextField(
-                                  controller: _fullNameController,
-                                  focusNode: _fullNameFocus,
-                                  label: context.localizations.fullName,
-                                  icon: Icons.person_outline_rounded,
-                                  textInputAction: TextInputAction.next,
-                                  validator: (v) {
-                                    if (v == null || v.isEmpty) return context.localizations.enterFullName;
-                                    if (RegExp(r'[0-9]').hasMatch(v)) return context.localizations.nameCannotContainNumbers;
-                                    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(v)) {
-                                      return context.localizations.nameCannotContainSpecialCharacters;
-                                    }
-                                    return null;
-                                  },
-                                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
-                                ),
-                                const SizedBox(height: 12),
+                                    ),
+                                    const SizedBox(height: 12),
 
                                 // Email
                                 _GuardianTextField(
@@ -346,6 +335,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                       _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                                       color: NeuroColors.guardianPrimary,
                                       size: 20,
+                                    ),
                                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                   ),
                                   validator: (v) => (v == null || v.length < 6) ? context.localizations.min6Characters : null,

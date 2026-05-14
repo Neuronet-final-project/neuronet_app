@@ -40,7 +40,8 @@ String translateAlertSeverity(BuildContext context, String severity) {
 String translateApprovalStatus(BuildContext context, String status) {
   final l10n = context.localizations;
   final s = status.toLowerCase();
-  if (s.contains('approved')) return l10n.statusActive;
-  if (s.contains('denied')) return l10n.statusSuspended;
+  if (s.contains('approved') || s.contains('granted')) return l10n.requestApproved.replaceAll('Request ', '');
+  if (s.contains('revoked')) return l10n.revoked;
+  if (s.contains('denied') || s.contains('rejected')) return l10n.requestDenied.replaceAll('Request ', '');
   return l10n.statusPendingActivation;
 }

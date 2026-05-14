@@ -1419,11 +1419,11 @@ class _QuickActionGrid extends StatelessWidget {
         () => context.push(AdolescentRoutes.searchJournal),
       ),
       _ActionData(
-        l10n.myInsights,
-        l10n.viewDetails,
+        l10n.learnersNook,
+        l10n.browseTopics,
         Icons.auto_awesome_rounded,
         _cardColors[3],
-        () => context.push(AdolescentRoutes.alerts),
+        () => context.push(AdolescentRoutes.learn),
       ),
     ];
 
