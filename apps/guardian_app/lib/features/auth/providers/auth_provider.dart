@@ -14,6 +14,7 @@ enum AuthStatus {
   authenticated,
   unauthenticated,
   activating,
+  verificationRequired,
   error
 }
 
@@ -33,6 +34,7 @@ class AuthState {
   factory AuthState.authenticated(User user) => AuthState(status: AuthStatus.authenticated, user: user);
   factory AuthState.unauthenticated() => const AuthState(status: AuthStatus.unauthenticated);
   factory AuthState.activating() => const AuthState(status: AuthStatus.activating);
+  factory AuthState.verificationRequired() => const AuthState(status: AuthStatus.verificationRequired);
   factory AuthState.error(String message) => AuthState(status: AuthStatus.error, errorMessage: message);
 }
 
@@ -155,10 +157,46 @@ class AuthController extends _$AuthController {
         state = AuthState.error(result.failure.message);
         return;
       }
-      // After registration, we usually want them to login
+      
+      final data = result.value;
+      if (data['requires_verification'] == true) {
+        state = AuthState.verificationRequired();
+        return;
+      }
+
+      // Fallback for older backend versions that might still auto-activate
       state = AuthState.unauthenticated();
     } catch (e) {
       state = AuthState.error(e.toString());
+    }
+  }
+
+  Future<void> verifyRegistration(String email, String otp) async {
+    state = AuthState.loading();
+    try {
+      final authService = ref.read(authServiceProvider);
+      final result = await authService.verifyRegistration(email, otp);
+      if (result.isFailure) {
+        state = AuthState.error(result.failure.message);
+        // Keep in verification status but with error
+        Future.delayed(const Duration(milliseconds: 100), () {
+           state = AuthState.verificationRequired();
+        });
+        return;
+      }
+      state = AuthState.unauthenticated(); // Success! Go to login
+    } catch (e) {
+      state = AuthState.error(e.toString());
+    }
+  }
+
+  Future<void> resendRegistrationOtp(String email) async {
+    // We don't set loading state here to avoid UI flicker, just background call
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.resendRegistrationOtp(email);
+    } catch (e) {
+      debugPrint('[AuthController] Failed to resend OTP: $e');
     }
   }
 

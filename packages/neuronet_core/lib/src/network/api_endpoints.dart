@@ -24,6 +24,8 @@ class ApiEndpoints {
   static const String forgotPassword = '/auth/forgot-password';
   static const String verifyResetOtp = '/auth/verify-reset-otp';
   static const String resetPassword = '/auth/reset-password';
+  static const String verifyRegistration = '/auth/verify-registration';
+  static const String resendRegistrationOtp = '/auth/resend-registration-otp';
 
   // Dashboard
   static const String guardianDashboard = '/dashboard/guardian';
