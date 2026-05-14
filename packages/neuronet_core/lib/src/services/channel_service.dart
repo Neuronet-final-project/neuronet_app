@@ -177,6 +177,44 @@ class ChannelService {
       return Result.failure(failureFromException(e));
     }
   }
+
+  /// Removes an interaction (reaction or comment).
+  Future<Result<void>> deleteInteraction(
+    String channelId,
+    String postId,
+    String interactionId,
+  ) async {
+    try {
+      await _client.delete(
+        ApiEndpoints.channelInteractionDetail(channelId, postId, interactionId),
+      );
+      return const Result.success(null);
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
+
+  /// Updates a comment content.
+  Future<Result<ChannelInteraction>> updateComment(
+    String channelId,
+    String postId,
+    String interactionId,
+    String content,
+  ) async {
+    try {
+      final response = await _client.put(
+        ApiEndpoints.channelInteractionDetail(channelId, postId, interactionId),
+        data: {
+          'content': content,
+        },
+      );
+      return Result.success(
+        ChannelInteraction.fromJson(response.data as Map<String, dynamic>),
+      );
+    } catch (e) {
+      return Result.failure(failureFromException(e));
+    }
+  }
 }
 
 @riverpod

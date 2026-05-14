@@ -23,6 +23,9 @@ abstract class CounselorChatState with _$CounselorChatState {
 
 @riverpod
 class CounselorChatController extends _$CounselorChatController {
+  bool _isRefreshing = false;
+  bool _isSending = false;
+
   @override
   FutureOr<CounselorChatState> build(String adolescentId) async {
     // Listen to FCM chat events for instant refresh
@@ -31,7 +34,16 @@ class CounselorChatController extends _$CounselorChatController {
       debugPrint('[GuardianCounselorChat] 📨 FCM chat event received — refreshing immediately');
       _silentRefresh();
     });
-    ref.onDispose(fcmSub.cancel);
+
+    // Add aggressive periodic polling every 2 seconds as a fallback and to match web dashboard behavior
+    final pollTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      _silentRefresh();
+    });
+
+    ref.onDispose(() {
+      fcmSub.cancel();
+      pollTimer.cancel();
+    });
 
     try {
       final messagingService = ref.watch(messagingServiceProvider);
@@ -106,8 +118,9 @@ class CounselorChatController extends _$CounselorChatController {
 
   Future<void> _silentRefresh() async {
     final currentConversation = state.value?.conversation;
-    if (currentConversation == null) return;
+    if (currentConversation == null || _isRefreshing || _isSending) return;
 
+    _isRefreshing = true;
     try {
       final result = await ref.read(messagingServiceProvider).getMessages(currentConversation.id);
       if (result.isSuccess) {
@@ -117,20 +130,44 @@ class CounselorChatController extends _$CounselorChatController {
           final oldMsgs = currentState.messages;
           final latestNewId = newMsgs.isNotEmpty ? newMsgs.last.id : null;
           final latestOldId = oldMsgs.isNotEmpty ? oldMsgs.last.id : null;
-          if (newMsgs.length != oldMsgs.length || latestNewId != latestOldId) {
-            debugPrint('[GuardianCounselorChat] 🔄 Refreshed: ${oldMsgs.length} → ${newMsgs.length} messages');
-            state = AsyncValue.data(currentState.copyWith(messages: newMsgs));
+          if (true) { // Force update whenever new data arrives for real-time feel
+            debugPrint('[GuardianCounselorChat] 🔄 Aggressive refresh: ${oldMsgs.length} → ${newMsgs.length} messages');
+            state = AsyncValue.data(currentState.copyWith(
+              messages: _mergeAndSortMessages(oldMsgs, newMsgs),
+            ));
           }
         }
       }
     } catch (e) {
       debugPrint('[GuardianCounselorChat] ⚠ Silent refresh failed: $e');
+    } finally {
+      _isRefreshing = false;
     }
+  }
+
+  List<ConversationMessage> _mergeAndSortMessages(
+    List<ConversationMessage> existing,
+    List<ConversationMessage> incoming,
+  ) {
+    final Map<String, ConversationMessage> messageMap = {
+      for (var m in existing) m.id: m,
+    };
+
+    // Incoming messages from server always win
+    for (var m in incoming) {
+      messageMap[m.id] = m;
+    }
+
+    final sortedList = messageMap.values.toList();
+    sortedList.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return sortedList;
   }
 
   Future<void> sendMessage(String content) async {
     final currentConversation = state.value?.conversation;
-    if (currentConversation == null || content.trim().isEmpty) return;
+    if (currentConversation == null || content.trim().isEmpty || _isSending) return;
+
+    _isSending = true;
 
     debugPrint('[GuardianCounselorChat] ── Sending message ──');
     debugPrint('[GuardianCounselorChat]   - Conversation ID: ${currentConversation.id}');
@@ -168,22 +205,16 @@ class CounselorChatController extends _$CounselorChatController {
       final sentMessage = sendResult.value;
       debugPrint('[GuardianCounselorChat] ✓ Message sent successfully');
       debugPrint('[GuardianCounselorChat]   - Message ID: ${sentMessage.id}');
-      debugPrint('[GuardianCounselorChat]   - Sender: ${sentMessage.senderRole}');
-      debugPrint('[GuardianCounselorChat]   - Timestamp: ${sentMessage.createdAt}');
 
-      // Refresh messages to get the real one from backend
-      debugPrint('[GuardianCounselorChat] Step 3: Refreshing messages to replace optimistic update');
-      final messagesResult = await messagingService.getMessages(currentConversation.id);
-      if (messagesResult.isSuccess) {
-        debugPrint('[GuardianCounselorChat] ✓ Refreshed ${messagesResult.value.length} message(s)');
-        state = AsyncData(previousState.copyWith(messages: messagesResult.value));
-      } else {
-        debugPrint('[GuardianCounselorChat] ✗ Refresh failed: ${messagesResult.failure.message}');
-      }
+      state = AsyncData(previousState.copyWith(
+        messages: _mergeAndSortMessages(previousState.messages, [sentMessage]),
+      ));
       debugPrint('[GuardianCounselorChat] ── Guardian message send complete ──');
     } catch (e) {
       debugPrint('[GuardianCounselorChat] ✗ Send exception: $e');
       state = AsyncData(previousState.copyWith(error: 'Failed to send message: $e'));
+    } finally {
+      _isSending = false;
     }
   }
 
@@ -209,14 +240,13 @@ class CounselorChatController extends _$CounselorChatController {
         return;
       }
 
+      final sentMessage = sendResult.value;
       debugPrint('[GuardianCounselorChat] ✓ Voice message sent successfully');
 
-      // Refresh messages to get the real one from backend
-      final messagesResult = await messagingService.getMessages(currentConversation.id);
-      if (messagesResult.isSuccess) {
-        final previousState = state.value!;
-        state = AsyncData(previousState.copyWith(messages: messagesResult.value));
-      }
+      final previousState = state.value!;
+      state = AsyncData(previousState.copyWith(
+        messages: _mergeAndSortMessages(previousState.messages, [sentMessage]),
+      ));
     } catch (e) {
       debugPrint('[GuardianCounselorChat] ✗ Send exception: $e');
       final previousState = state.value!;
@@ -246,14 +276,13 @@ class CounselorChatController extends _$CounselorChatController {
         return;
       }
 
+      final sentMessage = sendResult.value;
       debugPrint('[GuardianCounselorChat] ✓ ${messageType.name} message sent successfully');
 
-      // Refresh messages to get the real one from backend
-      final messagesResult = await messagingService.getMessages(currentConversation.id);
-      if (messagesResult.isSuccess) {
-        final previousState = state.value!;
-        state = AsyncData(previousState.copyWith(messages: messagesResult.value));
-      }
+      final previousState = state.value!;
+      state = AsyncData(previousState.copyWith(
+        messages: _mergeAndSortMessages(previousState.messages, [sentMessage]),
+      ));
     } catch (e) {
       debugPrint('[GuardianCounselorChat] ✗ Send exception: $e');
       final previousState = state.value!;

@@ -4,6 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:adolescent_app/features/counselor_chat/providers/counselor_chat_provider.dart';
 import 'package:adolescent_app/features/consent_status/providers/consent_status_provider.dart';
+import 'package:adolescent_app/features/profile/providers/profile_provider.dart';
+import 'package:adolescent_app/config/router/app_router.dart';
+import 'package:adolescent_app/features/profile/view/screens/profile_screen.dart';
+import 'package:adolescent_app/features/auth/view/screens/activation_screen.dart';
 
 class CounselorChatScreen extends ConsumerStatefulWidget {
   const CounselorChatScreen({super.key});
@@ -112,11 +116,22 @@ class _CounselorChatScreenState extends ConsumerState<CounselorChatScreen> {
     final consentAsync = ref.watch(adolescentConsentControllerProvider);
     final theme = Theme.of(context);
 
+    final activeTab = ref.watch(activeAdolescentTabProvider);
+    
     ref.listen(counselorChatControllerProvider, (previous, next) {
       next.whenData((data) {
         final prevCount = previous?.value?.messages.length ?? 0;
-        if (data.messages.length > prevCount) {
+        final newCount = data.messages.length;
+        
+        if (newCount > prevCount) {
           Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+          
+          // Mark as read only if the Counselor tab (index 2) is active 
+          // AND the new messages contain counselor messages
+          final hasNewCounselorMessage = data.messages.skip(prevCount).any((m) => m.senderRole != 'adolescent');
+          if (activeTab == 2 && hasNewCounselorMessage) {
+            ref.read(counselorChatControllerProvider.notifier).markMessagesAsRead();
+          }
         }
       });
     });

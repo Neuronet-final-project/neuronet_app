@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-// Feature screens (placeholder imports)
 // Feature screens
 import 'package:adolescent_app/features/journal/view/screens/journal_history_screen.dart';
 import 'package:adolescent_app/features/mood/view/screens/mood_screen.dart';
@@ -89,6 +88,19 @@ class _AuthChangeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+/// Provider to track the currently active tab index.
+/// Using a manual Notifier for compatibility with Riverpod V3/V2 without generator dependencies.
+class ActiveTabNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void update(int index) {
+    state = index;
+  }
+}
+
+final activeAdolescentTabProvider = NotifierProvider<ActiveTabNotifier, int>(ActiveTabNotifier.new);
 
 final adolescentRouterProvider = Provider<GoRouter>((ref) {
   // Listen to auth changes WITHOUT rebuilding this provider.
@@ -375,17 +387,14 @@ class AdolescentShell extends ConsumerStatefulWidget {
 
 class _AdolescentShellState extends ConsumerState<AdolescentShell> {
   int _getUnreadCount() {
-    // Use the totalUnreadMessageCount provider
-    final totalUnreadAsync = ref.watch(totalUnreadMessageCountProvider);
-    
-    return totalUnreadAsync.when(
-      data: (count) => count,
-      loading: () => 0,
-      error: (_, __) => 0,
-    );
+    // Watch the stable persistent notifier for badge updates
+    return ref.watch(unreadCountProvider);
   }
 
   void _onDestinationSelected(int index) {
+    // Update the active tab provider so screens know if they are visible
+    ref.read(activeAdolescentTabProvider.notifier).update(index);
+
     // If navigating to counselor chat (index 2), mark messages as read
     if (index == 2) {
       final controller = ref.read(counselorChatControllerProvider.notifier);

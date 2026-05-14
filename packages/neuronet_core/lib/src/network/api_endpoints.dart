@@ -92,6 +92,8 @@ class ApiEndpoints {
   static String channelInteract(String channelId, String postId) => '/channels/$channelId/posts/$postId/interact';
   static String channelModerate(String channelId, String postId, String interactionId) =>
       '/channels/$channelId/posts/$postId/interactions/$interactionId/moderate';
+  static String channelInteractionDetail(String channelId, String postId, String interactionId) =>
+      '/channels/$channelId/posts/$postId/interactions/$interactionId';
 
 
   // Educational Pages

@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:neuronet_core/neuronet_core.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../profile/providers/profile_provider.dart';
+import 'package:adolescent_app/config/router/app_router.dart';
 
 part 'counselor_chat_provider.freezed.dart';
 part 'counselor_chat_provider.g.dart';
@@ -25,6 +27,7 @@ abstract class CounselorChatState with _$CounselorChatState {
 class CounselorChatController extends _$CounselorChatController {
   String? _conversationId;
   bool _isSending = false;
+  bool _isRefreshing = false;
 
   /// Whether a message is currently being sent to the backend.
   bool get isSending => _isSending;
@@ -41,7 +44,16 @@ class CounselorChatController extends _$CounselorChatController {
       debugPrint('[CounselorChat] 📨 FCM chat event received — refreshing immediately');
       _silentRefresh();
     });
-    ref.onDispose(fcmSub.cancel);
+
+    // Add aggressive periodic polling every 2 seconds as a fallback and to match web dashboard behavior
+    final pollTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      _silentRefresh();
+    });
+
+    ref.onDispose(() {
+      fcmSub.cancel();
+      pollTimer.cancel();
+    });
 
     final profileState = await ref.watch(adolescentProfileControllerProvider.future);
     final user = profileState.user;
@@ -83,6 +95,14 @@ class CounselorChatController extends _$CounselorChatController {
         if (messagesResult.isSuccess) {
           debugPrint('[CounselorChat] ✓ Loaded ${messagesResult.value.length} message(s)');
           
+          // Trigger read status update once conversation is active, but only if the tab is visible
+          Future.microtask(() {
+            final activeTab = ref.read(activeAdolescentTabProvider);
+            if (activeTab == 2) {
+              markMessagesAsRead();
+            }
+          });
+          
           return CounselorChatState(
             conversation: existingConversation,
             counselorEmail: counselorEmail,
@@ -120,8 +140,9 @@ class CounselorChatController extends _$CounselorChatController {
 
   /// Silently refreshes messages without showing loading state
   Future<void> _silentRefresh() async {
-    if (_conversationId == null) return;
+    if (_conversationId == null || _isSending || _isRefreshing) return;
     
+    _isRefreshing = true;
     try {
       final result = await ref.read(messagingServiceProvider).getMessages(_conversationId!);
       if (result.isSuccess) {
@@ -130,15 +151,37 @@ class CounselorChatController extends _$CounselorChatController {
           final newMessageCount = result.value.length;
           final oldMessageCount = currentState.messages.length;
           
-          if (newMessageCount != oldMessageCount) {
-            debugPrint('[CounselorChat] 🔄 Silent refresh: $oldMessageCount → $newMessageCount messages');
-            state = AsyncValue.data(currentState.copyWith(messages: result.value));
+          if (true) { // Force update whenever new data arrives for real-time feel
+            debugPrint('[CounselorChat] 🔄 Aggressive refresh: ${oldMessageCount} → ${newMessageCount} messages');
+            state = AsyncValue.data(currentState.copyWith(
+              messages: _mergeAndSortMessages(currentState.messages, result.value),
+            ));
           }
         }
       }
     } catch (e) {
       debugPrint('[CounselorChat] ⚠ Silent refresh failed: $e');
+    } finally {
+      _isRefreshing = false;
     }
+  }
+
+  List<ConversationMessage> _mergeAndSortMessages(
+    List<ConversationMessage> existing,
+    List<ConversationMessage> incoming,
+  ) {
+    final Map<String, ConversationMessage> messageMap = {
+      for (var m in existing) m.id: m,
+    };
+
+    // Incoming messages from server always win
+    for (var m in incoming) {
+      messageMap[m.id] = m;
+    }
+
+    final sortedList = messageMap.values.toList();
+    sortedList.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return sortedList;
   }
 
   /// Initialize conversation after approval is granted
@@ -232,14 +275,13 @@ class CounselorChatController extends _$CounselorChatController {
       debugPrint('[CounselorChat] ✓ Sent: id=${sentMessage.id} role=${sentMessage.senderRole}');
 
       state = AsyncValue.data(currentState.copyWith(
-        messages: [...currentState.messages, sentMessage],
+        messages: _mergeAndSortMessages(currentState.messages, [sentMessage]),
       ));
     } catch (e, st) {
       debugPrint('[CounselorChat] ✗ Exception: $e');
       state = AsyncValue.error(e, st);
     } finally {
       _isSending = false;
-      state = AsyncValue.data(state.value ?? currentState);
     }
   }
 
@@ -272,14 +314,13 @@ class CounselorChatController extends _$CounselorChatController {
       debugPrint('[CounselorChat] ✓ Sent voice message: id=${sentMessage.id}');
 
       state = AsyncValue.data(currentState.copyWith(
-        messages: [...currentState.messages, sentMessage],
+        messages: _mergeAndSortMessages(currentState.messages, [sentMessage]),
       ));
     } catch (e, st) {
       debugPrint('[CounselorChat] ✗ Exception: $e');
       state = AsyncValue.error(e, st);
     } finally {
       _isSending = false;
-      state = AsyncValue.data(state.value ?? currentState);
     }
   }
 
@@ -314,7 +355,7 @@ class CounselorChatController extends _$CounselorChatController {
       debugPrint('[CounselorChat] ✓ Sent ${messageType.name} message: id=${sentMessage.id}');
 
       state = AsyncValue.data(currentState.copyWith(
-        messages: [...currentState.messages, sentMessage],
+        messages: _mergeAndSortMessages(currentState.messages, [sentMessage]),
       ));
     } catch (e, st) {
       debugPrint('[CounselorChat] ✗ Exception: $e');
@@ -357,6 +398,8 @@ class CounselorChatController extends _$CounselorChatController {
       
       if (result.isSuccess) {
         debugPrint('[CounselorChat] ✓ Messages marked as read');
+        // Refresh local unread count providers immediately
+        ref.read(unreadCountProvider.notifier).clear();
         // Refresh to get updated isRead status
         await _silentRefresh();
       } else {
@@ -400,27 +443,44 @@ class CounselorChatController extends _$CounselorChatController {
   }
 }
 
-/// Simple provider for total unread message count
-final totalUnreadMessageCountProvider = FutureProvider.autoDispose<int>((ref) async {
-  final messagingService = ref.watch(messagingServiceProvider);
-  final result = await messagingService.getTotalUnreadCount();
-  
-  return result.when(
-    success: (count) => count,
-    failure: (f) {
-      debugPrint('[TotalUnreadCount] Failed to fetch: ${f.message}');
-      return 0;
-    },
-  );
-});
+/// Notifier for total unread message count with stable polling.
+/// Manual implementation to avoid build_runner dependencies.
+class UnreadCountNotifier extends Notifier<int> {
+  Timer? _pollingTimer;
 
-/// Provider that auto-refreshes unread count every 5 seconds
-final autoRefreshUnreadCountProvider = StreamProvider.autoDispose<int>((ref) {
-  return Stream.periodic(const Duration(seconds: 5), (_) {
-    // Trigger a refresh by invalidating the future provider
-    ref.invalidate(totalUnreadMessageCountProvider);
-  }).asyncMap((_) async {
-    // Wait for the future provider to complete
-    return await ref.watch(totalUnreadMessageCountProvider.future);
-  });
-});
+  @override
+  int build() {
+    // Poll every 15 seconds to be less aggressive but still responsive
+    _pollingTimer = Timer.periodic(const Duration(seconds: 15), (_) => refresh());
+    
+    ref.onDispose(() {
+      _pollingTimer?.cancel();
+    });
+    
+    return 0;
+  }
+
+  Future<void> refresh() async {
+    final messagingService = ref.read(messagingServiceProvider);
+    final result = await messagingService.getTotalUnreadCount();
+    
+    result.when(
+      success: (count) {
+        if (state != count) {
+          state = count;
+        }
+      },
+      failure: (f) {
+        debugPrint('[UnreadCount] Polling failure: ${f.message}');
+        // We do NOT update the state here to maintain the last known good count
+      },
+    );
+  }
+
+  /// Optimistically clear the count
+  void clear() {
+    state = 0;
+  }
+}
+
+final unreadCountProvider = NotifierProvider<UnreadCountNotifier, int>(UnreadCountNotifier.new);
