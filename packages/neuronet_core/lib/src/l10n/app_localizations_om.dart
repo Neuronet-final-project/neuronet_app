@@ -495,7 +495,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get moodExcited => 'Gammachuu Guddaa';
 
   @override
-  String get moodTired => 'Dadhabbi';
+  String get moodTired => 'Dadhabbii';
 
   @override
   String get moodAngry => 'Aarii';
@@ -1244,10 +1244,10 @@ class AppLocalizationsOm extends AppLocalizations {
   String get aiPickLabel => 'FILANNOO AI';
 
   @override
-  String get smartPickLabel => 'smart pick';
+  String get smartPickLabel => 'Filannoo Hayyuu';
 
   @override
-  String get relatedArticle => 'smart pick';
+  String get relatedArticle => 'Barreeffama Wal-qabatu';
 
   @override
   String errorLabel(String message) {
@@ -1337,6 +1337,30 @@ class AppLocalizationsOm extends AppLocalizations {
 
   @override
   String get inThisTabLabel => 'Bakka kanatti';
+
+  @override
+  String get emotionalInsights => 'Hubannoo Miiraa';
+
+  @override
+  String get moodDistribution => 'Rabsama Miiraa';
+
+  @override
+  String get allTime => 'Yeroo hunda';
+
+  @override
+  String get thisMonth => 'Ji\'a kana';
+
+  @override
+  String get todaysInsights => 'Hubannoo Har\'aa';
+
+  @override
+  String get weeklyInsights => 'Hubannoo Torbee';
+
+  @override
+  String get monthlyInsights => 'Hubannoo Ji\'aa';
+
+  @override
+  String get analysisPending => 'Xiinxalli eeggamaa jira...';
 
   @override
   String get noChannelsYet => 'Chaanaaliin argame hin jiru';
@@ -1525,14 +1549,14 @@ class AppLocalizationsOm extends AppLocalizations {
   }
 
   @override
-  String get howToPlay => 'How to Play';
+  String get howToPlay => 'Akkamitti Taphadhu';
 
   @override
   String get moodMatcherInstructions =>
-      'Tap the mood icon that matches the target as fast as you can!';
+      'Mallattoo miiraa kan ዒላማ (target) waliin deemu danda\'u daddafee tuqi!';
 
   @override
-  String get findThisMood => 'FIND THIS MOOD:';
+  String get findThisMood => 'MIIRA KANA BARBAADI:';
 
   @override
   String scoreLabel(int score) {
@@ -1634,7 +1658,7 @@ class AppLocalizationsOm extends AppLocalizations {
   String get join => 'WALQUNNAMI';
 
   @override
-  String get thinkingAboutThis => 'Thinking about this?';
+  String get thinkingAboutThis => 'Waa\'ee kanaa yaadaa jirta?';
 
   @override
   String get keepJournaling => 'Barreessuu Itti Fufi';

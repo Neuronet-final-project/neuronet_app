@@ -475,7 +475,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get moodNeutral => 'መካከለኛ';
 
   @override
-  String get moodExcited => 'የተደሰተ';
+  String get moodExcited => 'በጣም የተደሰተ';
 
   @override
   String get moodTired => 'የደከመ';
@@ -502,7 +502,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get strongLabel => 'ከፍተኛ';
 
   @override
-  String get moodReasonPrompt => 'እንዲህ እንዲሰማዎት ያደረው ምንድን ነው?';
+  String get moodReasonPrompt => 'እንዲህ እንዲሰማዎት ያደረገው ምንድን ነው?';
 
   @override
   String get moodNoteHint => 'አጭር ማስታወሻ ያክሉ... (አማራጭ)';
@@ -515,13 +515,13 @@ class AppLocalizationsAm extends AppLocalizations {
 
   @override
   String get thanksCheckingIn =>
-      'ስለፈተሹ እናመሰግናለን።\nስሜትዎን መከታተል እራስዎን በተሻለ ሁኔታ ለመረዳት ይረዳዎታል።';
+      'ስለተከታተሉ እናመሰግናለን።\nስሜትዎን መከታተል እራስዎን በተሻለ ሁኔታ ለመረዳት ይረዳዎታል።';
 
   @override
   String get logAnotherMood => 'ሌላ ስሜት መዝግብ';
 
   @override
-  String get pastCheckInsHeader => 'ያለፉ ምርመራዎች';
+  String get pastCheckInsHeader => 'ያለፉ ክትትሎች';
 
   @override
   String get failedToLoadHistory => 'ታሪክን መጫን አልተቻለም';
@@ -1312,6 +1312,30 @@ class AppLocalizationsAm extends AppLocalizations {
   String get inThisTabLabel => 'በዚህ ትር ውስጥ';
 
   @override
+  String get emotionalInsights => 'የስሜት ግንዛቤዎች';
+
+  @override
+  String get moodDistribution => 'የስሜት ስርጭት';
+
+  @override
+  String get allTime => 'ሁልጊዜ';
+
+  @override
+  String get thisMonth => 'በዚህ ወር';
+
+  @override
+  String get todaysInsights => 'የዛሬ ግንዛቤዎች';
+
+  @override
+  String get weeklyInsights => 'የሳምንታዊ ግንዛቤዎች';
+
+  @override
+  String get monthlyInsights => 'የወርሃዊ ግንዛቤዎች';
+
+  @override
+  String get analysisPending => 'ትንታኔ በመጠባበቅ ላይ...';
+
+  @override
   String get noChannelsYet => 'ገና ምንም ቻናሎች የሉም';
 
   @override
@@ -1901,7 +1925,7 @@ class AppLocalizationsAm extends AppLocalizations {
   String get aggregatedInsights => 'የተጠቃለለ ግንዛቤዎች';
 
   @override
-  String get averageMoodSentiment => 'አማካኝ የስሜት ስሜት';
+  String get averageMoodSentiment => 'አማካኝ ስሜት';
 
   @override
   String allAdolescentsSubtitle(String period) {

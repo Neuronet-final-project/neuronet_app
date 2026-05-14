@@ -2490,6 +2490,54 @@ abstract class AppLocalizations {
   /// **'In this tab'**
   String get inThisTabLabel;
 
+  /// No description provided for @emotionalInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Emotional Insights'**
+  String get emotionalInsights;
+
+  /// No description provided for @moodDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood Distribution'**
+  String get moodDistribution;
+
+  /// No description provided for @allTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get allTime;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get thisMonth;
+
+  /// No description provided for @todaysInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Insights'**
+  String get todaysInsights;
+
+  /// No description provided for @weeklyInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Insights'**
+  String get weeklyInsights;
+
+  /// No description provided for @monthlyInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Insights'**
+  String get monthlyInsights;
+
+  /// No description provided for @analysisPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis pending...'**
+  String get analysisPending;
+
   /// No description provided for @noChannelsYet.
   ///
   /// In en, this message translates to:

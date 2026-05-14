@@ -1341,6 +1341,30 @@ class AppLocalizationsEs extends AppLocalizations {
   String get inThisTabLabel => 'In this tab';
 
   @override
+  String get emotionalInsights => 'Emotional Insights';
+
+  @override
+  String get moodDistribution => 'Mood Distribution';
+
+  @override
+  String get allTime => 'All time';
+
+  @override
+  String get thisMonth => 'This Month';
+
+  @override
+  String get todaysInsights => 'Today\'s Insights';
+
+  @override
+  String get weeklyInsights => 'Weekly Insights';
+
+  @override
+  String get monthlyInsights => 'Monthly Insights';
+
+  @override
+  String get analysisPending => 'Analysis pending...';
+
+  @override
   String get noChannelsYet => 'No channels yet';
 
   @override
