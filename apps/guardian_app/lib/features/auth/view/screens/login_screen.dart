@@ -111,7 +111,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
-    final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
 
     // Guard against hot-reload before initState completes
@@ -306,18 +305,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           color: Colors.white, size: 18),
                                     ),
                                     const SizedBox(width: 12),
-                                    const Column(
+                                    Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text('Guardian Portal 👋',
-                                            style: TextStyle(
+                                        Text(context.localizations.guardianPortal,
+                                            style: const TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w800,
                                               color: Color(0xFF4A0E1C),
                                             )),
-                                        Text('Secure access for oversight',
-                                            style: TextStyle(
+                                        Text(context.localizations.secureAccessOversight,
+                                            style: const TextStyle(
                                               fontSize: 12,
                                               color: Color(0xFF8A6E75),
                                             )),
@@ -336,10 +335,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
                                   validator: (v) {
-                                    if (v == null || v.isEmpty)
+                                    if (v == null || v.isEmpty) {
                                       return 'Please enter your email';
-                                    if (!v.contains('@'))
+                                    }
+                                    if (!v.contains('@')) {
                                       return 'Enter a valid email';
+                                    }
                                     return null;
                                   },
                                   onFieldSubmitted: (_) => FocusScope.of(context)
@@ -367,10 +368,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         _obscurePassword = !_obscurePassword),
                                   ),
                                   validator: (v) {
-                                    if (v == null || v.isEmpty)
+                                    if (v == null || v.isEmpty) {
                                       return 'Please enter your password';
-                                    if (v.length < 6)
+                                    }
+                                    if (v.length < 6) {
                                       return 'At least 6 characters';
+                                    }
                                     return null;
                                   },
                                   onFieldSubmitted: (_) => _handleLogin(),
@@ -419,12 +422,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         child: Divider(
                                             color: const Color(0xFFF0DCE0),
                                             thickness: 1)),
-                                    const Padding(
+                                    Padding(
                                       padding:
-                                          EdgeInsets.symmetric(horizontal: 10),
-                                      child: Text('New Guardian?',
-                                          style: TextStyle(
-                                              fontSize: 11,
+                                          const EdgeInsets.symmetric(horizontal: 10),
+                                      child: Text(
+                                        context.localizations.newGuardianPrompt,
+                                        style: const TextStyle(                                              fontSize: 11,
                                               color: Color(0xFF8A6E75))),
                                     ),
                                     Expanded(

@@ -6,7 +6,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:collection/collection.dart';
 import 'package:guardian_app/features/ui/bento_card.dart';
 import 'package:guardian_app/config/theme/guardian_theme.dart';
-import 'dart:ui';
 
 class ConsentScreen extends ConsumerWidget {
   const ConsentScreen({super.key});
@@ -23,9 +22,9 @@ class ConsentScreen extends ConsumerWidget {
             backgroundColor: const Color(0xFFF9FAFB),
             surfaceTintColor: const Color(0xFFF9FAFB),
             elevation: 0,
-            title: const Text(
-              'Privacy & Oversight',
-              style: TextStyle(
+            title: Text(
+              context.localizations.privacyOversight,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: NeuroColors.guardianPrimaryDark,
@@ -36,7 +35,7 @@ class ConsentScreen extends ConsumerWidget {
                 icon: const Icon(Icons.refresh_rounded),
                 onPressed: () =>
                     ref.read(guardianConsentControllerProvider.notifier).refresh(),
-                tooltip: 'Refresh settings',
+                tooltip: context.localizations.refreshSettingsTooltip,
               ),
             ],
           ),
@@ -57,7 +56,7 @@ class ConsentScreen extends ConsumerWidget {
               final consents = state.consents;
               if (consents.isEmpty) {
                 return SliverFillRemaining(
-                  child: _buildEmptyState(),
+                  child: _buildEmptyState(context),
                 );
               }
 
@@ -131,9 +130,9 @@ class ConsentScreen extends ConsumerWidget {
                 child: const Icon(Icons.security_rounded, color: Colors.white, size: 28),
               ),
               const SizedBox(width: 16),
-              const Text(
-                'Security Hub',
-                style: TextStyle(
+              Text(
+                context.localizations.securityHub,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
@@ -143,7 +142,7 @@ class ConsentScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'Configure how Neuronet supports your adolescent. Balance their journey toward independence with the oversight needed for a safe environment.',
+            context.localizations.consentHeroDesc,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.9),
               fontSize: 14,
@@ -199,7 +198,7 @@ class ConsentScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'SETTINGS FOR $email'.toUpperCase(),
+                  context.localizations.settingsForAdolescent(email).toUpperCase(),
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -219,8 +218,8 @@ class ConsentScreen extends ConsumerWidget {
           child: Column(
             children: [
               _buildInnerSectionHeader(
-                title: 'Data & Privacy',
-                subtitle: 'Manage how data is processed',
+                title: context.localizations.dataAndPrivacy,
+                subtitle: context.localizations.manageDataProcessed,
                 icon: Icons.psychology_outlined,
               ),
               const SizedBox(height: 12),
@@ -245,8 +244,8 @@ class ConsentScreen extends ConsumerWidget {
                 child: Divider(height: 1, thickness: 0.5),
               ),
               _buildInnerSectionHeader(
-                title: 'Safety Monitoring',
-                subtitle: 'Proactive alerts and support',
+                title: context.localizations.safetyMonitoring,
+                subtitle: context.localizations.proactiveAlertsSupport,
                 icon: Icons.security_outlined,
               ),
               const SizedBox(height: 12),
@@ -400,13 +399,13 @@ class ConsentScreen extends ConsumerWidget {
       if (context.mounted) {
         NeuroToast.show(
           context,
-          '${consent.consentType.label} updated',
+          '${consent.consentType.label} ${value ? context.localizations.granted : context.localizations.revoked}',
           type: value ? NeuroToastType.success : NeuroToastType.info,
         );
       }
     } catch (e) {
       if (context.mounted) {
-        NeuroToast.show(context, 'Update failed: $e', type: NeuroToastType.error);
+        NeuroToast.show(context, '${context.localizations.errorPrefix}: $e', type: NeuroToastType.error);
       }
     }
   }
@@ -421,11 +420,11 @@ class ConsentScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState() {
-    return const Center(
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
       child: NeuroEmptyState(
-        title: 'No Linked Accounts',
-        message: 'Consent management will appear once an adolescent account is linked.',
+        title: context.localizations.noLinkedAccounts,
+        message: context.localizations.consentManagementAwaitsLink,
         icon: Icons.link_off_rounded,
       ),
     );

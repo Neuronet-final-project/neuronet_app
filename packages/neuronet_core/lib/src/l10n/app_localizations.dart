@@ -741,8 +741,14 @@ abstract class AppLocalizations {
   /// No description provided for @filterMood.
   ///
   /// In en, this message translates to:
-  /// **'MOOD'**
+  /// **'EMOTION'**
   String get filterMood;
+
+  /// No description provided for @filterEmotion.
+  ///
+  /// In en, this message translates to:
+  /// **'EMOTION'**
+  String get filterEmotion;
 
   /// No description provided for @filterResults.
   ///
@@ -1446,6 +1452,12 @@ abstract class AppLocalizations {
   /// **'Account activated! Please login.'**
   String get accountActivatedLogin;
 
+  /// No description provided for @activateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate Account'**
+  String get activateAccount;
+
   /// No description provided for @activateAccountTitle.
   ///
   /// In en, this message translates to:
@@ -1740,6 +1752,42 @@ abstract class AppLocalizations {
   /// **'Use the activation code provided by your guardian to unlock your personal emotional journey.'**
   String get onboardingDesc4;
 
+  /// No description provided for @guardianOnboardingTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Empower Growth'**
+  String get guardianOnboardingTitle1;
+
+  /// No description provided for @guardianOnboardingDesc1.
+  ///
+  /// In en, this message translates to:
+  /// **'Help your child grow with confidence. NeuroNet provides a safe balance between support and independence.'**
+  String get guardianOnboardingDesc1;
+
+  /// No description provided for @guardianOnboardingTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent-Driven Oversight'**
+  String get guardianOnboardingTitle2;
+
+  /// No description provided for @guardianOnboardingDesc2.
+  ///
+  /// In en, this message translates to:
+  /// **'You decide what information is shared with counselors. Your oversight is always based on the consents you manage.'**
+  String get guardianOnboardingDesc2;
+
+  /// No description provided for @guardianOnboardingTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay Informed, Respect Privacy'**
+  String get guardianOnboardingTitle3;
+
+  /// No description provided for @guardianOnboardingDesc3.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive AI-generated summaries and alerts about emotional trends, without ever exposing your child\'s private journal text.'**
+  String get guardianOnboardingDesc3;
+
   /// No description provided for @noCommentsYet.
   ///
   /// In en, this message translates to:
@@ -1881,25 +1929,25 @@ abstract class AppLocalizations {
   /// No description provided for @loadingConsent.
   ///
   /// In en, this message translates to:
-  /// **'Checking permissions...'**
+  /// **'Loading consent status...'**
   String get loadingConsent;
 
   /// No description provided for @unableToStartChat.
   ///
   /// In en, this message translates to:
-  /// **'Unable to start chat.'**
+  /// **'Unable to Start Counselor Chat'**
   String get unableToStartChat;
 
   /// No description provided for @noMessagesYet.
   ///
   /// In en, this message translates to:
-  /// **'No messages yet.'**
+  /// **'No Messages Yet'**
   String get noMessagesYet;
 
   /// No description provided for @startConversationWithCounselor.
   ///
   /// In en, this message translates to:
-  /// **'Start a conversation with your counselor.'**
+  /// **'Send a message to start a conversation\nwith your counselor.'**
   String get startConversationWithCounselor;
 
   /// No description provided for @counselorPrompt1.
@@ -2217,13 +2265,13 @@ abstract class AppLocalizations {
   /// No description provided for @noAiPicks.
   ///
   /// In en, this message translates to:
-  /// **'No AI picks yet'**
+  /// **'No AI picks yet!'**
   String get noAiPicks;
 
   /// No description provided for @aiPicksDesc.
   ///
   /// In en, this message translates to:
-  /// **'Check back later for personalized recommendations.'**
+  /// **'Keep journaling and exploring! Our AI will analyze your journey and suggest personalized content.'**
   String get aiPicksDesc;
 
   /// No description provided for @couldNotLoadAiRecs.
@@ -2544,18 +2592,6 @@ abstract class AppLocalizations {
   /// **'Paused: General Participation is off'**
   String get participationPausedNote;
 
-  /// No description provided for @guardianOversightNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Guardian Oversight'**
-  String get guardianOversightNote;
-
-  /// No description provided for @guardianOversightNoteDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Your guardian can see your mood trends but not your private journals.'**
-  String get guardianOversightNoteDesc;
-
   /// No description provided for @understandingPrivacy.
   ///
   /// In en, this message translates to:
@@ -2627,18 +2663,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load alerts.'**
   String get couldNotLoadAlerts;
-
-  /// No description provided for @you.
-  ///
-  /// In en, this message translates to:
-  /// **'You'**
-  String get you;
-
-  /// No description provided for @friend.
-  ///
-  /// In en, this message translates to:
-  /// **'friend'**
-  String get friend;
 
   /// No description provided for @refreshingDashboard.
   ///
@@ -2867,12 +2891,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your guardian has revoked approval for this counselor. You can request approval again to continue chatting.'**
   String get guardianRevokedApprovalDesc;
-
-  /// No description provided for @requestDenied.
-  ///
-  /// In en, this message translates to:
-  /// **'Request Denied'**
-  String get requestDenied;
 
   /// No description provided for @guardianDeniedRequestDesc.
   ///
@@ -3156,12 +3174,6 @@ abstract class AppLocalizations {
   /// **'End Call'**
   String get endCall;
 
-  /// No description provided for @decline.
-  ///
-  /// In en, this message translates to:
-  /// **'Decline'**
-  String get decline;
-
   /// No description provided for @accept.
   ///
   /// In en, this message translates to:
@@ -3359,6 +3371,1098 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Safe space for counselor guidance and updates.'**
   String get safeSpaceCounselor;
+
+  /// No description provided for @guardianOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian Overview'**
+  String get guardianOverview;
+
+  /// No description provided for @linkedAdolescents.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked Adolescents'**
+  String get linkedAdolescents;
+
+  /// No description provided for @riskLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk Level: {risk}'**
+  String riskLevel(String risk);
+
+  /// No description provided for @lowRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'LOW'**
+  String get lowRisk;
+
+  /// No description provided for @mediumRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'MEDIUM'**
+  String get mediumRisk;
+
+  /// No description provided for @highRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'HIGH'**
+  String get highRisk;
+
+  /// No description provided for @viewAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'View Alerts'**
+  String get viewAlerts;
+
+  /// No description provided for @viewAlertsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check active alerts for your adolescents'**
+  String get viewAlertsSubtitle;
+
+  /// No description provided for @addAdolescent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Adolescent'**
+  String get addAdolescent;
+
+  /// No description provided for @addAdolescentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a new account to your command center'**
+  String get addAdolescentSubtitle;
+
+  /// No description provided for @pendingActivations.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Activations'**
+  String get pendingActivations;
+
+  /// No description provided for @noAdolescentsAwaitingActivation.
+  ///
+  /// In en, this message translates to:
+  /// **'No adolescents awaiting activation'**
+  String get noAdolescentsAwaitingActivation;
+
+  /// No description provided for @adolescentsAwaitingActivation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} adolescent(s) awaiting activation'**
+  String adolescentsAwaitingActivation(int count);
+
+  /// No description provided for @counselorApprovals.
+  ///
+  /// In en, this message translates to:
+  /// **'Counselor Approvals'**
+  String get counselorApprovals;
+
+  /// No description provided for @counselorApprovalsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage counselor communication requests'**
+  String get counselorApprovalsSubtitle;
+
+  /// No description provided for @noDashboardData.
+  ///
+  /// In en, this message translates to:
+  /// **'No dashboard data available.'**
+  String get noDashboardData;
+
+  /// No description provided for @dataUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Unavailable'**
+  String get dataUnavailable;
+
+  /// No description provided for @guardianDataUnavailableDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian activity data is temporarily unavailable. Quick Actions are active.'**
+  String get guardianDataUnavailableDesc;
+
+  /// No description provided for @adolescentsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Adolescents'**
+  String get adolescentsLabel;
+
+  /// No description provided for @totalJournalsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Journals'**
+  String get totalJournalsLabel;
+
+  /// No description provided for @emotionalTrends.
+  ///
+  /// In en, this message translates to:
+  /// **'Emotional Trends'**
+  String get emotionalTrends;
+
+  /// No description provided for @noTrendDataYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Trend Data Yet'**
+  String get noTrendDataYet;
+
+  /// No description provided for @noTrendDataDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend visualization will appear once mood entries are recorded by linked adolescents.'**
+  String get noTrendDataDesc;
+
+  /// No description provided for @sevenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'7d'**
+  String get sevenDays;
+
+  /// No description provided for @fourteenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'14d'**
+  String get fourteenDays;
+
+  /// No description provided for @thirtyDays.
+  ///
+  /// In en, this message translates to:
+  /// **'30d'**
+  String get thirtyDays;
+
+  /// No description provided for @aggregatedInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Aggregated Insights'**
+  String get aggregatedInsights;
+
+  /// No description provided for @averageMoodSentiment.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Mood Sentiment'**
+  String get averageMoodSentiment;
+
+  /// No description provided for @allAdolescentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Across all linked adolescents (last {period})'**
+  String allAdolescentsSubtitle(String period);
+
+  /// No description provided for @alertsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts Summary'**
+  String get alertsSummary;
+
+  /// No description provided for @totalCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} total'**
+  String totalCount(int count);
+
+  /// No description provided for @alertsSeverityBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Low: {low}, Medium: {med}, High: {high}'**
+  String alertsSeverityBreakdown(int low, int med, int high);
+
+  /// No description provided for @activityStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Stats'**
+  String get activityStats;
+
+  /// No description provided for @journalMoodStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{journalCount} journals, {moodCount} mood entries'**
+  String journalMoodStats(int journalCount, int moodCount);
+
+  /// No description provided for @adolescentsLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} adolescent(s) linked'**
+  String adolescentsLinked(int count);
+
+  /// No description provided for @adolescentProfiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Adolescent Profiles'**
+  String get adolescentProfiles;
+
+  /// No description provided for @failedToLoadAdolescents.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load adolescents'**
+  String get failedToLoadAdolescents;
+
+  /// No description provided for @registerAdolescentGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Register an adolescent to get started.'**
+  String get registerAdolescentGetStarted;
+
+  /// No description provided for @interventionHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervention Hub'**
+  String get interventionHub;
+
+  /// No description provided for @registrationDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration Details'**
+  String get registrationDetails;
+
+  /// No description provided for @relationship.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship'**
+  String get relationship;
+
+  /// No description provided for @linkedSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked Since'**
+  String get linkedSince;
+
+  /// No description provided for @activePermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Permissions'**
+  String get activePermissions;
+
+  /// No description provided for @noConsentsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No Consents Found'**
+  String get noConsentsFound;
+
+  /// No description provided for @noConsentsFoundDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'No consents record found for this account.'**
+  String get noConsentsFoundDesc;
+
+  /// No description provided for @manageAllConsents.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage All Consents'**
+  String get manageAllConsents;
+
+  /// No description provided for @unlinkAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink This Account'**
+  String get unlinkAccount;
+
+  /// No description provided for @personalAccountTag.
+  ///
+  /// In en, this message translates to:
+  /// **'PERSONAL ACCOUNT'**
+  String get personalAccountTag;
+
+  /// No description provided for @aiGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Guide'**
+  String get aiGuide;
+
+  /// No description provided for @viewTips.
+  ///
+  /// In en, this message translates to:
+  /// **'View tips'**
+  String get viewTips;
+
+  /// No description provided for @followsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows'**
+  String get followsLabel;
+
+  /// No description provided for @educationalPagesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Educational pages'**
+  String get educationalPagesSubtitle;
+
+  /// No description provided for @activeStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE'**
+  String get activeStatus;
+
+  /// No description provided for @disabledStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'DISABLED'**
+  String get disabledStatus;
+
+  /// No description provided for @guardianPortal.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian Portal 👋'**
+  String get guardianPortal;
+
+  /// No description provided for @secureAccessOversight.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure access for oversight'**
+  String get secureAccessOversight;
+
+  /// No description provided for @newGuardianPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'New Guardian?'**
+  String get newGuardianPrompt;
+
+  /// No description provided for @noAdolescentsLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'No Adolescents Linked'**
+  String get noAdolescentsLinked;
+
+  /// No description provided for @sendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get sendMessage;
+
+  /// No description provided for @alertsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts History'**
+  String get alertsHistory;
+
+  /// No description provided for @filterBySeverity.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by Severity'**
+  String get filterBySeverity;
+
+  /// No description provided for @noAlertsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No Alerts Found'**
+  String get noAlertsFound;
+
+  /// No description provided for @noAlertsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts yet'**
+  String get noAlertsYet;
+
+  /// No description provided for @noAlertsYetDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'We will notify you if any concerning patterns appear.'**
+  String get noAlertsYetDesc;
+
+  /// No description provided for @noAlertsFoundDescFiltered.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts match the \"{severity}\" severity filter.'**
+  String noAlertsFoundDescFiltered(String severity);
+
+  /// No description provided for @clearFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Filter'**
+  String get clearFilter;
+
+  /// No description provided for @securityAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Alerts'**
+  String get securityAlerts;
+
+  /// No description provided for @adolescentProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Adolescent Profile'**
+  String get adolescentProfile;
+
+  /// No description provided for @registerNewAdolescent.
+  ///
+  /// In en, this message translates to:
+  /// **'Register New Adolescent'**
+  String get registerNewAdolescent;
+
+  /// No description provided for @approvalRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval Requests'**
+  String get approvalRequests;
+
+  /// No description provided for @noApprovalRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No Approval Requests'**
+  String get noApprovalRequests;
+
+  /// No description provided for @noApprovalRequestsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval requests from your adolescents will appear here'**
+  String get noApprovalRequestsDesc;
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pending;
+
+  /// No description provided for @noPendingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No Pending Requests'**
+  String get noPendingRequests;
+
+  /// No description provided for @noPendingRequestsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'All approval requests have been reviewed'**
+  String get noPendingRequestsDesc;
+
+  /// No description provided for @noHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No History'**
+  String get noHistory;
+
+  /// No description provided for @noHistoryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed approval requests will appear here'**
+  String get noHistoryDesc;
+
+  /// No description provided for @revokeApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke Approval'**
+  String get revokeApproval;
+
+  /// No description provided for @revoke.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke'**
+  String get revoke;
+
+  /// No description provided for @approvalRevokedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval revoked successfully'**
+  String get approvalRevokedSuccess;
+
+  /// No description provided for @deny.
+  ///
+  /// In en, this message translates to:
+  /// **'Deny'**
+  String get deny;
+
+  /// No description provided for @approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approve;
+
+  /// No description provided for @secureAccessWithCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure your access with your code'**
+  String get secureAccessWithCode;
+
+  /// No description provided for @accountEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Email'**
+  String get accountEmail;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Login'**
+  String get backToLogin;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// No description provided for @empowerParentingJourney.
+  ///
+  /// In en, this message translates to:
+  /// **'Empower your parenting journey'**
+  String get empowerParentingJourney;
+
+  /// No description provided for @alreadyGuardian.
+  ///
+  /// In en, this message translates to:
+  /// **'Already a Guardian?'**
+  String get alreadyGuardian;
+
+  /// No description provided for @dataAndPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Data & Privacy'**
+  String get dataAndPrivacy;
+
+  /// No description provided for @manageDataProcessed.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage how data is processed'**
+  String get manageDataProcessed;
+
+  /// No description provided for @safetyMonitoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety Monitoring'**
+  String get safetyMonitoring;
+
+  /// No description provided for @proactiveAlertsSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Proactive alerts and support'**
+  String get proactiveAlertsSupport;
+
+  /// No description provided for @noLinkedAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'No Linked Accounts'**
+  String get noLinkedAccounts;
+
+  /// No description provided for @consentManagementAwaitsLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent management will appear once an adolescent account is linked.'**
+  String get consentManagementAwaitsLink;
+
+  /// No description provided for @pickedForUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked for {name}'**
+  String pickedForUser(String name);
+
+  /// No description provided for @empowerGrowth.
+  ///
+  /// In en, this message translates to:
+  /// **'Empower Growth'**
+  String get empowerGrowth;
+
+  /// No description provided for @consentDrivenOversight.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent-Driven Oversight'**
+  String get consentDrivenOversight;
+
+  /// No description provided for @stayInformedRespectPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay Informed, Respect Privacy'**
+  String get stayInformedRespectPrivacy;
+
+  /// No description provided for @updateProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Profile'**
+  String get updateProfile;
+
+  /// No description provided for @completeRegistration.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Registration'**
+  String get completeRegistration;
+
+  /// No description provided for @adolescentFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Adolescent\'s Full Name'**
+  String get adolescentFullName;
+
+  /// No description provided for @supportEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Support Email (Required)'**
+  String get supportEmailRequired;
+
+  /// No description provided for @returnToDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to Dashboard'**
+  String get returnToDashboard;
+
+  /// No description provided for @activationCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation code copied'**
+  String get activationCodeCopied;
+
+  /// No description provided for @alertResolvedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert resolved successfully'**
+  String get alertResolvedSuccess;
+
+  /// No description provided for @failedToResolveAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to resolve alert: {error}'**
+  String failedToResolveAlert(String error);
+
+  /// No description provided for @markAsResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Resolved'**
+  String get markAsResolved;
+
+  /// No description provided for @errorLoadingAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load alerts.'**
+  String get errorLoadingAlerts;
+
+  /// No description provided for @alertNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert Not Found'**
+  String get alertNotFound;
+
+  /// No description provided for @alertNotFoundDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'This alert may have been resolved or deleted.'**
+  String get alertNotFoundDesc;
+
+  /// No description provided for @addedDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {date}'**
+  String addedDateLabel(String date);
+
+  /// No description provided for @waitingForConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Connection'**
+  String get waitingForConnection;
+
+  /// No description provided for @waitingForConnectionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Ensure your adolescent enters the activation code on their device to establish the encrypted emotional health monitoring link.'**
+  String get waitingForConnectionDesc;
+
+  /// No description provided for @viewActivationInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'View Activation Info'**
+  String get viewActivationInfo;
+
+  /// No description provided for @accountDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Details'**
+  String get accountDetails;
+
+  /// No description provided for @alertAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert Analysis'**
+  String get alertAnalysis;
+
+  /// No description provided for @aiInsight.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Insight'**
+  String get aiInsight;
+
+  /// No description provided for @detectedEmotions.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected Emotions'**
+  String get detectedEmotions;
+
+  /// No description provided for @triggerDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger Details'**
+  String get triggerDetails;
+
+  /// No description provided for @resolutionNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolution Notes'**
+  String get resolutionNotes;
+
+  /// No description provided for @resolutionNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add any notes about how this alert was addressed...'**
+  String get resolutionNotesHint;
+
+  /// No description provided for @generalBehavioralCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'General Behavioral Check'**
+  String get generalBehavioralCheck;
+
+  /// No description provided for @emotionalContext.
+  ///
+  /// In en, this message translates to:
+  /// **'Emotional Context'**
+  String get emotionalContext;
+
+  /// No description provided for @triggerPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger Pattern'**
+  String get triggerPattern;
+
+  /// No description provided for @resolutionGuardrail.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolution & Guardrail'**
+  String get resolutionGuardrail;
+
+  /// No description provided for @enterObservations.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter observations or actions taken...'**
+  String get enterObservations;
+
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// No description provided for @failedToLoadApprovals.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load approval requests'**
+  String get failedToLoadApprovals;
+
+  /// No description provided for @requestApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Request approved'**
+  String get requestApproved;
+
+  /// No description provided for @requestDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Request denied'**
+  String get requestDenied;
+
+  /// No description provided for @revokeApprovalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to revoke this approval? The adolescent will no longer be able to communicate with this counselor, but can request approval again.'**
+  String get revokeApprovalDesc;
+
+  /// No description provided for @wantsToCommunicate.
+  ///
+  /// In en, this message translates to:
+  /// **'wants to communicate with counselor'**
+  String get wantsToCommunicate;
+
+  /// No description provided for @reasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get reasonLabel;
+
+  /// No description provided for @requestedDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested {date}'**
+  String requestedDateLabel(String date);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hour ago} other{{count} hours ago}}'**
+  String hoursAgo(int count);
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 minute ago} other{{count} minutes ago}}'**
+  String minutesAgo(int count);
+
+  /// No description provided for @justNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get justNow;
+
+  /// No description provided for @activationSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account activated! Please login.'**
+  String get activationSuccess;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email'**
+  String get invalidEmail;
+
+  /// No description provided for @enterActivationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter activation code'**
+  String get enterActivationCode;
+
+  /// No description provided for @min6Characters.
+  ///
+  /// In en, this message translates to:
+  /// **'Min 6 characters'**
+  String get min6Characters;
+
+  /// No description provided for @signUpSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration successful! Please login.'**
+  String get signUpSuccess;
+
+  /// No description provided for @errorDuringSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during signup'**
+  String get errorDuringSignUp;
+
+  /// No description provided for @enterFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get enterFullName;
+
+  /// No description provided for @signUpNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up Now'**
+  String get signUpNow;
+
+  /// No description provided for @guardianEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Guardian Email'**
+  String get guardianEmail;
+
+  /// No description provided for @createPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Password'**
+  String get createPassword;
+
+  /// No description provided for @privacyOversight.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Oversight'**
+  String get privacyOversight;
+
+  /// No description provided for @refreshSettingsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh settings'**
+  String get refreshSettingsTooltip;
+
+  /// No description provided for @failedToLoadSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load settings'**
+  String get failedToLoadSettings;
+
+  /// No description provided for @securityHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Hub'**
+  String get securityHub;
+
+  /// No description provided for @consentHeroDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure how Neuronet supports your adolescent. Balance their journey toward independence with the oversight needed for a safe environment.'**
+  String get consentHeroDesc;
+
+  /// No description provided for @consentRevokedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent revoked successfully'**
+  String get consentRevokedSuccess;
+
+  /// No description provided for @failedToRevokeConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to revoke consent: {error}'**
+  String failedToRevokeConsent(String error);
+
+  /// No description provided for @consentGrantedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent granted successfully'**
+  String get consentGrantedSuccess;
+
+  /// No description provided for @failedToGrantConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to grant consent: {error}'**
+  String failedToGrantConsent(String error);
+
+  /// No description provided for @settingsForAdolescent.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings for {email}'**
+  String settingsForAdolescent(String email);
+
+  /// No description provided for @chattingAboutAdolescent.
+  ///
+  /// In en, this message translates to:
+  /// **'Chatting about {name}'**
+  String chattingAboutAdolescent(String name);
+
+  /// No description provided for @noCounselorLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'No Counselor Linked'**
+  String get noCounselorLinked;
+
+  /// No description provided for @noCounselorLinkedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A counselor hasn\'t been assigned or linked to {name}\'s account yet.'**
+  String noCounselorLinkedDesc(String name);
+
+  /// No description provided for @notLinkedToCounselor.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is not currently linked to a counselor.'**
+  String notLinkedToCounselor(String name);
+
+  /// No description provided for @counselorAssistanceAwaits.
+  ///
+  /// In en, this message translates to:
+  /// **'Communication and collaboration will appear here once a connection is established.'**
+  String get counselorAssistanceAwaits;
+
+  /// No description provided for @startCollaboration.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Collaboration'**
+  String get startCollaboration;
+
+  /// No description provided for @regardingAdolescent.
+  ///
+  /// In en, this message translates to:
+  /// **'Regarding: {name}'**
+  String regardingAdolescent(String name);
+
+  /// No description provided for @chatEnabledConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat enabled - Adolescent consent on file'**
+  String get chatEnabledConsent;
+
+  /// No description provided for @chatDisabledConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat disabled - Adolescent consent required'**
+  String get chatDisabledConsent;
+
+  /// No description provided for @noCounselorAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'No Counselor Assigned'**
+  String get noCounselorAssigned;
+
+  /// No description provided for @noCounselorAssignedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'An assigned counselor is required to start a conversation. Please wait for the school administration to assign a professional to {name}.'**
+  String noCounselorAssignedDesc(String name);
+
+  /// No description provided for @startConversationWithCounselorSimple.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a conversation with the counselor'**
+  String get startConversationWithCounselorSimple;
+
+  /// No description provided for @noFollowsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No followed pages found'**
+  String get noFollowsFound;
+
+  /// No description provided for @noFollowsFoundDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} hasn\'t followed any educational pages yet.'**
+  String noFollowsFoundDesc(String name);
+
+  /// No description provided for @noPicksYetDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalized recommendations will appear here as {name} continues journaling and exploring.'**
+  String noPicksYetDesc(String name);
+
+  /// No description provided for @couldNotLoadRecs.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load recommendations.'**
+  String get couldNotLoadRecs;
+
+  /// No description provided for @followedDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Followed {date}'**
+  String followedDateLabel(String date);
+
+  /// No description provided for @recently.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently'**
+  String get recently;
+
+  /// No description provided for @viewsCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 view} other{{count} views}}'**
+  String viewsCountLabel(int count);
+
+  /// No description provided for @deleteMessageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Message'**
+  String get deleteMessageTitle;
+
+  /// No description provided for @deleteMessageConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this message? This action cannot be undone.'**
+  String get deleteMessageConfirm;
+
+  /// No description provided for @deleteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteLabel;
+
+  /// No description provided for @cancelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelLabel;
+
+  /// No description provided for @you.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get you;
+
+  /// No description provided for @decline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get decline;
 }
 
 class _AppLocalizationsDelegate

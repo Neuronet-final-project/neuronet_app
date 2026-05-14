@@ -24,18 +24,23 @@ abstract class CounselorChatState with _$CounselorChatState {
 class CounselorChatController extends _$CounselorChatController {
   String? _conversationId;
   bool _isSending = false;
-  Timer? _autoRefreshTimer;
 
   /// Whether a message is currently being sent to the backend.
   bool get isSending => _isSending;
 
   @override
   FutureOr<CounselorChatState> build() async {
-    // Clean up timer when provider is disposed
+    // Clean up FCM subscription when provider is disposed
     ref.onDispose(() {
-      _autoRefreshTimer?.cancel();
-      _autoRefreshTimer = null;
     });
+
+    // Listen to FCM chat events for instant refresh
+    final notifService = ref.read(notificationServiceProvider.notifier);
+    final fcmSub = notifService.onChatMessage.listen((_) {
+      debugPrint('[CounselorChat] 📨 FCM chat event received — refreshing immediately');
+      _silentRefresh();
+    });
+    ref.onDispose(fcmSub.cancel);
 
     final profileState = await ref.watch(adolescentProfileControllerProvider.future);
     final user = profileState.user;
@@ -77,9 +82,6 @@ class CounselorChatController extends _$CounselorChatController {
         if (messagesResult.isSuccess) {
           debugPrint('[CounselorChat] ✓ Loaded ${messagesResult.value.length} message(s)');
           
-          // Start auto-refresh timer to check for new messages every 10 seconds
-          _startAutoRefresh();
-          
           return CounselorChatState(
             conversation: existingConversation,
             counselorEmail: counselorEmail,
@@ -113,27 +115,6 @@ class CounselorChatController extends _$CounselorChatController {
       conversation: existingConversation,
       counselorEmail: counselorEmail,
     );
-  }
-
-  /// Starts a timer to automatically refresh messages
-  void _startAutoRefresh() {
-    _autoRefreshTimer?.cancel();
-    _scheduleNextAutoRefresh();
-  }
-
-  void _scheduleNextAutoRefresh() {
-    if (!ref.mounted) return;
-
-    // 10s base + random jitter (-2s to +2s)
-    final jitterMs = math.Random().nextInt(4000) - 2000;
-    final duration = Duration(milliseconds: 10000 + jitterMs);
-
-    _autoRefreshTimer = Timer(duration, () async {
-      if (!ref.mounted) return;
-      await _silentRefresh();
-      _scheduleNextAutoRefresh();
-    });
-    debugPrint('[CounselorChat] ✓ Auto-refresh scheduled (approx. every 10 seconds)');
   }
 
   /// Silently refreshes messages without showing loading state
@@ -209,9 +190,6 @@ class CounselorChatController extends _$CounselorChatController {
           final preview = m.content.substring(0, m.content.length.clamp(0, 60));
           debugPrint('[CounselorChat]   [$i] ${m.senderRole} | ${m.createdAt} | "$preview"');
         }
-        
-        // Start auto-refresh timer
-        _startAutoRefresh();
         
         state = AsyncValue.data(CounselorChatState(
           conversation: conversation,
@@ -390,6 +368,35 @@ class CounselorChatController extends _$CounselorChatController {
 
   /// Gets the current conversation ID for use in call initiation.
   String? get conversationId => _conversationId;
+
+  /// Deletes a message optimistically from the UI, then calls the backend.
+  Future<void> deleteMessage(String messageId) async {
+    if (_conversationId == null) return;
+
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    // Optimistic remove
+    state = AsyncValue.data(currentState.copyWith(
+      messages: currentState.messages.where((m) => m.id != messageId).toList(),
+    ));
+
+    try {
+      final result = await ref.read(messagingServiceProvider).deleteMessage(
+            conversationId: _conversationId!,
+            messageId: messageId,
+          );
+
+      if (result.isFailure) {
+        // Revert on failure
+        debugPrint('[CounselorChat] ✗ Delete failed: ${result.failure.message}');
+        state = AsyncValue.data(currentState);
+      }
+    } catch (e, st) {
+      debugPrint('[CounselorChat] ✗ Delete exception: $e');
+      state = AsyncValue.data(currentState);
+    }
+  }
 }
 
 /// Simple provider for total unread message count

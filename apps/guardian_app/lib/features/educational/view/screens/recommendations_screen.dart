@@ -22,7 +22,7 @@ class GuardianRecommendationsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Picked for $adolescentName'),
+        title: Text(context.localizations.pickedForUser(adolescentName)),
         elevation: 0,
       ),
       body: recommendationsAsync.when(
@@ -33,9 +33,9 @@ class GuardianRecommendationsScreen extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: NeuroEmptyState(
-                  title: 'No picks yet',
+                  title: context.localizations.noPicksYet,
                   message:
-                      'Personalized recommendations will appear here as $adolescentName continues journaling and exploring.',
+                      context.localizations.noPicksYetDesc(adolescentName),
                   icon: Icons.auto_fix_high_rounded,
                   color: NeuroColors.guardianPrimary,
                 ),
@@ -55,7 +55,7 @@ class GuardianRecommendationsScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => NeuroErrorWidget(
-          message: 'Could not load recommendations.\n${err.toString().replaceAll('Exception: ', '').replaceAll('[GuardianRecommendations] ', '')}',
+          message: '${context.localizations.couldNotLoadRecs}\n${err.toString().replaceAll('Exception: ', '').replaceAll('[GuardianRecommendations] ', '')}',
           onRetry: () => ref.invalidate(
             guardianRecommendationsProvider(adolescentId),
           ),

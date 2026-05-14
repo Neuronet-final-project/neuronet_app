@@ -69,7 +69,7 @@
   "forYou": "For You",
   "journalToday": "Today",
   "journalYesterday": "Yesterday",
-  "daysAgo": "{count} days ago",
+  "daysAgo": "{count, plural, =1{1 day ago} other{{count} days ago}}",
   "@daysAgo": {
     "placeholders": {
       "count": {
@@ -144,7 +144,8 @@
   "discoverHeader": "DISCOVER",
   "searchMemoriesHint": "Search memories...",
   "filterWhen": "WHEN",
-  "filterMood": "MOOD",
+  "filterMood": "EMOTION",
+  "filterEmotion": "EMOTION",
   "filterResults": "RESULTS ({count})",
   "@filterResults": {
     "placeholders": {
@@ -290,6 +291,7 @@
   },
   "profileNotFoundUser": "No user profile found.",
   "accountActivatedLogin": "Account activated! Please login.",
+  "activateAccount": "Activate Account",
   "activateAccountTitle": "Activate Account",
   "setUpSecureAccount": "Set Up Your Secure Account",
   "activationCodeHint": "Use the activation code provided by your guardian to begin your journey.",
@@ -340,6 +342,12 @@
   "onboardingDesc3": "We're here to support you. Our AI is an informational assistant, not a doctor or therapist.",
   "onboardingTitle4": "Ready to Start?",
   "onboardingDesc4": "Use the activation code provided by your guardian to unlock your personal emotional journey.",
+  "guardianOnboardingTitle1": "Empower Growth",
+  "guardianOnboardingDesc1": "Help your child grow with confidence. NeuroNet provides a safe balance between support and independence.",
+  "guardianOnboardingTitle2": "Consent-Driven Oversight",
+  "guardianOnboardingDesc2": "You decide what information is shared with counselors. Your oversight is always based on the consents you manage.",
+  "guardianOnboardingTitle3": "Stay Informed, Respect Privacy",
+  "guardianOnboardingDesc3": "Receive AI-generated summaries and alerts about emotional trends, without ever exposing your child's private journal text.",
   "noCommentsYet": "No comments yet.",
   "discover": "Discover",
   "myInsights": "My Insights",
@@ -482,14 +490,6 @@
   "beginner": "Beginner",
   "intermediate": "Intermediate",
   "advanced": "Advanced",
-  "minRead": "{count} min read",
-  "@minRead": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "counselorDefaultName": "Counselor",
   "counselorCredentialsDefault": "Licensed Clinical Psychologist",
   "tagsLabel": "Tags",
@@ -511,14 +511,6 @@
     "placeholders": {
       "author": {
         "type": "String"
-      }
-    }
-  },
-  "daysAgo": "{count, plural, =1{1 day ago} other{{count} days ago}}",
-  "@daysAgo": {
-    "placeholders": {
-      "count": {
-        "type": "int"
       }
     }
   },
@@ -590,8 +582,6 @@
   "aiAnalysisDescription": "AI analyzes your patterns to provide helpful insights.",
   "activitySharingTitle": "Activity Sharing",
   "activitySharingDescription": "You can choose which activities to share with others.",
-  "filterWhen": "WHEN",
-  "filterMood": "MOOD",
   "filterResults": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
   "@filterResults": {
     "placeholders": {
@@ -600,9 +590,6 @@
       }
     }
   },
-  "filterAll": "All",
-  "filterToday": "Today",
-  "filterThisWeek": "This Week",
   "totalLabel": "Total",
   "followingLabel": "Following",
   "inThisTabLabel": "In this tab",
@@ -614,9 +601,6 @@
   "noPostsYet": "No posts yet.",
   "counselorUpdatesNote": "Counselors will post updates here.",
   "commentsCount": "{count, plural, =1{1 comment} other{{count} comments}}",
-  "privacyHubTitle": "Privacy Hub",
-  "coreTransparency": "Core Transparency",
-  "sharingVisibility": "Sharing & Visibility",
   "interactionControls": "Interaction Controls",
   "generalParticipation": "General Participation",
   "generalParticipationDesc": "This allows Neuronet AI to analyze your journal entries for emotional patterns. If disabled, entries are stored but not analyzed.",
@@ -630,8 +614,6 @@
   "directMessagingDesc": "Enable secure messaging between you, your guardian, and your counselor.",
   "couldNotLoadPrivacy": "Could not load privacy settings.",
   "participationPausedNote": "Paused: General Participation is off",
-  "guardianOversightNote": "Guardian Oversight",
-  "guardianOversightNoteDesc": "Your guardian can see your mood trends but not your private journals.",
   "understandingPrivacy": "Understanding Your Privacy",
   "privacyEducation1": "Your guardian manages these settings to ensure you have the right support.",
   "privacyEducation2": "If you have questions about these settings, we encourage you to discuss them with your guardian.",
@@ -642,9 +624,6 @@
   "revoked": "Revoked",
   "paused": "Paused",
   "composeEntry": "Compose Entry",
-  "analyzingJourney": "Analyzing your journey...",
-  "noAiPicks": "No AI picks yet",
-  "aiPicksDesc": "Check back later for personalized recommendations.",
   "intensityLevel": "Intensity: {level}",
   "@intensityLevel": {
     "placeholders": {
@@ -654,26 +633,6 @@
     }
   },
   "couldNotLoadAlerts": "Could not load alerts.",
-  "noCommentsYet": "No comments yet.",
-  "unableToStartChat": "Unable to start chat.",
-  "noMessagesYet": "No messages yet.",
-  "startConversationWithCounselor": "Start a conversation with your counselor.",
-  "loadingConsent": "Checking permissions...",
-  "newLabel": "NEW",
-  "viewDetails": "View Details",
-  "today": "Today",
-  "yesterday": "Yesterday",
-  "you": "You",
-  "friend": "friend",
-  "followerCountLabel": "{count, plural, =1{1 follower} other{{count} followers}}",
-  "@followerCountLabel": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "popular": "Popular",
   "refreshingDashboard": "Refreshing dashboard...",
   "skip": "Skip",
   "next": "Next",
@@ -740,7 +699,6 @@
   "approvedByGuardian": "Approved by guardian",
   "approvalRevoked": "Approval Revoked",
   "guardianRevokedApprovalDesc": "Your guardian has revoked approval for this counselor. You can request approval again to continue chatting.",
-  "requestDenied": "Request Denied",
   "guardianDeniedRequestDesc": "Your guardian has denied this request. You can submit a new request with more details.",
   "checking": "Checking...",
   "failedToLoadAlertDetails": "Failed to load alert details",
@@ -802,7 +760,6 @@
   "unknownCaller": "Unknown Caller",
   "calling": "Calling...",
   "endCall": "End Call",
-  "decline": "Decline",
   "accept": "Accept",
   "connected": "Connected",
   "connecting": "Connecting",
@@ -849,6 +806,379 @@
   "resourcesLabel": "Resources",
   "activeLabel": "Active",
   "postLabel": "Post",
-  "safeSpaceCounselor": "Safe space for counselor guidance and updates."
+  "safeSpaceCounselor": "Safe space for counselor guidance and updates.",
+  "guardianOverview": "Guardian Overview",
+  "linkedAdolescents": "Linked Adolescents",
+  "riskLevel": "Risk Level: {risk}",
+  "@riskLevel": {
+    "placeholders": {
+      "risk": {
+        "type": "String"
+      }
+    }
+  },
+  "lowRisk": "LOW",
+  "mediumRisk": "MEDIUM",
+  "highRisk": "HIGH",
+  "viewAlerts": "View Alerts",
+  "viewAlertsSubtitle": "Check active alerts for your adolescents",
+  "addAdolescent": "Add Adolescent",
+  "addAdolescentSubtitle": "Link a new account to your command center",
+  "pendingActivations": "Pending Activations",
+  "noAdolescentsAwaitingActivation": "No adolescents awaiting activation",
+  "adolescentsAwaitingActivation": "{count} adolescent(s) awaiting activation",
+  "@adolescentsAwaitingActivation": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "counselorApprovals": "Counselor Approvals",
+  "counselorApprovalsSubtitle": "Manage counselor communication requests",
+  "noDashboardData": "No dashboard data available.",
+  "dataUnavailable": "Data Unavailable",
+  "guardianDataUnavailableDesc": "Guardian activity data is temporarily unavailable. Quick Actions are active.",
+  "adolescentsLabel": "Adolescents",
+  "totalJournalsLabel": "Total Journals",
+  "emotionalTrends": "Emotional Trends",
+  "noTrendDataYet": "No Trend Data Yet",
+  "noTrendDataDesc": "Trend visualization will appear once mood entries are recorded by linked adolescents.",
+  "sevenDays": "7d",
+  "fourteenDays": "14d",
+  "thirtyDays": "30d",
+  "aggregatedInsights": "Aggregated Insights",
+  "averageMoodSentiment": "Average Mood Sentiment",
+  "allAdolescentsSubtitle": "Across all linked adolescents (last {period})",
+  "@allAdolescentsSubtitle": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "alertsSummary": "Alerts Summary",
+  "totalCount": "{count} total",
+  "@totalCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "alertsSeverityBreakdown": "Low: {low}, Medium: {med}, High: {high}",
+  "@alertsSeverityBreakdown": {
+    "placeholders": {
+      "low": {
+        "type": "int"
+      },
+      "med": {
+        "type": "int"
+      },
+      "high": {
+        "type": "int"
+      }
+    }
+  },
+  "activityStats": "Activity Stats",
+  "journalMoodStats": "{journalCount} journals, {moodCount} mood entries",
+  "@journalMoodStats": {
+    "placeholders": {
+      "journalCount": {
+        "type": "int"
+      },
+      "moodCount": {
+        "type": "int"
+      }
+    }
+  },
+  "adolescentsLinked": "{count} adolescent(s) linked",
+  "@adolescentsLinked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adolescentProfiles": "Adolescent Profiles",
+  "failedToLoadAdolescents": "Failed to load adolescents",
+  "registerAdolescentGetStarted": "Register an adolescent to get started.",
+  "interventionHub": "Intervention Hub",
+  "registrationDetails": "Registration Details",
+  "relationship": "Relationship",
+  "linkedSince": "Linked Since",
+  "activePermissions": "Active Permissions",
+  "noConsentsFound": "No Consents Found",
+  "noConsentsFoundDesc": "No consents record found for this account.",
+  "manageAllConsents": "Manage All Consents",
+  "unlinkAccount": "Unlink This Account",
+  "personalAccountTag": "PERSONAL ACCOUNT",
+  "aiGuide": "AI Guide",
+  "viewTips": "View tips",
+  "followsLabel": "Follows",
+  "educationalPagesSubtitle": "Educational pages",
+  "activeStatus": "ACTIVE",
+  "disabledStatus": "DISABLED",
+  "guardianPortal": "Guardian Portal 👋",
+  "secureAccessOversight": "Secure access for oversight",
+  "newGuardianPrompt": "New Guardian?",
+  "noAdolescentsLinked": "No Adolescents Linked",
+  "sendMessage": "Send message",
+  "alertsHistory": "Alerts History",
+  "filterBySeverity": "Filter by Severity",
+  "noAlertsFound": "No Alerts Found",
+  "noAlertsYet": "No alerts yet",
+  "noAlertsYetDesc": "We will notify you if any concerning patterns appear.",
+  "noAlertsFoundDescFiltered": "No alerts match the \"{severity}\" severity filter.",
+  "@noAlertsFoundDescFiltered": {
+    "placeholders": {
+      "severity": {
+        "type": "String"
+      }
+    }
+  },
+  "clearFilter": "Clear Filter",
+  "securityAlerts": "Security Alerts",
+  "adolescentProfile": "Adolescent Profile",
+  "registerNewAdolescent": "Register New Adolescent",
+  "approvalRequests": "Approval Requests",
+  "noApprovalRequests": "No Approval Requests",
+  "noApprovalRequestsDesc": "Approval requests from your adolescents will appear here",
+  "pending": "Pending",
+  "noPendingRequests": "No Pending Requests",
+  "noPendingRequestsDesc": "All approval requests have been reviewed",
+  "noHistory": "No History",
+  "noHistoryDesc": "Reviewed approval requests will appear here",
+  "revokeApproval": "Revoke Approval",
+  "revoke": "Revoke",
+  "approvalRevokedSuccess": "Approval revoked successfully",
+  "deny": "Deny",
+  "approve": "Approve",
+  "secureAccessWithCode": "Secure your access with your code",
+  "accountEmail": "Account Email",
+  "backToLogin": "Back to Login",
+  "createAccount": "Create Account",
+  "empowerParentingJourney": "Empower your parenting journey",
+  "alreadyGuardian": "Already a Guardian?",
+  "dataAndPrivacy": "Data & Privacy",
+  "manageDataProcessed": "Manage how data is processed",
+  "safetyMonitoring": "Safety Monitoring",
+  "proactiveAlertsSupport": "Proactive alerts and support",
+  "noLinkedAccounts": "No Linked Accounts",
+  "consentManagementAwaitsLink": "Consent management will appear once an adolescent account is linked.",
+  "pickedForUser": "Picked for {name}",
+  "@pickedForUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "empowerGrowth": "Empower Growth",
+  "consentDrivenOversight": "Consent-Driven Oversight",
+  "stayInformedRespectPrivacy": "Stay Informed, Respect Privacy",
+  "updateProfile": "Update Profile",
+  "completeRegistration": "Complete Registration",
+  "adolescentFullName": "Adolescent's Full Name",
+  "supportEmailRequired": "Support Email (Required)",
+  "returnToDashboard": "Return to Dashboard",
+  "activationCodeCopied": "Activation code copied",
+  "alertResolvedSuccess": "Alert resolved successfully",
+  "failedToResolveAlert": "Failed to resolve alert: {error}",
+  "@failedToResolveAlert": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "markAsResolved": "Mark as Resolved",
+  "errorLoadingAlerts": "Failed to load alerts.",
+  "alertNotFound": "Alert Not Found",
+  "alertNotFoundDesc": "This alert may have been resolved or deleted.",
+  "addedDateLabel": "Added {date}",
+  "@addedDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingForConnection": "Waiting for Connection",
+  "waitingForConnectionDesc": "Ensure your adolescent enters the activation code on their device to establish the encrypted emotional health monitoring link.",
+  "viewActivationInfo": "View Activation Info",
+  "accountDetails": "Account Details",
+  "alertAnalysis": "Alert Analysis",
+  "aiInsight": "AI Insight",
+  "detectedEmotions": "Detected Emotions",
+  "triggerDetails": "Trigger Details",
+  "resolutionNotes": "Resolution Notes",
+  "resolutionNotesHint": "Add any notes about how this alert was addressed...",
+  "generalBehavioralCheck": "General Behavioral Check",
+  "emotionalContext": "Emotional Context",
+  "triggerPattern": "Trigger Pattern",
+  "resolutionGuardrail": "Resolution & Guardrail",
+  "enterObservations": "Enter observations or actions taken...",
+  "history": "History",
+  "failedToLoadApprovals": "Failed to load approval requests",
+  "requestApproved": "Request approved",
+  "requestDenied": "Request denied",
+  "revokeApprovalDesc": "Are you sure you want to revoke this approval? The adolescent will no longer be able to communicate with this counselor, but can request approval again.",
+  "wantsToCommunicate": "wants to communicate with counselor",
+  "reasonLabel": "Reason",
+  "requestedDateLabel": "Requested {date}",
+  "@requestedDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "hoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesAgo": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "justNow": "Just now",
+  "activationSuccess": "Account activated! Please login.",
+  "invalidEmail": "Invalid email",
+  "enterActivationCode": "Enter activation code",
+  "min6Characters": "Min 6 characters",
+  "signUpSuccess": "Registration successful! Please login.",
+  "errorDuringSignUp": "An error occurred during signup",
+  "enterFullName": "Enter your full name",
+  "signUpNow": "Sign Up Now",
+  "guardianEmail": "Guardian Email",
+  "createPassword": "Create Password",
+  "privacyOversight": "Privacy & Oversight",
+  "refreshSettingsTooltip": "Refresh settings",
+  "failedToLoadSettings": "Failed to load settings",
+  "securityHub": "Security Hub",
+  "consentHeroDesc": "Configure how Neuronet supports your adolescent. Balance their journey toward independence with the oversight needed for a safe environment.",
+  "consentRevokedSuccess": "Consent revoked successfully",
+  "failedToRevokeConsent": "Failed to revoke consent: {error}",
+  "@failedToRevokeConsent": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "consentGrantedSuccess": "Consent granted successfully",
+  "failedToGrantConsent": "Failed to grant consent: {error}",
+  "@failedToGrantConsent": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsForAdolescent": "Settings for {email}",
+  "@settingsForAdolescent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "chattingAboutAdolescent": "Chatting about {name}",
+  "@chattingAboutAdolescent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noCounselorLinked": "No Counselor Linked",
+  "noCounselorLinkedDesc": "A counselor hasn't been assigned or linked to {name}'s account yet.",
+  "@noCounselorLinkedDesc": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notLinkedToCounselor": "{name} is not currently linked to a counselor.",
+  "@notLinkedToCounselor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "counselorAssistanceAwaits": "Communication and collaboration will appear here once a connection is established.",
+  "startCollaboration": "Start Collaboration",
+  "regardingAdolescent": "Regarding: {name}",
+  "@regardingAdolescent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatEnabledConsent": "Chat enabled - Adolescent consent on file",
+  "chatDisabledConsent": "Chat disabled - Adolescent consent required",
+  "noCounselorAssigned": "No Counselor Assigned",
+  "noCounselorAssignedDesc": "An assigned counselor is required to start a conversation. Please wait for the school administration to assign a professional to {name}.",
+  "@noCounselorAssignedDesc": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "startConversationWithCounselorSimple": "Start a conversation with the counselor",
+  "noFollowsFound": "No followed pages found",
+  "noFollowsFoundDesc": "{name} hasn't followed any educational pages yet.",
+  "@noFollowsFoundDesc": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noPicksYetDesc": "Personalized recommendations will appear here as {name} continues journaling and exploring.",
+  "@noPicksYetDesc": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotLoadRecs": "Could not load recommendations.",
+  "followedDateLabel": "Followed {date}",
+  "@followedDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "recently": "Recently",
+  "viewsCountLabel": "{count, plural, =1{1 view} other{{count} views}}",
+  "@viewsCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteMessageTitle": "Delete Message",
+  "deleteMessageConfirm": "Are you sure you want to delete this message? This action cannot be undone.",
+  "deleteLabel": "Delete",
+  "cancelLabel": "Cancel",
+  "you": "You",
+  "decline": "Decline",
+  "accept": "Accept"
 }
-

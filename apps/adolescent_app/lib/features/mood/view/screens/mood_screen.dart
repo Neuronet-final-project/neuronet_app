@@ -164,7 +164,13 @@ class MoodScreen extends ConsumerWidget {
           ),
           child: IconButton(
             icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF2C1C5F), size: 20),
-            onPressed: () => context.go(AdolescentRoutes.home),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go(AdolescentRoutes.home);
+              }
+            },
           ),
         ),
       ),
@@ -460,6 +466,35 @@ class MoodScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 48),
+          Container(
+            width: double.infinity,
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: NeuroGradients.adolescent,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: NeuroColors.adolescentPrimary.withValues(alpha: 0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () => context.go(AdolescentRoutes.home), // Keep go here as it is a final success state
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              ),
+              child: Text(
+                context.localizations.home.toUpperCase(),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.0),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           TextButton(
             onPressed: () {
               notifier.reset();

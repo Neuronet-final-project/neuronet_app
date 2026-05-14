@@ -131,7 +131,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                       messageContent: message.content,
                       timestamp: message.createdAt,
                       isUser: isMe,
-                      senderLabel: isMe ? 'You' : counselorName,
+                      senderLabel: isMe ? context.localizations.you : counselorName,
                       userColor: NeuroColors.guardianPrimary,
                       messageType: message.messageType,
                       attachmentUrl: message.attachmentUrl,
@@ -165,7 +165,10 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
     final chatAsync = ref.watch(counselorChatControllerProvider(widget.adolescentId));
     final callState = ref.watch(callControllerProvider);
     final counselorEmail = chatAsync.value?.counselorEmail;
-    final counselorName = counselorEmail != null ? _emailToDisplayName(counselorEmail) : 'Counselor';
+    final stateCounselorName = chatAsync.value?.counselorName;
+    
+    final counselorName = stateCounselorName ?? 
+        (counselorEmail != null ? _emailToDisplayName(counselorEmail) : 'Counselor');
 
     final showIncomingCall = callState.value?.status == CallStatus.ringing && callState.value?.currentCall != null;
     final showActiveCall = callState.value != null &&
@@ -228,7 +231,7 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                            overflow: TextOverflow.ellipsis,
                          ),
                          Text(
-                           'Regarding: ${widget.adolescentName}',
+                           context.localizations.regardingAdolescent(widget.adolescentName),
                            style: TextStyle(
                              fontSize: 10,
                              fontWeight: FontWeight.w600,
@@ -278,9 +281,9 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
                       Expanded(
                         child: Text(
                           isGranted
-                              ? 'Chat enabled - Adolescent consent on file'
-                              : 'Chat disabled - Adolescent consent required',
-                          style: TextStyle(
+                              ? context.localizations.chatEnabledConsent
+                              : context.localizations.chatDisabledConsent,
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: NeuroColors.onSurface,
@@ -341,10 +344,15 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
 
     debugPrint('[GuardianCounselorMsg] Starting voice call...');
 
+    final stateCounselorName = state?.counselorName;
+    final displayName = stateCounselorName ?? 
+        (counselorEmail != null ? _emailToDisplayName(counselorEmail) : 'Counselor');
+
     await ref.read(callControllerProvider.notifier).startCall(
           conversationId: conversationId,
           callType: CallType.voice,
           remotePeerEmail: counselorEmail,
+          remotePeerName: displayName,
         );
     // Active call screen renders inline via the call controller state.
   }
@@ -359,10 +367,15 @@ class _CounselorMsgScreenState extends ConsumerState<CounselorMsgScreen> {
 
     debugPrint('[GuardianCounselorMsg] Starting video call...');
 
+    final stateCounselorName = state?.counselorName;
+    final displayName = stateCounselorName ?? 
+        (counselorEmail != null ? _emailToDisplayName(counselorEmail) : 'Counselor');
+
     await ref.read(callControllerProvider.notifier).startCall(
           conversationId: conversationId,
           callType: CallType.video,
           remotePeerEmail: counselorEmail,
+          remotePeerName: displayName,
         );
     // Active call screen renders inline via the call controller state.
   }

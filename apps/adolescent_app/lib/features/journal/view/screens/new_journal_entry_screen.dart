@@ -37,6 +37,18 @@ class _NewJournalEntryScreenState extends ConsumerState<NewJournalEntryScreen> {
     final content = _contentController.text.trim();
     final title = _titleController.text.trim();
 
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please provide a title for your journal entry', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          backgroundColor: NeuroColors.adolescentPrimaryDark,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      return;
+    }
+
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -306,15 +306,15 @@ final adolescentRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AdolescentAlertsScreen(),
       ),
       GoRoute(
-        path: AdolescentRoutes.consentStatus,
-        builder: (context, state) => const ConsentStatusScreen(),
-      ),
-      GoRoute(
         path: '${AdolescentRoutes.alerts}/:id',
         builder: (context, state) {
           final alertId = state.pathParameters['id']!;
           return AdolescentAlertDetailScreen(alertId: alertId);
         },
+      ),
+      GoRoute(
+        path: AdolescentRoutes.consentStatus,
+        builder: (context, state) => const ConsentStatusScreen(),
       ),
       GoRoute(
         path: AdolescentRoutes.learn,
@@ -393,14 +393,15 @@ class _AdolescentShellState extends ConsumerState<AdolescentShell> {
     }
     widget.navigationShell.goBranch(index);
   }
-
   @override
   Widget build(BuildContext context) {
     final unreadCount = _getUnreadCount();
-    
+    final callState = ref.watch(callControllerProvider);
+    final isInCall = callState.value?.currentCall != null;
+
     return Scaffold(
       body: SafeArea(child: widget.navigationShell),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: isInCall ? null : NavigationBar(
         selectedIndex: widget.navigationShell.currentIndex,
         onDestinationSelected: _onDestinationSelected,
         destinations: [

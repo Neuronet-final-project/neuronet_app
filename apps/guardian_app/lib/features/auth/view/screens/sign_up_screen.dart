@@ -92,7 +92,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
-    final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
 
     if (!_isInitialized) {
@@ -109,15 +108,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
       if (next.status == AuthStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.errorMessage ?? 'An error occurred during signup'),
+            content: Text(next.errorMessage ?? context.localizations.errorDuringSignUp),
             backgroundColor: NeuroColors.error,
           ),
         );
       } else if (previous?.status == AuthStatus.loading && next.status == AuthStatus.unauthenticated) {
         // Success! Redirect to login
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful! Please login.'),
+          SnackBar(
+            content: Text(context.localizations.signUpSuccess),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
@@ -209,18 +208,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                const Text('Create Account',
+                                Text(context.localizations.createAccount,
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w900,
                                       color: Color(0xFF4A0E1C),
                                       letterSpacing: -0.5,
                                     )),
                                 const SizedBox(height: 8),
-                                const Text('Empower your parenting journey',
+                                Text(context.localizations.empowerParentingJourney,
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 13,
                                       color: Color(0xFF8A6E75),
                                     )),
@@ -230,10 +229,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 _GuardianTextField(
                                   controller: _fullNameController,
                                   focusNode: _fullNameFocus,
-                                  label: 'Full Name',
+                                  label: context.localizations.fullName,
                                   icon: Icons.person_outline_rounded,
                                   textInputAction: TextInputAction.next,
-                                  validator: (v) => (v == null || v.isEmpty) ? 'Enter your full name' : null,
+                                  validator: (v) => (v == null || v.isEmpty) ? context.localizations.enterFullName : null,
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
                                 ),
                                 const SizedBox(height: 12),
@@ -242,13 +241,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 _GuardianTextField(
                                   controller: _emailController,
                                   focusNode: _emailFocus,
-                                  label: 'Guardian Email',
+                                  label: context.localizations.guardianEmail,
                                   icon: Icons.alternate_email_rounded,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
                                   validator: (v) {
-                                    if (v == null || v.isEmpty) return 'Enter your email';
-                                    if (!v.contains('@')) return 'Invalid email';
+                                    if (v == null || v.isEmpty) return context.localizations.pleaseEnterEmail;
+                                    if (!v.contains('@')) return context.localizations.invalidEmail;
                                     return null;
                                   },
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
@@ -259,7 +258,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 _GuardianTextField(
                                   controller: _passwordController,
                                   focusNode: _passwordFocus,
-                                  label: 'Create Password',
+                                  label: context.localizations.createPassword,
                                   icon: Icons.lock_outline_rounded,
                                   obscureText: _obscurePassword,
                                   textInputAction: TextInputAction.next,
@@ -271,7 +270,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                     ),
                                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                   ),
-                                  validator: (v) => (v == null || v.length < 6) ? 'Min 6 characters' : null,
+                                  validator: (v) => (v == null || v.length < 6) ? context.localizations.min6Characters : null,
                                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_confirmPasswordFocus),
                                 ),
                                 const SizedBox(height: 12),
@@ -280,7 +279,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 _GuardianTextField(
                                   controller: _confirmPasswordController,
                                   focusNode: _confirmPasswordFocus,
-                                  label: 'Confirm Password',
+                                  label: context.localizations.confirmPassword,
                                   icon: Icons.lock_reset_rounded,
                                   obscureText: _obscureConfirmPassword,
                                   textInputAction: TextInputAction.done,
@@ -292,7 +291,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                     ),
                                     onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                                   ),
-                                  validator: (v) => (v != _passwordController.text) ? 'Passwords do not match' : null,
+                                  validator: (v) => (v != _passwordController.text) ? context.localizations.passwordsDoNotMatch : null,
                                   onFieldSubmitted: (_) => _handleSignUp(),
                                 ),
                                 const SizedBox(height: 24),
@@ -301,7 +300,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 _GradientButton(
                                   onPressed: authState.status == AuthStatus.loading ? null : _handleSignUp,
                                   isLoading: authState.status == AuthStatus.loading,
-                                  label: 'Sign Up Now',
+                                  label: context.localizations.signUpNow,
                                 ),
                                 const SizedBox(height: 24),
 
@@ -309,12 +308,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Text('Already a Guardian?',
-                                        style: TextStyle(fontSize: 13, color: Color(0xFF8A6E75))),
+                                    Text(context.localizations.alreadyGuardian,
+                                        style: const TextStyle(fontSize: 13, color: Color(0xFF8A6E75))),
                                     TextButton(
                                       onPressed: () => context.go(GuardianRoutes.login),
-                                      child: const Text('Login',
-                                          style: TextStyle(
+                                      child: Text(context.localizations.login,
+                                          style: const TextStyle(
                                             color: NeuroColors.guardianPrimary,
                                             fontWeight: FontWeight.w800,
                                             fontSize: 13,

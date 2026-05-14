@@ -60,6 +60,8 @@ class ApiEndpoints {
   static const String conversations = '/messaging/conversations';
   static String conversationMessages(String id) => '/messaging/conversations/$id/messages';
   static String sendConversationMessage(String id) => '/messaging/conversations/$id/messages'; // POST
+  static String deleteConversationMessage(String conversationId, String messageId) =>
+      '/messaging/conversations/$conversationId/messages/$messageId';
   static String markConversationAsRead(String id) => '/messaging/conversations/$id/mark-read'; // POST
   static String conversationUnreadCount(String id) => '/messaging/conversations/$id/unread-count';
   static const String totalUnreadCount = '/messaging/unread-count/total';
@@ -82,6 +84,7 @@ class ApiEndpoints {
   static const String myChannels = '/channels/me';
   static const String channels = '/channels';
   static String channelSubscribe(String id) => '/channels/$id/subscribe';
+  static String channelUnsubscribe(String id) => '/channels/$id/subscribe';
   // Channel Posts & Interactions
   static String channelPosts(String id) => '/channels/$id/posts';
   static String channelPost(String channelId, String postId) => '/channels/$channelId/posts/$postId';

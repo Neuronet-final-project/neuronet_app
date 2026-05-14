@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:neuronet_core/neuronet_core.dart';
+
+import '../../../../config/router/app_router.dart';
 
 /// Editorial-style search & filter screen for journal entries.
 
@@ -26,7 +29,7 @@ enum _DateFilter { all, today, thisWeek, specific }
 
 class _JournalSearchScreenState extends State<JournalSearchScreen> {
   final _searchController = TextEditingController();
-  final Set<MoodType> _selectedMoods = {};
+  final Set<String> _selectedEmotions = {};
   _DateFilter _dateFilter = _DateFilter.all;
   DateTime? _selectedSpecificDate;
 
@@ -52,12 +55,13 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
       final query = _searchController.text.toLowerCase();
       final matchesQuery = query.isEmpty ||
           (entry.title?.toLowerCase().contains(query) ?? false) ||
-          entry.content.toLowerCase().contains(query);
+          entry.content.toLowerCase().contains(query) ||
+          (entry.mood?.localizedLabel(context.localizations).toLowerCase().contains(query) ?? false);
 
       if (!matchesQuery) return false;
 
-      // 2. Mood filter
-      if (_selectedMoods.isNotEmpty && !_selectedMoods.contains(entry.mood)) {
+      // 2. Emotion filter
+      if (_selectedEmotions.isNotEmpty && !_selectedEmotions.contains(entry.emotion?.toLowerCase())) {
         return false;
       }
 
@@ -166,13 +170,13 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 children: [
-                  _filterHeader(context.localizations.filterWhen),
-                  const SizedBox(height: 12),
-                  _dateFilterStrip(),
-                  const SizedBox(height: 28),
-                  _filterHeader(context.localizations.filterMood),
-                  const SizedBox(height: 12),
-                  _moodFilterStrip(),
+_filterHeader(context.localizations.filterWhen),
+                   const SizedBox(height: 12),
+                   _dateFilterStrip(),
+                   const SizedBox(height: 28),
+                   _filterHeader(context.localizations.filterMood),
+                   const SizedBox(height: 12),
+                   _emotionFilterStrip(),
                   const SizedBox(height: 32),
                   _filterHeader(context.localizations.filterResults(results.length)),
                   const SizedBox(height: 12),
@@ -237,21 +241,29 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
     );
   }
 
-  Widget _moodFilterStrip() {
+  Widget _emotionFilterStrip() {
+    final entries = widget.entries ?? [];
+    final uniqueEmotions = entries
+        .where((e) => e.emotion != null)
+        .map((e) => e.emotion!.toLowerCase())
+        .toSet()
+        .toList()
+      ..sort();
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: MoodType.values.map((mood) {
-          final isSelected = _selectedMoods.contains(mood);
+        children: uniqueEmotions.map((emotion) {
+          final isSelected = _selectedEmotions.contains(emotion);
           return Padding(
             padding: const EdgeInsets.only(right: 12),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => setState(() {
                 if (isSelected) {
-                  _selectedMoods.remove(mood);
+                  _selectedEmotions.remove(emotion);
                 } else {
-                  _selectedMoods.add(mood);
+                  _selectedEmotions.add(emotion);
                 }
               }),
               child: AnimatedContainer(
@@ -262,7 +274,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                   shape: BoxShape.circle,
                   border: Border.all(color: isSelected ? NeuroColors.ink : NeuroColors.hairline, width: 1.5),
                 ),
-                child: Text(_getMoodEmoji(mood), style: const TextStyle(fontSize: 20)),
+                child: Text(_getEmotionEmoji(emotion), style: const TextStyle(fontSize: 20)),
               ),
             ),
           );
@@ -301,7 +313,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
   Widget _resultCard(JournalEntry entry) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.pop(context), // Normally would navigate to detail
+      onTap: () => context.push('${AdolescentRoutes.journal}/${entry.id}'),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(20),
@@ -383,18 +395,20 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
     return NeuroColors.adolescentPrimary;
   }
 
-  String _getMoodEmoji(MoodType mood) {
-    return switch (mood) {
-      MoodType.happy => '😊',
-      MoodType.calm => '🍃',
-      MoodType.hopeful => '🌈',
-      MoodType.excited => '✨',
-      MoodType.anxious => '😰',
-      MoodType.sad => '😢',
-      MoodType.stressed => '😫',
-      MoodType.angry => '😠',
-      MoodType.tired => '😴',
-      MoodType.neutral => '😐',
-    };
+  String _getEmotionEmoji(String emotion) {
+    final label = emotion.toLowerCase();
+    if (label.contains('happy') || label.contains('joy') || label.contains('positive')) return '😊';
+    if (label.contains('sad') || label.contains('grief') || label.contains('negative')) return '😢';
+    if (label.contains('anxious') || label.contains('anxiety') || label.contains('worry')) return '😰';
+    if (label.contains('calm') || label.contains('peace') || label.contains('relaxed')) return '🍃';
+    if (label.contains('stress') || label.contains('stressed')) return '😫';
+    if (label.contains('angry') || label.contains('anger') || label.contains('mad')) return '😠';
+    if (label.contains('excited') || label.contains('excitement')) return '✨';
+    if (label.contains('tired') || label.contains('fatigue') || label.contains('exhaust')) return '😴';
+    if (label.contains('hope') || label.contains('hopeful')) return '🌈';
+    if (label.contains('fear') || label.contains('afraid') || label.contains('scared')) return '😨';
+    if (label.contains('surprise') || label.contains('surprised')) return '😮';
+    if (label.contains('disgust') || label.contains('disgusted')) return '🤢';
+    return '😐';
   }
 }

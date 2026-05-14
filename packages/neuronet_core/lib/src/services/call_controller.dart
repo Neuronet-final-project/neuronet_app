@@ -45,6 +45,7 @@ class CallState {
     this.currentCall,
     this.status = CallStatus.initiated,
     this.remotePeerEmail,
+    this.remotePeerName,
     this.isMuted = false,
     this.isCameraOn = false,
     this.duration = Duration.zero,
@@ -57,6 +58,7 @@ class CallState {
   final Call? currentCall;
   final CallStatus status;
   final String? remotePeerEmail;
+  final String? remotePeerName;
   final bool isMuted;
   final bool isCameraOn;
   final Duration duration;
@@ -73,6 +75,7 @@ class CallState {
     Call? currentCall,
     CallStatus? status,
     String? remotePeerEmail,
+    String? remotePeerName,
     bool? isMuted,
     bool? isCameraOn,
     Duration? duration,
@@ -85,6 +88,7 @@ class CallState {
       currentCall: currentCall ?? this.currentCall,
       status: status ?? this.status,
       remotePeerEmail: remotePeerEmail ?? this.remotePeerEmail,
+      remotePeerName: remotePeerName ?? this.remotePeerName,
       isMuted: isMuted ?? this.isMuted,
       isCameraOn: isCameraOn ?? this.isCameraOn,
       duration: duration ?? this.duration,
@@ -245,6 +249,7 @@ class CallController extends _$CallController {
           currentCall: incomingCall,
           status: incomingCall.status,
           remotePeerEmail: incomingCall.callerEmail,
+          remotePeerName: incomingCall.callerName,
         ),
       );
     } else if (result.isSuccess && result.value.isEmpty) {
@@ -335,6 +340,7 @@ class CallController extends _$CallController {
     required String conversationId,
     CallType callType = CallType.voice,
     String? remotePeerEmail,
+    String? remotePeerName,
   }) async {
     debugPrint('[CallController] Starting ${callType.name} call...');
 
@@ -366,6 +372,7 @@ class CallController extends _$CallController {
         currentCall: call,
         status: CallStatus.initiated,
         remotePeerEmail: remotePeerEmail,
+        remotePeerName: remotePeerName,
       ),
     );
 

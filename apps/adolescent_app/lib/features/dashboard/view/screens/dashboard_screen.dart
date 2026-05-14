@@ -67,8 +67,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           builder: (context, ref, _) {
             final dashboardState = ref.watch(adolescentDashboardControllerProvider);
 
-            return dashboardState.when(
-              loading: () => CustomScrollView(
+            // Optimization: Only show skeletons if we have NO data. 
+            // If we have data but are refreshing, show the data view.
+            if (dashboardState.isLoading && !dashboardState.hasValue) {
+              return CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: const [
                   _HeroAppBarSkeleton(),
@@ -82,7 +84,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                   SliverToBoxAdapter(child: _LearningCardSkeleton()),
                   SliverToBoxAdapter(child: _PlayRelaxSectionSkeleton()),
                 ],
-              ),
+              );
+            }
+
+            return dashboardState.when(
+              loading: () => const SizedBox.shrink(), // Should be handled by logic above
               error: (err, stack) => CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
@@ -405,7 +411,7 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
               },
               onTapUp: (_) {
                 _controller.reverse();
-                context.go(AdolescentRoutes.mood);
+                context.push(AdolescentRoutes.mood);
               },
               onTapCancel: () {
                 _controller.reverse();
@@ -532,7 +538,7 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> with SingleTickerP
                             ],
                           ),
                           child: ElevatedButton(
-                            onPressed: () => context.go(AdolescentRoutes.mood),
+                            onPressed: () => context.push(AdolescentRoutes.mood),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
                               foregroundColor: const Color(0xFF5E35B1),
@@ -932,63 +938,117 @@ class _MoodDistributionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final total = distribution.values.fold(0, (a, b) => a + b);
+    // --- FIX: Normalize all keys to lowercase and merge duplicates ---
+    final normalized = <String, int>{};
+    for (final entry in distribution.entries) {
+      final key = entry.key.toLowerCase();
+      normalized[key] = (normalized[key] ?? 0) + entry.value;
+    }
+
+    final total = normalized.values.fold(0, (a, b) => a + b);
     if (total == 0) return const SizedBox.shrink();
 
     // Sort moods by frequency
-    final sortedMoods = distribution.entries.toList()
+    final sortedMoods = normalized.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: SizedBox(
-            height: 12,
-            child: Row(
-              children: [
-                for (int i = 0; i < sortedMoods.length; i++)
-                  Expanded(
-                    flex: sortedMoods[i].value,
-                    child: Container(
+        // Premium segmented bar
+        Container(
+          height: 16,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: NeuroColors.adolescentPrimary.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              for (int i = 0; i < sortedMoods.length; i++) ...[
+                if (i > 0) const SizedBox(width: 4),
+                Expanded(
+                  flex: sortedMoods[i].value,
+                  child: Container(
+                    decoration: BoxDecoration(
                       color: _getMoodColor(sortedMoods[i].key, i),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                ),
               ],
-            ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 16,
-          runSpacing: 8,
-          children: [
-            for (int i = 0; i < sortedMoods.take(4).length; i++)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _getMoodColor(sortedMoods[i].key, i),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    '${sortedMoods[i].key} (${sortedMoods[i].value})',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: _kBody.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
-              ),
-          ],
+        const SizedBox(height: 20),
+        // Modern Legend Chips
+        Container(
+          width: double.infinity,
+          alignment: Alignment.center,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: [
+              for (int i = 0; i < sortedMoods.length; i++)
+                _buildLegendChip(context, sortedMoods[i].key, sortedMoods[i].value, i),
+            ],
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLegendChip(BuildContext context, String moodStr, int count, int index) {
+    final m = MoodType.values.firstWhere(
+      (e) => e.name.toLowerCase() == moodStr.toLowerCase(),
+      orElse: () => MoodType.neutral,
+    );
+    final color = _getMoodColor(moodStr, index);
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(m.emoji, style: const TextStyle(fontSize: 14)),
+          const SizedBox(width: 6),
+          Text(
+            m.localizedLabel(context.localizations).toUpperCase(),
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+              color: _kBody,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '$count',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                color: _kBody,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1000,20 +1060,22 @@ class _MoodDistributionBar extends StatelessWidget {
     );
     
     switch (m) {
-      case MoodType.happy: return const Color(0xFFFFD54F);
-      case MoodType.calm: return const Color(0xFF81C784);
-      case MoodType.sad: return const Color(0xFF64B5F6);
-      case MoodType.anxious: return const Color(0xFFFF8A65);
-      case MoodType.excited: return const Color(0xFFF06292);
-      case MoodType.angry: return const Color(0xFFE57373);
-      case MoodType.neutral: return const Color(0xFFBDBDBD);
+      case MoodType.happy: return const Color(0xFFFFDF8D);
+      case MoodType.calm: return const Color(0xFFC7EBCB);
+      case MoodType.excited: return const Color(0xFFFFD1DF);
+      case MoodType.hopeful: return const Color(0xFFD5EDFC);
+      case MoodType.neutral: return const Color(0xFFD1D1CC);
+      case MoodType.tired: return const Color(0xFFD2D5E6);
+      case MoodType.anxious: return const Color(0xFFFFD4A9);
+      case MoodType.sad: return const Color(0xFFD5DAED);
+      case MoodType.angry: return const Color(0xFFFFB4B4);
       default:
         // Use a nice color palette for unknown moods based on index
         final colors = [
-          const Color(0xFF9575CD),
-          const Color(0xFF4FC3F7),
-          const Color(0xFF81C784),
-          const Color(0xFFFFD54F),
+          const Color(0xFFE1BEE7),
+          const Color(0xFFB2EBF2),
+          const Color(0xFFDCEDC8),
+          const Color(0xFFFFF9C4),
         ];
         return colors[index % colors.length];
     }
@@ -1099,7 +1161,7 @@ class _MoodCheckInRow extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               GestureDetector(
-                onTap: () => context.go(AdolescentRoutes.mood),
+                onTap: () => context.push(AdolescentRoutes.mood),
                 child: Text(l10n.allMoods,
                     style: const TextStyle(
                         fontSize: 12,
@@ -1120,7 +1182,7 @@ class _MoodCheckInRow extends ConsumerWidget {
               return GestureDetector(
                 onTap: () {
                   ref.read(moodControllerProvider.notifier).selectMood(mood);
-                  context.go(AdolescentRoutes.mood);
+                  context.push(AdolescentRoutes.mood);
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(right: 12),
@@ -1324,18 +1386,34 @@ class _QuickActionGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.localizations;
     final actions = [
-      _ActionData(l10n.writeJournal, l10n.expressYourself,
-          Icons.edit_note_rounded, _cardColors[0],
-          () => context.push(AdolescentRoutes.newJournal)),
-      _ActionData(l10n.aiCompanion, l10n.talkItOut,
-          Icons.smart_toy_rounded, _cardColors[1],
-          () => context.push(AdolescentRoutes.aiChat)),
-      _ActionData(l10n.checkYourMood, l10n.moodEmojiPrompt,
-          Icons.mood_rounded, _cardColors[2],
-          () => context.go(AdolescentRoutes.mood)),
-      _ActionData(l10n.learnAndGrow, l10n.exploreResources,
-          Icons.lightbulb_rounded, _cardColors[3],
-          () => context.push(AdolescentRoutes.learn)),
+      _ActionData(
+        l10n.writeJournal,
+        l10n.expressYourself,
+        Icons.edit_note_rounded,
+        _cardColors[0],
+        () => context.push(AdolescentRoutes.newJournal),
+      ),
+      _ActionData(
+        l10n.boxBreathingTitle,
+        l10n.take30Seconds,
+        Icons.air_rounded,
+        _cardColors[1],
+        () => context.push(AdolescentRoutes.breathingExercise),
+      ),
+      _ActionData(
+        l10n.searchMemoriesHint,
+        l10n.viewAll,
+        Icons.search_rounded,
+        _cardColors[2],
+        () => context.push(AdolescentRoutes.searchJournal),
+      ),
+      _ActionData(
+        l10n.myInsights,
+        l10n.viewDetails,
+        Icons.auto_awesome_rounded,
+        _cardColors[3],
+        () => context.push(AdolescentRoutes.alerts),
+      ),
     ];
 
     return Padding(

@@ -355,6 +355,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get filterMood => 'ESTADO DE ÁNIMO';
 
   @override
+  String get filterEmotion => 'EMOTION';
+
+  @override
   String filterResults(int count) {
     return 'RESULTADOS ($count)';
   }
@@ -615,16 +618,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get aiPrompt4 => '¿Cómo contacto a mi consejero?';
 
   @override
-  String get requestApproval => 'Request Approval';
+  String get requestApproval => 'Solicitar aprobación';
 
   @override
-  String get checkingApprovalStatus => 'Checking approval status...';
+  String get checkingApprovalStatus => 'Comprobando el estado de aprobación...';
 
   @override
   String get approvalRequest => 'Approval Request';
 
   @override
-  String get approvalPending => 'Approval Pending';
+  String get approvalPending => 'Aprobación pendiente';
 
   @override
   String approvalPendingMessage(String counselorName) {
@@ -633,7 +636,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guardianReviewingMessage =>
-      'Your guardian is reviewing your request. You\'ll be notified once they respond.';
+      'Tu tutor está revisando tu solicitud.';
 
   @override
   String get requestSent => 'Request Sent';
@@ -734,6 +737,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get accountActivatedLogin => 'Account activated! Please login.';
 
   @override
+  String get activateAccount => 'Activate Account';
+
+  @override
   String get activateAccountTitle => 'Activate Account';
 
   @override
@@ -814,10 +820,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get follow => 'Follow';
 
   @override
-  String get requestApprovalAgain => 'Request Approval Again';
+  String get requestApprovalAgain => 'Solicitar aprobación de nuevo';
 
   @override
-  String get requestAgain => 'Request Again';
+  String get requestAgain => 'Solicitar de nuevo';
 
   @override
   String get goToYourChannels => 'Go to Your Channels';
@@ -886,6 +892,27 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get onboardingDesc4 =>
       'Usa el código de activación proporcionado por tu tutor para desbloquear tu viaje emocional personal.';
+
+  @override
+  String get guardianOnboardingTitle1 => 'Empower Growth';
+
+  @override
+  String get guardianOnboardingDesc1 =>
+      'Help your child grow with confidence. NeuroNet provides a safe balance between support and independence.';
+
+  @override
+  String get guardianOnboardingTitle2 => 'Consent-Driven Oversight';
+
+  @override
+  String get guardianOnboardingDesc2 =>
+      'You decide what information is shared with counselors. Your oversight is always based on the consents you manage.';
+
+  @override
+  String get guardianOnboardingTitle3 => 'Stay Informed, Respect Privacy';
+
+  @override
+  String get guardianOnboardingDesc3 =>
+      'Receive AI-generated summaries and alerts about emotional trends, without ever exposing your child\'s private journal text.';
 
   @override
   String get noCommentsYet => 'No comments yet.';
@@ -966,17 +993,17 @@ class AppLocalizationsEs extends AppLocalizations {
       'Chat disabled - Counselor communication consent required';
 
   @override
-  String get loadingConsent => 'Checking permissions...';
+  String get loadingConsent => 'Loading consent status...';
 
   @override
-  String get unableToStartChat => 'Unable to start chat.';
+  String get unableToStartChat => 'Unable to Start Counselor Chat';
 
   @override
-  String get noMessagesYet => 'No messages yet.';
+  String get noMessagesYet => 'No Messages Yet';
 
   @override
   String get startConversationWithCounselor =>
-      'Start a conversation with your counselor.';
+      'Send a message to start a conversation\nwith your counselor.';
 
   @override
   String get counselorPrompt1 => 'I\'d like to talk about something';
@@ -1182,11 +1209,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get analyzingJourney => 'Analyzing your journey...';
 
   @override
-  String get noAiPicks => 'No AI picks yet';
+  String get noAiPicks => 'No AI picks yet!';
 
   @override
   String get aiPicksDesc =>
-      'Check back later for personalized recommendations.';
+      'Keep journaling and exploring! Our AI will analyze your journey and suggest personalized content.';
 
   @override
   String get couldNotLoadAiRecs => 'Could not load AI recommendations.';
@@ -1377,13 +1404,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get participationPausedNote => 'Paused: General Participation is off';
 
   @override
-  String get guardianOversightNote => 'Guardian Oversight';
-
-  @override
-  String get guardianOversightNoteDesc =>
-      'Your guardian can see your mood trends but not your private journals.';
-
-  @override
   String get understandingPrivacy => 'Understanding Your Privacy';
 
   @override
@@ -1424,12 +1444,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get couldNotLoadAlerts => 'Could not load alerts.';
-
-  @override
-  String get you => 'You';
-
-  @override
-  String get friend => 'friend';
 
   @override
   String get refreshingDashboard => 'Refreshing dashboard...';
@@ -1530,45 +1544,42 @@ class AppLocalizationsEs extends AppLocalizations {
   String get unfollowTooltip => 'Unfollow';
 
   @override
-  String get approvalRequired => 'Approval Required';
+  String get approvalRequired => 'Aprobación requerida';
 
   @override
   String get needGuardianApprovalDesc =>
-      'You need guardian approval to communicate with this counselor. Request approval to start chatting.';
+      'Necesitas la aprobación de tu tutor para chatear con este consejero.';
 
   @override
-  String get alertTriggeredRequest => 'Alert-triggered request';
+  String get alertTriggeredRequest => 'Solicitud activada por alerta';
 
   @override
-  String get aiAlertDetails => 'AI Alert Details';
+  String get aiAlertDetails => 'Detalles de la alerta de IA';
 
   @override
-  String get riskLevelLabel => 'Risk Level: ';
+  String get riskLevelLabel => 'Nivel de riesgo: ';
 
   @override
   String riskScoreLabel(double score) {
-    return 'Risk Score: $score%';
+    return 'Puntuación de riesgo: $score';
   }
 
   @override
-  String get approvedByGuardian => 'Approved by guardian';
+  String get approvedByGuardian => 'Aprobado por tu tutor';
 
   @override
-  String get approvalRevoked => 'Approval Revoked';
+  String get approvalRevoked => 'Aprobación revocada';
 
   @override
   String get guardianRevokedApprovalDesc =>
-      'Your guardian has revoked approval for this counselor. You can request approval again to continue chatting.';
-
-  @override
-  String get requestDenied => 'Request Denied';
+      'Tu tutor ha revocado la aprobación para este chat.';
 
   @override
   String get guardianDeniedRequestDesc =>
-      'Your guardian has denied this request. You can submit a new request with more details.';
+      'Tu tutor ha denegado tu solicitud de chat.';
 
   @override
-  String get checking => 'Checking...';
+  String get checking => 'Comprobando...';
 
   @override
   String get failedToLoadAlertDetails => 'Failed to load alert details';
@@ -1716,10 +1727,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get endCall => 'End Call';
 
   @override
-  String get decline => 'Decline';
-
-  @override
-  String get accept => 'Accept';
+  String get accept => 'Aceptar';
 
   @override
   String get connected => 'Connected';
@@ -1822,4 +1830,640 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get safeSpaceCounselor =>
       'Safe space for counselor guidance and updates.';
+
+  @override
+  String get guardianOverview => 'Guardian Overview';
+
+  @override
+  String get linkedAdolescents => 'Linked Adolescents';
+
+  @override
+  String riskLevel(String risk) {
+    return 'Risk Level: $risk';
+  }
+
+  @override
+  String get lowRisk => 'LOW';
+
+  @override
+  String get mediumRisk => 'MEDIUM';
+
+  @override
+  String get highRisk => 'HIGH';
+
+  @override
+  String get viewAlerts => 'View Alerts';
+
+  @override
+  String get viewAlertsSubtitle => 'Check active alerts for your adolescents';
+
+  @override
+  String get addAdolescent => 'Add Adolescent';
+
+  @override
+  String get addAdolescentSubtitle =>
+      'Link a new account to your command center';
+
+  @override
+  String get pendingActivations => 'Pending Activations';
+
+  @override
+  String get noAdolescentsAwaitingActivation =>
+      'No adolescents awaiting activation';
+
+  @override
+  String adolescentsAwaitingActivation(int count) {
+    return '$count adolescent(s) awaiting activation';
+  }
+
+  @override
+  String get counselorApprovals => 'Counselor Approvals';
+
+  @override
+  String get counselorApprovalsSubtitle =>
+      'Manage counselor communication requests';
+
+  @override
+  String get noDashboardData => 'No dashboard data available.';
+
+  @override
+  String get dataUnavailable => 'Data Unavailable';
+
+  @override
+  String get guardianDataUnavailableDesc =>
+      'Guardian activity data is temporarily unavailable. Quick Actions are active.';
+
+  @override
+  String get adolescentsLabel => 'Adolescents';
+
+  @override
+  String get totalJournalsLabel => 'Total Journals';
+
+  @override
+  String get emotionalTrends => 'Emotional Trends';
+
+  @override
+  String get noTrendDataYet => 'No Trend Data Yet';
+
+  @override
+  String get noTrendDataDesc =>
+      'Trend visualization will appear once mood entries are recorded by linked adolescents.';
+
+  @override
+  String get sevenDays => '7d';
+
+  @override
+  String get fourteenDays => '14d';
+
+  @override
+  String get thirtyDays => '30d';
+
+  @override
+  String get aggregatedInsights => 'Aggregated Insights';
+
+  @override
+  String get averageMoodSentiment => 'Average Mood Sentiment';
+
+  @override
+  String allAdolescentsSubtitle(String period) {
+    return 'Across all linked adolescents (last $period)';
+  }
+
+  @override
+  String get alertsSummary => 'Alerts Summary';
+
+  @override
+  String totalCount(int count) {
+    return '$count total';
+  }
+
+  @override
+  String alertsSeverityBreakdown(int low, int med, int high) {
+    return 'Low: $low, Medium: $med, High: $high';
+  }
+
+  @override
+  String get activityStats => 'Activity Stats';
+
+  @override
+  String journalMoodStats(int journalCount, int moodCount) {
+    return '$journalCount journals, $moodCount mood entries';
+  }
+
+  @override
+  String adolescentsLinked(int count) {
+    return '$count adolescent(s) linked';
+  }
+
+  @override
+  String get adolescentProfiles => 'Adolescent Profiles';
+
+  @override
+  String get failedToLoadAdolescents => 'Failed to load adolescents';
+
+  @override
+  String get registerAdolescentGetStarted =>
+      'Register an adolescent to get started.';
+
+  @override
+  String get interventionHub => 'Intervention Hub';
+
+  @override
+  String get registrationDetails => 'Registration Details';
+
+  @override
+  String get relationship => 'Relationship';
+
+  @override
+  String get linkedSince => 'Linked Since';
+
+  @override
+  String get activePermissions => 'Active Permissions';
+
+  @override
+  String get noConsentsFound => 'No Consents Found';
+
+  @override
+  String get noConsentsFoundDesc =>
+      'No consents record found for this account.';
+
+  @override
+  String get manageAllConsents => 'Manage All Consents';
+
+  @override
+  String get unlinkAccount => 'Unlink This Account';
+
+  @override
+  String get personalAccountTag => 'PERSONAL ACCOUNT';
+
+  @override
+  String get aiGuide => 'AI Guide';
+
+  @override
+  String get viewTips => 'View tips';
+
+  @override
+  String get followsLabel => 'Follows';
+
+  @override
+  String get educationalPagesSubtitle => 'Educational pages';
+
+  @override
+  String get activeStatus => 'ACTIVE';
+
+  @override
+  String get disabledStatus => 'DISABLED';
+
+  @override
+  String get guardianPortal => 'Guardian Portal 👋';
+
+  @override
+  String get secureAccessOversight => 'Secure access for oversight';
+
+  @override
+  String get newGuardianPrompt => 'New Guardian?';
+
+  @override
+  String get noAdolescentsLinked => 'No Adolescents Linked';
+
+  @override
+  String get sendMessage => 'Send message';
+
+  @override
+  String get alertsHistory => 'Alerts History';
+
+  @override
+  String get filterBySeverity => 'Filter by Severity';
+
+  @override
+  String get noAlertsFound => 'No Alerts Found';
+
+  @override
+  String get noAlertsYet => 'No alerts yet';
+
+  @override
+  String get noAlertsYetDesc =>
+      'We will notify you if any concerning patterns appear.';
+
+  @override
+  String noAlertsFoundDescFiltered(String severity) {
+    return 'No alerts match the \"$severity\" severity filter.';
+  }
+
+  @override
+  String get clearFilter => 'Clear Filter';
+
+  @override
+  String get securityAlerts => 'Security Alerts';
+
+  @override
+  String get adolescentProfile => 'Adolescent Profile';
+
+  @override
+  String get registerNewAdolescent => 'Register New Adolescent';
+
+  @override
+  String get approvalRequests => 'Approval Requests';
+
+  @override
+  String get noApprovalRequests => 'No Approval Requests';
+
+  @override
+  String get noApprovalRequestsDesc =>
+      'Approval requests from your adolescents will appear here';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get noPendingRequests => 'No Pending Requests';
+
+  @override
+  String get noPendingRequestsDesc =>
+      'All approval requests have been reviewed';
+
+  @override
+  String get noHistory => 'No History';
+
+  @override
+  String get noHistoryDesc => 'Reviewed approval requests will appear here';
+
+  @override
+  String get revokeApproval => 'Revoke Approval';
+
+  @override
+  String get revoke => 'Revoke';
+
+  @override
+  String get approvalRevokedSuccess => 'Approval revoked successfully';
+
+  @override
+  String get deny => 'Deny';
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String get secureAccessWithCode => 'Secure your access with your code';
+
+  @override
+  String get accountEmail => 'Account Email';
+
+  @override
+  String get backToLogin => 'Back to Login';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get empowerParentingJourney => 'Empower your parenting journey';
+
+  @override
+  String get alreadyGuardian => 'Already a Guardian?';
+
+  @override
+  String get dataAndPrivacy => 'Data & Privacy';
+
+  @override
+  String get manageDataProcessed => 'Manage how data is processed';
+
+  @override
+  String get safetyMonitoring => 'Safety Monitoring';
+
+  @override
+  String get proactiveAlertsSupport => 'Proactive alerts and support';
+
+  @override
+  String get noLinkedAccounts => 'No Linked Accounts';
+
+  @override
+  String get consentManagementAwaitsLink =>
+      'Consent management will appear once an adolescent account is linked.';
+
+  @override
+  String pickedForUser(String name) {
+    return 'Picked for $name';
+  }
+
+  @override
+  String get empowerGrowth => 'Empower Growth';
+
+  @override
+  String get consentDrivenOversight => 'Consent-Driven Oversight';
+
+  @override
+  String get stayInformedRespectPrivacy => 'Stay Informed, Respect Privacy';
+
+  @override
+  String get updateProfile => 'Update Profile';
+
+  @override
+  String get completeRegistration => 'Complete Registration';
+
+  @override
+  String get adolescentFullName => 'Adolescent\'s Full Name';
+
+  @override
+  String get supportEmailRequired => 'Support Email (Required)';
+
+  @override
+  String get returnToDashboard => 'Return to Dashboard';
+
+  @override
+  String get activationCodeCopied => 'Activation code copied';
+
+  @override
+  String get alertResolvedSuccess => 'Alert resolved successfully';
+
+  @override
+  String failedToResolveAlert(String error) {
+    return 'Failed to resolve alert: $error';
+  }
+
+  @override
+  String get markAsResolved => 'Mark as Resolved';
+
+  @override
+  String get errorLoadingAlerts => 'Failed to load alerts.';
+
+  @override
+  String get alertNotFound => 'Alert Not Found';
+
+  @override
+  String get alertNotFoundDesc =>
+      'This alert may have been resolved or deleted.';
+
+  @override
+  String addedDateLabel(String date) {
+    return 'Added $date';
+  }
+
+  @override
+  String get waitingForConnection => 'Waiting for Connection';
+
+  @override
+  String get waitingForConnectionDesc =>
+      'Ensure your adolescent enters the activation code on their device to establish the encrypted emotional health monitoring link.';
+
+  @override
+  String get viewActivationInfo => 'View Activation Info';
+
+  @override
+  String get accountDetails => 'Account Details';
+
+  @override
+  String get alertAnalysis => 'Alert Analysis';
+
+  @override
+  String get aiInsight => 'AI Insight';
+
+  @override
+  String get detectedEmotions => 'Detected Emotions';
+
+  @override
+  String get triggerDetails => 'Trigger Details';
+
+  @override
+  String get resolutionNotes => 'Resolution Notes';
+
+  @override
+  String get resolutionNotesHint =>
+      'Add any notes about how this alert was addressed...';
+
+  @override
+  String get generalBehavioralCheck => 'General Behavioral Check';
+
+  @override
+  String get emotionalContext => 'Emotional Context';
+
+  @override
+  String get triggerPattern => 'Trigger Pattern';
+
+  @override
+  String get resolutionGuardrail => 'Resolution & Guardrail';
+
+  @override
+  String get enterObservations => 'Enter observations or actions taken...';
+
+  @override
+  String get history => 'History';
+
+  @override
+  String get failedToLoadApprovals => 'Failed to load approval requests';
+
+  @override
+  String get requestApproved => 'Request approved';
+
+  @override
+  String get requestDenied => 'Solicitud denegada';
+
+  @override
+  String get revokeApprovalDesc =>
+      'Are you sure you want to revoke this approval? The adolescent will no longer be able to communicate with this counselor, but can request approval again.';
+
+  @override
+  String get wantsToCommunicate => 'wants to communicate with counselor';
+
+  @override
+  String get reasonLabel => 'Reason';
+
+  @override
+  String requestedDateLabel(String date) {
+    return 'Requested $date';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours ago',
+      one: '1 hour ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes ago',
+      one: '1 minute ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String get activationSuccess => 'Account activated! Please login.';
+
+  @override
+  String get invalidEmail => 'Invalid email';
+
+  @override
+  String get enterActivationCode => 'Enter activation code';
+
+  @override
+  String get min6Characters => 'Min 6 characters';
+
+  @override
+  String get signUpSuccess => 'Registration successful! Please login.';
+
+  @override
+  String get errorDuringSignUp => 'An error occurred during signup';
+
+  @override
+  String get enterFullName => 'Enter your full name';
+
+  @override
+  String get signUpNow => 'Sign Up Now';
+
+  @override
+  String get guardianEmail => 'Guardian Email';
+
+  @override
+  String get createPassword => 'Create Password';
+
+  @override
+  String get privacyOversight => 'Privacy & Oversight';
+
+  @override
+  String get refreshSettingsTooltip => 'Refresh settings';
+
+  @override
+  String get failedToLoadSettings => 'Failed to load settings';
+
+  @override
+  String get securityHub => 'Security Hub';
+
+  @override
+  String get consentHeroDesc =>
+      'Configure how Neuronet supports your adolescent. Balance their journey toward independence with the oversight needed for a safe environment.';
+
+  @override
+  String get consentRevokedSuccess => 'Consent revoked successfully';
+
+  @override
+  String failedToRevokeConsent(String error) {
+    return 'Failed to revoke consent: $error';
+  }
+
+  @override
+  String get consentGrantedSuccess => 'Consent granted successfully';
+
+  @override
+  String failedToGrantConsent(String error) {
+    return 'Failed to grant consent: $error';
+  }
+
+  @override
+  String settingsForAdolescent(String email) {
+    return 'Settings for $email';
+  }
+
+  @override
+  String chattingAboutAdolescent(String name) {
+    return 'Chatting about $name';
+  }
+
+  @override
+  String get noCounselorLinked => 'No Counselor Linked';
+
+  @override
+  String noCounselorLinkedDesc(String name) {
+    return 'A counselor hasn\'t been assigned or linked to $name\'s account yet.';
+  }
+
+  @override
+  String notLinkedToCounselor(String name) {
+    return '$name is not currently linked to a counselor.';
+  }
+
+  @override
+  String get counselorAssistanceAwaits =>
+      'Communication and collaboration will appear here once a connection is established.';
+
+  @override
+  String get startCollaboration => 'Start Collaboration';
+
+  @override
+  String regardingAdolescent(String name) {
+    return 'Regarding: $name';
+  }
+
+  @override
+  String get chatEnabledConsent => 'Chat enabled - Adolescent consent on file';
+
+  @override
+  String get chatDisabledConsent =>
+      'Chat disabled - Adolescent consent required';
+
+  @override
+  String get noCounselorAssigned => 'No Counselor Assigned';
+
+  @override
+  String noCounselorAssignedDesc(String name) {
+    return 'An assigned counselor is required to start a conversation. Please wait for the school administration to assign a professional to $name.';
+  }
+
+  @override
+  String get startConversationWithCounselorSimple =>
+      'Start a conversation with the counselor';
+
+  @override
+  String get noFollowsFound => 'No followed pages found';
+
+  @override
+  String noFollowsFoundDesc(String name) {
+    return '$name hasn\'t followed any educational pages yet.';
+  }
+
+  @override
+  String noPicksYetDesc(String name) {
+    return 'Personalized recommendations will appear here as $name continues journaling and exploring.';
+  }
+
+  @override
+  String get couldNotLoadRecs => 'Could not load recommendations.';
+
+  @override
+  String followedDateLabel(String date) {
+    return 'Followed $date';
+  }
+
+  @override
+  String get recently => 'Recently';
+
+  @override
+  String viewsCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count views',
+      one: '1 view',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteMessageTitle => 'Eliminar mensaje';
+
+  @override
+  String get deleteMessageConfirm =>
+      '¿Estás seguro de que quieres eliminar este mensaje? Esta acción no se puede deshacer.';
+
+  @override
+  String get deleteLabel => 'Eliminar';
+
+  @override
+  String get cancelLabel => 'Cancelar';
+
+  @override
+  String get you => 'Tú';
+
+  @override
+  String get decline => 'Rechazar';
 }
