@@ -990,16 +990,17 @@ class _MoodDistributionBar extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         // Modern Legend Chips
-        Container(
-          width: double.infinity,
-          alignment: Alignment.center,
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            alignment: WrapAlignment.center,
+        // Premium Horizontal Scrollable Legend
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          child: Row(
             children: [
-              for (int i = 0; i < sortedMoods.length; i++)
+              for (int i = 0; i < sortedMoods.length; i++) ...[
                 _buildLegendChip(context, sortedMoods[i].key, sortedMoods[i].value, i),
+                if (i < sortedMoods.length - 1) const SizedBox(width: 12),
+              ],
             ],
           ),
         ),
@@ -1019,6 +1020,13 @@ class _MoodDistributionBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.4),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
